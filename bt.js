@@ -33,7 +33,7 @@ function loadFileEntry(file) {
 
 // Client ID and API key from the Developer Console
 var CLIENT_ID = config.CLIENT_ID;
-var API_KEY config.API_KEY;
+var API_KEY = config.API_KEY;
 
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];

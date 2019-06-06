@@ -12,7 +12,7 @@ chrome.browserAction.onClicked.addListener(function () {
         'url' : "http://localhost:8000"
     }
     console.log("opening window");
-    listTabs(function (){chrome.windows.create(wargs, windowOpen);});
+    listTabs(function (){chrome.windows.create(wargs, windowOpen);}); // get tabs and then open bt window
 });
 
 var btwindow;
