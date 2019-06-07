@@ -76,7 +76,7 @@ function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
-        listFiles();
+        FindOrCreateBTFile();
     } else {
         authorizeButton.style.display = 'block';
         signoutButton.style.display = 'none';
@@ -110,87 +110,78 @@ function appendPre(message) {
 }
 
 /**
- * Print files.
+ * Find or initialize BT file
  */
 var fileid;
-function listFiles() {
+function FindOrCreateBTFile() {
     gapi.client.drive.files.list({
-        'pageSize': 10,
-        'fields': "nextPageToken, files(id, name)",
+        'pageSize': 1,
+        'fields': "files(id, name)",
         'q': "name='BrainTool.org'"
     }).then(function(response) {
-        appendPre('Files:');
         var files = response.result.files;
         if (files && files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                appendPre(file.name + ' (' + file.id + ')');
-                fileid = file.id;
-                getFile();
-            }
+            appendPre('File:');
+            var file = files[0];
+            appendPre(file.name + ' (' + file.id + ')');
+            fileid = file.id;
+            getBTFile();
         } else {
             appendPre('BrainTool.org file not found.');
-            fileid = 0;
-            getFile();
+            createStartingBT();
         }
     });
 }
 
-function getFile() {
+function getBTFile() {
     gapi.client.drive.files.get({
         fileId: fileid,
         alt: 'media'
     }).then(
-        function(response) {appendPre(response.body);},
+        function(response) {
+            appendPre(response.body);
+        },
         function(error) {
-            console.log("error, need to create file");
-            
-            var fileMetadata = {
-                'name': 'BrainTool.org',
-                'mimeType': 'text/plain'
-            };
-            
-            var media = {
-                mimeType: 'text/plain',
-                body: "Test Body"
-            };
-
-            gapi.client.drive.files.create({
-                resource: fileMetadata,
-                media: media,
-                fields: 'id'
-            }).then(
-                function(response) {
-                    console.log('File Id: ', response.result.id);
-                    fileid = response.result.id;
-                },
-                function(error) {
-                    console.error(error);
-                });
+            console.log("Error - Could not read BT file");
         });
 }
 
-function createFile() {
-    var fileContent = 'sample text'; // As a sample, upload a text file.
-    var file = new Blob([fileContent], {type: 'text/plain'});
+
+function createStartingBT () {
+    // Read the template bt file from the server and upload to gdrive
+
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
-        'mimeType': 'text/plain' /*, // mimeType at Google Drive
-        'parents': ['### folder ID ###'], // Folder ID at Google Drive */
+        'mimeType': 'text/plain' // mimeType at Google Drive
+/*      'parents': ['### folder ID ###'], // Folder ID at Google Drive */
     };
-
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', file);
+    
+    fetch('/BrainTool.org')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', blob);
 
-    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
-        method: 'POST',
-        headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-        body: form,
-    }).then((res) => {
-        return res.json();
-    }).then(function(val) {
-        console.log(val);
-    });
+            fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+                method: 'POST',
+                headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                body: form,
+            }).then((res) => {
+                return res.json();
+            }).then(function(val) {
+                console.log("Created ", val);
+                fileid = val.id;
+                getBTFile();
+            });
+        })
+        .catch(function () {
+            this.dataError = true;
+        })
 }
