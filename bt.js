@@ -117,7 +117,7 @@ function listFiles() {
     gapi.client.drive.files.list({
         'pageSize': 10,
         'fields': "nextPageToken, files(id, name)",
-        'q': "name='bio.txt'"
+        'q': "name='BrainTool.org'"
     }).then(function(response) {
         appendPre('Files:');
         var files = response.result.files;
@@ -129,7 +129,9 @@ function listFiles() {
                 getFile();
             }
         } else {
-            appendPre('No files found.');
+            appendPre('BrainTool.org file not found.');
+            fileid = 0;
+            getFile();
         }
     });
 }
@@ -144,9 +146,10 @@ function getFile() {
             console.log("error, need to create file");
             
             var fileMetadata = {
-                'name': 'BrainTool.org'
+                'name': 'BrainTool.org',
+                'mimeType': 'text/plain'
             };
-
+            
             var media = {
                 mimeType: 'text/plain',
                 body: "Test Body"
@@ -159,6 +162,7 @@ function getFile() {
             }).then(
                 function(response) {
                     console.log('File Id: ', response.result.id);
+                    fileid = response.result.id;
                 },
                 function(error) {
                     console.error(error);
@@ -166,3 +170,27 @@ function getFile() {
         });
 }
 
+function createFile() {
+    var fileContent = 'sample text'; // As a sample, upload a text file.
+    var file = new Blob([fileContent], {type: 'text/plain'});
+    var metadata = {
+        'name': 'BrainTool.org', // Filename at Google Drive
+        'mimeType': 'text/plain' /*, // mimeType at Google Drive
+        'parents': ['### folder ID ###'], // Folder ID at Google Drive */
+    };
+
+    var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
+    var form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', file);
+
+    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+        method: 'POST',
+        headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+        body: form,
+    }).then((res) => {
+        return res.json();
+    }).then(function(val) {
+        console.log(val);
+    });
+}
