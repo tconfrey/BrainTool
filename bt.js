@@ -117,7 +117,7 @@ function FindOrCreateBTFile() {
     gapi.client.drive.files.list({
         'pageSize': 1,
         'fields': "files(id, name)",
-        'q': "name='BrainTool.org'"
+        'q': "name='BrainTool.org and not trashed'"
     }).then(function(response) {
         var files = response.result.files;
         if (files && files.length > 0) {
