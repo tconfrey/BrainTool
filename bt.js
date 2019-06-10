@@ -1,37 +1,7 @@
 
-window.addEventListener("load", function() {
-    // ideally would load file here
-    var sel = document.getElementById('fileSelector');
-    sel.onchange= function() {
-        console.log(this.files);
-        // grab the first item in the FileList object and pass it to the function
-        loadFileEntry(this.files[0]);
-    }
+//NB Runs in context of BT window, not the background BT extension or the helper btContent scripts
 
-    // populate tabs list
-//    listTabs();
-});
-
-// for files, read the text content into the textarea
-function loadFileEntry(file) {
-    // generate a new FileReader object
-    var reader = new FileReader();
-    var contents = document.getElementById('contents');
-
-    // inject an image with the src url
-    reader.onload = function(event) {
-        console.log(reader.result);
-        contents.innerHTML = reader.result;
-    }
-
-    // when the file is read it triggers the onload event above.
-    reader.readAsText(file);
-}
-
-
-//-------------------------------  Copied from Sample code -------------------------------
-
-// Client ID and API key from the Developer Console
+// Client ID and API key from the Developer Console, values storted offline in config.js
 var CLIENT_ID = config.CLIENT_ID;
 var API_KEY = config.API_KEY;
 
@@ -75,7 +45,7 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
-        signoutButton.style.display = 'block';
+      //  signoutButton.style.display = 'block';
         FindOrCreateBTFile();
     } else {
         authorizeButton.style.display = 'block';
@@ -127,7 +97,7 @@ function FindOrCreateBTFile() {
             fileid = file.id;
             getBTFile();
         } else {
-            appendPre('BrainTool.org file not found.');
+            console.log('BrainTool.org file not found.');
             createStartingBT();
         }
     });
@@ -158,7 +128,7 @@ function createStartingBT () {
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
     
-    fetch('/BrainTool.org')
+    fetch('/BrainTool.org')     // fetch template file from bt server
         .then(response => {
             if (!response.ok) {
                 throw new Error("HTTP error " + response.status);

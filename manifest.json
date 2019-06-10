@@ -1,7 +1,7 @@
 {
-    "name": "Getting Started Example",
+    "name": " BrainTool",
     "version": "1.0",
-    "description": "Build an Extension!",
+    "description": "Sync tabs and notes to a emacs .org format backling store.",
     "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "webNavigation"],
     "background": {
         "scripts": ["background.js"],
@@ -20,7 +20,8 @@
             "32": "images/get_started32.png",
             "48": "images/get_started48.png",
             "128": "images/get_started128.png"
-        }
+        },
+        "default_title" : "BrainTool!"
     },
     "icons": {
       "16": "images/get_started16.png",

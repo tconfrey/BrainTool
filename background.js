@@ -12,7 +12,11 @@ chrome.browserAction.onClicked.addListener(function () {
         'url' : "http://localhost:8000"
     }
     console.log("opening window");
-    listTabs(function (){chrome.windows.create(wargs, windowOpen);}); // get tabs and then open bt window
+    listTabs(function ()
+             {
+                 if (!btwindow)
+                     chrome.windows.create(wargs, windowOpen);
+             }); // get tabs and then open bt window if not open
 });
 
 var btwindow;
@@ -36,14 +40,18 @@ chrome.webNavigation.onCompleted.addListener(
 var tabsData;
 function listTabs (callback) {
     // fill a storage variable w the tab set
-    chrome.windows.getAll({populate : true, windowTypes : ['normal']},
-                          function (window_list) {
-                              var list = [];
+    chrome.windows.getCurrent({populate : true, windowTypes : ['normal']},
+                          function (window) {
+                              var list = window.tabs;
+                              /*
                               for(var i=0;i<window_list.length;i++) {
+                                  list = list.concat(window_list[i]);
                                   list = list.concat(window_list[i].tabs);
                               }
+                              */
                               console.log(list);
                               tabsData = list;
+                              
                               chrome.storage.local.set({tabsList: list}, function() {
                                   console.log("tabsList is set");                              
                                   if(callback) {
