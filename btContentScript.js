@@ -1,5 +1,6 @@
 
 var tabsData;
+
 function populateTabsList() {
 
     var tabsElement = document.getElementById('tabs');
@@ -15,3 +16,16 @@ function populateTabsList() {
 }
 
 populateTabsList();
+
+window.addEventListener('message', function(event) {
+    if (event.source != window)
+        return;
+    console.log('content_script.js got message:', event);
+    switch (event.data.type) {
+    case 'tags_updated':        // pull tags info from message and post to local storage
+        chrome.storage.local.set({'tags': event.data.text}, function() {
+            console.log("tags set to " + event.data.text);
+        });
+    }
+});
+                      

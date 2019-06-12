@@ -9,14 +9,23 @@ chrome.runtime.onInstalled.addListener(function() {});
 chrome.browserAction.onClicked.addListener(function () {
     var wargs = {
 //        'url' : "bt.html"
-        'url' : "http://localhost:8000"
+        'url' : "http://localhost:8000",
+        'type' : "panel",
+        'top' : 10,
+        'left' : 10,
+        'width' : 500,
+        'height' : 1100 
     }
     console.log("opening window");
-    listTabs(function ()
+    listTabs(function () // get tabs and then open bt window if not open
              {
                  if (!btwindow)
                      chrome.windows.create(wargs, windowOpen);
-             }); // get tabs and then open bt window if not open
+                 else
+                     chrome.storage.local.get('tags', function(data) {
+                         console.log("tags = " + data);
+                     });
+             }); 
 });
 
 var btwindow;

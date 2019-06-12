@@ -87,13 +87,11 @@ function FindOrCreateBTFile() {
     gapi.client.drive.files.list({
         'pageSize': 1,
         'fields': "files(id, name)",
-        'q': "name='BrainTool.org and not trashed'"
+        'q': "name='BrainTool.org' and not trashed"
     }).then(function(response) {
         var files = response.result.files;
         if (files && files.length > 0) {
-            appendPre('File:');
             var file = files[0];
-            appendPre(file.name + ' (' + file.id + ')');
             fileid = file.id;
             getBTFile();
         } else {
@@ -109,7 +107,8 @@ function getBTFile() {
         alt: 'media'
     }).then(
         function(response) {
-            appendPre(response.body);
+            //appendPre(response.body);
+            processBTFile(response.body);
         },
         function(error) {
             console.log("Error - Could not read BT file");
@@ -154,4 +153,43 @@ function createStartingBT () {
         .catch(function () {
             this.dataError = true;
         })
+}
+
+var Categories = new Set(); 
+function processBTFile(fileText) {
+    // turn the org-mode text into an html table, extract category tags
+    var rows = fileText.split("\n");
+    var table = "<tr>";
+    var rowCount = 0;
+    var cat;
+    for (var i=0; i < rows.length; i++) {
+        if (isHeader(rows[i])) {
+            if (rowCount++) table += "</tr><tr>"; // close previous row unless this is the first
+            cat = getCategory(rows[i]);
+            Categories.add(cat);
+            table += "<td>" + cat + "</td>";
+        }
+    }
+    table += "</tr>";
+    
+    var tab = document.getElementById('content');
+    tab.innerHTML = table;
+
+    // Let extension know about tags list
+    var tags = JSON.stringify(Array.from(Categories));
+    window.postMessage({ type: 'tags_updated', text: tags});
+}
+
+function isHeader(row) {
+    // Given a row of .org text is it a header row
+    return row.startsWith("*");
+}
+
+function getCategory(row) {
+    // Given a row of .org text that is a header return its category for display
+    var left = row.match(/\*+/);
+    left = left ? left.index + left[0].length : 0;
+    var right = row.match(/:\w+:/);
+    right = right ? right.index : row.length;
+    return(row.substring(left, right).trim());
 }
