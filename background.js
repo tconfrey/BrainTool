@@ -17,3 +17,14 @@ chrome.webNavigation.onCompleted.addListener(
     }
 );
 */
+
+chrome.runtime.onMessage.addListener((msg, sender) => {
+    // First, validate the message's structure.
+    switch (msg.from) {
+    case 'btwindow':
+        if (msg.msg == 'ready') {
+            console.log("BT window is ready");
+            // maybe give original window focus here?
+        }
+    }
+});

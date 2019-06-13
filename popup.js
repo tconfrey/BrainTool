@@ -70,7 +70,7 @@ function popupAction () {
                      tagDiv.style.display = 'block';
                      chrome.storage.local.get('tags', function(data) {
                          var tagsArray = JSON.parse(data.tags);
-                         var tagsString = tagsArray.join();
+                         var tagsString = tagsArray.join(', ');
                          console.log("tags = " + tagsString);
                          var tagsArea = document.getElementById('currentTags');
                          tagsArea.innerHTML = tagsString;
@@ -105,7 +105,18 @@ function callBT() {
             if (rsp)
                 console.log(rsp);
             else
-                console.log("Must be an error! " + runtime.lastError);
+                console.log("Must be an error! ");
             window.close();
         });
 }
+
+// Listen for messages from other components
+chrome.runtime.onMessage.addListener((msg, sender) => {
+    switch (msg.from) {
+    case 'btwindow':
+        if (msg.msg == 'ready') {
+            console.log("BT window is ready");
+            window.close();
+        }
+    }
+});

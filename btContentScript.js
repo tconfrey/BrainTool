@@ -15,7 +15,8 @@ function populateTabsList() {
     });
 }
 
-populateTabsList();
+// Don't think I need to do this any more
+//populateTabsList();
 
 window.addEventListener('message', function(event) {
     // Handle message from Window
@@ -23,10 +24,17 @@ window.addEventListener('message', function(event) {
         return;
     console.log('content_script.js got message:', event);
     switch (event.data.type) {
-    case 'tags_updated':        // pull tags info from message and post to local storage
+    case 'tags_updated':
+        // pull tags info from message and post to local storage
         chrome.storage.local.set({'tags': event.data.text}, function() {
             console.log("tags set to " + event.data.text);
-        }); break;
+        });
+        // and let extension know bt window is set
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'ready',
+        });
+        break;
     }
 });
 
