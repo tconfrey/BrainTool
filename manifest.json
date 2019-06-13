@@ -1,7 +1,7 @@
 {
     "name": " BrainTool",
     "version": "1.0",
-    "description": "Sync tabs and notes to a emacs .org format backling store.",
+    "description": "Sync tabs and notes to a emacs .org format backing store.",
     "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "webNavigation"],
     "background": {
         "scripts": ["background.js"],
@@ -21,7 +21,8 @@
             "48": "images/get_started48.png",
             "128": "images/get_started128.png"
         },
-        "default_title" : "BrainTool!"
+        "default_title" : "BrainTool!",
+        "default_popup" : "popup.html"
     },
     "icons": {
       "16": "images/get_started16.png",
