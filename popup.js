@@ -4,6 +4,7 @@
 
 var messageDiv = document.getElementById('message');
 var tagDiv = document.getElementById('tag');
+var newTag = document.getElementById('newtag');
 
 
 function windowOpen(window) {
@@ -13,16 +14,28 @@ function windowOpen(window) {
 
 var tabsData;
 function listTabs (callback) {
-    // fill a storage variable w the tab set
+    // fill a storage variable w the tab to be stored
+    chrome.tabs.query({active: true, currentWindow: true}, function(list) {
+
+     // NB only one tab should be active and in the current window 
+        chrome.storage.local.set({tabsList: list}, function() {
+            console.log("tabsList is set");                              
+            if(callback) {
+                callback(list);
+            }
+        });
+    });
+
+    /* Commenting out all tabs storage in favor of current tab
     chrome.windows.getCurrent({populate : true, windowTypes : ['normal']},
                           function (window) {
                               var list = window.tabs;
-                              /*
+                              
                               for(var i=0;i<window_list.length;i++) {
                                   list = list.concat(window_list[i]);
                                   list = list.concat(window_list[i].tabs);
                               }
-                              */
+                              
                               console.log(list);
                               tabsData = list;
                               
@@ -34,8 +47,8 @@ function listTabs (callback) {
                               });
                              
                           });
+    */
 }
-
 
 function popupAction () {
     var wargs = {
@@ -46,9 +59,8 @@ function popupAction () {
         'width' : 500,
         'height' : 1100 
     }
-    console.log("popup acting...");
     var btwin = chrome.extension.getBackgroundPage().btwindow;
-    listTabs(function () // get tabs and then open bt window if not open
+    listTabs(function () // get tab info and then open bt window if not open
              {
                  if (!btwin) {
                      chrome.windows.create(wargs, windowOpen);
@@ -68,3 +80,32 @@ function popupAction () {
 }
 
 popupAction();
+
+
+// set callback on entering new tag, nb need to force blur on enter key
+newTag.onkeyup = function(e) {
+    if (e.which != 13) return // Enter key
+    newTag.blur();
+    callBT();
+}
+
+
+function callBT() {
+    // Call out to the extension to add current tab to BT
+    var nt = newTag.value;                                     // value from text entry field
+    var btwin = chrome.extension.getBackgroundPage().btwindow; // extension global for bt window
+    var tabId = btwin.tabs[0].id;                              // only one tab
+
+    // Send msg to BT Content script for processing w tab and tag info
+    chrome.tabs.sendMessage(
+        tabId,
+        {'type': 'new_tab', 'tag': nt},
+        {} , 
+        function (rsp) {
+            if (rsp)
+                console.log(rsp);
+            else
+                console.log("Must be an error! " + runtime.lastError);
+            window.close();
+        });
+}
