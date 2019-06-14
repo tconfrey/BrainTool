@@ -193,3 +193,7 @@ function getCategory(row) {
     right = right ? right.index : row.length;
     return(row.substring(left, right).trim());
 }
+
+
+//const parse = require('orga')
+console.log(orgaparse("* TODO remember the milk    :shopping:"));
