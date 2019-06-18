@@ -3,15 +3,21 @@
   <head>
     <title>BrainTool Chrome Extension</title>
     <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <script src="jquery.treetable.js"></script>
   </head>
   <body>
-    <h1>BrainTool</h1>
-
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize_button" style="display: none;">Authorize</button>
-    <button id="signout_button" style="display: none;">Sign Out</button>
+    <button id="signout_button" style="display: block;">Sign Out</button>
 
-    <table id="content" style="border:1px solid black"></table>
+    <table id="content">
+    </table>
 
     <!--
     <pre>Tabs info - passed via message from extension </pre>
@@ -24,8 +30,8 @@
     <script>
  /**
  *  On load, called to load the auth2 library and API client library.
- */           
-function handleClientLoad() {
+ */
+ function handleClientLoad() {
     gapi.load('client:auth2', initClient);
  }
     </script>

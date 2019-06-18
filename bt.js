@@ -155,45 +155,84 @@ function createStartingBT () {
         })
 }
 
-var Categories = new Set(); 
+var Categories = new Set();     // track tags for future tab assignment
+var parseTree;
+var nodeId = 1;                 // for jquery.treetable id's
+var currentParentTree = [];     // stack to push/pop parent node id
+var outputHTML = "";            //"<caption>BrainTool</caption>";            // aggregate html to inject for table
+var BTNodes = [];               // internal BT representation of tree
+
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    var rows = fileText.split("\n");
-    var table = "<tr>";
-    var rowCount = 0;
-    var cat;
-    for (var i=0; i < rows.length; i++) {
-        if (isHeader(rows[i])) {
-            if (rowCount++) table += "</tr><tr>"; // close previous row unless this is the first
-            cat = getCategory(rows[i]);
-            Categories.add(cat);
-            table += "<td>" + cat + "</td>";
-        }
-    }
-    table += "</tr>";
-    
-    var tab = document.getElementById('content');
-    tab.innerHTML = table;
+    parseTree = orgaparse(fileText);
+    parseTree.children.forEach(processNode);
+    outputHTML += "</tr>";
 
+    var tab = document.getElementById('content');
+    tab.innerHTML = outputHTML;
+    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 });
+    
     // Let extension know about tags list
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags});
 }
 
-function isHeader(row) {
-    // Given a row of .org text is it a header row
-    return row.startsWith("*");
+function processNode(node) {
+    // handle a orga node
+    //console.log ("Type: " + node.type + ", value: " + node.value);
+    switch (node.type) {
+    case 'headline':
+        processHeadline(node);
+        break;
+    case 'paragraph':
+        processPara(node);
+        break;
+    case 'text':
+        processText(node);
+        break;
+    case 'link':
+        processLink(node);
+        break;
+    case 'section':
+        processSection(node);
+    }
 }
 
-function getCategory(row) {
-    // Given a row of .org text that is a header return its category for display
-    var left = row.match(/\*+/);
-    left = left ? left.index + left[0].length : 0;
-    var right = row.match(/:\w+:/);
-    right = right ? right.index : row.length;
-    return(row.substring(left, right).trim());
+function processSection(node) {
+    if (outputHTML.length > 0) outputHTML += "</tr>\n";
+    outputHTML += "<tr data-tt-id=" + nodeId;
+    if (currentParentTree.length) outputHTML += " data-tt-parent-id = '" + currentParentTree[currentParentTree.length -1] + "'";
+    currentParentTree.push( nodeId++);
+    outputHTML += ">";
+    node.children.forEach(processNode);
+    currentParentTree.pop();
 }
 
+function processHeadline(node) {
+    outputHTML += "<td class='left'>";
+    node.children.forEach(processNode);
+    outputHTML += "</td>";
+}
 
-//const parse = require('orga')
-console.log(orgaparse("* TODO remember the milk    :shopping:"));
+function processPara(node) {
+    outputHTML += "<td>";
+    node.children.forEach(processNode);
+    outputHTML += "</td>";
+}
+
+function processText(node) {
+    var txt = node.value;
+    if (txt.length > 25)
+    {
+        var end = 25;
+        while ((txt[end++] !== ' ') && (end < txt.length)) {};
+        txt = txt.substring(0,end) + '... ';
+    }
+    outputHTML += txt;
+    if (node.parent.type == 'headline')
+        Categories.add(txt);
+}
+
+function processLink(node) {
+    outputHTML += "<a target='_blank' href='" + node.uri.raw + "'>" + node.desc + "</a>"
+}
