@@ -46,6 +46,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         chrome.storage.local.get('tabsList', function (data) {
             var tab = data.tabsList[0];
             console.log("adding " + tab.title + " w tag [" + msg.tag + "]");
+            window.postMessage({type: 'new_tab', tag: msg.tag, tab: tab});
         });
         response("cheers mate");
     }

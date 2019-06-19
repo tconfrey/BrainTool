@@ -70,10 +70,14 @@ function popupAction () {
                      tagDiv.style.display = 'block';
                      chrome.storage.local.get('tags', function(data) {
                          var tagsArray = JSON.parse(data.tags);
-                         var tagsString = tagsArray.join(', ');
+                         var tagsString = tagsArray.join(',&nbsp;&nbsp; ');
                          console.log("tags = " + tagsString);
                          var tagsArea = document.getElementById('currentTags');
                          tagsArea.innerHTML = tagsString;
+                         var input = document.getElementById("newtag");
+                         new Awesomplete(input, {
+	                         list: tagsArray, autoFirst: true
+                         });
                      });
                  }
              }); 

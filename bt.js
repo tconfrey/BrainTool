@@ -156,6 +156,7 @@ function createStartingBT () {
 }
 
 var Categories = new Set();     // track tags for future tab assignment
+var BTFileText = "";            // Global container for file text
 var parseTree;
 var nodeId = 1;                 // for jquery.treetable id's
 var currentParentTree = [];     // stack to push/pop parent node id
@@ -164,6 +165,7 @@ var BTNodes = [];               // internal BT representation of tree
 
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
+    BTFileText = filetext;      // store for future editing
     parseTree = orgaparse(fileText);
     parseTree.children.forEach(processNode);
     outputHTML += "</tr>";
@@ -178,7 +180,7 @@ function processBTFile(fileText) {
 }
 
 function processNode(node) {
-    // handle a orga node
+    // handle a orga nodeid
     //console.log ("Type: " + node.type + ", value: " + node.value);
     switch (node.type) {
     case 'headline':
@@ -236,3 +238,61 @@ function processText(node) {
 function processLink(node) {
     outputHTML += "<a target='_blank' href='" + node.uri.raw + "'>" + node.desc + "</a>"
 }
+
+
+//  Handle relayed add_tab message from Content script
+window.addEventListener('message', function(event) {
+    // Handle message from Window
+    if (event.source != window)
+        return;
+    console.log('bt.js got message:', event);
+    switch (event.data.type) {
+    case 'new_tab':
+        console.log('adding tab' + event.data.tab);
+        storeTab(event.data.tag, event.data.tab);
+    }
+});
+
+function generateNewNode(tab, parentId) {
+    // given a tab generate the tree tr row
+    var url = tab.url;
+    var title = tab.title;
+    var newNode = "<tr data-tt-id='" + nodeId++ + "' data-tt-parent-id = '" + parentId + "'>";
+    newNode += "<td class='left'><a target='_blank' href='" + url + "'>" + title + "</a></td></tr>";
+    return newNode;
+}
+
+function storeTab(tag, tab) {
+    // put this tab under storage
+    if (!Categories.has(tag)) {
+        addNewTab(tag, tab);
+    }
+    else {
+        $(".left").each(function(i, obj) {
+            if ($(this).text().trim() == tag) {
+                // insert new link here
+                console.log('got here');
+                var tr = $(this).closest('tr'); // walk up to parent row
+                var ttParentId = $(tr).attr('data-tt-id');
+                var newNode = generateNewNode(tab, ttParentId);
+                $(tr).after(newNode);
+            }
+        });
+    }
+    $(".indenter").remove();    // workaround to prevent multiple expander nodes
+    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
+}
+
+function addNewTab(tag, tab) {
+    // New tag, add container at bottom and put tab link under it
+    var last = $("#content").find("tr").last();
+    var newRows = "<tr data-tt-id='" + nodeId + "'><td class='left'>" + tag + "</td><td>New tag</td></tr>";
+    newRows += generateNewNode(tab, nodeId++);
+    $(last).after(newRows);
+    
+    // Add new category and let extension know about updated tags list
+    Categories.add(tag);
+    var tags = JSON.stringify(Array.from(Categories));
+    window.postMessage({ type: 'tags_updated', text: tags });
+}
+    
