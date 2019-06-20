@@ -69,7 +69,7 @@ function handleSignoutClick(event) {
 
 /**
  * Append a pre element to the body containing the given message
- * as its text node. Used to display the results of the API call.
+ * as its text node. Used to display error results of the API call.
  *
  * @param {string} message Text to be placed in pre element.
  */
@@ -116,7 +116,7 @@ function getBTFile() {
 }
 
 
-function createStartingBT () {
+function createStartingBT() {
     // Read the template bt file from the server and upload to gdrive
 
     var metadata = {
@@ -155,24 +155,59 @@ function createStartingBT () {
         })
 }
 
+function writeBTFile() {
+    // Write file contents into BT.org file on GDrive
+    var metadata = {
+        'name': 'BrainTool.org', // Filename at Google Drive
+        'mimeType': 'text/plain' // mimeType at Google Drive
+    };
+    var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
+    var form = new FormData();
+
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+
+    fetch('https://www.googleapis.com/upload/drive/v3/files/' + encodeURIComponent(fileid) + '?uploadType=multipart',
+          {
+              method: 'PATCH', 
+              headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+              body: form
+          }).then((res) => {
+              return res.json();
+          }).then(function(val) {
+              console.log(val);
+          });
+}
+
+
+
 var Categories = new Set();     // track tags for future tab assignment
 var BTFileText = "";            // Global container for file text
 var parseTree;
 var nodeId = 1;                 // for jquery.treetable id's
 var currentParentTree = [];     // stack to push/pop parent node id
-var outputHTML = "";            //"<caption>BrainTool</caption>";            // aggregate html to inject for table
-var BTNodes = [];               // internal BT representation of tree
+var outputHTML = "";            // aggregate html to inject for table
+
+function refreshTable() {
+    // refresh from file, first clear current state
+    Categories = new Set();
+    BTFileText = "";
+    nodeId = 1;
+    currentParentTree = [];
+    outputHTML = "";
+    FindOrCreateBTFile();
+}
 
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    BTFileText = filetext;      // store for future editing
+    BTFileText = fileText;      // store for future editing
     parseTree = orgaparse(fileText);
     parseTree.children.forEach(processNode);
     outputHTML += "</tr>";
 
-    var tab = document.getElementById('content');
-    tab.innerHTML = outputHTML;
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 });
+    var tab = $("#content");
+    tab.html(outputHTML);
+    tab.treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
     
     // Let extension know about tags list
     var tags = JSON.stringify(Array.from(Categories));
@@ -224,9 +259,10 @@ function processPara(node) {
 
 function processText(node) {
     var txt = node.value;
-    if (txt.length > 25)
+    var max = 50;
+    if (txt.length > max)
     {
-        var end = 25;
+        var end = max;          // walk up to next space before chopping
         while ((txt[end++] !== ' ') && (end < txt.length)) {};
         txt = txt.substring(0,end) + '... ';
     }
@@ -253,6 +289,41 @@ window.addEventListener('message', function(event) {
     }
 });
 
+
+function storeTab(tag, tab) {
+    // put this tab under storage
+
+    // Add new tag if doesn't exist
+    if (!Categories.has(tag)) addNewTag(tag, tab);
+    
+    // find tag in table and add new row underneath it
+    $(".left").each(function(i, obj) {
+        if ($(this).text().trim() == tag) {
+            // insert new link here
+            var tr = $(this).closest('tr'); // walk up to parent row
+            var ttParentId = $(tr).attr('data-tt-id');
+            var newNode = generateNewNode(tab, ttParentId);
+            $(tr).after(newNode);
+        }
+    });
+
+    // find tag in file and add new row underneath it
+    var regexStr = "^\\*+\\s*" + tag;
+    var reg = new RegExp(regexStr, "m");
+    var result = reg.exec(BTFileText);
+    if (result) {
+        var ind = result.index + result[0].length;
+        var headerLevel = result[0].match(/\*+/)[0];
+        var newRow = generateNewOrgRow(headerLevel, tab);
+        BTFileText = BTFileText.slice(0, ind) + newRow + BTFileText.slice(ind);
+    }
+    
+    $(".indenter").remove();    // workaround to prevent multiple expander nodes
+    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
+
+    writeBTFile();              // finally write back out the update file text
+}
+
 function generateNewNode(tab, parentId) {
     // given a tab generate the tree tr row
     var url = tab.url;
@@ -261,35 +332,24 @@ function generateNewNode(tab, parentId) {
     newNode += "<td class='left'><a target='_blank' href='" + url + "'>" + title + "</a></td></tr>";
     return newNode;
 }
-
-function storeTab(tag, tab) {
-    // put this tab under storage
-    if (!Categories.has(tag)) {
-        addNewTab(tag, tab);
-    }
-    else {
-        $(".left").each(function(i, obj) {
-            if ($(this).text().trim() == tag) {
-                // insert new link here
-                console.log('got here');
-                var tr = $(this).closest('tr'); // walk up to parent row
-                var ttParentId = $(tr).attr('data-tt-id');
-                var newNode = generateNewNode(tab, ttParentId);
-                $(tr).after(newNode);
-            }
-        });
-    }
-    $(".indenter").remove();    // workaround to prevent multiple expander nodes
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
+function generateNewOrgRow(headline, tab) {
+    // generatre textrow to be written back out to org file
+    var url = tab.url;
+    var title = tab.title;
+    var newNode = "\n" + headline + "* [[" + url + "][" + title + "]]"; // add an extra * level
+    return newNode;
 }
 
-function addNewTab(tag, tab) {
+function addNewTag(tag, tab) {
     // New tag, add container at bottom and put tab link under it
     var last = $("#content").find("tr").last();
-    var newRows = "<tr data-tt-id='" + nodeId + "'><td class='left'>" + tag + "</td><td>New tag</td></tr>";
-    newRows += generateNewNode(tab, nodeId++);
+    var newRows = "<tr data-tt-id='" + nodeId++ + "'><td class='left'>" + tag + "</td><td>New tag</td></tr>";
     $(last).after(newRows);
-    
+
+    // Add new tag to bottom of org file text
+    BTFileText += "\n* " + tag;
+
+
     // Add new category and let extension know about updated tags list
     Categories.add(tag);
     var tags = JSON.stringify(Array.from(Categories));
