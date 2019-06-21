@@ -20,7 +20,8 @@ function parseBTFile(fileText) {
 
 function BTNodeProcessSection(orgaSection) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null, 'id': nodeId};
+    var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null,
+                  'id': nodeId, 'windowId': null, 'tabId': null};
     AllNodes[nodeId++] = BTNode;
     var BTChildIndex = 0;
     var orgaChild;

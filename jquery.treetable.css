@@ -35,6 +35,10 @@ table.treetable span.indenter a {
     width: 120px;
     color: #AAA;
 }
+#refresh:hover {
+    color: #222;
+    background-color: #6A6;
+}
 
 span.elipse {
      cursor:pointer;

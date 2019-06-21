@@ -29,6 +29,12 @@ window.addEventListener('message', function(event) {
         chrome.storage.local.set({'tags': event.data.text}, function() {
             console.log("tags set to " + event.data.text);
         });
+        break;
+    case 'nodes_updated':
+        // pull tags info from message and post to local storage
+        chrome.storage.local.set({'nodes': event.data.text}, function() {
+            console.log("nodes set to " + event.data.text);
+        });
         // and let extension know bt window is set
         chrome.runtime.sendMessage({
             from: 'btwindow',

@@ -183,16 +183,14 @@ function writeBTFile() {
 
 var Categories = new Set();     // track tags for future tab assignment
 var BTFileText = "";            // Global container for file text
-var parseTree;
-var nodeId = 1;                 // for jquery.treetable id's
-var currentParentTree = [];     // stack to push/pop parent node id
+var parseTree;                  // orga parse results
+var nodeId = 0;                 // for jquery.treetable id's
 
 function refreshTable() {
     // refresh from file, first clear current state
     Categories = new Set();
     BTFileText = "";
     nodeId = 1;
-    currentParentTree = [];
     FindOrCreateBTFile();
 }
 
@@ -206,15 +204,28 @@ function processBTFile(fileText) {
     tab.html(table);
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
     
-    // Let extension know about tags list
+    // Let extension know about model
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags});
+    var nodes = JSON.stringify(AllNodes, replacer);
+    window.postMessage({ type: 'nodes_updated', text: nodes});
 
     $(".elipse").hover(function() {
         var nodeId = $(this).closest("tr").attr('data-tt-id');
         var htxt = AllNodes[nodeId].text.fullText;
         $(this).attr('title', htxt);
     });
+
+    function replacer(key, node) {
+        // used to avoid circular references in nodes stringification
+        // return id of parent instead of whole parent node
+        if (key == 'parent')
+            return node ? node.id : null;
+        // filter out orgaNode, extension doesn't need it
+        if (key == 'orgaNode')
+            return undefined;
+        return node;
+    }
 }
 
 
@@ -236,6 +247,7 @@ function storeTab(tag, tab) {
     // put this tab under storage
 
     // Add new tag if doesn't exist
+    tag = tag.trim();
     if (!Categories.has(tag)) addNewTag(tag, tab);
     
     // find tag in table and add new row underneath it
@@ -293,7 +305,7 @@ function addNewTag(tag, tab) {
 
 
     // Add new category and let extension know about updated tags list
-    Categories.add(tag);
+    Categories.add(tag.trim());
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags });
 }
