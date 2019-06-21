@@ -186,7 +186,6 @@ var BTFileText = "";            // Global container for file text
 var parseTree;
 var nodeId = 1;                 // for jquery.treetable id's
 var currentParentTree = [];     // stack to push/pop parent node id
-var outputHTML = "";            // aggregate html to inject for table
 
 function refreshTable() {
     // refresh from file, first clear current state
@@ -194,85 +193,28 @@ function refreshTable() {
     BTFileText = "";
     nodeId = 1;
     currentParentTree = [];
-    outputHTML = "";
     FindOrCreateBTFile();
 }
 
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
     BTFileText = fileText;      // store for future editing
-    parseTree = orgaparse(fileText);
-    parseTree.children.forEach(processNode);
-    outputHTML += "</tr>";
+    parseBTFile(fileText);
 
+    var table = generateTable();
     var tab = $("#content");
-    tab.html(outputHTML);
+    tab.html(table);
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
     
     // Let extension know about tags list
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags});
-}
 
-function processNode(node) {
-    // handle a orga nodeid
-    //console.log ("Type: " + node.type + ", value: " + node.value);
-    switch (node.type) {
-    case 'headline':
-        processHeadline(node);
-        break;
-    case 'paragraph':
-        processPara(node);
-        break;
-    case 'text':
-        processText(node);
-        break;
-    case 'link':
-        processLink(node);
-        break;
-    case 'section':
-        processSection(node);
-    }
-}
-
-function processSection(node) {
-    if (outputHTML.length > 0) outputHTML += "</tr>\n";
-    outputHTML += "<tr data-tt-id=" + nodeId;
-    if (currentParentTree.length) outputHTML += " data-tt-parent-id = '" + currentParentTree[currentParentTree.length -1] + "'";
-    currentParentTree.push( nodeId++);
-    outputHTML += ">";
-    node.children.forEach(processNode);
-    currentParentTree.pop();
-}
-
-function processHeadline(node) {
-    outputHTML += "<td class='left'>";
-    node.children.forEach(processNode);
-    outputHTML += "</td>";
-}
-
-function processPara(node) {
-    outputHTML += "<td>";
-    node.children.forEach(processNode);
-    outputHTML += "</td>";
-}
-
-function processText(node) {
-    var txt = node.value;
-    var max = 50;
-    if (txt.length > max)
-    {
-        var end = max;          // walk up to next space before chopping
-        while ((txt[end++] !== ' ') && (end < txt.length)) {};
-        txt = txt.substring(0,end) + '... ';
-    }
-    outputHTML += txt;
-    if (node.parent.type == 'headline')
-        Categories.add(txt);
-}
-
-function processLink(node) {
-    outputHTML += "<a target='_blank' href='" + node.uri.raw + "'>" + node.desc + "</a>"
+    $(".elipse").hover(function() {
+        var nodeId = $(this).closest("tr").attr('data-tt-id');
+        var htxt = AllNodes[nodeId].text.fullText;
+        $(this).attr('title', htxt);
+    });
 }
 
 

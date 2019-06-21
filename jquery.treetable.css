@@ -26,3 +26,19 @@ table.treetable span.indenter a {
   text-decoration: none;
   width: 17px;
 }
+
+#inner {
+    width: 150px;
+    margin: 0 auto;
+}
+#refresh {
+    width: 120px;
+    color: #AAA;
+}
+
+span.elipse {
+     cursor:pointer;
+     color:blue;
+     text-decoration:underline;
+     padding-left: 0.1em;
+}

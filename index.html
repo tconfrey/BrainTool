@@ -18,7 +18,11 @@
 
     <table id="content">
     </table>
-    <button id="refresh" onclick="refreshTable()">Refresh</button>
+    <div style="width: 100%;">
+      <div id="inner">
+        <button id="refresh" onclick="refreshTable()">Refresh</button>
+      </div>
+    </div>
 
     <!--
     <pre>Tabs info - passed via message from extension </pre>
@@ -28,6 +32,7 @@
     <script src="config.js"></script>
     <script src="orga-bundle.js"></script>
     <script src="bt.js"></script>
+    <script src="parser.js"></script>
     <script>
  /**
  *  On load, called to load the auth2 library and API client library.
