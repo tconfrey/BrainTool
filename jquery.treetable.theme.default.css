@@ -107,3 +107,11 @@ table.treetable tr span.elipse {
      text-decoration:underline;
      padding-left: 0.1em;
 }
+
+
+table.treetable tr.opened {
+    background-color: #EFE;
+}
+tr.opened td.left {
+    font-weight: bold;
+}

@@ -41,7 +41,17 @@ window.addEventListener('message', function(event) {
             msg: 'ready',
         });
         break;
+    case 'link_click':
+        // propogate to background page to handle
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'link_click',
+            nodeId: event.data.nodeId,
+            url: event.data.url
+        });
+        break;
     }
+    
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
@@ -55,6 +65,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             window.postMessage({type: 'new_tab', tag: msg.tag, tab: tab});
         });
         response("cheers mate");
+        break;
+    case 'tab_opened':          // tab/window opened shold indicate in tree
+        window.postMessage({type: 'tab_opened', BTNodeId: msg.BTNodeId, BTParentId: msg.BTParentId});
+        break;
     }
 });
                       

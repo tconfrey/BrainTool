@@ -52,7 +52,7 @@ function summarizeText(txtsAry) {
     var txtLen = parseInt(nonLnk / txtCount);
     var out = "";
     txtsAry.forEach(function(e) {
-        if (e.desc) out += e.desc;
+        if (e.desc) out += e.txt;       // link
         else {
             if (e.txt.length <= txtLen) out += e.txt;
             else {
@@ -66,7 +66,7 @@ function summarizeText(txtsAry) {
 }
     
 function orgaLinkFullText(node) {
-    return "<a target='_blank' href='" + node.uri.raw + "'>" + node.desc + "</a>";
+    return "<a class='btlink' href='" + node.uri.raw + "'>" + node.desc + "</a>";
 }
 
 function orgaText(node) {

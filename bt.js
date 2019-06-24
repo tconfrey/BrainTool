@@ -190,7 +190,7 @@ function refreshTable() {
     // refresh from file, first clear current state
     Categories = new Set();
     BTFileText = "";
-    nodeId = 1;
+    nodeId = 0;
     FindOrCreateBTFile();
 }
 
@@ -216,6 +216,12 @@ function processBTFile(fileText) {
         $(this).attr('title', htxt);
     });
 
+    // intercept link clicks on bt links
+    for (var ls = document.links, numLinks = ls.length, i=0; i<numLinks; i++){
+        if ($(ls[i]).hasClass('btlink'))
+            ls[i].onclick= handleLinkClick;
+    }
+    
     function replacer(key, node) {
         // used to avoid circular references in nodes stringification
         // return id of parent instead of whole parent node
@@ -229,6 +235,15 @@ function processBTFile(fileText) {
 }
 
 
+function handleLinkClick(e) {
+    var nodeId = $(this).closest("tr").attr('data-tt-id');
+    var url = $(this).attr('href');
+    console.log("click on :" + $(this).text() + ", nodeId: " + nodeId);
+    
+    window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+    e.preventDefault();
+}
+
 //  Handle relayed add_tab message from Content script
 window.addEventListener('message', function(event) {
     // Handle message from Window
@@ -239,6 +254,13 @@ window.addEventListener('message', function(event) {
     case 'new_tab':
         console.log('adding tab' + event.data.tab);
         storeTab(event.data.tag, event.data.tab);
+        break;
+    case 'tab_opened':
+        var nodeId = event.data.BTNodeId;
+        var parentId = event.data.BTParentId;
+        $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
+        $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+        break;
     }
 });
 
