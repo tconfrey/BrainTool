@@ -20,7 +20,7 @@ chrome.webNavigation.onCompleted.addListener(
 */
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
-    // First, validate the message's structure.
+    // Handle messages from bt win content script and popup
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'ready') {
@@ -55,7 +55,7 @@ function openNode(nodeId, url) {
     }
     var parentNode = BTNode;
     // walk up containment to a node with a window assigned or to the top
-    while (parentNode.parent && !parentNode.windowId) {
+    while ((parentNode.parent !== null) && !parentNode.windowId) {
         parentNode = AllNodes[parentNode.parent];
     }
     if (parentNode.windowId)
@@ -63,6 +63,7 @@ function openNode(nodeId, url) {
         chrome.tabs.create({'windowId': parentNode.windowId, 'url': url}, function(tab) {
             BTNode.tabId = tab.id;
             BTNode.windowId = parentNode.windowId;
+            BTNode.url = url;
         });
     else
         // open new window and assign windowId
@@ -70,6 +71,7 @@ function openNode(nodeId, url) {
             parentNode.windowId = window.id;
             BTNode.tabId = window.tabs[0].id;
             BTNode.windowId = window.id;
+            BTNode.url = url;
         });
 
     // Send back message that the bt and parent nodes are opened in browser
@@ -77,9 +79,8 @@ function openNode(nodeId, url) {
         BTTab,
         {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
 }
-           
 
-function moveTabToWindow (tabId, tag) {
+function moveTabToWindow(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
     var i = 0;
     while ((i < AllNodes.length) && (AllNodes[i].title.fullText != tag)) i++;
@@ -88,7 +89,7 @@ function moveTabToWindow (tabId, tag) {
     var sectionNode = AllNodes[i];
     var parentNode = sectionNode;
     // walk up containment to a node with a window assigned or to the top
-    while (parentNode.parent && !parentNode.windowId) {
+    while ((parentNode.parent !== null) && !parentNode.windowId) {
         parentNode = AllNodes[parentNode.parent];
     }
     
@@ -103,12 +104,66 @@ function moveTabToWindow (tabId, tag) {
         });
 
     // create and store new BT node
-    var BTNode = {'children': [], 'parent': sectionNode, 'id': AllNodes.length,
-                  'windowId': sectionNode.windowId, 'tabId': tabId};
-    AllNodes.push(BTNode);
+    chrome.tabs.get(tabId, function(tab) {
+        var BTNode = {'children': [], 'parent': sectionNode, 'id': AllNodes.length,
+                      'windowId': sectionNode.windowId, 'tabId': tabId, 'url': tab.url};
+        AllNodes.push(BTNode);
+        
+        // Send back message that the bt and parent nodes are opened in browser
+        chrome.tabs.sendMessage(
+            BTTab,
+            {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
+    });
+}
 
-    // Send back message that the bt and parent nodes are opened in browser
+function compareURLs(first, second) {
+    // sometimes I get trailing /'s other times not, also treat http and https as the same
+    first = first.replace("https", "http").replace(/\/$/, "");
+    second = second.replace("https", "http").replace(/\/$/, "");
+    return (first == second);
+}
+
+chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
+    // listen for tabs being closed, if its a managed tab let BT know
+    if (tabId == BTTab) {
+        console.log("BT closed!");
+        BTTab = null;
+        AllNodes = [];
+        return;
+    }
+    var node = AllNodes ? AllNodes.find(function(node) {
+        return (node.tabId == tabId);}) : null;
+    if (!node) return;
+    node.tabId = null; node.windowId = null;
+    console.log("closed tab:" + tabId);
     chrome.tabs.sendMessage(
         BTTab,
-        {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
-}
+        {'type': 'tab_closed', 'BTNodeId': node.id});
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
+    // Handle a BT tab being migrated to a new url
+    if (!AllNodes || !changeInfo.url) return;                 // don't care
+    var node = AllNodes ? AllNodes.find(function(node) {
+        return (node.tabId == tabId);}) : null;
+    if (!node) return;
+    if (compareURLs(node.url, changeInfo.url)) return;
+    node.tabId = null; node.windowId = null;
+    console.log("navigated tab:" + tabId);
+    chrome.tabs.sendMessage(
+        BTTab,
+        {'type': 'tab_closed', 'BTNodeId': node.id});
+
+});
+
+chrome.windows.onRemoved.addListener((windowId) => {
+    // listen for windows being closed
+    var node = AllNodes ? AllNodes.find(function(node) {
+        return (node.windowId == windowId);}) : null;
+    if (!node) return;
+    console.log("closed window:" + windowId);
+    node.windowId = null;
+    chrome.tabs.sendMessage(
+        BTTab,
+        {'type': 'tab_closed', 'BTNodeId': node.id});
+});

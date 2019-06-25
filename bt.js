@@ -211,8 +211,8 @@ function processBTFile(fileText) {
     window.postMessage({ type: 'nodes_updated', text: nodes});
 
     $(".elipse").hover(function() {
-        var nodeId = $(this).closest("tr").attr('data-tt-id');
-        var htxt = AllNodes[nodeId].text.fullText;
+        var thisNodeId = $(this).closest("tr").attr('data-tt-id');
+        var htxt = AllNodes[thisNodeId].text.fullText;
         $(this).attr('title', htxt);
     });
 
@@ -261,6 +261,11 @@ window.addEventListener('message', function(event) {
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         break;
+    case 'tab_closed':
+        var nodeId = event.data.BTNodeId;
+        AllNodes[nodeId].tabId = null;
+        $("tr[data-tt-id='"+nodeId+"']").removeClass("opened");
+        break;
     }
 });
 
@@ -304,8 +309,12 @@ function generateNewNode(tab, parentId) {
     // given a tab generate the tree tr row
     var url = tab.url;
     var title = tab.title;
-    var newNode = "<tr data-tt-id='" + nodeId++ + "' data-tt-parent-id = '" + parentId + "'>";
+    var newNode = "<tr data-tt-id='" + nodeId + "' data-tt-parent-id = '" + parentId + "'>";
     newNode += "<td class='left'><a target='_blank' href='" + url + "'>" + title + "</a></td></tr>";
+
+    // also create and store btnode structure
+    AllNodes[nodeId] = {id: nodeId++, children: [], parent: parentId, tabId: tab.id};
+
     return newNode;
 }
 function generateNewOrgRow(headline, tab) {

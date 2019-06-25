@@ -66,9 +66,13 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         });
         response("cheers mate");
         break;
-    case 'tab_opened':          // tab/window opened shold indicate in tree
+    case 'tab_opened':          // tab/window opened should indicate in tree
         window.postMessage({type: 'tab_opened', BTNodeId: msg.BTNodeId, BTParentId: msg.BTParentId});
         break;
+    case 'tab_closed':          // tab closed, update model and display
+        window.postMessage({type: 'tab_closed', BTNodeId: msg.BTNodeId});
+        break;
     }
+    
 });
                       
