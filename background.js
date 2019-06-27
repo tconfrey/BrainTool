@@ -34,6 +34,12 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         if (msg.msg == 'link_click') {
             openNode(msg.nodeId, msg.url);
         }
+        if (msg.msg == 'tag_open') {
+            openTag(msg.parent, msg.data);
+        }
+        if (msg.msg == 'node_deleted') {
+            deleteNode(msg.nodeId);
+        }
         break;
     case 'popup':
         if (msg.msg == 'moveTab') {
@@ -80,8 +86,66 @@ function openNode(nodeId, url) {
         {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
 }
 
+function openTag(parentId, data) {
+    // passed an array of {nodeId, url} to open in top window
+    var ary = data;
+    var parentNode = AllNodes[parentId];
+    if (!parentNode) return;                                    // shrug
+    if (parentNode.windowId) {
+        // for now close and re-open, shoudl be more elegant
+        var win = parentNode.windowId;
+        parentNode.windowId = null;
+        chrome.windows.remove(win, function() {
+            openTag(parentId, data); // once more from the top
+        });
+    } else {
+        // Create array of urls to open
+        var urls = []
+        for (var i=0; i<ary.length; i++) {
+            urls.push(ary[i].url);
+            AllNodes[ary[i].nodeId].url = ary[i].url;
+        }
+        chrome.windows.create({'url': urls}, function(win) {
+            // When done record window in local node store (also need tabs?) and send back message per tab
+            var id, tab;
+            parentNode.windowId = win.id;
+            for (var i=0; i<ary.length; i++) {
+                id = ary[i].nodeId;
+                AllNodes[id].windowId = win.id;
+                tab = win.tabs.find(function(element) {
+                    return (compareURLs(element.url, AllNodes[id].url));
+                });
+                AllNodes[id].tabId = tab.id;
+                chrome.tabs.sendMessage(
+                    BTTab,
+                    {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
+            }});
+    }
+}
+            
+                              
+function nodeDeleted(nodeId) {
+    // node was deleted in BT ui. Just do the housekeeping here
+
+    var node = AllNodes[nodeId];
+    
+    // Remove node. NB deleting cos I'm using ID for array index - maybe shoudl have a level of indirection?
+    delete(AllNodes[nodeId]);
+    
+    // Remove from parent
+    var parent = node.parent;
+    if (!parent) return;
+    for (var i = 0; i < parent.children.length; i++) {
+        if (parent.children[i] == node) {
+            parent.children.splice(i, 1);
+            break;
+        }
+    }
+}
+
 function moveTabToWindow(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
+    
     var i = 0;
     while ((i < AllNodes.length) && (AllNodes[i].title.fullText != tag)) i++;
     if (i == AllNodes.length) return;                           // shrug

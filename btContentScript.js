@@ -50,6 +50,22 @@ window.addEventListener('message', function(event) {
             url: event.data.url
         });
         break;
+    case 'tag_open':
+        // pass on to background
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'tag_open',
+            parent: event.data.parent,
+            data: event.data.data
+        });
+        break;
+    case 'node_deleted':
+        // pass on
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'node_deleted',
+            nodeId: event.data.nodeId
+        });
     }
     
 });

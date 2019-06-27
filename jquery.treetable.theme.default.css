@@ -10,7 +10,7 @@ table.treetable {
 
 
 /* my add - default to 50% width w tree on left not wrapping */
-table.treetable td {
+table.treetable td.left {
     width: 50%;
 }
 table.treetable td.left {
@@ -71,8 +71,9 @@ table.treetable tr.branch {
 }
 
 table.treetable tr.selected {
-  background-color: #3875d7;
-  color: #fff;
+  background-color: #cfc;
+/*  background-color: #3875d7;
+  color: #fff; */
 }
 
 table.treetable tr span.indenter a {
@@ -114,4 +115,46 @@ table.treetable tr.opened {
 }
 tr.opened td.left {
     font-weight: bold;
+}
+table.treetable td.middle {
+    width: 1.6em;
+}
+td.left {
+    vertical-align: middle;
+}
+
+#button {
+    height: 0.95em;
+    width: 1.8em;
+    background-color: #9d9;
+    padding: 0px;
+    border: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    cursor: pointer;
+}
+
+dialog {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  width: 80%;
+  position: fixed;
+}
+
+dialog textarea {
+    width: 90%;
+    height: 5em;
+}
+#editText {
+    margin-right: 0px;
+    margin-left: 10px;
+}
+
+#buttonDiv {
+    width: 80%;
+    margin: auto;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-around;
 }

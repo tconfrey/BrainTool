@@ -4,7 +4,6 @@ var AllNodes = [];
 
 function parseBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    BTFileText = fileText;      // store for future editing
     parseTree = orgaparse(fileText);
     var orgaNode;
     var BTNodes = new Array;
@@ -68,29 +67,36 @@ function summarizeText(txtsAry) {
 function orgaLinkFullText(node) {
     return "<a class='btlink' href='" + node.uri.raw + "'>" + node.desc + "</a>";
 }
+function orgaLinkOrgText(node) {
+    return "[[" + node.uri.raw + "][" + node.desc + "]]";
+}
 
 function orgaText(node) {
     // generate text from orga headline or para node. Both can contain texts and links
     var orgaChild;
     var fullText = "";
+    var origText = ""
     var tmpText = "";
     var textsArray = [];
     for (var i = 0; i < node.children.length; i++) {
         orgaChild = node.children[i];
         if (orgaChild.type == "text") {
             fullText += orgaChild.value;
+            origText += orgaChild.value;
             textsArray.push({'txt': orgaChild.value});
             if (node.type == "headline") Categories.add(orgaChild.value);
         }
         if (orgaChild.type == "link") {
             tmpText += orgaLinkFullText(orgaChild);
             fullText += tmpText;
+            origText += orgaLinkOrgText(orgaChild);
             textsArray.push({'desc': orgaChild.desc, 'txt': tmpText});
         }
     }
     return {
         'fullText': fullText,
-        'summaryText': fullText.length > 120 ? summarizeText(textsArray) : ""
+        'summaryText': fullText.length > 120 ? summarizeText(textsArray) : "",
+        'orgText': origText
     };
 }
 
@@ -102,7 +108,7 @@ function generateTable() {
         if (!node) return;
         outputHTML += "<tr data-tt-id='" + node.id;
         if (node.parent) outputHTML += "' data-tt-parent-id='" + node.parent.id;
-        outputHTML += "'><td class='left'>" + node.title.fullText + "</td>";
+        outputHTML += "'><td class='left'>" + node.title.fullText + "</td><td class='middle'/>";
         if (node.text)
             outputHTML += "<td>" + (node.text.summaryText ? node.text.summaryText : node.text.fullText) + "</td></tr>";
         else
