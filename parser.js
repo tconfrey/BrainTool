@@ -20,7 +20,7 @@ function parseBTFile(fileText) {
 function BTNodeProcessSection(orgaSection) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
     var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null,
-                  'id': nodeId, 'windowId': null, 'tabId': null};
+                  'id': nodeId, 'windowId': null, 'tabId': null, text: {}, title: {}};
     AllNodes[nodeId++] = BTNode;
     var BTChildIndex = 0;
     var orgaChild;
@@ -28,10 +28,10 @@ function BTNodeProcessSection(orgaSection) {
         orgaChild = orgaSection.children[i];
         if (orgaChild.type == "headline") {
             BTNode.level = orgaChild.level;
-            BTNode.title = orgaText(orgaChild); // returns {fullText, summaryText}
+            BTNode.title = orgaText(orgaChild); // returns {fullText, summaryText, orgText}
         }
         if (orgaChild.type == "paragraph") {
-            BTNode.text = orgaText(orgaChild); // returns {fullText, summaryText}
+            BTNode.text = orgaText(orgaChild);  // returns {fullText, summaryText, orgText}
         }
         if (orgaChild.type == "section") {
             BTNode.children[BTChildIndex] = BTNodeProcessSection(orgaChild);
@@ -109,7 +109,7 @@ function generateTable() {
         outputHTML += "<tr data-tt-id='" + node.id;
         if (node.parent) outputHTML += "' data-tt-parent-id='" + node.parent.id;
         outputHTML += "'><td class='left'>" + node.title.fullText + "</td><td class='middle'/>";
-        if (node.text)
+        if (node.text.summaryText || node.text.fullText)
             outputHTML += "<td>" + (node.text.summaryText ? node.text.summaryText : node.text.fullText) + "</td></tr>";
         else
             outputHTML += "<td/></tr>";

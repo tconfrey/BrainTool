@@ -148,7 +148,13 @@ function moveTabToWindow(tabId, tag) {
     
     var i = 0;
     while ((i < AllNodes.length) && (AllNodes[i].title.fullText != tag)) i++;
-    if (i == AllNodes.length) return;                           // shrug
+    if (i == AllNodes.length) {           // Need to create new top level section
+        var BTNode = {'children': [], 'parent': null, 'id': AllNodes.length,
+                      'windowId': null, 'tabId': null, 'url': null,
+                      title: {fullText: tag, summartText: null}
+                     };
+        AllNodes.push(BTNode);
+    }
     
     var sectionNode = AllNodes[i];
     var parentNode = sectionNode;

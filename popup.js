@@ -63,16 +63,16 @@ function popupAction () {
 popupAction();
 
 
-// set callback on entering new tag, nb need to force blur on enter key
+// set callback on entering tag for tab, nb need to force blur on enter key
 newTag.onkeyup = function(e) {
     if (e.which != 13) return // Enter key
     newTag.blur();
-    callBT();
+    tabAdded();
 }
 
 
-function callBT() {
-    // Call out to the extension to add current tab to BT
+function tabAdded() {
+    // Call out to the content script to add current tab to BT
     var nt = newTag.value;                                     // value from text entry field
     var BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
     
