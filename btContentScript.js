@@ -31,7 +31,7 @@ window.addEventListener('message', function(event) {
         });
         break;
     case 'nodes_updated':
-        // pull tags info from message and post to local storage
+        // pull node info from message and post to local storage
         chrome.storage.local.set({'nodes': event.data.text}, function() {
             console.log("nodes set to " + event.data.text);
         });

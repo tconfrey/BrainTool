@@ -124,7 +124,7 @@ function openTag(parentId, data) {
 }
             
                               
-function nodeDeleted(nodeId) {
+function deleteNode(nodeId) {
     // node was deleted in BT ui. Just do the housekeeping here
 
     var node = AllNodes[nodeId];
@@ -134,7 +134,7 @@ function nodeDeleted(nodeId) {
     
     // Remove from parent
     var parent = node.parent;
-    if (!parent) return;
+    if ((!parent) || (!parent.children)) return;
     for (var i = 0; i < parent.children.length; i++) {
         if (parent.children[i] == node) {
             parent.children.splice(i, 1);
@@ -147,17 +147,17 @@ function moveTabToWindow(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
     
     var i = 0;
+    var BTNode = {};
     while ((i < AllNodes.length) && (AllNodes[i].title.fullText != tag)) i++;
     if (i == AllNodes.length) {           // Need to create new top level section
-        var BTNode = {'children': [], 'parent': null, 'id': AllNodes.length,
+        BTNode = {'children': [], 'parent': null, 'id': AllNodes.length,
                       'windowId': null, 'tabId': null, 'url': null,
-                      title: {fullText: tag, summartText: null}
+                      title: {fullText: tag, summaryText: null}
                      };
         AllNodes.push(BTNode);
     }
     
-    var sectionNode = AllNodes[i];
-    var parentNode = sectionNode;
+    var parentNode = AllNodes[i];
     // walk up containment to a node with a window assigned or to the top
     while ((parentNode.parent !== null) && !parentNode.windowId) {
         parentNode = AllNodes[parentNode.parent];
@@ -170,14 +170,16 @@ function moveTabToWindow(tabId, tag) {
         });
     else
         chrome.windows.create({'tabId': tabId}, function(window) {
-            sectionNode.windowId = window.id;
+            AllNodes[i].windowId = window.id;
         });
 
-    // create and store new BT node
+    // get tab url, then create and store new BT node
     chrome.tabs.get(tabId, function(tab) {
-        var BTNode = {'children': [], 'parent': sectionNode, 'id': AllNodes.length,
-                      'windowId': sectionNode.windowId, 'tabId': tabId, 'url': tab.url};
-        AllNodes.push(BTNode);
+        BTNode = {'children': [], 'parent': i, 'id': AllNodes.length,
+                  'windowId': AllNodes[i].windowId, 'tabId': tabId,
+                  'url': tab.url, title: {fullText: tab.url, summaryText: null}};
+        AllNodes[AllNodes.length] = BTNode;
+ //       AllNodes[i].children.push(BTNode); // add to parent
         
         // Send back message that the bt and parent nodes are opened in browser
         chrome.tabs.sendMessage(

@@ -162,6 +162,7 @@ function writeBTFile() {
     };
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
+    console.log("writing BT file");
 
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
@@ -292,9 +293,7 @@ function storeTab(tag, tab) {
             var ttParentId = $(tr).attr('data-tt-id');
             var newNode = generateNewNode(tab, ttParentId);
             $(tr).after(newNode);
-            $(newNode).find("a")[0].click(function(e){   // add click handler override
-                handleLinkClick(e);  return false;
-            });
+            $(newNode).find("a")[0].onclick = handleLinkClick;
         }
     });
 
@@ -329,7 +328,11 @@ function generateNewNode(tab, parentId) {
     newNode += "<td class='left'><a class='btlink' href='" + url + "'>" + title + "</a></td><td class='middle'/><td/></tr>";
 
     // also create and store btnode structure
-    AllNodes[nodeId] = {id: nodeId++, children: [], parent: AllNodes[parentId], tabId: tab.id};
+    var orgTitleText = "[[" + url + "][" + title + "]]";
+    AllNodes[nodeId] = {id: nodeId++, children: [], parent: AllNodes[parentId],
+                        tabId: tab.id, windowId: tab.windowId,
+                        title: {orgText: orgTitleText}, text: {orgText: ""}};
+    AllNodes[parentId].children.push(AllNodes[nodeId]); // add to parent's children array
     return newNode;
 }
 
@@ -356,7 +359,10 @@ function addNewTag(tag, tab) {
     window.postMessage({ type: 'tags_updated', text: tags });
 
     // Update model w new node
-    AllNodes.push({id: nodeId++, children: [], text: {fullText: tag, summaryText: ""}, level: 1, parent: null});
+    AllNodes.push({id: nodeId++, children: [],
+                   text: {fullText: "New tag", summaryText: "", orgText: "New Tag"}, 
+                   title: {fullText: tag, summaryText: "", orgText: tag},
+                   level: 1, parent: null});
 
     // Update table
     $(".indenter").remove();    // workaround to prevent multiple expander nodes
@@ -557,8 +563,8 @@ function updateRow() {
     $(".indenter").remove();    // workaround to prevent multiple expander nodes
     $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
 
-    var currentTitle = BTNode.title.orgText ? BTNode.title.orgText : "";
-    var currentText = BTNode.text.orgText ? BTNode.text.orgText : "";
+    var currentTitle = (BTNode.title && BTNode.title.orgText) ? BTNode.title.orgText : "";
+    var currentText = (BTNode.text && BTNode.text.orgText) ? BTNode.text.orgText : "";
 
     // Update Model
     BTNode.title.orgTitle = titleText;
@@ -571,7 +577,7 @@ function updateRow() {
     var updated = false;
     BTFileText = BTFileText.replace(reg, function(match, p1, p2) {
         updated = true;
-        return "\n" + p1 + titleText + p2 + textText;
+        return "\n" + p1 + titleText + p2 + textText + "\n";
     });
     if (updated)
         writeBTFile();
