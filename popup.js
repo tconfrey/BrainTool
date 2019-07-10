@@ -7,12 +7,32 @@ var tagDiv = document.getElementById('tag');
 var newTag = document.getElementById('newtag');
 var CurrentTab;
 
-function windowOpen(window) {
-    console.log("window was opened");
-    chrome.extension.getBackgroundPage().BTTab = window.tabs[0].id;
+function storeBTTab(tabId, tries) {
+    // set the global variable on the background page
+    var bg = chrome.extension.getBackgroundPage();
+    if (!bg) {
+        alert("Extension not initialized correctly. \Trying again.");
+        setTimeout(function() {
+            storeBTTab(tabId, tries + 1);}, 100);
+        return;
+    }
+    bg.BTTab = tabId;
+    if (tries) alert("BrainTool Extension initialized");
+}
+    
+function windowOpen() {
+    var wargs = {
+        'url' : "http://localhost:8000", // 'url' : "bt.html"
+        'type' : "panel",
+        'top' : 10, 'left' : 10,
+        'width' : 500, 'height' : 1100 
+    };
+    chrome.windows.create(wargs, function(window) {
+        console.log("window was opened");
+        storeBTTab(window.tabs[0].id, 0);
+    });
 }
 
-var tabsData;
 function getCurrentTab (callback) {
     // fill a storage variable w the tab to be stored
     chrome.tabs.query({active: true, currentWindow: true}, function(list) {
@@ -28,21 +48,13 @@ function getCurrentTab (callback) {
 }
 
 function popupAction () {
-    var wargs = {
-        'url' : "http://localhost:8000", // 'url' : "bt.html"
-        'type' : "panel",
-        'top' : 10,
-        'left' : 10,
-        'width' : 500,
-        'height' : 1100 
-    }
+    // open bt window if not open, otherwise populate tag entry form
+    
     var btTab = chrome.extension.getBackgroundPage() ? chrome.extension.getBackgroundPage().BTTab : null;
-    // get tab info and then open bt window if not open
-    getCurrentTab(function () {
-        if (!btTab) {
-            chrome.windows.create(wargs, windowOpen);
-        }
-        else {
+    if (!btTab) {
+        windowOpen();
+    } else {
+        getCurrentTab(function () {
             messageDiv.style.display = 'none';
             tagDiv.style.display = 'block';
             chrome.storage.local.get('tags', function(data) {
@@ -56,8 +68,8 @@ function popupAction () {
 	                list: tagsArray, autoFirst: true
                 });
             });
-        }
-    }); 
+        }); 
+    }
 }
 
 popupAction();

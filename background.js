@@ -21,6 +21,7 @@ chrome.webNavigation.onCompleted.addListener(
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
+    console.log('background.js got message:', msg);
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'ready') {
@@ -59,11 +60,9 @@ function openNode(nodeId, url) {
         chrome.windows.update(BTNode.windowId, {'focused': true});
         return;
     }
-    var parentNode = BTNode;
-    // walk up containment to a node with a window assigned or to the top
-    while ((parentNode.parent !== null) && !parentNode.windowId) {
-        parentNode = AllNodes[parentNode.parent];
-    }
+    var parentNode = AllNodes[BTNode.parent];
+    if (!parentNode) return;                                    // shrug
+
     if (parentNode.windowId)
         // open tab in this window
         chrome.tabs.create({'windowId': parentNode.windowId, 'url': url}, function(tab) {
@@ -158,11 +157,6 @@ function moveTabToWindow(tabId, tag) {
     }
     
     var parentNode = AllNodes[i];
-    // walk up containment to a node with a window assigned or to the top
-    while ((parentNode.parent !== null) && !parentNode.windowId) {
-        parentNode = AllNodes[parentNode.parent];
-    }
-    
     if (parentNode.windowId)
         chrome.tabs.move(tabId, {'windowId': parentNode.windowId, 'index': -1}, function(deets) {
             chrome.tabs.highlight({'windowId': parentNode.windowId, 'tabs': deets.index});
@@ -178,7 +172,7 @@ function moveTabToWindow(tabId, tag) {
         BTNode = {'children': [], 'parent': i, 'id': AllNodes.length,
                   'windowId': AllNodes[i].windowId, 'tabId': tabId,
                   'url': tab.url, title: {fullText: tab.url, summaryText: null}};
-        AllNodes[AllNodes.length] = BTNode;
+        AllNodes.push(BTNode);
  //       AllNodes[i].children.push(BTNode); // add to parent
         
         // Send back message that the bt and parent nodes are opened in browser

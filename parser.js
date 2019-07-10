@@ -91,6 +91,9 @@ function orgaText(node) {
             fullText += tmpText;
             origText += orgaLinkOrgText(orgaChild);
             textsArray.push({'desc': orgaChild.desc, 'txt': tmpText});
+/* Not sure how to make links headlines into tags/Categories without including all links            
+            if (node.type == "headline") Categories.add(orgaChild.desc);
+*/
         }
     }
     return {

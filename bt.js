@@ -439,8 +439,59 @@ $("textarea").change(function() {
     $("#update").prop("disabled", true);
 });
     
+
 function openRow() {
-    // Open all links under this row
+    // Open all links under this row in windows per tag
+    // TODO this logic should live in a BTNode class
+    // Also the logic will change when BTNode and BTLink abstracted seperately
+
+    // First find all BTNodes involved - selected plus children
+    var tr = $("tr.selected")[0];
+    var BTNodeId = $(tr).attr('data-tt-id');
+    var BTNode = AllNodes[BTNodeId];
+    if (!BTNode) return;
+
+    openEachWindow(BTNode);
+
+    // close the dialog
+    $("#dialog")[0].close();
+    $("tr.selected").removeClass('selected');
+
+
+    function openEachWindow(node) {
+        var rowIds = [];
+        var tabsToOpen = [];
+        
+        rowIds.push(node.id);
+        if (node.children)
+            node.children.forEach(function(child) {
+                rowIds.push(child.id);
+            });
+
+        // iterate thru rows and find all links and send msg to extension to open them
+        rowIds.forEach(function(id) {
+            $("tr[data-tt-id='"+id+"']").find("a").each(function() {
+                var url = $(this).attr('href');
+                if (url == "#") return;                           // ignore the '...' hover link
+                tabsToOpen.push({'nodeId': id, 'url': url });
+            });
+        });
+        
+        if (tabsToOpen.length)
+            window.postMessage({ 'type': 'tag_open', 'parent': node.id, 'data': tabsToOpen});
+
+        
+        if (node.children.length)    // iterate again and recurse for container nodes to each open their windows
+            node.children.forEach(function(child) {
+                if (child.children.length)
+                    openEachWindow(child);
+            });
+    }
+}
+
+/* Not used now, different model of opening all contained links in a single window
+function openRowSingleWindow() {
+    // Open all links under this row in a single window
 
     // First find all BTNodes involved - selected plus children
     var tr = $("tr.selected")[0];
@@ -454,7 +505,7 @@ function openRow() {
     rowIds.forEach(function(id) {
         $("tr[data-tt-id='"+id+"']").find("a").each(function() {
             var url = $(this).attr('href');
-            if (url == "#") return;
+            if (url == "#") return;                           // ignore the '...' hover link
             tabsToOpen.push({'nodeId': id, 'url': url });
         });
     });
@@ -473,6 +524,7 @@ function openRow() {
             });
     }
 }
+*/
 
 function escapeRegExp(string) {
     // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
