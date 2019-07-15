@@ -22,7 +22,7 @@ function storeBTTab(tabId, tries) {
     
 function windowOpen() {
     var wargs = {
-        'url' : "https://tconfrey.github.io/BrainTool", // http://localhost:8000", // 'url' : "bt.html"
+        'url' : "https://tconfrey.github.io/BrainTool/app", // http://localhost:8000", // 'url' : "bt.html"
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100 
