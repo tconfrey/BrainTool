@@ -1,12 +1,9 @@
 
 //NB Runs in context of BT window, not the background BT extension or the helper btContent scripts
 
-// Client ID and API key from the Developer Console, values storted offline in config.js
-var CLIENT_ID = config.CLIENT_ID;
-var API_KEY = config.API_KEY;
-
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+var CLIENT_ID, API_KEY;
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
@@ -252,13 +249,20 @@ function handleLinkClick(e) {
     e.preventDefault();
 }
 
-//  Handle relayed add_tab message from Content script
+//  Handle relayed messages from Content script
 window.addEventListener('message', function(event) {
     // Handle message from Window
     if (event.source != window)
         return;
     console.log('bt.js got message:', event);
     switch (event.data.type) {
+    case 'keys':
+        console.log('Initializing gdrive app...');
+        // Client ID and API key from the Developer Console, values storted offline in config.js
+        CLIENT_ID = event.data.client_id;
+        API_KEY = event.data.api_key;
+        gapi.load('client:auth2', initClient);             // initialize gdrive app
+        break;
     case 'new_tab':
         console.log('adding tab' + event.data.tab);
         storeTab(event.data.tag, event.data.tab);

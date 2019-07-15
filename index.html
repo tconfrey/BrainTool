@@ -41,21 +41,12 @@
       </dialog>
     </div>
     
-    <script src="config.js"></script>
     <script src="orga-bundle.js"></script>
     <script src="bt.js"></script>
     <script src="parser.js"></script>
-    <script>
- /**
- *  On load, called to load the auth2 library and API client library.
- */
- function handleClientLoad() {
-    gapi.load('client:auth2', initClient);
- }
-    </script>
     <script async defer src="https://apis.google.com/js/api.js"
-      onload="this.onload=function(){};handleClientLoad()"
-      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+            onload="this.onload=function(){};"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
   </body>
 </html>

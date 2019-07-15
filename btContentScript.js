@@ -22,7 +22,7 @@ window.addEventListener('message', function(event) {
     // Handle message from Window
     if (event.source != window)
         return;
-    console.log('content_script.js got message:', event);
+    console.log('content_script.js got message from Window:', event);
     switch (event.data.type) {
     case 'tags_updated':
         // pull tags info from message and post to local storage
@@ -33,7 +33,7 @@ window.addEventListener('message', function(event) {
     case 'nodes_updated':
         // pull node info from message and post to local storage
         chrome.storage.local.set({'nodes': event.data.text}, function() {
-            console.log("nodes set to " + event.data.text);
+            console.log("nodes set");
         });
         // and let extension know bt window is set
         chrome.runtime.sendMessage({
@@ -73,7 +73,12 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
+    console.log("Content script received msg from app:" + msg);
     switch (msg.type) {
+    case 'keys':                // info about gdrive app
+        window.postMessage({type: 'keys', 'client_id': msg.client_id, 'api_key': msg.api_key});
+        response("cheers mate");
+        break;
     case 'new_tab':             // new tab to be added to BT
         chrome.storage.local.get('tabsList', function (data) {
             var tab = data.tabsList[0];
@@ -92,3 +97,13 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     
 });
                       
+debugger;
+
+
+console.log("ContentScript loaded. Sending window_ready...");
+
+// bt window is ready to open gdrive app
+chrome.runtime.sendMessage({
+    from: 'btwindow',
+    msg: 'window_ready',
+});

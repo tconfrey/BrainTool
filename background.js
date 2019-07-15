@@ -1,6 +1,7 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
+// Runs in the background chrome extension process. Messages out to popup code running in toolbar and
+// to BT app code running in a web page and served from a remote server.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// found in the LICENSE file, when I create one.
 
 'use strict';
 
@@ -8,22 +9,20 @@ chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
 var AllNodes;                   // array of {parent, children[], id, windowId, tabId, text: {fullText, summaryText}}
 
-/*
-chrome.webNavigation.onCompleted.addListener(
-    function() {
-        alert("opened!");
-        //btwindow.postMessage("hey", "*");
-    },
-    {url: [{urlContains : 'localhost'}]
-    }
-);
-*/
-
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
     console.log('background.js got message:', msg);
     switch (msg.from) {
     case 'btwindow':
+        if (msg.msg == 'window_ready') { 
+            chrome.tabs.sendMessage(                        // send over gdrive app info
+                BTTab,
+                {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
+                {} , 
+                function (rsp) {
+                    console.log("sent keys, rsp: " + rsp);
+                });
+        }
         if (msg.msg == 'ready') {
             console.log("BT window is ready");
             // maybe give original window focus here?
@@ -219,7 +218,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
-
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
@@ -233,3 +231,16 @@ chrome.windows.onRemoved.addListener((windowId) => {
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
 });
+
+
+/*
+// listen for navigation completion and update model accordingly. no current use cases.
+chrome.webNavigation.onCompleted.addListener(
+    function() {
+        alert("opened!");
+        //btwindow.postMessage("hey", "*");
+    },
+    {url: [{urlContains : 'localhost'}]
+    }
+);
+*/
