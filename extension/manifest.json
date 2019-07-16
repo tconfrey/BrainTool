@@ -9,7 +9,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://BrainTool.org/*"], //"http://localhost/*"],   // "https://tconfrey.github.io/BrainTool/*"],
+            "matches": ["https://BrainTool.org/app/*"], //"http://localhost/*"],   // "https://tconfrey.github.io/BrainTool/*"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }
