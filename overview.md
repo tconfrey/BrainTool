@@ -22,5 +22,6 @@ From a Chrome session new links can be added to the tree and links from the tree
 These are different things in org but in BT they are all the same. Every headline in the tree is a tag. Leaf nodes carry the tags of all of their ancestors.
     
 ## Links
+
     Links in org mode are represented as [[link url][link title]], when editing a link within the BT tree view this convention is followed.
     
