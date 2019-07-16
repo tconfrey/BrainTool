@@ -22,5 +22,5 @@ These are different things in org but in BT they are all the same. Every headlin
     
 ## Links
 
-    Links in org mode are represented as [[link url][link title]], when editing a link within the BT tree view this convention is followed.
+Links in org mode are represented as [[link url][link title]], when editing a link within the BT tree view this convention is followed.
 
