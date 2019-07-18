@@ -60,7 +60,7 @@ function openNode(nodeId, url) {
         return;
     }
     var parentNode = AllNodes[BTNode.parent];
-    if (!parentNode) return;                                    // shrug
+    if (!parentNode) parentNode = BTNode;                  // open as its own window
 
     if (parentNode.windowId)
         // open tab in this window
