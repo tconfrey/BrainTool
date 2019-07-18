@@ -8,6 +8,6 @@ Currently it is at a minimal MVP-for-me level of functionality so I have not pub
 - the extension now shows as an icon in your tool bar
 - click the icon!
 
-There's more info in the [Overview][http://braintool.org/overview] (which won't use my Jekyll style for some unknown  reason). Let me know if you have any thoughts, comments, or feedback.
+There's more info in the [Overview](http://braintool.org/overview) (which won't use my Jekyll style for some unknown  reason). Let me know if you have any thoughts, comments, or feedback.
 
 Tony 
