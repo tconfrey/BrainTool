@@ -1,5 +1,3 @@
-layout: Cayman
----
 
 # BrainTool Philosophy
 
