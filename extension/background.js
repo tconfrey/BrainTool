@@ -71,7 +71,7 @@ function openNode(nodeId, url) {
         });
     else
         // open new window and assign windowId
-        chrome.windows.create({'url': url}, function(window) {
+        chrome.windows.create({'url': url, 'left': 500}, function(window) {
             parentNode.windowId = window.id;
             BTNode.tabId = window.tabs[0].id;
             BTNode.windowId = window.id;
@@ -103,7 +103,7 @@ function openTag(parentId, data) {
             urls.push(ary[i].url);
             AllNodes[ary[i].nodeId].url = ary[i].url;
         }
-        chrome.windows.create({'url': urls}, function(win) {
+        chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // When done record window in local node store (also need tabs?) and send back message per tab
             var id, tab;
             parentNode.windowId = win.id;
