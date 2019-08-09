@@ -306,6 +306,7 @@ function storeTab(tag, tab) {
     var reg = new RegExp(regexStr, "m");
     var result = reg.exec(BTFileText);
     if (result) {
+        // TODO handle case where the parent header has section text below it
         var ind = result.index + result[0].length;
         var headerLevel = result[0].match(/\*+/)[0];
         var newRow = generateNewOrgRow(headerLevel, tab);
