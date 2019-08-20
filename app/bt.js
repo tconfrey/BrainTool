@@ -151,6 +151,7 @@ function createStartingBT() {
         })
 }
 
+var LOCALTEST = false; // overwritten in test harness
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
     if (LOCALTEST) return;
