@@ -153,6 +153,7 @@ function createStartingBT() {
 
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
+    if (LOCALTEST) return;
     if (typeof gapi === "undefined") return;           // eg when called from test harness
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive

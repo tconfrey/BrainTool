@@ -63,6 +63,7 @@ QUnit.module("App tests", function() {
     });
     
     QUnit.test("Store Tab under tag", function(assert) {
+        LOCALTEST = true;
         AllNodes = []; BTNode.topIndex = 0;
         storeTab("tag1", {url: "http://google.com", title: "The Goog"});
         assert.equal(AllNodes.length, 2, "tag and tab added ok:");

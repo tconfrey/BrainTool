@@ -1,14 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>BrainTool Test Suite</title>
-  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
-</head>
-<body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
-  <script src="test.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>BrainTool Test Suite</title>
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <link href="../app/jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="../app/jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <script src="../app/jquery.treetable.js"></script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <table id="content">
+    </table>
+    
+    <script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
+    <script src="../app/orga-bundle.js"></script>
+    <script src="../extension/BTNode.js"></script>
+    <script src="../app/bt.js"></script>
+    <script src="../app/parser.js"></script>
+    <script src="test.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+            onload="this.onload=function(){};"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
 </html>
