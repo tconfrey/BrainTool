@@ -153,6 +153,7 @@ function createStartingBT() {
 
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
+    if (typeof gapi === "undefined") return;           // eg when called from test harness
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
         'mimeType': 'text/plain' // mimeType at Google Drive
@@ -181,7 +182,6 @@ function writeBTFile() {
 var Categories = new Set();     // track tags for future tab assignment
 var BTFileText = "";            // Global container for file text
 var parseTree;                  // orga parse results
-var nodeId = 0;                 // for jquery.treetable id's
 
 function refreshTable() {
     // refresh from file, first clear current state
@@ -189,7 +189,7 @@ function refreshTable() {
     $("#refresh").text('...');
     Categories = new Set();
     BTFileText = "";
-    nodeId = 0;
+    BTNode.topIndex = 0;
     AllNodes = [];
     FindOrCreateBTFile();
 }
@@ -207,7 +207,7 @@ function processBTFile(fileText) {
     // Let extension know about model
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags});
-    var nodes = JSON.stringify(AllNodes, replacer);
+    var nodes = JSON.stringify(AllNodes);
     window.postMessage({ type: 'nodes_updated', text: nodes});
 
     // initialize ui
@@ -226,17 +226,6 @@ function processBTFile(fileText) {
     }
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
-    
-    function replacer(key, node) {
-        // used to avoid circular references in nodes stringification
-        // return id of parent instead of whole parent node
-        if (key == 'parent')
-            return node ? node.id : null;
-        // filter out orgaNode, extension doesn't need it
-        if (key == 'orgaNode')
-            return undefined;
-        return node;
-    }
 }
 
 
@@ -264,7 +253,6 @@ window.addEventListener('message', function(event) {
         gapi.load('client:auth2', initClient);             // initialize gdrive app
         break;
     case 'new_tab':
-        console.log('adding tab' + event.data.tab);
         storeTab(event.data.tag, event.data.tab);
         break;
     case 'tab_opened':
@@ -275,100 +263,56 @@ window.addEventListener('message', function(event) {
         break;
     case 'tab_closed':
         var nodeId = event.data.BTNodeId;
-        AllNodes[nodeId].tabId = null;
         $("tr[data-tt-id='"+nodeId+"']").removeClass("opened");
         break;
     }
 });
 
-
 function storeTab(tag, tab) {
-    // put this tab under storage
+    // put this tab under storage w given tag
 
     // Add new tag if doesn't exist
     tag = tag.trim();
-    if (!Categories.has(tag)) addNewTag(tag, tab);
+    if (!Categories.has(tag)) addNewTag(tag);
     
-    // find tag in table and add new row underneath it
-    $(".left").each(function(i, obj) {
-        if ($(this).text().trim() == tag) {
-            // insert new link here
-            var tr = $(this).closest('tr'); // walk up to parent row
-            var ttParentId = $(tr).attr('data-tt-id');
-            var newNode = generateNewNode(tab, ttParentId);
-            $(tr).after(newNode);
-            $(newNode).find("a")[0].onclick = handleLinkClick;
-        }
-    });
+    var url = tab.url;
+    var title = tab.title;
+    var parentNode = BTNode.findFromTitle(tag);
+    
+    var newNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, "", parentNode.level + 1, parentNode.id);
+    AllNodes[newNode.id] = newNode;
 
-    // find tag in file and add new row underneath it
-    var regexStr = "^\\*+\\s*" + tag;
-    var reg = new RegExp(regexStr, "m");
-    var result = reg.exec(BTFileText);
-    if (result) {
-        // TODO handle case where the parent header has section text below it
-        var ind = result.index + result[0].length;
-        var headerLevel = result[0].match(/\*+/)[0];
-        var newRow = generateNewOrgRow(headerLevel, tab);
-        BTFileText = BTFileText.slice(0, ind) + newRow + BTFileText.slice(ind);
-    }
-    
+    // find tag in table and add new row underneath it
+    $("tr[data-tt-id='"+parentNode.id+"']").after(newNode.HTML());
+    $(newNode.HTML()).find("a")[0].onclick = handleLinkClick;
+
     // Update table
     $(".indenter").remove();    // workaround to prevent multiple expander nodes
     $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
     $("table.treetable tr").on('mouseenter', null, buttonShow);
     $("table.treetable tr").on('mouseleave', null, buttonHide);    
-    
-    // Update AllNodes model
-    
-
+        
+    BTFileText = generateOrgFile();
     writeBTFile();              // finally write back out the update file text
 }
 
-function generateNewNode(tab, parentId) {
-    // given a tab generate the tree tr row
-    var url = tab.url;
-    var title = tab.title;
-    var newNode = "<tr data-tt-id='" + nodeId + "' data-tt-parent-id = '" + parentId + "'>";
-    newNode += "<td class='left'><a class='btlink' href='" + url + "'>" + title + "</a></td><td class='middle'/><td/></tr>";
-
-    // also create and store btnode structure
-    var orgTitleText = "[[" + url + "][" + title + "]]";
-    AllNodes[nodeId] = {id: nodeId++, children: [], parent: AllNodes[parentId],
-                        tabId: tab.id, windowId: tab.windowId,
-                        title: {orgText: orgTitleText}, text: {orgText: ""}};
-    AllNodes[parentId].children.push(AllNodes[nodeId]); // add to parent's children array
-    return newNode;
-}
-
-function generateNewOrgRow(headline, tab) {
-    // generatre textrow to be written back out to org file
-    var url = tab.url;
-    var title = tab.title;
-    var newNode = "\n" + headline + "* [[" + url + "][" + title + "]]"; // add an extra * level
-    return newNode;
-}
-
-function addNewTag(tag, tab) {
-    // New tag, add container at bottom and put tab link under it
+function addNewTag(tag) {
+    // New tag - create node and add container at bottom
+    tag = tag.trim();
+    var node = new BTNode(BTNode.topIndex++, tag, "", 1, null);
+    
     var last = $("#content").find("tr").last();
-    var newRows = "<tr data-tt-id='" + nodeId + "'><td class='left'>" + tag + "</td><td class='middle'/><td>New tag</td></tr>";
-    $(last).after(newRows);
-
-    // Add new tag to bottom of org file text
-    BTFileText += "\n* " + tag;
+    var newRow = node.HTML();
+    $(last).after(newRow);
 
     // Add new category and let extension know about updated tags list
-    Categories.add(tag.trim());
+    Categories.add(tag);
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags });
 
     // Update model w new node
-    AllNodes.push({id: nodeId++, children: [],
-                   text: {fullText: "New tag", summaryText: "", orgText: "New Tag"}, 
-                   title: {fullText: tag, summaryText: "", orgText: tag},
-                   level: 1, parent: null});
-
+    AllNodes[node.id] = node;
+    
     // Update table
     $(".indenter").remove();    // workaround to prevent multiple expander nodes
     $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
@@ -428,9 +372,9 @@ function populateDialog() {
     var BTNode = AllNodes[BTNodeId];
     if (!BTNode) return false;
     
-    var titletxt = BTNode.title ? BTNode.title.orgText : "";
-    var txttxt = BTNode.text ? BTNode.text.orgText : "";
-    var kids = BTNode.children ? BTNode.children.length : false;
+    var titletxt = BTNode.title;
+    var txttxt = BTNode.text;
+    var kids = BTNode.childIds.size;
     
     $("#title-text").val(titletxt);
     $("#text-text").val(txttxt);
@@ -447,8 +391,6 @@ $("textarea").change(function() {
 
 function openRow() {
     // Open all links under this row in windows per tag
-    // TODO this logic should live in a BTNode class
-    // Also the logic will change when BTNode and BTLink abstracted seperately
 
     // First find all BTNodes involved - selected plus children
     var tr = $("tr.selected")[0];
@@ -461,50 +403,17 @@ function openRow() {
     // close the dialog
     $("#dialog")[0].close();
     $("tr.selected").removeClass('selected');
-
-
-    function openEachWindow(node) {
-        var rowIds = [];
-        var tabsToOpen = [];
-        
-        rowIds.push(node.id);
-        if (node.children)
-            node.children.forEach(function(child) {
-                rowIds.push(child.id);
-            });
-
-        // iterate thru rows and find all links and send msg to extension to open them
-        rowIds.forEach(function(id) {
-            $("tr[data-tt-id='"+id+"']").find("a").each(function() {
-                var url = $(this).attr('href');
-                if (url == "#") return;                           // ignore the '...' hover link
-                tabsToOpen.push({'nodeId': id, 'url': url });
-            });
-        });
-        
-        if (tabsToOpen.length)
-            window.postMessage({ 'type': 'tag_open', 'parent': node.id, 'data': tabsToOpen});
-
-        
-        if (node.children.length)    // iterate again and recurse for container nodes to each open their windows
-            node.children.forEach(function(child) {
-                if (child.children.length)
-                    openEachWindow(child);
-            });
-    }
 }
 
-/* Not used now, different model of opening all contained links in a single window
-function openRowSingleWindow() {
-    // Open all links under this row in a single window
-
-    // First find all BTNodes involved - selected plus children
-    var tr = $("tr.selected")[0];
-    var BTNodeId = $(tr).attr('data-tt-id');
-    var BTNode = AllNodes[BTNodeId];
+function openEachWindow(node) {
     var rowIds = [];
     var tabsToOpen = [];
-    findAllDescendentIds(BTNode);
+    
+    rowIds.push(node.id);
+    if (node.childIds.size)
+        node.childIds.forEach(function(childId) {
+            rowIds.push(childId);
+        });
 
     // iterate thru rows and find all links and send msg to extension to open them
     rowIds.forEach(function(id) {
@@ -514,132 +423,96 @@ function openRowSingleWindow() {
             tabsToOpen.push({'nodeId': id, 'url': url });
         });
     });
-    window.postMessage({ 'type': 'tag_open', 'parent': BTNodeId, 'data': tabsToOpen});
+    
+    if (tabsToOpen.length)
+        window.postMessage({ 'type': 'tag_open', 'parent': node.id, 'data': tabsToOpen});
 
-    // finally close the dialog
-    $("#dialog")[0].close();
-    $("tr.selected").removeClass('selected');
-
-
-    function findAllDescendentIds(parent) {
-        rowIds.push(parent.id);
-        if (parent.children)
-            parent.children.forEach(function(child) {
-                findAllDescendentIds(AllNodes[child.id]);
-            });
-    }
+    
+    if (node.childIds.size)    // iterate again and recurse for container nodes to each open their windows
+        node.childIds.forEach(function(childId) {
+            var child = AllNodes[childId];
+            if (child.childIds.size)
+                openEachWindow(child);
+        });
 }
-*/
+
 
 function escapeRegExp(string) {
     // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-    
+
 function deleteRow() {
     // Delete this node/row. NB only callable if no children
     var tr = $("tr.selected")[0];
     var BTNodeId = $(tr).attr('data-tt-id');
-    var BTNode = AllNodes[BTNodeId];
-
     $(tr).remove();                                   // remove from ui - easy!
     $("#dialog")[0].close();
-
-    // find tag in file and snip it out
-    var updatedFile = false;
-    var tag = BTNode.title.orgText;
-    var regexStr = "^\\*+\\s*";                       // start of line *'s + whitespace
-    var startStr = regexStr + escapeRegExp(tag);
-    var regStart = new RegExp(startStr, "m");         // + tag
-    var result1 = regStart.exec(BTFileText);
-    if (result1) {
-        var start = result1.index + result1[0].length;
-        var regEnd = new RegExp(regexStr, "m");       // no tag
-        var result2 = regEnd.exec(BTFileText.substr(start + 1));
-        if (result2) {
-            var end = result2.index;
-            BTFileText = BTFileText.substr(0, result1.index) + BTFileText.substr(start + end);
-            updatedFile = true;
-        }
-    }
-    if (!updatedFile) {
-        alert("Sorry error in backend deletion, please work directly with the .org file");
-        return;
-    }
+    deleteNode(BTNodeId);
+}
+function deleteNode(id) {
+    //delete node and clean up
+    var node = AllNodes[id];
 
     // Remove from parent
-    var parent = BTNode.parent;
-    if (parent) 
-        for (var i = 0; i < parent.children.length; i++) {
-            if (parent.children[i] == BTNode) {
-                parent.children.splice(i, 1);
-                break;
-            }
-        }
+    var parent = AllNodes[node.parentId];
+    if (parent)
+        parent.childIds.delete(id);
     
-    // Remove node. NB deleting cos I'm using ID for array index - maybe shoudl have a level of indirection?
-    delete(AllNodes[BTNode.id]);
+    // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
+    delete(AllNodes[id]);
 
     // message to update BT background model
-    window.postMessage({ type: 'node_deleted', nodeId: BTNode.id });
+    window.postMessage({ type: 'node_deleted', nodeId: id });
     
-    writeBTFile();              // Finally write back out updated file text
+    // Update File 
+    BTFileText = generateOrgFile();
+    writeBTFile();
 }
 
 $(".editNode").on('change keyup paste', function() {
     $("#update").prop('disabled', false);
 });
 
-function displayTextFromOrgText(txt) {
-    // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
-
-    var regexStr = "\\[\\[(.*)\\]\\[(.*)\\]\\]";
-    var reg = new RegExp(regexStr, "m");
-    var hits;
-    var outputStr = txt;
-    if ((hits = reg.exec(txt)) !== null) {
-        console.log(hits);
-        outputStr = txt.substring(0, hits.index) + "<a href='" + hits[1] + "'>" + hits[2] + "</a>" + txt.substring(hits.index + hits[0].length);
-    }
-    return outputStr;
-}
 
 function updateRow() {
     // Update this node/row.
 
     var tr = $("tr.selected")[0];
-    var BTNodeId = $(tr).attr('data-tt-id');
-    var BTNode = AllNodes[BTNodeId];
+    var nodeId = $(tr).attr('data-tt-id');
+    var node = AllNodes[nodeId];
     var titleText = $("#title-text").val();
     var textText = $("#text-text").val();
 
-    // Update ui
-    var innerHTML = "<td>" + displayTextFromOrgText(titleText) + "</td><td class='middle'/><td>"
-        + displayTextFromOrgText(textText) + "</td>";
-    $(tr).html(innerHTML);
-    $(".indenter").remove();    // workaround to prevent multiple expander nodes
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
-
-    var currentTitle = (BTNode.title && BTNode.title.orgText) ? BTNode.title.orgText : "";
-    var currentText = (BTNode.text && BTNode.text.orgText) ? BTNode.text.orgText : "";
+    // Grab info on current state
+    var currentOrgText = node.orgText();
 
     // Update Model
-    BTNode.title.orgTitle = titleText;
-    BTNode.text.orgText = textText;
+    node.title = titleText;
+    node.text = textText;
+    
+    // Update ui
+    var rowHTML = node.HTML();
+    $(tr).replaceWith(rowHTML);
+    $(".indenter").remove();                     // workaround to prevent multiple expander nodes
+    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
 
-    // Update File    
-    var startLine = "(^\\*+\\s*)";
-    var regexStr = startLine + escapeRegExp(currentTitle) + "(\\s)" + escapeRegExp(currentText);
-    var reg = new RegExp(regexStr, "m");
-    var updated = false;
-    BTFileText = BTFileText.replace(reg, function(match, p1, p2) {
-        updated = true;
-        return "\n" + p1 + titleText + p2 + textText + "\n";
-    });
-    if (updated)
-        writeBTFile();
+    // Update File 
+    BTFileText = generateOrgFile();
+    writeBTFile();
 
-    // update ui
+    // reset ui
     $("#dialog")[0].close();
     $("tr.selected").removeClass('selected');
 }
+
+function generateOrgFile() {
+    // iterate thru nodes to do the work
+    var orgText = "";
+    AllNodes.forEach(function (node) {
+        if (node)
+            orgText += node.orgText();
+    });
+    return orgText;
+}
+

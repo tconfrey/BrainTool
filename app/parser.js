@@ -19,26 +19,26 @@ function parseBTFile(fileText) {
 
 function BTNodeProcessSection(orgaSection) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null,
-                  'id': nodeId, 'windowId': null, 'tabId': null, text: {}, title: {}};
-    AllNodes[nodeId++] = BTNode;
+    var Node = new BTNode(BTNode.topIndex, "", "", 0, null);
+    AllNodes[BTNode.topIndex++] = Node;
     var BTChildIndex = 0;
     var orgaChild;
     for (var i = 0; i < orgaSection.children.length; i++) {
         orgaChild = orgaSection.children[i];
         if (orgaChild.type == "headline") {
-            BTNode.level = orgaChild.level;
-            BTNode.title = orgaText(orgaChild); // returns {fullText, summaryText, orgText}
+            Node.level = orgaChild.level;
+            Node.title = orgaText(orgaChild).orgText; // returns {fullText, summaryText, orgText}
         }
         if (orgaChild.type == "paragraph") {
-            BTNode.text = orgaText(orgaChild);  // returns {fullText, summaryText, orgText}
+            Node.text = orgaText(orgaChild).orgText;  // returns {fullText, summaryText, orgText}
         }
         if (orgaChild.type == "section") {
-            BTNode.children[BTChildIndex] = BTNodeProcessSection(orgaChild);
-            BTNode.children[BTChildIndex++].parent = BTNode; // remember parent
+            var childNode = BTNodeProcessSection(orgaChild);
+            childNode.parentId = Node.id;               // remember parent
+            Node.childIds.add(childNode.id);
         }
     }
-    return BTNode;
+    return Node;
 }
 
 
@@ -103,6 +103,43 @@ function orgaText(node) {
     };
 }
 
+function generateTable() {
+    // Generate table from BT Nodes
+    var outputHTML = "<table>";
+    AllNodes.forEach(function(node) {
+        if (!node) return;
+        outputHTML += node.HTML();
+    });
+    outputHTML += "</table>";
+    return outputHTML;
+}
+
+
+/*
+function BTNodeProcessSection(orgaSection) {
+    // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
+    var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null,
+                  'id': nodeId, 'windowId': null, 'tabId': null, text: {}, title: {}};
+    AllNodes[nodeId++] = BTNode;
+    var BTChildIndex = 0;
+    var orgaChild;
+    for (var i = 0; i < orgaSection.children.length; i++) {
+        orgaChild = orgaSection.children[i];
+        if (orgaChild.type == "headline") {
+            BTNode.level = orgaChild.level;
+            BTNode.title = orgaText(orgaChild); // returns {fullText, summaryText, orgText}
+        }
+        if (orgaChild.type == "paragraph") {
+            BTNode.text = orgaText(orgaChild);  // returns {fullText, summaryText, orgText}
+        }
+        if (orgaChild.type == "section") {
+            BTNode.children[BTChildIndex] = BTNodeProcessSection(orgaChild);
+            BTNode.children[BTChildIndex++].parent = BTNode; // remember parent
+        }
+    }
+    return BTNode;
+}
+
 
 function generateTable() {
     // Generate table from BT Nodes
@@ -120,3 +157,4 @@ function generateTable() {
     outputHTML += "</table>";
     return outputHTML;
 }
+*/

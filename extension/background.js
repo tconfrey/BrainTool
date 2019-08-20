@@ -7,7 +7,7 @@
 
 chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
-var AllNodes;                   // array of {parent, children[], id, windowId, tabId, text: {fullText, summaryText}}
+var AllNodes;                   // array of BTNodes
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
@@ -24,11 +24,15 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                 });
         }
         if (msg.msg == 'ready') {
-            console.log("BT window is ready");
             // maybe give original window focus here?
             chrome.storage.local.get('nodes', function(data) {
-                AllNodes = JSON.parse(data.nodes);
-                console.log("created nodes: " + AllNodes);
+                var nodes = JSON.parse(data.nodes);
+                var chromeNode;
+                AllNodes = new Array();
+                nodes.forEach(function(node) {
+                    chromeNode = new BTChromeNode(node._id, node._title, node._text, node._level, node._parentId);
+                    AllNodes[chromeNode.id] = chromeNode;
+                });
             });
         }
         if (msg.msg == 'link_click') {
@@ -59,7 +63,7 @@ function openNode(nodeId, url) {
         chrome.windows.update(BTNode.windowId, {'focused': true});
         return;
     }
-    var parentNode = AllNodes[BTNode.parent];
+    var parentNode = AllNodes[BTNode.parentId];
     if (!parentNode) parentNode = BTNode;                  // open as its own window
 
     if (parentNode.windowId)
@@ -122,62 +126,47 @@ function openTag(parentId, data) {
 }
             
                               
-function deleteNode(nodeId) {
+function deleteNode(id) {
     // node was deleted in BT ui. Just do the housekeeping here
 
-    var node = AllNodes[nodeId];
-    
-    // Remove node. NB deleting cos I'm using ID for array index - maybe shoudl have a level of indirection?
-    delete(AllNodes[nodeId]);
+    var node = AllNodes[id];
     
     // Remove from parent
-    var parent = node.parent;
-    if ((!parent) || (!parent.children)) return;
-    for (var i = 0; i < parent.children.length; i++) {
-        if (parent.children[i] == node) {
-            parent.children.splice(i, 1);
-            break;
-        }
-    }
+    var parent = AllNodes[node.parentId];
+    if (parent)
+        parent.childIds.delete(id);
+    
+    // Remove node. NB deleting cos I'm using ID for array index - maybe shoudl have a level of indirection?
+    delete(AllNodes[id]);
 }
 
 function moveTabToWindow(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
     
-    var i = 0;
-    var BTNode = {};
-    while ((i < AllNodes.length) && (AllNodes[i].title.fullText != tag)) i++;
-    if (i == AllNodes.length) {           // Need to create new top level section
-        BTNode = {'children': [], 'parent': null, 'id': AllNodes.length,
-                      'windowId': null, 'tabId': null, 'url': null,
-                      title: {fullText: tag, summaryText: null}
-                     };
-        AllNodes.push(BTNode);
-    }
+    var tagNode = BTNode.findFromTitle(tag) || new BTChromeNode(BTNode.topIndex++, tag, "", 1, null);
+    AllNodes[tagNode.id] = tagNode;
     
-    var parentNode = AllNodes[i];
-    if (parentNode.windowId)
-        chrome.tabs.move(tabId, {'windowId': parentNode.windowId, 'index': -1}, function(deets) {
-            chrome.tabs.highlight({'windowId': parentNode.windowId, 'tabs': deets.index});
-            chrome.windows.update(parentNode.windowId, {'focused': true});
+    if (tagNode.windowId)
+        chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': -1}, function(deets) {
+            chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
+            chrome.windows.update(tagNode.windowId, {'focused': true});
         });
     else
         chrome.windows.create({'tabId': tabId}, function(window) {
-            AllNodes[i].windowId = window.id;
+            tagNode.windowId = window.id;
         });
 
     // get tab url, then create and store new BT node
     chrome.tabs.get(tabId, function(tab) {
-        BTNode = {'children': [], 'parent': i, 'id': AllNodes.length,
-                  'windowId': AllNodes[i].windowId, 'tabId': tabId,
-                  'url': tab.url, title: {fullText: tab.url, summaryText: null}};
-        AllNodes.push(BTNode);
- //       AllNodes[i].children.push(BTNode); // add to parent
+        var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, "", tagNode.level + 1, tagNode.id);
+        linkNode.tabId = tabId;
+        linkNode.windowId = tagNode.windowId;
+        AllNodes[linkNode.id] = linkNode;
         
-        // Send back message that the bt and parent nodes are opened in browser
+        // Send back message that the link and tag nodes are opened in browser
         chrome.tabs.sendMessage(
             BTTab,
-            {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
+            {'type': 'tab_opened', 'BTNodeId': linkNode.id, 'BTParentId': tagNode.id});
     });
 }
 

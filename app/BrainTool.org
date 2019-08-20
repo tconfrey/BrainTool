@@ -2,5 +2,5 @@
 BrainTool is a tool
 ** Category-Tag
 They are the same
-** Link
+** [[http://www.link.com][Link]]
 URL with a name

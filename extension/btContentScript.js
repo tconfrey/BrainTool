@@ -1,23 +1,6 @@
+// This script is basically just a relay for messages between the app window and the extension.
 
-var tabsData;
-
-function populateTabsList() {
-
-    var tabsElement = document.getElementById('tabs');
-    chrome.storage.local.get('tabsList', function (data) {
-        tabsData = data.tabsList;
-        var htmlText = "";
-        for(var i=0, len=tabsData.length; i < len; i++){
-            htmlText = htmlText + "<p>" + tabsData[i].title + "</p>";
-            console.log(tabsData[i].title);
-        }
-        tabsElement.innerHTML = htmlText; 
-    });
-}
-
-// Don't think I need to do this any more
-//populateTabsList();
-
+// Listen for messages from the App
 window.addEventListener('message', function(event) {
     // Handle message from Window
     if (event.source != window)
@@ -70,6 +53,7 @@ window.addEventListener('message', function(event) {
     
 });
 
+// Listen for messages from the extension
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
@@ -96,13 +80,9 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     }
     
 });
-                      
-debugger;
 
 
-console.log("ContentScript loaded. Sending window_ready...");
-
-// bt window is ready to open gdrive app
+// Let extension know bt window is ready to open gdrive app
 chrome.runtime.sendMessage({
     from: 'btwindow',
     msg: 'window_ready',
