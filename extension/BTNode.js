@@ -115,3 +115,16 @@ class BTChromeNode extends BTNode {
         this.windowID = null;
     }
 }
+
+class BTLinkNode extends BTNode {
+    // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
+    constructor(id, title, text, level, parentId) {
+        super(id, title, text, level, parentId);
+    }
+    orgTextwChildren() {
+        // only generate org text for links with added descriptive text
+        if (this._text.length)
+            return super.orgTextwChildren();
+        return "";
+    }
+}   

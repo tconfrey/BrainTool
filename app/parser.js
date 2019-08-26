@@ -19,28 +19,82 @@ function parseBTFile(fileText) {
 
 function BTNodeProcessSection(orgaSection) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    var Node = new BTNode(BTNode.topIndex, "", "", 0, null);
-    AllNodes[BTNode.topIndex++] = Node;
+    var node = new BTNode(BTNode.topIndex, "", "", 0, null);
+    AllNodes[BTNode.topIndex++] = node;
     var BTChildIndex = 0;
     var orgaChild;
     for (var i = 0; i < orgaSection.children.length; i++) {
         orgaChild = orgaSection.children[i];
         if (orgaChild.type == "headline") {
-            Node.level = orgaChild.level;
-            Node.title = orgaText(orgaChild).orgText; // returns {fullText, summaryText, orgText}
+            node.level = orgaChild.level;
+            node.title = orgaText(orgaChild);
         }
         if (orgaChild.type == "paragraph") {
-            Node.text = orgaText(orgaChild).orgText;  // returns {fullText, summaryText, orgText}
+            node.text = orgaText(orgaChild);
+            BTLinkProcessPara(orgaChild, node); // pull out any embedded links and make them tree nodes
         }
         if (orgaChild.type == "section") {
             var childNode = BTNodeProcessSection(orgaChild);
-            childNode.parentId = Node.id;               // remember parent
-            Node.childIds.add(childNode.id);
+            childNode.parentId = node.id;               // remember parent
+            node.childIds.add(childNode.id);
         }
     }
-    return Node;
+    return node;
 }
 
+
+function orgaLinkOrgText(node) {
+    return "[[" + node.uri.raw + "][" + node.desc + "]]";
+}
+
+function orgaText(node) {
+    // generate text from orga headline or para node. Both can contain texts and links
+    var orgaChild;
+    var origText = ""
+    for (var i = 0; i < node.children.length; i++) {
+        orgaChild = node.children[i];
+        if (orgaChild.type == "text") {
+            origText += orgaChild.value;
+            if (node.type == "headline") Categories.add(orgaChild.value);
+        }
+        if (orgaChild.type == "link") {
+            origText += orgaLinkOrgText(orgaChild);
+/* Not sure how to make links headlines into tags/Categories without including all links            
+            if (node.type == "headline") Categories.add(orgaChild.desc);
+*/
+        }
+    }
+    return origText;
+}
+
+function BTLinkProcessPara(para, node) {
+    // Pull any child links out and create BTNodes
+    var orgaChild, btnode, title;
+    for (var i = 0; i < para.children.length; i++) {
+        orgaChild = para.children[i];
+        if (orgaChild.type == "link") {
+            title = orgaLinkOrgText(orgaChild);
+            btnode = new BTLinkNode(BTNode.topIndex, title, "", node.level+1, node.id);
+            AllNodes[BTNode.topIndex++] = btnode;
+        }
+    }
+}
+            
+    
+
+function generateTable() {
+    // Generate table from BT Nodes
+    var outputHTML = "<table>";
+    AllNodes.forEach(function(node) {
+        if (!node) return;
+        outputHTML += node.HTML();
+    });
+    outputHTML += "</table>";
+    return outputHTML;
+}
+
+
+/*
 
 function summarizeText(txtsAry) {
     // generate shorter version when needed
@@ -62,99 +116,5 @@ function summarizeText(txtsAry) {
         }
     });
     return out;
-}
-    
-function orgaLinkFullText(node) {
-    return "<a class='btlink' href='" + node.uri.raw + "'>" + node.desc + "</a>";
-}
-function orgaLinkOrgText(node) {
-    return "[[" + node.uri.raw + "][" + node.desc + "]]";
-}
-
-function orgaText(node) {
-    // generate text from orga headline or para node. Both can contain texts and links
-    var orgaChild;
-    var fullText = "";
-    var origText = ""
-    var tmpText = "";
-    var textsArray = [];
-    for (var i = 0; i < node.children.length; i++) {
-        orgaChild = node.children[i];
-        if (orgaChild.type == "text") {
-            fullText += orgaChild.value;
-            origText += orgaChild.value;
-            textsArray.push({'txt': orgaChild.value});
-            if (node.type == "headline") Categories.add(orgaChild.value);
-        }
-        if (orgaChild.type == "link") {
-            tmpText += orgaLinkFullText(orgaChild);
-            fullText += tmpText;
-            origText += orgaLinkOrgText(orgaChild);
-            textsArray.push({'desc': orgaChild.desc, 'txt': tmpText});
-/* Not sure how to make links headlines into tags/Categories without including all links            
-            if (node.type == "headline") Categories.add(orgaChild.desc);
-*/
-        }
-    }
-    return {
-        'fullText': fullText,
-        'summaryText': fullText.length > 120 ? summarizeText(textsArray) : "",
-        'orgText': origText
-    };
-}
-
-function generateTable() {
-    // Generate table from BT Nodes
-    var outputHTML = "<table>";
-    AllNodes.forEach(function(node) {
-        if (!node) return;
-        outputHTML += node.HTML();
-    });
-    outputHTML += "</table>";
-    return outputHTML;
-}
-
-
-/*
-function BTNodeProcessSection(orgaSection) {
-    // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    var BTNode = {'orgaNode': orgaSection, 'children': [], 'parent': null,
-                  'id': nodeId, 'windowId': null, 'tabId': null, text: {}, title: {}};
-    AllNodes[nodeId++] = BTNode;
-    var BTChildIndex = 0;
-    var orgaChild;
-    for (var i = 0; i < orgaSection.children.length; i++) {
-        orgaChild = orgaSection.children[i];
-        if (orgaChild.type == "headline") {
-            BTNode.level = orgaChild.level;
-            BTNode.title = orgaText(orgaChild); // returns {fullText, summaryText, orgText}
-        }
-        if (orgaChild.type == "paragraph") {
-            BTNode.text = orgaText(orgaChild);  // returns {fullText, summaryText, orgText}
-        }
-        if (orgaChild.type == "section") {
-            BTNode.children[BTChildIndex] = BTNodeProcessSection(orgaChild);
-            BTNode.children[BTChildIndex++].parent = BTNode; // remember parent
-        }
-    }
-    return BTNode;
-}
-
-
-function generateTable() {
-    // Generate table from BT Nodes
-    var outputHTML = "<table>";
-    AllNodes.forEach(function(node) {
-        if (!node) return;
-        outputHTML += "<tr data-tt-id='" + node.id;
-        if (node.parent) outputHTML += "' data-tt-parent-id='" + node.parent.id;
-        outputHTML += "'><td class='left'>" + node.title.fullText + "</td><td class='middle'/>";
-        if (node.text.summaryText || node.text.fullText)
-            outputHTML += "<td>" + (node.text.summaryText ? node.text.summaryText : node.text.fullText) + "</td></tr>";
-        else
-            outputHTML += "<td/></tr>";
-    });
-    outputHTML += "</table>";
-    return outputHTML;
 }
 */

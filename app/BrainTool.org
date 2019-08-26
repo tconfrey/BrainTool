@@ -3,4 +3,4 @@ BrainTool is a tool
 ** Category-Tag
 They are the same
 ** [[http://www.link.com][Link]]
-URL with a name
+URL with a name and [[http://google.com][embedded links]] scattered about.

@@ -3,7 +3,7 @@ QUnit.module("App tests", function() {
 
     QUnit.begin(function() {
         console.log("here first?");
-        window.FileText = "* BrainTool\nBrainTool is a tool\n** Category-Tag\nThey are the same\n** [[http://www.link.com][Link]]\nURL with a name";});
+        window.FileText = "* BrainTool\nBrainTool is a tool\n** Category-Tag\nThey are the same\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.";});
 
     QUnit.test("Read default .org file", function(assert) {
         var done = assert.async();
@@ -17,7 +17,7 @@ QUnit.module("App tests", function() {
                 console.log(text);
                 assert.ok(text, "default file contents received");
                 processBTFile(text);
-                assert.equal(3, AllNodes.length, "default file processed");
+                assert.equal(4, AllNodes.length, "default file processed");
                 assert.deepEqual(AllNodes[0].text,
                                  "BrainTool is a tool",
                                  "text looks good");
@@ -25,7 +25,7 @@ QUnit.module("App tests", function() {
                 assert.deepEqual(Categories, cats, "Categories look good");
                 var table = generateTable();
                 assert.equal(table,
-                             "<table><tr data-tt-id='0'><td class='left'>BrainTool</td><td class='middle'/><td>BrainTool is a tool</td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>They are the same</td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><a href='http://www.link.com' class='btlink'>Link</a></td><td class='middle'/><td>URL with a name</td></tr></table>",
+                             "<table><tr data-tt-id='0'><td class='left'>BrainTool</td><td class='middle'/><td>BrainTool is a tool</td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>They are the same</td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><a href='http://www.link.com' class='btlink'>Link</a></td><td class='middle'/><td>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><a href='http://google.com' class='btlink'>embedded links</a></td><td class='middle'/><td></td></tr></table>",
                              "Table generated correctly");
                 assert.deepEqual(generateOrgFile(), text, "Regenerated file text ok");
 
@@ -80,19 +80,20 @@ QUnit.module("App tests", function() {
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
+        LOCALTEST = true;
         assert.ok(window.FileText, "file text still available");
         AllNodes = []; BTNode.topIndex = 0;
         processBTFile(window.FileText);
         var table = generateTable();
-        assert.equal(AllNodes.length, 3, "nodes as expected");
+        assert.equal(AllNodes.length, 4, "nodes as expected");
         deleteNode(1);
         assert.notOk(AllNodes[1], "nodes as expected after deletion");
-        assert.deepEqual(BTFileText, "* BrainTool\nBrainTool is a tool\n** [[http://www.link.com][Link]]\nURL with a name\n", "file cleaned up ok");
+        assert.deepEqual(BTFileText, "* BrainTool\nBrainTool is a tool\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n", "file cleaned up ok");
     });
 
     QUnit.test("Open Tabs", function(assert) {
         var done = assert.async();
-        window.FileText = "* BrainTool\nBrainTool is a tool\n** Category-Tag\nThey are the same\n** [[http://www.braintool.org][Link]]\nURL with a name\n*** [[https://github.io][GitHub]]\n";
+        window.FileText = "* BrainTool\nBrainTool is a tool\n** Category-Tag\nThey are the same\n** [[http://www.braintool.org][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n*** [[https://github.io][GitHub]]\n";
         assert.ok(window.FileText, "file text available");
         AllNodes = []; BTNode.topIndex = 0;
         processBTFile(window.FileText);
