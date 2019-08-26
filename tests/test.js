@@ -54,22 +54,29 @@ QUnit.module("App tests", function() {
 
     QUnit.test("Add New Tag", function(assert) {
         AllNodes = []; BTNode.topIndex = 0;
-        var node = new BTNode(BTNode.topIndex++, "Category-Tag", "Link: [[http://google.com][The Goog]]", 2, 0);
+        var node = new BTNode(BTNode.topIndex++, "Category-Tag", "Link: [[http://google.com][The Goog]]", 1);
         AllNodes.push(node);
         addNewTag("foo");
         assert.equal(AllNodes.length, 2, "Tag node added ok");
-        assert.deepEqual(node.HTML(), "<tr data-tt-id='0' data-tt-parent-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>Link: <a href='http://google.com' class='btlink'>The Goog</a></td></tr>", "HTML gen ok");
-        assert.deepEqual(generateOrgFile(), "** Category-Tag\nLink: [[http://google.com][The Goog]]\n* foo\n\n", "Org file ok");
+        assert.deepEqual(node.HTML(), "<tr data-tt-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>Link: <a href='http://google.com' class='btlink'>The Goog</a></td></tr>", "HTML gen ok");
+        assert.deepEqual(generateOrgFile(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n* foo\n\n", "Org file ok");
     });
     
     QUnit.test("Store Tab under tag", function(assert) {
         LOCALTEST = true;
         AllNodes = []; BTNode.topIndex = 0;
         storeTab("tag1", {url: "http://google.com", title: "The Goog"});
-        assert.equal(AllNodes.length, 2, "tag and tab added ok:");
+        assert.equal(AllNodes.length, 2, "tag and tab added ok");
+        var node = AllNodes[0]; // newly created parent node
+        assert.equal(node.childIds.size, 1, "parent knows about child");
         assert.deepEqual(generateOrgFile(), "* tag1\n\n** [[http://google.com][The Goog]]\n\n", "file regen ok");
-        var node = AllNodes[1]; // newly created node
+        node = AllNodes[1]; // newly created node
         assert.deepEqual(node.HTML(), "<tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><a href='http://google.com' class='btlink'>The Goog</a></td><td class='middle'/><td></td></tr>", "HTML gen looks good");
+        storeTab("tag2", {url: "http://yahoo.com", title: "Yahoodlers"});
+        assert.equal(AllNodes.length, 4, "second tag and tab added ok");
+        storeTab("tag1", {url: "http://gdrive.com", title: "The Cloud"});
+        assert.equal(AllNodes.length, 5, "tab added to first tag ok");
+        assert.deepEqual(generateOrgFile(),  "* tag1\n\n** [[http://google.com][The Goog]]\n\n** [[http://gdrive.com][The Cloud]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n\n", "file regen ok");
     });
 
     QUnit.test("Delete Row/Node", function(assert) {

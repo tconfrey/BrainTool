@@ -284,11 +284,17 @@ function storeTab(tag, tab) {
     var newNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, "", parentNode.level + 1, parentNode.id);
     AllNodes[newNode.id] = newNode;
 
-    // find tag in table and add new row underneath it
-    $("tr[data-tt-id='"+parentNode.id+"']").after(newNode.HTML());
+    // find tag in table and add new row underneath it, after other children if any
+    var last = $("tr[data-tt-parent-id='"+parentNode.id+"']").last();
+    if (last.length)
+        last.after(newNode.HTML());
+    else
+        $("tr[data-tt-id='"+parentNode.id+"']").after(newNode.HTML());
+        
     $(newNode.HTML()).find("a")[0].onclick = handleLinkClick;
 
     // Update table
+    $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
     $(".indenter").remove();    // workaround to prevent multiple expander nodes
     $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
     $("table.treetable tr").on('mouseenter', null, buttonShow);
@@ -487,7 +493,7 @@ function updateRow() {
     var textText = $("#text-text").val();
 
     // Grab info on current state
-    var currentOrgText = node.orgText();
+    //var currentOrgText = node.orgText();
 
     // Update Model
     node.title = titleText;
@@ -512,8 +518,9 @@ function generateOrgFile() {
     // iterate thru nodes to do the work
     var orgText = "";
     AllNodes.forEach(function (node) {
-        if (node)
-            orgText += node.orgText();
+        // start at top level nodes and recurse, since child nodes don't necessarily follow parent nodes in array
+        if (node && (node.level == 1))
+            orgText += node.orgTextwChildren();
     });
     return orgText;
 }

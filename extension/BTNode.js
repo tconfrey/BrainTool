@@ -6,6 +6,8 @@ class BTNode {
         this._level = level;
         this._parentId = parentId;
         this._childIds = new Set();
+        if (parentId || parentId === 0)
+            AllNodes[parentId].addChild(id);
     }
 
     get id() {
@@ -43,6 +45,9 @@ class BTNode {
     get childIds() {
         return this._childIds;
     }
+    addChild(id) {
+        this._childIds.add(id);
+    }
 
     HTML() {
         // Generate HTML for this table row
@@ -59,6 +64,16 @@ class BTNode {
         var outputOrg = "*".repeat(this._level) + " ";
         outputOrg += this._title + "\n";
         outputOrg += this._text + "\n";
+        return outputOrg;
+    }
+
+    orgTextwChildren() {
+        // Generate org text for this node
+        var outputOrg = this.orgText();
+        this._childIds.forEach(function(id) {
+            if (!AllNodes[id]) return;
+            outputOrg += AllNodes[id].orgTextwChildren();
+        });
         return outputOrg;
     }
     
