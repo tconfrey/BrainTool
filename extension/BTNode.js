@@ -54,8 +54,8 @@ class BTNode {
         var outputHTML = "";
         outputHTML += `<tr data-tt-id='${this._id}`;
         if (this._parentId || this._parentId === 0) outputHTML += `' data-tt-parent-id='${this._parentId}`;
-        outputHTML += `'><td class='left'>${this.displayTitle()}</td><td class='middle'/>`;
-        outputHTML += `<td>${this.displayText()}</td></tr>`;
+        outputHTML += `'><td class='left'><span class='btTitle'>${this.displayTitle()}</span></td><td class='middle'/>`;
+        outputHTML += `<td><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
 
@@ -80,26 +80,38 @@ class BTNode {
     static _displayTextVersion(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
-        var regexStr = "\\[\\[(.*)\\]\\[(.*)\\]\\]";
-        var reg = new RegExp(regexStr, "m");
+        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        var reg = new RegExp(regexStr, "mg");
         var hits;
         var outputStr = txt;
-        if ((hits = reg.exec(txt)) !== null) {
-            outputStr = txt.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + hits[2] + "</a>" + txt.substring(hits.index + hits[0].length);
+        while (hits = reg.exec(outputStr)) {
+            outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + hits[2] + "</a>" + outputStr.substring(hits.index + hits[0].length);
         }
         return outputStr;
     }
     
     displayText() {
-        return BTNode._displayTextVersion(this._text);
+        var htmlText = BTNode._displayTextVersion(this._text);
+        if (htmlText.length < 250) return htmlText;
+        // if we're chopping the string need to ensure not splitting a link
+        var rest = htmlText.substring(250);
+        var reg = /.*?<\/a>/gm;                                // non greedy to get first
+        var ellipse = "<span class='elipse'>... </span>";
+        if (!reg.exec(rest)) return htmlText.substring(0,250)+ellipse; // no closing a tag so we're ok
+        var closeIndex = reg.lastIndex;
+        rest = htmlText.substring(250, 250+closeIndex);     // there is a closing a, find if there's a starting one
+        reg = /<a href/gm;
+        if (reg.exec(rest)) return htmlText.substring(0,250)+ellipse;  // there's a matching open so 0..250 string is clean
+        return htmlText.substring(0, 250+closeIndex)+ellipse;
     }
+    
     displayTitle() {
         return BTNode._displayTextVersion(this._title);
     }
 
     static findFromTitle(title) {
         var n = AllNodes ? AllNodes.find(function(node) {
-            return (node._title == title);}) : null;
+            return (node && (node._title == title));}) : null;
         return n;
     }
             

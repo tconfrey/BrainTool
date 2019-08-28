@@ -23,6 +23,7 @@ function BTNodeProcessSection(orgaSection) {
     AllNodes[BTNode.topIndex++] = node;
     var BTChildIndex = 0;
     var orgaChild;
+    var allText = "";
     for (var i = 0; i < orgaSection.children.length; i++) {
         orgaChild = orgaSection.children[i];
         if (orgaChild.type == "headline") {
@@ -30,8 +31,9 @@ function BTNodeProcessSection(orgaSection) {
             node.title = orgaText(orgaChild);
         }
         if (orgaChild.type == "paragraph") {
-            node.text = orgaText(orgaChild);
-            BTLinkProcessPara(orgaChild, node); // pull out any embedded links and make them tree nodes
+            allText += allText.length ? "\n\n" : "";      // add newlines between para's
+            allText += orgaText(orgaChild);
+            BTLinkProcessPara(orgaChild, node);         // pull out any embedded links and make them tree nodes
         }
         if (orgaChild.type == "section") {
             var childNode = BTNodeProcessSection(orgaChild);
@@ -39,6 +41,7 @@ function BTNodeProcessSection(orgaSection) {
             node.childIds.add(childNode.id);
         }
     }
+    node.text = allText;
     return node;
 }
 
@@ -59,9 +62,6 @@ function orgaText(node) {
         }
         if (orgaChild.type == "link") {
             origText += orgaLinkOrgText(orgaChild);
-/* Not sure how to make links headlines into tags/Categories without including all links            
-            if (node.type == "headline") Categories.add(orgaChild.desc);
-*/
         }
     }
     return origText;

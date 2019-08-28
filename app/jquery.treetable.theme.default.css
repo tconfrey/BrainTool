@@ -1,7 +1,8 @@
 table.treetable {
   border: 1px solid #DDD;
 /*  border-collapse: collapse; */
-  font-size: .8em;
+  font-size: .7em;
+  font-family: tahoma;
   line-height: 1;
   margin: .6em 0 0.6em 0;
   padding-bottom: 1.2em;
@@ -19,7 +20,6 @@ table.treetable td.left {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 
 table.treetable caption {
   font-size: 1.5em;
@@ -71,7 +71,7 @@ table.treetable tr.branch {
 }
 
 table.treetable tr.selected {
-  background-color: #cfc;
+    background-color: #cd72ae /*#4b9643;  #cfc;*/
 /*  background-color: #3875d7;
   color: #fff; */
 }
@@ -123,10 +123,19 @@ td.left {
     vertical-align: middle;
 }
 
+table.treetable span.btText {
+    padding-left: 0px;
+    white-space: pre-line;
+}
+table.treetable span.btTitle {
+    padding-left: 0px;
+}
+
+
 #button {
-    height: 0.95em;
-    width: 1.8em;
-    background-color: #9d9;
+    height: 0.85em;
+    width: 1.4em;
+    background-color: #4b9643; /* #9d9; */
     padding: 0px;
     border: 0px;
     margin-left: auto;

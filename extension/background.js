@@ -8,6 +8,8 @@
 chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
 var AllNodes;                   // array of BTNodes
+var OpenLinks = new Object();   // hash of node name to tab id
+var OpenNodes = new Object();   // hash of node name to window id
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
@@ -32,7 +34,11 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                 nodes.forEach(function(node) {
                     chromeNode = new BTChromeNode(node._id, node._title, node._text, node._level, node._parentId);
                     AllNodes[chromeNode.id] = chromeNode;
+                    // restore open state w tab and window ids. preserves state acrtoss refreshes
+                    chromeNode.tabId = OpenLinks[node._title] ? OpenLinks[node._title] : null; 
+                    chromeNode.windowId = OpenNodes[node._title] ? OpenNodes[node._title] : null;
                 });
+                BTNode.topIndex = AllNodes.length;
             });
         }
         if (msg.msg == 'link_click') {
@@ -77,11 +83,12 @@ function openNode(nodeId, url) {
         // open new window and assign windowId
         chrome.windows.create({'url': url, 'left': 500}, function(window) {
             parentNode.windowId = window.id;
+            OpenNodes[parentNode.title] = window.id;
             BTNode.tabId = window.tabs[0].id;
             BTNode.windowId = window.id;
             BTNode.url = url;
         });
-
+    OpenLinks[BTNode.title] = BTNode.tabId;
     // Send back message that the bt and parent nodes are opened in browser
     chrome.tabs.sendMessage(
         BTTab,
@@ -109,15 +116,18 @@ function openTag(parentId, data) {
         }
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // When done record window in local node store (also need tabs?) and send back message per tab
-            var id, tab;
+            var id, tab, node;
             parentNode.windowId = win.id;
+            OpenNodes[parentNode.title] = win.id;
             for (var i=0; i<ary.length; i++) {
                 id = ary[i].nodeId;
-                AllNodes[id].windowId = win.id;
+                node = AllNodes[id];
+                node.windowId = win.id;
                 tab = win.tabs.find(function(element) {
                     return (compareURLs(element.url, AllNodes[id].url));
                 });
-                AllNodes[id].tabId = tab.id;
+                node.tabId = tab.id;
+                OpenLinks[node.title] = node.tabId;
                 chrome.tabs.sendMessage(
                     BTTab,
                     {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
@@ -186,7 +196,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
         return;
     }
     var node = AllNodes ? AllNodes.find(function(node) {
-        return (node.tabId == tabId);}) : null;
+        return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
     node.tabId = null; node.windowId = null;
     console.log("closed tab:" + tabId);
@@ -199,7 +209,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     // Handle a BT tab being migrated to a new url
     if (!AllNodes || !changeInfo.url) return;                 // don't care
     var node = AllNodes ? AllNodes.find(function(node) {
-        return (node.tabId == tabId);}) : null;
+        return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
     if (compareURLs(node.url, changeInfo.url)) return;
     node.tabId = null; node.windowId = null;
@@ -212,7 +222,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
 chrome.windows.onRemoved.addListener((windowId) => {
     // listen for windows being closed
     var node = AllNodes ? AllNodes.find(function(node) {
-        return (node.windowId == windowId);}) : null;
+        return (node && (node.windowId == windowId));}) : null;
     if (!node) return;
     console.log("closed window:" + windowId);
     node.windowId = null;

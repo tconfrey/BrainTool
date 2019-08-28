@@ -25,7 +25,7 @@ QUnit.module("App tests", function() {
                 assert.deepEqual(Categories, cats, "Categories look good");
                 var table = generateTable();
                 assert.equal(table,
-                             "<table><tr data-tt-id='0'><td class='left'>BrainTool</td><td class='middle'/><td>BrainTool is a tool</td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>They are the same</td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><a href='http://www.link.com' class='btlink'>Link</a></td><td class='middle'/><td>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><a href='http://google.com' class='btlink'>embedded links</a></td><td class='middle'/><td></td></tr></table>",
+                             "<table><tr data-tt-id='0'><td class='left'><span class='btTitle'>BrainTool</span></td><td class='middle'/><td><span class='btText'>BrainTool is a tool</span></td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>They are the same</span></td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td><td class='middle'/><td><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr></table>",
                              "Table generated correctly");
                 assert.deepEqual(generateOrgFile(), text, "Regenerated file text ok");
 
@@ -58,7 +58,7 @@ QUnit.module("App tests", function() {
         AllNodes.push(node);
         addNewTag("foo");
         assert.equal(AllNodes.length, 2, "Tag node added ok");
-        assert.deepEqual(node.HTML(), "<tr data-tt-id='0'><td class='left'>Category-Tag</td><td class='middle'/><td>Link: <a href='http://google.com' class='btlink'>The Goog</a></td></tr>", "HTML gen ok");
+        assert.deepEqual(node.HTML(), "<tr data-tt-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>", "HTML gen ok");
         assert.deepEqual(generateOrgFile(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n* foo\n\n", "Org file ok");
     });
     
@@ -71,7 +71,7 @@ QUnit.module("App tests", function() {
         assert.equal(node.childIds.size, 1, "parent knows about child");
         assert.deepEqual(generateOrgFile(), "* tag1\n\n** [[http://google.com][The Goog]]\n\n", "file regen ok");
         node = AllNodes[1]; // newly created node
-        assert.deepEqual(node.HTML(), "<tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><a href='http://google.com' class='btlink'>The Goog</a></td><td class='middle'/><td></td></tr>", "HTML gen looks good");
+        assert.deepEqual(node.HTML(), "<tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr>", "HTML gen looks good");
         storeTab("tag2", {url: "http://yahoo.com", title: "Yahoodlers"});
         assert.equal(AllNodes.length, 4, "second tag and tab added ok");
         storeTab("tag1", {url: "http://gdrive.com", title: "The Cloud"});
@@ -103,6 +103,33 @@ QUnit.module("App tests", function() {
             // openEachWindow(node);
             done();}
                    , 4000);
+    });
+
+    QUnit.test("Text manipulation", function(assert) {
+        var nodeText1 = "Word [[http://www.loink.com][Loink]] end";
+        var nodeText2 = "Word [[http://www.loink.com][Loink]] and another [[http://google.com][Goog]] end";
+        var nodeText3 = "Word after word then end";
+        var nodeText4 = "[[http://www.loink.com][Loink]]";
+        assert.equal(BTNode._displayTextVersion(nodeText1), "Word <a href='http://www.loink.com' class='btlink'>Loink</a> end", "single link ok");
+        assert.equal(BTNode._displayTextVersion(nodeText2), "Word <a href='http://www.loink.com' class='btlink'>Loink</a> and another <a href='http://google.com' class='btlink'>Goog</a> end", "double link ok");
+        assert.equal(BTNode._displayTextVersion(nodeText3), "Word after word then end", "no link ok");
+        assert.equal(BTNode._displayTextVersion(nodeText4), "<a href='http://www.loink.com' class='btlink'>Loink</a>", "only link ok");
+
+        var longText = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789-more than 250 chars"
+        var node = new BTNode(BTNode.topIndex++, "Category-Tag", longText, 1);
+        assert.equal(node.displayText(), "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789...", "string chopped ok");
+
+        var longText = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789-more than 250 chars w [[http://link.com][a link]] n stuff"
+        var node = new BTNode(BTNode.topIndex++, "Category-Tag", longText, 1);
+        assert.equal(node.displayText(), "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789...", "string w late link chopped ok");
+
+        var longText = "0123456789[[http://link.com][a link]]012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789-more than 250 chars"
+        var node = new BTNode(BTNode.topIndex++, "Category-Tag", longText, 1);
+        assert.equal(node.displayText(), "0123456789<a href='http://link.com' class='btlink'>a link</a>012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678...", "string w early link chopped ok");
+        
+        var longText = "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789[[http://link.com][a link]]0123456789-more than 250 chars"
+        var node = new BTNode(BTNode.topIndex++, "Category-Tag", longText, 1);
+        assert.equal(node.displayText(), "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789<a href='http://link.com' class='btlink'>a link</a>...", "string w split link chopped ok");
     });
 
 });

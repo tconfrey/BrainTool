@@ -184,6 +184,8 @@ function writeBTFile() {
 var Categories = new Set();     // track tags for future tab assignment
 var BTFileText = "";            // Global container for file text
 var parseTree;                  // orga parse results
+var CollapsedNodes = [];        // attempt to preserve collapsed state across refresh
+var OpenedNodes = [];           // attempt to preserve opened state across refresh
 
 function refreshTable() {
     // refresh from file, first clear current state
@@ -192,7 +194,21 @@ function refreshTable() {
     Categories = new Set();
     BTFileText = "";
     BTNode.topIndex = 0;
+
+    // Remember collapsed state to repopulate later
+    $("tr.branch.collapsed").each(function() {
+        var id = $(this).attr("data-tt-id");
+        var node = AllNodes[id];
+        CollapsedNodes.push(node.title);
+    });
+    // Remember window opened state to repopulate later
+    $("tr.opened").each(function() {
+        var id = $(this).attr("data-tt-id");
+        var node = AllNodes[id];
+        OpenedNodes.push(node.title);
+    });
     AllNodes = [];
+    
     FindOrCreateBTFile();
 }
 
@@ -212,22 +228,38 @@ function processBTFile(fileText) {
     var nodes = JSON.stringify(AllNodes);
     window.postMessage({ type: 'nodes_updated', text: nodes});
 
-    // initialize ui
-    $("table.treetable tr").on('mouseenter', null, buttonShow);
-    $("table.treetable tr").on('mouseleave', null, buttonHide);    
-    $(".elipse").hover(function() {         // show hover text on summarized nodes
-        var thisNodeId = $(this).closest("tr").attr('data-tt-id');
-        var htxt = AllNodes[thisNodeId].text.fullText;
-        $(this).attr('title', htxt);
+    // initialize ui from any pre-refresh saved state
+    var node;
+    OpenedNodes.forEach(function(nodeTitle) {
+        node = BTNode.findFromTitle(nodeTitle);
+        if (!node) return;
+        $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+    });
+    CollapsedNodes.forEach(function(nodeTitle) {
+        node = BTNode.findFromTitle(nodeTitle);
+        if (!node) return;
+        tab.treetable("collapseNode", node.id);
     });
 
-    // intercept link clicks on bt links
-    for (var ls = document.links, numLinks = ls.length, i=0; i<numLinks; i++){
-        if ($(ls[i]).hasClass('btlink'))
-            ls[i].onclick= handleLinkClick;
-    }
+    initializeUI();
+    
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
+}
+
+function initializeUI() {
+    //DRY'ing up common event stuff needed whenever the tree is modified
+    $("table.treetable tr").on('mouseenter', null, buttonShow);
+    $("table.treetable tr").on('mouseleave', null, buttonHide);  
+    $(".elipse").hover(function() {         // show hover text on summarized nodes
+        var thisNodeId = $(this).closest("tr").attr('data-tt-id');
+        var htxt = AllNodes[thisNodeId].text;
+        $(this).attr('title', htxt);
+    });
+    // intercept link clicks on bt links
+    $("a.btlink").each(function() {
+        this.onclick = handleLinkClick;
+    });
 }
 
 
@@ -284,48 +316,33 @@ function storeTab(tag, tab) {
     var newNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, "", parentNode.level + 1, parentNode.id);
     AllNodes[newNode.id] = newNode;
 
-    // find tag in table and add new row underneath it, after other children if any
-    var last = $("tr[data-tt-parent-id='"+parentNode.id+"']").last();
-    if (last.length)
-        last.after(newNode.HTML());
-    else
-        $("tr[data-tt-id='"+parentNode.id+"']").after(newNode.HTML());
-        
-    $(newNode.HTML()).find("a")[0].onclick = handleLinkClick;
-
-    // Update table
-    $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
-    $(".indenter").remove();    // workaround to prevent multiple expander nodes
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
-    $("table.treetable tr").on('mouseenter', null, buttonShow);
-    $("table.treetable tr").on('mouseleave', null, buttonHide);    
+    var n = $("table.treetable").treetable("node", parentNode.id);                // find parent node
+    var res = $("table.treetable").treetable("loadBranch", n, newNode.HTML());              // and insert new row
         
     BTFileText = generateOrgFile();
-    writeBTFile();              // finally write back out the update file text
+    writeBTFile();              // write back out the update file text
+    
+    // Update ui components as needed - NB $(".indenter").remove() if redrawing table
+    // Seems like sometime treetable hasn't completed the loadBranch so put behind a timeout
+    setTimeout(function() {
+        $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
+        $("tr[data-tt-id='"+parentNode.id+"']").addClass("opened");
+        initializeUI();
+    }, 5);
 }
 
 function addNewTag(tag) {
     // New tag - create node and add container at bottom
     tag = tag.trim();
     var node = new BTNode(BTNode.topIndex++, tag, "", 1, null);
-    
-    var last = $("#content").find("tr").last();
-    var newRow = node.HTML();
-    $(last).after(newRow);
+    AllNodes[node.id] = node;
+
+    $("table.treetable").treetable("loadBranch", null, node.HTML());              // insert into tree
 
     // Add new category and let extension know about updated tags list
     Categories.add(tag);
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags });
-
-    // Update model w new node
-    AllNodes[node.id] = node;
-    
-    // Update table
-    $(".indenter").remove();    // workaround to prevent multiple expander nodes
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
-    $("table.treetable tr").on('mouseenter', null, buttonShow);
-    $("table.treetable tr").on('mouseleave', null, buttonHide);    
 }
 
 
@@ -460,6 +477,7 @@ function deleteRow() {
 }
 function deleteNode(id) {
     //delete node and clean up
+    id = parseInt(id);          // could be string value
     var node = AllNodes[id];
 
     // Remove from parent
@@ -492,18 +510,13 @@ function updateRow() {
     var titleText = $("#title-text").val();
     var textText = $("#text-text").val();
 
-    // Grab info on current state
-    //var currentOrgText = node.orgText();
-
     // Update Model
     node.title = titleText;
     node.text = textText;
     
     // Update ui
-    var rowHTML = node.HTML();
-    $(tr).replaceWith(rowHTML);
-    $(".indenter").remove();                     // workaround to prevent multiple expander nodes
-    $("#content").treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
+    $(tr).find("span.btTitle").html(node.displayTitle());
+    $(tr).find("span.btText").html(node.displayText());
 
     // Update File 
     BTFileText = generateOrgFile();
@@ -512,6 +525,7 @@ function updateRow() {
     // reset ui
     $("#dialog")[0].close();
     $("tr.selected").removeClass('selected');
+    initializeUI();
 }
 
 function generateOrgFile() {
