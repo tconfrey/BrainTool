@@ -14,6 +14,7 @@ var OpenNodes = new Object();   // hash of node name to window id
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
     console.log('background.js got message:', msg);
+    console.count("BG-IN:" + msg.msg);
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'window_ready') { 
@@ -24,6 +25,8 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                 function (rsp) {
                     console.log("sent keys, rsp: " + rsp);
                 });
+            console.count('keys');
+            restartExtension();
         }
         if (msg.msg == 'ready') {
             // maybe give original window focus here?
@@ -35,6 +38,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                     chromeNode = new BTChromeNode(node._id, node._title, node._text, node._level, node._parentId);
                     AllNodes[chromeNode.id] = chromeNode;
                     // restore open state w tab and window ids. preserves state acrtoss refreshes
+                    // These are object structures indexind by _title
                     chromeNode.tabId = OpenLinks[node._title] ? OpenLinks[node._title] : null; 
                     chromeNode.windowId = OpenNodes[node._title] ? OpenNodes[node._title] : null;
                 });
@@ -42,7 +46,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
             });
         }
         if (msg.msg == 'link_click') {
-            openNode(msg.nodeId, msg.url);
+            openLink(msg.nodeId, msg.url);
         }
         if (msg.msg == 'tag_open') {
             openTag(msg.parent, msg.data);
@@ -61,7 +65,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     }
 });
 
-function openNode(nodeId, url) {
+function openLink(nodeId, url) {
     // handle click on a link - open in appropriate window
     var BTNode = AllNodes[nodeId];
     if (BTNode.tabId && BTNode.windowId) {
@@ -78,6 +82,7 @@ function openNode(nodeId, url) {
             BTNode.tabId = tab.id;
             BTNode.windowId = parentNode.windowId;
             BTNode.url = url;
+            OpenLinks[BTNode.title] = BTNode.tabId;
         });
     else
         // open new window and assign windowId
@@ -87,12 +92,13 @@ function openNode(nodeId, url) {
             BTNode.tabId = window.tabs[0].id;
             BTNode.windowId = window.id;
             BTNode.url = url;
+            OpenLinks[BTNode.title] = BTNode.tabId;
         });
-    OpenLinks[BTNode.title] = BTNode.tabId;
     // Send back message that the bt and parent nodes are opened in browser
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
+    console.count('tab_opened');
 }
 
 function openTag(parentId, data) {
@@ -131,6 +137,7 @@ function openTag(parentId, data) {
                 chrome.tabs.sendMessage(
                     BTTab,
                     {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
+                console.count('tab_opened'); 
             }});
     }
 }
@@ -177,7 +184,22 @@ function moveTabToWindow(tabId, tag) {
         chrome.tabs.sendMessage(
             BTTab,
             {'type': 'tab_opened', 'BTNodeId': linkNode.id, 'BTParentId': tagNode.id});
+        console.count('tab_opened'); 
     });
+}
+
+function restartExtension() {
+    // Since we're restarting close windows and clear out the cache of opened nodes
+
+    const tabs = Object.values(OpenLinks);
+    if (tabs.length) {
+        alert("Closing BrainTool controlled windows!");
+        console.log("Restarting Extension");
+        chrome.tabs.remove(tabs);
+    }
+    
+    OpenLinks = new Object();
+    OpenNodes = new Object();
 }
 
 function compareURLs(first, second) {
@@ -186,6 +208,25 @@ function compareURLs(first, second) {
     second = second.replace("https", "http").replace(/\/$/, "");
     return (first == second);
 }
+
+function parentUpdate(node) {
+    // If as a result of a close/nav this tabs/nodes parent is now empty of BT nodes update app
+    const parent = AllNodes[node.parentId];
+    if (!parent) return;
+    let numKids = 0;
+    parent.childIds.forEach(function(childId) {
+        if (AllNodes[childId].tabId)
+            numKids++;
+    });
+    if (!numKids) {
+        chrome.tabs.sendMessage(
+            BTTab,
+            {'type': 'tab_closed', 'BTNodeId': parent.id});
+        console.count('tab_closed'); 
+    }
+    // NB leaving the parents windowId set so that any new tabs opened will be in its window
+}
+
 
 chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     // listen for tabs being closed, if its a managed tab let BT know
@@ -198,11 +239,16 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     var node = AllNodes ? AllNodes.find(function(node) {
         return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
+    delete OpenLinks[node.title];
     node.tabId = null; node.windowId = null;
     console.log("closed tab:" + tabId);
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
+    console.count('tab_closed');
+    
+    // if this was the only bt tab in the window let app know
+    parentUpdate(node);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
@@ -217,6 +263,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
+    console.count('tab_closed');
+
+    // if this was the only bt tab in the window let app know
+    parentUpdate(node);
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
@@ -224,11 +274,13 @@ chrome.windows.onRemoved.addListener((windowId) => {
     var node = AllNodes ? AllNodes.find(function(node) {
         return (node && (node.windowId == windowId));}) : null;
     if (!node) return;
+    delete OpenNodes[node.title];
     console.log("closed window:" + windowId);
-    node.windowId = null;
+    node.windowId = null; node.tabId = null;
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
+    console.count('tab_closed'); 
 });
 
 
@@ -243,3 +295,4 @@ chrome.webNavigation.onCompleted.addListener(
     }
 );
 */
+

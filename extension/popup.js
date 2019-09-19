@@ -22,8 +22,8 @@ function storeBTTab(tabId, tries) {
     
 function windowOpen() {
     var wargs = {
-        //'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
-        'url' : "https://BrainTool.org/app", 
+        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+        //'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100 
@@ -106,6 +106,7 @@ function tabAdded() {
                 alert("Must be an error! ");
             window.close();
         });
+    console.count('new_tab');
 }
 
 // Listen for messages from other components
@@ -118,5 +119,6 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         }
         break;
     }
+    console.count("IN:"+msg.msg);
 });
     

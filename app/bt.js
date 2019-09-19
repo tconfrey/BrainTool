@@ -225,8 +225,10 @@ function processBTFile(fileText) {
     // Let extension know about model
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags});
+    console.count('BT-OUT:tags_updated');
     var nodes = JSON.stringify(AllNodes);
     window.postMessage({ type: 'nodes_updated', text: nodes});
+    console.count('BT-OUT:nodes_updated');
 
     // initialize ui from any pre-refresh saved state
     var node;
@@ -269,6 +271,7 @@ function handleLinkClick(e) {
     console.log("click on :" + $(this).text() + ", nodeId: " + nodeId);
     
     window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+    console.count('BT-OUT:link_click');
     e.preventDefault();
 }
 
@@ -278,6 +281,7 @@ window.addEventListener('message', function(event) {
     if (event.source != window)
         return;
     console.log('bt.js got message:', event);
+    console.count("BT-IN:" + event.data.type);
     switch (event.data.type) {
     case 'keys':
         console.log('Initializing gdrive app...');
@@ -302,6 +306,12 @@ window.addEventListener('message', function(event) {
     }
 });
 
+function cleanTitle(text) {
+    // clean page title text of things that can screw up BT. Currently []
+    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
+}
+
+
 function storeTab(tag, tab) {
     // put this tab under storage w given tag
 
@@ -310,7 +320,7 @@ function storeTab(tag, tab) {
     if (!Categories.has(tag)) addNewTag(tag);
     
     var url = tab.url;
-    var title = tab.title;
+    var title = cleanTitle(tab.title);
     var parentNode = BTNode.findFromTitle(tag);
     
     var newNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, "", parentNode.level + 1, parentNode.id);
@@ -343,6 +353,7 @@ function addNewTag(tag) {
     Categories.add(tag);
     var tags = JSON.stringify(Array.from(Categories));
     window.postMessage({ type: 'tags_updated', text: tags });
+    console.count('BT-OUT:tags_updated');
 }
 
 
@@ -449,8 +460,10 @@ function openEachWindow(node) {
         });
     });
     
-    if (tabsToOpen.length)
+    if (tabsToOpen.length) {
         window.postMessage({ 'type': 'tag_open', 'parent': node.id, 'data': tabsToOpen});
+        console.count('BT-OUT:tag_open');
+    }
 
     
     if (node.childIds.size)    // iterate again and recurse for container nodes to each open their windows
@@ -490,6 +503,7 @@ function deleteNode(id) {
 
     // message to update BT background model
     window.postMessage({ type: 'node_deleted', nodeId: id });
+    console.count('BT-OUT:node_deleted');
     
     // Update File 
     BTFileText = generateOrgFile();
