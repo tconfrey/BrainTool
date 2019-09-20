@@ -8,6 +8,7 @@ class BTNode {
         this._childIds = new Set();
         if (parentId || parentId === 0)
             AllNodes[parentId].addChild(id);
+        this._folded = false;
     }
 
     get id() {
@@ -42,6 +43,13 @@ class BTNode {
         return this._parentId;
     }
 
+    set folded(f) {
+        this._folded = f;
+    }
+    get folded() {
+        return this._folded;
+    }
+
     get childIds() {
         return this._childIds;
     }
@@ -61,9 +69,11 @@ class BTNode {
 
     orgText() {
         // Generate org text for this node
-        var outputOrg = "*".repeat(this._level) + " ";
+        var outputOrg = this._id ? "\n" : "";
+        outputOrg += "*".repeat(this._level) + " ";
         outputOrg += this._title + "\n";
-        outputOrg += this._text + "\n";
+        if (this.folded) outputOrg += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
+        outputOrg += this._text ? this._text + "\n" : "";
         return outputOrg;
     }
 

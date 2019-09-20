@@ -17,15 +17,15 @@ QUnit.module("App tests", function() {
                 console.log(text);
                 assert.ok(text, "default file contents received");
                 processBTFile(text);
-                assert.equal(4, AllNodes.length, "default file processed");
+                assert.equal(6, AllNodes.length, "default file processed");
                 assert.deepEqual(AllNodes[0].text,
                                  "BrainTool is a tool",
                                  "text looks good");
-                var cats = new Set(["BrainTool", "Category-Tag"]);
+                var cats = new Set(["BrainTool", "Category-Tag", "Top Level 2", "next"]);
                 assert.deepEqual(Categories, cats, "Categories look good");
                 var table = generateTable();
                 assert.equal(table,
-                             "<table><tr data-tt-id='0'><td class='left'><span class='btTitle'>BrainTool</span></td><td class='middle'/><td><span class='btText'>BrainTool is a tool</span></td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>They are the same</span></td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td><td class='middle'/><td><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr></table>",
+                             "<table><tr data-tt-id='0'><td class='left'><span class='btTitle'>BrainTool</span></td><td class='middle'/><td><span class='btText'>BrainTool is a tool</span></td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>They are the same</span></td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td><td class='middle'/><td><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr><tr data-tt-id='4'><td class='left'><span class='btTitle'>Top Level 2</span></td><td class='middle'/><td><span class='btText'></span></td></tr><tr data-tt-id='5' data-tt-parent-id='4'><td class='left'><span class='btTitle'>next</span></td><td class='middle'/><td><span class='btText'></span></td></tr></table>",
                              "Table generated correctly");
                 assert.deepEqual(generateOrgFile(), text, "Regenerated file text ok");
 
@@ -59,7 +59,7 @@ QUnit.module("App tests", function() {
         addNewTag("foo");
         assert.equal(AllNodes.length, 2, "Tag node added ok");
         assert.deepEqual(node.HTML(), "<tr data-tt-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>", "HTML gen ok");
-        assert.deepEqual(generateOrgFile(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n* foo\n\n", "Org file ok");
+        assert.deepEqual(generateOrgFile(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n\n* foo\n", "Org file ok");
     });
     
     QUnit.test("Store Tab under tag", function(assert) {
@@ -69,14 +69,14 @@ QUnit.module("App tests", function() {
         assert.equal(AllNodes.length, 2, "tag and tab added ok");
         var node = AllNodes[0]; // newly created parent node
         assert.equal(node.childIds.size, 1, "parent knows about child");
-        assert.deepEqual(generateOrgFile(), "* tag1\n\n** [[http://google.com][The Goog]]\n\n", "file regen ok");
+        assert.deepEqual(generateOrgFile(), "* tag1\n\n** [[http://google.com][The Goog]]\n", "file regen ok");
         node = AllNodes[1]; // newly created node
         assert.deepEqual(node.HTML(), "<tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr>", "HTML gen looks good");
         storeTab("tag2", {url: "http://yahoo.com", title: "Yahoodlers"});
         assert.equal(AllNodes.length, 4, "second tag and tab added ok");
         storeTab("tag1", {url: "http://gdrive.com", title: "The Cloud"});
         assert.equal(AllNodes.length, 5, "tab added to first tag ok");
-        assert.deepEqual(generateOrgFile(),  "* tag1\n\n** [[http://google.com][The Goog]]\n\n** [[http://gdrive.com][The Cloud]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n\n", "file regen ok");
+        assert.deepEqual(generateOrgFile(),  "* tag1\n\n** [[http://google.com][The Goog]]\n\n** [[http://gdrive.com][The Cloud]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n", "file regen ok");
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
@@ -88,7 +88,7 @@ QUnit.module("App tests", function() {
         assert.equal(AllNodes.length, 4, "nodes as expected");
         deleteNode(1);
         assert.notOk(AllNodes[1], "nodes as expected after deletion");
-        assert.deepEqual(BTFileText, "* BrainTool\nBrainTool is a tool\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n", "file cleaned up ok");
+        assert.deepEqual(BTFileText, "* BrainTool\nBrainTool is a tool\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n", "file cleaned up ok");
     });
 
     QUnit.test("Open Tabs", function(assert) {

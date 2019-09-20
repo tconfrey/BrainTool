@@ -29,11 +29,12 @@ function BTNodeProcessSection(orgaSection) {
         if (orgaChild.type == "headline") {
             node.level = orgaChild.level;
             node.title = orgaText(orgaChild);
+            node.folded = orgaFolded(orgaChild);
         }
         if (orgaChild.type == "paragraph") {
             allText += allText.length ? "\n\n" : "";      // add newlines between para's
             allText += orgaText(orgaChild);
-            BTLinkProcessPara(orgaChild, node);         // pull out any embedded links and make them tree nodes
+            BTLinkProcessPara(orgaChild, node);           // pull out any embedded links and make them tree nodes
         }
         if (orgaChild.type == "section") {
             var childNode = BTNodeProcessSection(orgaChild);
@@ -45,6 +46,18 @@ function BTNodeProcessSection(orgaSection) {
     return node;
 }
 
+function orgaFolded(node) {
+    // Look for org mode drawer w VISIBILITY property for folded state
+    var orgaChild;
+    for (var i = 0; i < node.children.length; i++) {
+        orgaChild = node.children[i];
+        if (orgaChild.type == "drawer" && orgaChild.name == "PROPERTIES" && orgaChild.value) {
+            if (orgaChild.value.match(/:VISIBILITY:\s*folded/g))
+                return true;
+        }
+    }
+    return false;
+}
 
 function orgaLinkOrgText(node) {
     return "[[" + node.uri.raw + "][" + node.desc + "]]";

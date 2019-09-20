@@ -154,6 +154,8 @@ function createStartingBT() {
 var LOCALTEST = false; // overwritten in test harness
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
+    
+    BTFileText = generateOrgFile();
     if (LOCALTEST) return;
     if (typeof gapi === "undefined") return;           // eg when called from test harness
     var metadata = {
@@ -184,7 +186,6 @@ function writeBTFile() {
 var Categories = new Set();     // track tags for future tab assignment
 var BTFileText = "";            // Global container for file text
 var parseTree;                  // orga parse results
-var CollapsedNodes = [];        // attempt to preserve collapsed state across refresh
 var OpenedNodes = [];           // attempt to preserve opened state across refresh
 
 function refreshTable() {
@@ -195,12 +196,6 @@ function refreshTable() {
     BTFileText = "";
     BTNode.topIndex = 0;
 
-    // Remember collapsed state to repopulate later
-    $("tr.branch.collapsed").each(function() {
-        var id = $(this).attr("data-tt-id");
-        var node = AllNodes[id];
-        CollapsedNodes.push(node.title);
-    });
     // Remember window opened state to repopulate later
     $("tr.opened").each(function() {
         var id = $(this).attr("data-tt-id");
@@ -220,7 +215,8 @@ function processBTFile(fileText) {
     var table = generateTable();
     var tab = $("#content");
     tab.html(table);
-    tab.treetable({ expandable: true, initialState: 'expanded', indent: 10 }, true);
+    tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
+                    onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
 
     // Let extension know about model
     var tags = JSON.stringify(Array.from(Categories));
@@ -230,17 +226,18 @@ function processBTFile(fileText) {
     window.postMessage({ type: 'nodes_updated', text: nodes});
     console.count('BT-OUT:nodes_updated');
 
-    // initialize ui from any pre-refresh saved state
+    // initialize ui from any pre-refresh opened state
     var node;
     OpenedNodes.forEach(function(nodeTitle) {
         node = BTNode.findFromTitle(nodeTitle);
         if (!node) return;
         $("tr[data-tt-id='"+node.id+"']").addClass("opened");
     });
-    CollapsedNodes.forEach(function(nodeTitle) {
-        node = BTNode.findFromTitle(nodeTitle);
-        if (!node) return;
-        tab.treetable("collapseNode", node.id);
+
+    // set collapsed state as per org data
+    AllNodes.forEach(function(node) {
+        if (node && node.folded)
+            tab.treetable("collapseNode", node.id);
     });
 
     initializeUI();
@@ -264,6 +261,24 @@ function initializeUI() {
     });
 }
 
+// Handle callbacks on node folding, update backing store
+function nodeExpand(arg) {
+    console.log('Expanding ', this.id);
+    let update = AllNodes[this.id].folded;
+    AllNodes[this.id].folded = false;
+    
+    // Update File 
+    if (update) writeBTFile();
+}
+function nodeCollapse(arg) {
+    console.log('Collapsing ', this.id);
+    let update = !AllNodes[this.id].folded;
+    AllNodes[this.id].folded = true;
+    
+    // Update File 
+    if (update) writeBTFile();
+}
+   
 
 function handleLinkClick(e) {
     var nodeId = $(this).closest("tr").attr('data-tt-id');
@@ -329,7 +344,6 @@ function storeTab(tag, tab) {
     var n = $("table.treetable").treetable("node", parentNode.id);                // find parent node
     var res = $("table.treetable").treetable("loadBranch", n, newNode.HTML());              // and insert new row
         
-    BTFileText = generateOrgFile();
     writeBTFile();              // write back out the update file text
     
     // Update ui components as needed - NB $(".indenter").remove() if redrawing table
@@ -506,7 +520,6 @@ function deleteNode(id) {
     console.count('BT-OUT:node_deleted');
     
     // Update File 
-    BTFileText = generateOrgFile();
     writeBTFile();
 }
 
@@ -533,7 +546,6 @@ function updateRow() {
     $(tr).find("span.btText").html(node.displayText());
 
     // Update File 
-    BTFileText = generateOrgFile();
     writeBTFile();
 
     // reset ui
