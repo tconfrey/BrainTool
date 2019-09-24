@@ -134,7 +134,7 @@ class BTChromeNode extends BTNode {
         super(id, title, text, level, parentId);
         this.url = "";
         this.tabId = null;
-        this.windowID = null;
+        this.windowId = null;
     }
 }
 

@@ -69,8 +69,11 @@ function openLink(nodeId, url) {
     // handle click on a link - open in appropriate window
     var BTNode = AllNodes[nodeId];
     if (BTNode.tabId && BTNode.windowId) {
-        chrome.tabs.highlight({'windowId': BTNode.windowId, 'tabs': BTNode.tabId});
+        // tab exists just highlight it (nb convert from tabId to offset index)
         chrome.windows.update(BTNode.windowId, {'focused': true});
+        chrome.tabs.get(BTNode.tabId, function(tab) {
+            chrome.tabs.highlight({'tabs': tab.index});
+        });
         return;
     }
     var parentNode = AllNodes[BTNode.parentId];
@@ -258,15 +261,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
         return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
     if (compareURLs(node.url, changeInfo.url)) return;
-    node.tabId = null; node.windowId = null;
-    console.log("navigated tab:" + tabId);
-    chrome.tabs.sendMessage(
-        BTTab,
-        {'type': 'tab_closed', 'BTNodeId': node.id});
-    console.count('tab_closed');
 
-    // if this was the only bt tab in the window let app know
-    parentUpdate(node);
+    // Don't let BT tabs escape! Open any navigation in a new tab
+    chrome.tabs.goBack(node.tabId);
+    chrome.tabs.create({'windowId': node.windowId, 'url': changeInfo.url});
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
@@ -280,9 +278,8 @@ chrome.windows.onRemoved.addListener((windowId) => {
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
-    console.count('tab_closed'); 
+    console.count('window_closed'); 
 });
-
 
 /*
 // listen for navigation completion and update model accordingly. no current use cases.
