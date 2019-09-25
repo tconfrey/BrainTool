@@ -5,7 +5,7 @@ class BTNode {
         this._text = text;
         this._level = level;
         this._parentId = parentId;
-        this._childIds = new Set();
+        this._childIds = [];
         if (parentId || parentId === 0)
             AllNodes[parentId].addChild(id);
         this._folded = false;
@@ -54,7 +54,12 @@ class BTNode {
         return this._childIds;
     }
     addChild(id) {
-        this._childIds.add(id);
+        this._childIds.push(id);
+    }
+    removeChild(id) {
+        let index = _childIds.indexOf(id);
+        if (index > -1)
+            _childIds.splice(index, 1);
     }
 
     HTML() {

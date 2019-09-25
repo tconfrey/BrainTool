@@ -424,7 +424,7 @@ function populateDialog() {
     
     var titletxt = BTNode.title;
     var txttxt = BTNode.text;
-    var kids = BTNode.childIds.size;
+    var kids = BTNode.childIds.length;
     
     $("#title-text").val(titletxt);
     $("#text-text").val(txttxt);
@@ -460,10 +460,9 @@ function openEachWindow(node) {
     var tabsToOpen = [];
     
     rowIds.push(node.id);
-    if (node.childIds.size)
-        node.childIds.forEach(function(childId) {
-            rowIds.push(childId);
-        });
+    node.childIds.forEach(function(childId) {
+        rowIds.push(childId);
+    });
 
     // iterate thru rows and find all links and send msg to extension to open them
     rowIds.forEach(function(id) {
@@ -480,10 +479,10 @@ function openEachWindow(node) {
     }
 
     
-    if (node.childIds.size)    // iterate again and recurse for container nodes to each open their windows
+    if (node.childIds.length)    // iterate again and recurse for container nodes to each open their windows
         node.childIds.forEach(function(childId) {
             var child = AllNodes[childId];
-            if (child.childIds.size)
+            if (child.childIds.length)
                 openEachWindow(child);
         });
 }
@@ -510,7 +509,7 @@ function deleteNode(id) {
     // Remove from parent
     var parent = AllNodes[node.parentId];
     if (parent)
-        parent.childIds.delete(id);
+        parent.childIds.removeChild(id);
     
     // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
     delete(AllNodes[id]);

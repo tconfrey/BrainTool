@@ -65,6 +65,21 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     }
 });
 
+function indexInParent(nodeId) {
+    // for tab ordering
+    let id = parseInt(nodeId);
+    let kid = AllNodes[id];
+    let parent = kid ? AllNodes[kid.parentId] : null;
+    if (!kid || !parent) return 0;
+    let index = 0;
+    parent.childIds.some(function(id) {
+        if (id == nodeId) return true;          // exit when we get to this node
+        let n = AllNodes[id];
+        if (n && n.tabId) index++;
+    });
+    return index;
+}
+
 function openLink(nodeId, url) {
     // handle click on a link - open in appropriate window
     var BTNode = AllNodes[nodeId];
@@ -79,14 +94,21 @@ function openLink(nodeId, url) {
     var parentNode = AllNodes[BTNode.parentId];
     if (!parentNode) parentNode = BTNode;                  // open as its own window
 
+    var index = indexInParent(nodeId);
     if (parentNode.windowId)
         // open tab in this window
-        chrome.tabs.create({'windowId': parentNode.windowId, 'url': url}, function(tab) {
-            BTNode.tabId = tab.id;
-            BTNode.windowId = parentNode.windowId;
-            BTNode.url = url;
-            OpenLinks[BTNode.title] = BTNode.tabId;
-        });
+        chrome.tabs.create({'windowId': parentNode.windowId,
+                            'index': index, 'url': url},
+                           function(tab) {
+                               BTNode.tabId = tab.id;
+                               BTNode.windowId = parentNode.windowId;
+                               BTNode.url = url;
+                               OpenLinks[BTNode.title] = BTNode.tabId;
+                               chrome.windows.update(BTNode.windowId, {'focused': true});
+                               chrome.tabs.get(BTNode.tabId, function(tab) {
+                                   chrome.tabs.highlight({'tabs': tab.index});
+                               });
+                           });
     else
         // open new window and assign windowId
         chrome.windows.create({'url': url, 'left': 500}, function(window) {
@@ -154,9 +176,8 @@ function deleteNode(id) {
     // Remove from parent
     var parent = AllNodes[node.parentId];
     if (parent)
-        parent.childIds.delete(id);
+        parent.removeChild(id);
     
-    // Remove node. NB deleting cos I'm using ID for array index - maybe shoudl have a level of indirection?
     delete(AllNodes[id]);
 }
 
