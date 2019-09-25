@@ -57,9 +57,9 @@ class BTNode {
         this._childIds.push(id);
     }
     removeChild(id) {
-        let index = _childIds.indexOf(id);
+        let index = this._childIds.indexOf(id);
         if (index > -1)
-            _childIds.splice(index, 1);
+            this._childIds.splice(index, 1);
     }
 
     HTML() {
@@ -128,8 +128,7 @@ class BTNode {
         var n = AllNodes ? AllNodes.find(function(node) {
             return (node && (node._title == title));}) : null;
         return n;
-    }
-            
+    }       
 }
 
 BTNode.topIndex = 0;          // track the index of the next node to create, static class variable.
@@ -140,6 +139,15 @@ class BTChromeNode extends BTNode {
         this.url = "";
         this.tabId = null;
         this.windowId = null;
+    }
+    
+    static findFromTab(tabId) {
+        var n = AllNodes ?
+            AllNodes.find(function(node) {
+                return (node && (node.tabId == tabId));})
+            :
+            null;
+        return n;
     }
 }
 

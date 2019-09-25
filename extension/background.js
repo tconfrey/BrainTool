@@ -57,9 +57,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         break;
     case 'popup':
         if (msg.msg == 'moveTab') {
-            var tabId = msg.tabId;
-            var tag = msg.tag;
-            moveTabToWindow(tabId, tag);
+            var tabNode = BTChromeNode.findFromTab(msg.tabId); // Is this tab already a BTNode?
+            if (tabNode) {                                     // if so duplicate
+                chrome.tabs.duplicate(msg.tabId, function(newTab) {
+                    moveTabToTag(newTab.id, msg.tag);
+                });
+            } else {
+                moveTabToTag(msg.tabId, msg.tag);
+            }
         }
         break;
     }
@@ -181,9 +186,9 @@ function deleteNode(id) {
     delete(AllNodes[id]);
 }
 
-function moveTabToWindow(tabId, tag) {
+function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
-    
+
     var tagNode = BTNode.findFromTitle(tag) || new BTChromeNode(BTNode.topIndex++, tag, "", 1, null);
     AllNodes[tagNode.id] = tagNode;
     
@@ -195,6 +200,7 @@ function moveTabToWindow(tabId, tag) {
     else
         chrome.windows.create({'tabId': tabId}, function(window) {
             tagNode.windowId = window.id;
+            OpenNodes[tag] = window.id;              // remember this node is open
         });
 
     // get tab url, then create and store new BT node
@@ -202,7 +208,9 @@ function moveTabToWindow(tabId, tag) {
         var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, "", tagNode.level + 1, tagNode.id);
         linkNode.tabId = tabId;
         linkNode.windowId = tagNode.windowId;
+	linkNode.url = tab.url;
         AllNodes[linkNode.id] = linkNode;
+        OpenLinks[linkNode.title] = tabId;           // remember this link is open
         
         // Send back message that the link and tag nodes are opened in browser
         chrome.tabs.sendMessage(
