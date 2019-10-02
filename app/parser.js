@@ -39,7 +39,7 @@ function BTNodeProcessSection(orgaSection) {
         if (orgaChild.type == "section") {
             var childNode = BTNodeProcessSection(orgaChild);
             childNode.parentId = node.id;               // remember parent
-            node.childIds.add(childNode.id);
+            node.childIds.push(childNode.id);
         }
     }
     node.text = allText;
