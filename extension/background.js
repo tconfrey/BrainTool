@@ -208,7 +208,7 @@ function moveTabToTag(tabId, tag) {
         var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, "", tagNode.level + 1, tagNode.id);
         linkNode.tabId = tabId;
         linkNode.windowId = tagNode.windowId;
-	linkNode.url = tab.url;
+	    linkNode.url = tab.url;
         AllNodes[linkNode.id] = linkNode;
         OpenLinks[linkNode.title] = tabId;           // remember this link is open
         
@@ -289,6 +289,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     var node = AllNodes ? AllNodes.find(function(node) {
         return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
+    console.log("ChangeInfo URL='"+changeInfo.url + "'\n stateURL='"+state.url+"'");
     if (compareURLs(node.url, changeInfo.url)) return;
 
     // Don't let BT tabs escape! Open any navigation in a new tab
