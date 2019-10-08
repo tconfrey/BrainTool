@@ -235,9 +235,11 @@ function restartExtension() {
 }
 
 function compareURLs(first, second) {
-    // sometimes I get trailing /'s other times not, also treat http and https as the same
-    first = first.replace("https", "http").replace(/\/$/, "");
-    second = second.replace("https", "http").replace(/\/$/, "");
+    // sometimes I get trailing /'s other times not, also treat http and https as the same,
+    // also for some reason google docs immediately redirect to the exact same url but w /u/1/d instead of /d
+    // also navigation within window via # anchors is ok
+    first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+    second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
     return (first == second);
 }
 
@@ -289,10 +291,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     var node = AllNodes ? AllNodes.find(function(node) {
         return (node && (node.tabId == tabId));}) : null;
     if (!node) return;
-    console.log("ChangeInfo URL='"+changeInfo.url + "'\n stateURL='"+state.url+"'");
     if (compareURLs(node.url, changeInfo.url)) return;
 
     // Don't let BT tabs escape! Open any navigation in a new tab
+    // NB some sites redirect back which can lead to an infinite loop, so don't go back if we've just done so < 3 seconds
+    var d = new Date();
+    var t = d.getTime();
+    if (node.sentBackTime && ((t - node.sentBackTime) < 3000)) return;
+    node.sentBackTime = t;                     // very hokey!
     chrome.tabs.goBack(node.tabId);
     chrome.tabs.create({'windowId': node.windowId, 'url': changeInfo.url});
 });
