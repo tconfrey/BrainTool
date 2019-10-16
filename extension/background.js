@@ -17,15 +17,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     console.count("BG-IN:" + msg.msg);
     switch (msg.from) {
     case 'btwindow':
-        if (msg.msg == 'window_ready') { 
-            chrome.tabs.sendMessage(                        // send over gdrive app info
-                BTTab,
-                {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
-                {} , 
-                function (rsp) {
-                    console.log("sent keys, rsp: " + rsp);
-                });
-            console.count('keys');
+        if (msg.msg == 'window_ready') {
             restartExtension();
         }
         if (msg.msg == 'ready') {
@@ -223,7 +215,23 @@ function moveTabToTag(tabId, tag) {
 function restartExtension() {
     // Since we're restarting close windows and clear out the cache of opened nodes
 
-    const tabs = Object.values(OpenLinks);
+    // might need to wait for popup.js to store BTTab value before sending it the keys
+    if (!BTTab) {
+        console.log("starting Extension setup but BTTab not yet set, trying again...");
+        setTimeout(restartExtension, 100);
+        return;
+    }
+    
+    chrome.tabs.sendMessage(                        // send over gdrive app info
+        BTTab,
+        {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
+        {} , 
+        function (rsp) {
+            console.log("sent keys, rsp: " + rsp);
+        });
+    console.count('keys');
+    
+    const tabs = Object.values(OpenLinks); // tab ids are values of the OpenLinks objects attribute hash
     if (tabs.length) {
         alert("Closing BrainTool controlled windows!");
         console.log("Restarting Extension");
