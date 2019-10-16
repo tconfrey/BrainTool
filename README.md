@@ -1,5 +1,4 @@
-# BrainTool
-![alt text](/site/logo.png "Logo Title Text 1")
+![BrainTool](/site/logo.png "Logo Title Text 1")
 
 BrainTool is a Chrome extension that can be used as a unique standalone hierarchical bookmarks manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
@@ -12,7 +11,7 @@ If you want to try it, clone the [repo](https://github.com/tconfrey/BrainTool) a
 - toggle developer mode on
 - click the "Load unpacked" button and point to the extension code location
 - the extension now shows as an icon in your tool bar
-- click the icon!
+- click the ![icon](/extension/images/BrainTool32.png) icon!
 
 There's more info in the [Overview](http://braintool.org/overview). Let me know if you have any thoughts, comments, or feedback.
 
