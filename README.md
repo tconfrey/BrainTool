@@ -1,5 +1,5 @@
 # BrainTool
-![alt text](https://github.com/tconfrey/BrainTool/Site/logo.png "Logo Title Text 1")
+![alt text](/site/logo.png "Logo Title Text 1")
 
 BrainTool is a Chrome extension that can be used as a unique standalone hierarchical bookmarks manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
