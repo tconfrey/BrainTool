@@ -31,7 +31,7 @@ Links in org mode are represented as [[link url][link title]], when editing a li
 
 ## Known issues, future plans
 
-- I'd like to be able to read and write :tags: from the app so that links and notes could be tagged into multiple categories but still use the org backing store.
+- Currently the app is pretty destructive to org-mode markup. So tags, TODO's and properties get overwritten. Thats fine for basic users but unacceptable for regular org-mode users. I need to store and re-write any org-specific markup. 
 - It might be good to be able to use multiple .org files and either combine or swap between them in the app (or maybe have a different BT Chrome window display per file).
 - Ideally there'd be a visual correlation between the tag and its links in the tree and the corresponding open browser window.
 - I should capture and display the favicon on open tabs.
