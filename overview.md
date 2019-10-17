@@ -4,7 +4,7 @@ BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks
 <br/><br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 <br/><br/>
-<img src="/site/bt-screenshot4.png" style="border:solid; width:50%; float:left; border-width:thin;">
+<img src="/site/bt-screenshot4.png" style="border:solid; width:50%; border-width:thin;">
 <br/><br/>
 
 But that's only a part of the tool. The BT Chrome extension is actually a browser-based view onto a plain text file represented in the text-based emacs [orgmode](http://orgmode.org) format and stored on your Google Drive. That file can be edited in any text editor, ideally emacs with org-mode.
@@ -35,7 +35,7 @@ All url links in the .org file are shown as leaf nodes in the tree under their a
 
 ## Editing
 
-<img src="/site/bt-screenshot3.png" style="border:solid; width:50%; height:50%; float:left; border-width:thin;">
+<img src="/site/bt-screenshot3.png" style="border:solid; width:50%; height:50%; float:left; border-width:thin; margin-right: 10px;">
 
 The text and displayed link name can be edited within the extension window by clicking on the button in the middle column - kindof a janky ui but good enough until I find the time to improve my front-end skills. The popup also offers an accelerator to open all links for a given tag (they will open in a single dedicated Chrome window.)
 
