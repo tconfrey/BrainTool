@@ -1,10 +1,14 @@
 # BrainTool Philosophy
 
-BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing, at which point it's added to the tree and its tab moved into the same window as its fellows.
+BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
+<br/><br/>
 ![Windows and tabs map to parent and leaf nodes](/site/bt-screenshot1.png "Basic elements")
-<br/>
+<br/><br/>
+![Windows and tabs map to parent and leaf nodes](/site/bt-screenshot4.png "Basic elements")
+<br/><br/>
 
 But that's only a part of the tool. The BT Chrome extension is actually a browser-based view onto a plain text file represented in the text-based emacs [orgmode](http://orgmode.org) format and stored on your Google Drive. That file can be edited in any text editor, ideally emacs with org-mode.
+<br/><br/>
 ![Textual org-mode structure](/site/bt-screenshot2.png "Tree with corresponding org-mode text")
 
 The idea is to marry together two of the main ways I personally capture information
