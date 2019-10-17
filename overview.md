@@ -2,14 +2,14 @@
 
 BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
 <br/><br/>
-![Windows and tabs map to parent and leaf nodes](/site/bt-screenshot1.png "Basic elements")
+<img src="/site/bt-screenshot1.png" style="border:solid;">
 <br/><br/>
-![Windows and tabs map to parent and leaf nodes](/site/bt-screenshot4.png "Basic elements") <!-- .element width="50%" -->
+<img src="/site/bt-screenshot4.png" style="border:solid;width:50%;">
 <br/><br/>
 
 But that's only a part of the tool. The BT Chrome extension is actually a browser-based view onto a plain text file represented in the text-based emacs [orgmode](http://orgmode.org) format and stored on your Google Drive. That file can be edited in any text editor, ideally emacs with org-mode.
 <br/><br/>
-![Textual org-mode structure](/site/bt-screenshot2.png "Tree with corresponding org-mode text")
+<img src="/site/bt-screenshot2.png" style="border:solid;">
 
 The idea is to marry together two of the main ways I personally capture information
 - in notes typed into plain text files (in my case via an emacs org-mode buffer),
@@ -35,7 +35,7 @@ All url links in the .org file are shown as leaf nodes in the tree under their a
 
 ## Editing
 
-![Edit window](/site/bt-screenshot3.png "Shows edit popup") <!-- .element height="50%" width="50%" -->
+<img src="/site/bt-screenshot3.png" style="border:solid;width:50%;height:50%">
 The text and displayed link name can be edited within the extension window by clicking on the button in the middle column - kindof a janky ui but good enough until I find the time to improve my front-end skills. The popup also offers an accelerator to open all links for a given tag (they will open in a single dedicated Chrome window.)
 
 The whole thing can also be edited in any text editor. As noted the key feature of BT is the integration with my org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs. I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit I hit the Refresh button in the tree to sync the display. Before editing in emacs I need to remember to M-x revert-buffer to pull in any new changes from the app. This sounds like a lot of overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
