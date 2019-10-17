@@ -9,7 +9,7 @@ Currently it is at a minimal MVP-for-me level of functionality so I have not yet
 If you want to try it, clone the [repo](https://github.com/tconfrey/BrainTool) and create it as a local extension:
 - open [chrome extensions](chrome://extensions)
 - toggle developer mode on
-- click the "Load unpacked" button and point to the extension code location
+- click the "Load unpacked" button and point to the extension code location (/BrainTool/extension)
 - the extension now shows as an icon in your tool bar
 - click the ![icon](/extension/images/BrainTool16.png) icon!
 
