@@ -2,3 +2,5 @@ name: Tony Confrey
 footer-links:
   email: tconfrey@gmail.com
 theme: jekyll-theme-cayman
+plugins:
+  - jekyll-seo-tag
