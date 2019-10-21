@@ -1,3 +1,4 @@
+{% include head_custom.html %}
 # BrainTool Philosophy
 
 BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
