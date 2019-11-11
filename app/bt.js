@@ -509,7 +509,7 @@ function deleteNode(id) {
     // Remove from parent
     var parent = AllNodes[node.parentId];
     if (parent)
-        parent.childIds.removeChild(id);
+        parent.removeChild(id);
     
     // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
     delete(AllNodes[id]);
