@@ -22,17 +22,18 @@ QUnit.module("App tests", function() {
                 assert.deepEqual(AllNodes[0].text,
                                  "BrainTool is a tool",
                                  "text looks good");
-                var cats = new Set(["BrainTool", "Category-Tag", "Top Level 2", "next"]);
-                assert.deepEqual(Categories, cats, "Categories look good");
+                var tgs = new Set(["BrainTool", "Link"]);
+                assert.deepEqual(Tags, tgs, "Tags look good");
                 var table = generateTable();
                 assert.equal(table,
-                             "<table><tr data-tt-id='0'><td class='left'><span class='btTitle'>BrainTool</span></td><td class='middle'/><td><span class='btText'>BrainTool is a tool</span></td></tr><tr data-tt-id='1' data-tt-parent-id='0'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='middle'/><td><span class='btText'>They are the same</span></td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td><td class='middle'/><td><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr><tr data-tt-id='4'><td class='left'><span class='btTitle'>Top Level 2</span></td><td class='middle'/><td><span class='btText'></span></td></tr><tr data-tt-id='5' data-tt-parent-id='4'><td class='left'><span class='btTitle'>next</span></td><td class='middle'/><td><span class='btText'></span></td></tr></table>",
+                             "<table><tr data-tt-id='0'><td class='left'><span class='btTitle'><b>TODO: </b>BrainTool</span></td><td class='middle'/><td><span class='btText'>BrainTool is a tool</span></td></tr><tr data-tt-id='2' data-tt-parent-id='0'><td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td><td class='middle'/><td><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td></tr><tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr></table>",
                              "Table generated correctly");
                 assert.deepEqual(generateOrgFile(), text, "Regenerated file text ok");
 
                 var theOne = new BTNode(1, "Category-Tag", "They are the same", 2, 0);
                 assert.deepEqual(BTNode.findFromTitle("Category-Tag"), theOne, "findFromTitle ok");
-                
+
+                assert.equal(AllNodes[4].orgTags("* Top Level 2"), "                                              :braintool:orgmode:", "Tags output ok");
                 done();
             });
     });
@@ -73,6 +74,7 @@ QUnit.module("App tests", function() {
         assert.equal(AllNodes.length, 6, "tag and tab added ok");
         var node = AllNodes[2]; // newly created parent node
         assert.equal(node.childIds.length, 1, "parent knows about child");
+        
         assert.deepEqual(generateOrgFile(), "* BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* tag1\n\n** [[http://google.com][The Goog]]\n", "file regen ok");
         node = AllNodes[3]; // newly created node
         assert.deepEqual(node.HTML(), "<tr data-tt-id='3' data-tt-parent-id='2'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td><td class='middle'/><td><span class='btText'></span></td></tr>", "HTML gen looks good");
@@ -140,6 +142,20 @@ QUnit.module("App tests", function() {
         var title = "<a href='http://www.loink.com' class='btlink'>Loink [oink]</a>";
         var node = new BTNode(BTNode.topIndex++, title, "", 1);
         assert.equal(cleanTitle(node.displayTitle()), "<a href='http://www.loink.com' class='btlink'>Loink oink</a>", "link converted ok for display");
+
+        node.folded = true;
+        assert.equal(node.orgDrawers(), "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n", "no drawer case ok");
+
+        node.drawers = {"PROPERTIES": ":VISIBILITY: folded\n:OTHER: foo",
+                        "DRAWER2": ":PROP: poo\n:PROP2: poop"};
+        assert.equal(node.orgDrawers(), "  :PROPERTIES:\n  :VISIBILITY: folded\n  :OTHER: foo\n  :END:\n  :DRAWER2:\n  :PROP: poo\n  :PROP2: poop\n  :END:\n", "drawers and folded ok");
+        
+        node.drawers = {"PROPERTIES": ":OTHER: foo\n:VISIBILITY: folded",
+                        "DRAWER2": ":PROP: poo\n:PROP2: poop"};
+        assert.equal(node.orgDrawers(), "  :PROPERTIES:\n  :OTHER: foo\n  :VISIBILITY: folded\n  :END:\n  :DRAWER2:\n  :PROP: poo\n  :PROP2: poop\n  :END:\n", "drawers, folded different order, ok");
+        
+        node.folded = false;
+        assert.equal(node.orgDrawers(), "  :PROPERTIES:\n  :OTHER: foo\n  :END:\n  :DRAWER2:\n  :PROP: poo\n  :PROP2: poop\n  :END:\n", "drawers not folded ok");
     });
 
 });

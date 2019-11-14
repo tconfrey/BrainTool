@@ -6,9 +6,13 @@ class BTNode {
         this._level = level;
         this._parentId = parentId;
         this._childIds = [];
+        this._linkChildren = false;
         if (parentId || parentId === 0)
             AllNodes[parentId].addChild(id);
         this._folded = false;
+        this.drawers = {};
+        this.keyword = null;
+        this.tags = [];
     }
 
     get id() {
@@ -50,6 +54,13 @@ class BTNode {
         return this._folded;
     }
 
+    set linkChildren(bool) {
+        this._linkChildren = bool;
+    }
+    get linkChildren() {
+        return this._linkChildren;
+    }
+    
     get childIds() {
         return this._childIds;
     }
@@ -72,18 +83,62 @@ class BTNode {
         return outputHTML;
     }
 
+    orgDrawers() {
+        // generate any required drawer text
+        let drawerText = "";
+        if (this.drawers) {
+            const drawers = Object.keys(this.drawers);
+            const reg = /:(\w*):\s*(\w*)/g;                          // regex to iterate thru props and values
+            let hits, ptext;
+            for (const drawer of drawers) {
+                drawerText += "  :" + drawer + ":\n";
+                ptext = this.drawers[drawer];                        // of the form ":prop: val\n
+                
+                while (hits = reg.exec(ptext)) {
+                    // Iterate thru properties handling VISIBILITY 
+                    if ((drawer == "PROPERTIES") && (hits[1] == "VISIBILITY"))
+                    {           // only if needed
+                        if (this.folded) drawerText += "  :VISIBILITY: folded\n"; 
+                    }
+                    else
+                        drawerText += `  :${hits[1]}: ${hits[2]}\n`;
+                }
+                drawerText += "  :END:\n";
+            }
+        }
+        if (this.folded && (!this.drawers || !this.drawers.PROPERTIES))
+            //need to add in the PROPERTIES drawer if we need to store the nodes folded state
+            drawerText += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
+        return drawerText;
+    }
+
+    orgTags(current) {
+        // insert any tags padded right
+        if (this.tags.length == 0) return "";
+        const width = 78;                                // default for right adjusted tags
+        let tags = ":";
+        for (const tag of this.tags) {
+            tags += tag + ":";
+        }
+        const padding = Math.max(width - current.length - tags.length, 1);
+        return " ".repeat(padding) + tags;
+    }
+        
+
     orgText() {
         // Generate org text for this node
-        var outputOrg = this._id ? "\n" : "";
+        var outputOrg = this._id ? "\n" : "";                           // no leading newline
         outputOrg += "*".repeat(this._level) + " ";
-        outputOrg += this._title + "\n";
-        if (this.folded) outputOrg += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
+        outputOrg += this.keyword ? this.keyword+" " : "";              // TODO DONE etc
+        outputOrg += this._title;
+        outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
+        outputOrg += this.orgDrawers();                                 // add in any drawer text
         outputOrg += this._text ? this._text + "\n" : "";
         return outputOrg;
     }
 
     orgTextwChildren() {
-        // Generate org text for this node
+        // Generate org text for this node and its descendents
         var outputOrg = this.orgText();
         this._childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
@@ -121,8 +176,23 @@ class BTNode {
     }
     
     displayTitle() {
-        return BTNode._displayTextVersion(this._title);
+        let txt = "";
+        if (this.keyword) txt += `<b>${this.keyword}: </b>`;
+        return txt + BTNode._displayTextVersion(this._title);
     }
+
+    displayTag() {
+        // Visible tag for this node
+
+        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        var reg = new RegExp(regexStr, "mg");
+        var hits;
+        var outputStr = this._title;
+        while (hits = reg.exec(outputStr)) {
+            outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
+        }
+        return outputStr;
+    }        
 
     static findFromTitle(title) {
         var n = AllNodes ? AllNodes.find(function(node) {
@@ -134,6 +204,7 @@ class BTNode {
 BTNode.topIndex = 0;          // track the index of the next node to create, static class variable.
 
 class BTChromeNode extends BTNode {
+    // Node as seen by the extension. Knows about tabs and window ids
     constructor(id, title, text, level, parentId) {
         super(id, title, text, level, parentId);
         this.url = "";
@@ -142,6 +213,7 @@ class BTChromeNode extends BTNode {
     }
     
     static findFromTab(tabId) {
+        // Return node associated w display tab
         var n = AllNodes ?
             AllNodes.find(function(node) {
                 return (node && (node.tabId == tabId));})
@@ -155,11 +227,12 @@ class BTLinkNode extends BTNode {
     // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
     constructor(id, title, text, level, parentId) {
         super(id, title, text, level, parentId);
+        this._linkChildren = true;   // by definition
     }
     orgTextwChildren() {
         // only generate org text for links with added descriptive text
         if (this._text.length)
-            return super.orgTextwChildren();
+            return super.orgTextwChildren(); // call function on super class to write out,
         return "";
     }
 }   

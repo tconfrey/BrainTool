@@ -183,16 +183,16 @@ function writeBTFile() {
 
 
 
-var Categories = new Set();     // track tags for future tab assignment
-var BTFileText = "";            // Global container for file text
-var parseTree;                  // orga parse results
-var OpenedNodes = [];           // attempt to preserve opened state across refresh
+var Tags = new Set();          // track tags for future tab assignment
+var BTFileText = "";           // Global container for file text
+var parseTree;                 // orga parse results
+var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 function refreshTable() {
     // refresh from file, first clear current state
     $("#refresh").prop("disabled", true);
     $("#refresh").text('...');
-    Categories = new Set();
+    Tags = new Set();
     BTFileText = "";
     BTNode.topIndex = 0;
 
@@ -207,19 +207,32 @@ function refreshTable() {
     FindOrCreateBTFile();
 }
 
+
+function generateTable() {
+    // Generate table from BT Nodes
+    var outputHTML = "<table>";
+    AllNodes.forEach(function(node) {
+        if (!node || !node.linkChildren) return;
+        outputHTML += node.HTML();
+    });
+    outputHTML += "</table>";
+    return outputHTML;
+}
+
+
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
     BTFileText = fileText;      // store for future editing
     parseBTFile(fileText);
 
-    var table = generateTable();
+    var table = generateTable(); 
     var tab = $("#content");
     tab.html(table);
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
 
     // Let extension know about model
-    var tags = JSON.stringify(Array.from(Categories));
+    var tags = JSON.stringify(Array.from(Tags));
     window.postMessage({ type: 'tags_updated', text: tags});
     console.count('BT-OUT:tags_updated');
     var nodes = JSON.stringify(AllNodes);
@@ -236,7 +249,7 @@ function processBTFile(fileText) {
 
     // set collapsed state as per org data
     AllNodes.forEach(function(node) {
-        if (node && node.folded)
+        if (node && node.folded && node.linkChildren) // NB no linkChildren => not displayed in tree
             tab.treetable("collapseNode", node.id);
     });
 
@@ -332,7 +345,7 @@ function storeTab(tag, tab) {
 
     // Add new tag if doesn't exist
     tag = tag.trim();
-    if (!Categories.has(tag)) addNewTag(tag);
+    if (!Tags.has(tag)) addNewTag(tag);
     
     var url = tab.url;
     var title = cleanTitle(tab.title);
@@ -364,8 +377,8 @@ function addNewTag(tag) {
     $("table.treetable").treetable("loadBranch", null, node.HTML());              // insert into tree
 
     // Add new category and let extension know about updated tags list
-    Categories.add(tag);
-    var tags = JSON.stringify(Array.from(Categories));
+    Tags.add(tag);
+    var tags = JSON.stringify(Array.from(Tags));
     window.postMessage({ type: 'tags_updated', text: tags });
     console.count('BT-OUT:tags_updated');
 }

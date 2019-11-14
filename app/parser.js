@@ -1,20 +1,16 @@
 
-var TopNodes = [];
 var AllNodes = [];
 
 function parseBTFile(fileText) {
-    // turn the org-mode text into an html table, extract category tags
+    // crearte and recursively walk orga parse tree to create bt model
     parseTree = orgaparse(fileText);
     var orgaNode;
-    var BTNodes = new Array;
     var BTNodeIndex = 0;
     for (var i = 0; i<parseTree.children.length; i++) {
         orgaNode = parseTree.children[i];
         if (orgaNode.type == "section")
-           BTNodes[BTNodeIndex++] = BTNodeProcessSection(orgaNode);
+           BTNodeProcessSection(orgaNode);
     }
-    TopNodes = BTNodes;
-    return BTNodes;
 }
 
 function BTNodeProcessSection(orgaSection) {
@@ -28,22 +24,43 @@ function BTNodeProcessSection(orgaSection) {
         orgaChild = orgaSection.children[i];
         if (orgaChild.type == "headline") {
             node.level = orgaChild.level;
-            node.title = orgaText(orgaChild);
-            node.folded = orgaFolded(orgaChild);
+            node.title = orgaText(orgaChild, node);
+            if (orgaChild.keyword) node.keyword = orgaChild.keyword;
+            node.tags = orgaChild.tags;
+            node.drawers = orgaDrawers(orgaChild);
+            if (node.drawers.PROPERTIES)
+                node.folded = node.drawers.PROPERTIES.match(/:VISIBILITY:\s*folded/g) ? true : false;
+            else
+                node.folded = false;
         }
         if (orgaChild.type == "paragraph") {
             allText += allText.length ? "\n\n" : "";      // add newlines between para's
-            allText += orgaText(orgaChild);
+            allText += orgaText(orgaChild, node);
             BTLinkProcessPara(orgaChild, node);           // pull out any embedded links and make them tree nodes
         }
         if (orgaChild.type == "section") {
             var childNode = BTNodeProcessSection(orgaChild);
-            childNode.parentId = node.id;               // remember parent
+            childNode.parentId = node.id;                  // remember parent
+            if (childNode.linkChildren) node.linkChildren = true;    // determines display state
             node.childIds.push(childNode.id);
         }
     }
     node.text = allText;
+    if (node.linkChildren && node.childIds.length) Tags.add(node.displayTag());
     return node;
+}
+
+function orgaDrawers(node) {
+    // Look for org mode drawer w VISIBILITY property for folded state
+    var orgaChild;
+    var drawers = {};
+    for (var i = 0; i < node.children.length; i++) {
+        orgaChild = node.children[i];
+        if (orgaChild.type == "drawer" && orgaChild.name && orgaChild.value) {
+            drawers[orgaChild.name] = orgaChild.value;
+        }
+    }
+    return drawers;
 }
 
 function orgaFolded(node) {
@@ -63,18 +80,19 @@ function orgaLinkOrgText(node) {
     return "[[" + node.uri.raw + "][" + node.desc + "]]";
 }
 
-function orgaText(node) {
+function orgaText(orgnode, btnode) {
     // generate text from orga headline or para node. Both can contain texts and links
-    var orgaChild;
-    var origText = ""
-    for (var i = 0; i < node.children.length; i++) {
-        orgaChild = node.children[i];
+    // NB also pulling out any keywords (TODO, DONE etc) for display
+    var orgaChild,
+        origText="";
+    for (var i = 0; i < orgnode.children.length; i++) {
+        orgaChild = orgnode.children[i];
         if (orgaChild.type == "text") {
             origText += orgaChild.value;
-            if (node.type == "headline") Categories.add(orgaChild.value);
         }
         if (orgaChild.type == "link") {
             origText += orgaLinkOrgText(orgaChild);
+            btnode.linkChildren = true;                 // remember so we can determine display state
         }
     }
     return origText;
@@ -92,20 +110,6 @@ function BTLinkProcessPara(para, node) {
         }
     }
 }
-            
-    
-
-function generateTable() {
-    // Generate table from BT Nodes
-    var outputHTML = "<table>";
-    AllNodes.forEach(function(node) {
-        if (!node) return;
-        outputHTML += node.HTML();
-    });
-    outputHTML += "</table>";
-    return outputHTML;
-}
-
 
 /*
 
