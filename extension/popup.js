@@ -21,6 +21,7 @@ function storeBTTab(tabId, tries) {
 }
     
 function windowOpen() {
+    // Called on first click on header button, create the BT panel window
     var wargs = {
         'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
 //        'url' : "https://BrainTool.org/app", 
@@ -85,7 +86,7 @@ newTag.onkeyup = function(e) {
 
 
 function tabAdded() {
-    // Call out to the content script to add current tab to BT
+    // Call out to the content script which will get current tab and add to BT
     var nt = newTag.value;                                     // value from text entry field
     var BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
     

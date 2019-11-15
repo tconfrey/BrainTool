@@ -185,7 +185,6 @@ function writeBTFile() {
 
 var Tags = new Set();          // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
-var parseTree;                 // orga parse results
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 function refreshTable() {
@@ -194,7 +193,7 @@ function refreshTable() {
     $("#refresh").text('...');
     Tags = new Set();
     BTFileText = "";
-    BTNode.topIndex = 0;
+    BTNode.topIndex = 1;
 
     // Remember window opened state to repopulate later
     $("tr.opened").each(function() {
@@ -235,16 +234,16 @@ function processBTFile(fileText) {
     var tags = JSON.stringify(Array.from(Tags));
     window.postMessage({ type: 'tags_updated', text: tags});
     console.count('BT-OUT:tags_updated');
-    var nodes = JSON.stringify(AllNodes);
+    var nodes = JSON.stringify(BTNode.AllBTNodes);    // only send the core data needed in BTNode, not AppNode
     window.postMessage({ type: 'nodes_updated', text: nodes});
     console.count('BT-OUT:nodes_updated');
 
     // initialize ui from any pre-refresh opened state
-    var node;
+    var nodeId;
     OpenedNodes.forEach(function(nodeTitle) {
-        node = BTNode.findFromTitle(nodeTitle);
-        if (!node) return;
-        $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+        nodeId = BTNode.findFromTitle(nodeTitle);
+        if (!nodeId) return;
+        $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
     });
 
     // set collapsed state as per org data
@@ -347,15 +346,16 @@ function storeTab(tag, tab) {
     tag = tag.trim();
     if (!Tags.has(tag)) addNewTag(tag);
     
-    var url = tab.url;
-    var title = cleanTitle(tab.title);
-    var parentNode = BTNode.findFromTitle(tag);
-    
-    var newNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, "", parentNode.level + 1, parentNode.id);
-    AllNodes[newNode.id] = newNode;
+    const url = tab.url;
+    const title = cleanTitle(tab.title);
+    const parentNodeId = BTNode.findFromTitle(tag);
+    const parentNode = AllNodes[parentNodeId];
 
-    var n = $("table.treetable").treetable("node", parentNode.id);                // find parent node
-    var res = $("table.treetable").treetable("loadBranch", n, newNode.HTML());              // and insert new row
+    const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
+    const newNode = new BTAppNode(newBTNode, "", parentNode.level + 1);
+
+    const n = $("table.treetable").treetable("node", parentNodeId);                // find parent node
+    $("table.treetable").treetable("loadBranch", n, newNode.HTML());               // and insert new row
         
     writeBTFile();              // write back out the update file text
     
@@ -363,7 +363,7 @@ function storeTab(tag, tab) {
     // Seems like sometime treetable hasn't completed the loadBranch so put behind a timeout
     setTimeout(function() {
         $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
-        $("tr[data-tt-id='"+parentNode.id+"']").addClass("opened");
+        $("tr[data-tt-id='"+parentNodeId+"']").addClass("opened");
         initializeUI();
     }, 5);
 }
@@ -371,10 +371,11 @@ function storeTab(tag, tab) {
 function addNewTag(tag) {
     // New tag - create node and add container at bottom
     tag = tag.trim();
-    var node = new BTNode(BTNode.topIndex++, tag, "", 1, null);
-    AllNodes[node.id] = node;
 
-    $("table.treetable").treetable("loadBranch", null, node.HTML());              // insert into tree
+    const newBTNode = new BTNode(BTNode.topIndex++, tag, null);
+    const newNode = new BTAppNode(newBTNode, "", 1);
+
+    $("table.treetable").treetable("loadBranch", null, newNode.HTML());              // insert into tree
 
     // Add new category and let extension know about updated tags list
     Tags.add(tag);
@@ -390,7 +391,6 @@ function buttonShow() {
     var td = $(this).find(".middle")
     $("#button").detach().appendTo($(td));
     $("#button").show(100);
-
 }
 function buttonHide() {
     // hide button to perform row operations, triggered on exit
@@ -430,14 +430,14 @@ $("#popup").click(function(e) {
 
 function populateDialog() {
     // set up the dialog for use
-    var tr = $("tr.selected")[0];
-    var BTNodeId = $(tr).attr('data-tt-id');
-    var BTNode = AllNodes[BTNodeId];
-    if (!BTNode) return false;
+    const tr = $("tr.selected")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+    const appNode = AllNodes[nodeId];
+    if (!appNode) return false;
     
-    var titletxt = BTNode.title;
-    var txttxt = BTNode.text;
-    var kids = BTNode.childIds.length;
+    const titletxt = appNode.title;
+    const txttxt = appNode.text;
+    const kids = appNode.childIds.length;
     
     $("#title-text").val(titletxt);
     $("#text-text").val(txttxt);
@@ -455,13 +455,13 @@ $("textarea").change(function() {
 function openRow() {
     // Open all links under this row in windows per tag
 
-    // First find all BTNodes involved - selected plus children
-    var tr = $("tr.selected")[0];
-    var BTNodeId = $(tr).attr('data-tt-id');
-    var BTNode = AllNodes[BTNodeId];
-    if (!BTNode) return;
+    // First find all AppNodes involved - selected plus children
+    const tr = $("tr.selected")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+    const appNode = AllNodes[nodeId];
+    if (!appNode) return;
 
-    openEachWindow(BTNode);
+    openEachWindow(appNode);
 
     // close the dialog
     $("#dialog")[0].close();
@@ -469,8 +469,8 @@ function openRow() {
 }
 
 function openEachWindow(node) {
-    var rowIds = [];
-    var tabsToOpen = [];
+    const rowIds = [];
+    const tabsToOpen = [];
     
     rowIds.push(node.id);
     node.childIds.forEach(function(childId) {
@@ -480,7 +480,7 @@ function openEachWindow(node) {
     // iterate thru rows and find all links and send msg to extension to open them
     rowIds.forEach(function(id) {
         $("tr[data-tt-id='"+id+"']").find("a").each(function() {
-            var url = $(this).attr('href');
+            const url = $(this).attr('href');
             if (url == "#") return;                           // ignore the '...' hover link
             tabsToOpen.push({'nodeId': id, 'url': url });
         });
@@ -494,7 +494,7 @@ function openEachWindow(node) {
     
     if (node.childIds.length)    // iterate again and recurse for container nodes to each open their windows
         node.childIds.forEach(function(childId) {
-            var child = AllNodes[childId];
+            const child = AllNodes[childId];
             if (child.childIds.length)
                 openEachWindow(child);
         });
@@ -509,10 +509,10 @@ function escapeRegExp(string) {
 function deleteRow() {
     // Delete this node/row. NB only callable if no children
     var tr = $("tr.selected")[0];
-    var BTNodeId = $(tr).attr('data-tt-id');
+    var nodeId = $(tr).attr('data-tt-id');
     $(tr).remove();                                   // remove from ui - easy!
     $("#dialog")[0].close();
-    deleteNode(BTNodeId);
+    deleteNode(nodeId);
 }
 function deleteNode(id) {
     //delete node and clean up
@@ -522,7 +522,7 @@ function deleteNode(id) {
     // Remove from parent
     var parent = AllNodes[node.parentId];
     if (parent)
-        parent.removeChild(id);
+        parent._btnode.removeChild(id);
     
     // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
     delete(AllNodes[id]);
@@ -570,10 +570,10 @@ function generateOrgFile() {
     // iterate thru nodes to do the work
     var orgText = "";
     AllNodes.forEach(function (node) {
-        // start at top level nodes and recurse, since child nodes don't necessarily follow parent nodes in array
+        // start at top level nodes and recurse, cos child nodes don't necessarily follow parent nodes in array
         if (node && (node.level == 1))
-            orgText += node.orgTextwChildren();
+            orgText += node.orgTextwChildren() + "\n";
     });
-    return orgText;
+    return orgText.slice(0, -1);                                      // take off final \n
 }
 

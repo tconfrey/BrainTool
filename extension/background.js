@@ -71,7 +71,8 @@ function readyOrRefresh() {
         var chromeNode;
         AllNodes = new Array();
         nodes.forEach(function(node) {
-            chromeNode = new BTChromeNode(node._id, node._title, node._text, node._level, node._parentId);
+            if (!node) return;                                        // nodes array can be sparse
+            chromeNode = new BTChromeNode(node._id, node._title, node._parentId);
             AllNodes[chromeNode.id] = chromeNode;
             // restore open state w tab and window ids. preserves state acrtoss refreshes
             // These are object structures indexind by _title
@@ -193,8 +194,8 @@ function deleteNode(id) {
 function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
 
-    var tagNode = BTNode.findFromTitle(tag) || new BTChromeNode(BTNode.topIndex++, tag, "", 1, null);
-    AllNodes[tagNode.id] = tagNode;
+    var tagNodeId = BTNode.findFromTitle(tag);
+    const tagNode = tagNodeId ? AllNodes[tagNodeId] : new BTChromeNode(BTNode.topIndex++, tag, null);
     
     if (tagNode.windowId)
         chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': -1}, function(deets) {
@@ -209,7 +210,7 @@ function moveTabToTag(tabId, tag) {
 
     // get tab url, then create and store new BT node
     chrome.tabs.get(tabId, function(tab) {
-        var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, "", tagNode.level + 1, tagNode.id);
+        var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, tagNode.id);
         linkNode.tabId = tabId;
         linkNode.windowId = tagNode.windowId;
 	    linkNode.url = tab.url;

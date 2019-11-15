@@ -1,53 +1,43 @@
-
 var AllNodes = [];
 
 function parseBTFile(fileText) {
     // crearte and recursively walk orga parse tree to create bt model
-    parseTree = orgaparse(fileText);
-    var orgaNode;
-    var BTNodeIndex = 0;
-    for (var i = 0; i<parseTree.children.length; i++) {
-        orgaNode = parseTree.children[i];
+    const parseTree = orgaparse(fileText);
+    for (const orgaNode of parseTree.children) {
         if (orgaNode.type == "section")
-           BTNodeProcessSection(orgaNode);
+            orgaSection(orgaNode, null);
     }
 }
 
-function BTNodeProcessSection(orgaSection) {
+function orgaSection(section, parentAppNode) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    var node = new BTNode(BTNode.topIndex, "", "", 0, null);
-    AllNodes[BTNode.topIndex++] = node;
-    var BTChildIndex = 0;
-    var orgaChild;
-    var allText = "";
-    for (var i = 0; i < orgaSection.children.length; i++) {
-        orgaChild = orgaSection.children[i];
+    const node = new BTNode(BTNode.topIndex++, "", parentAppNode ? parentAppNode.id : null);
+    const appNode = new BTAppNode(node, "", 0);
+    let allText = "";
+    for (const orgaChild of section.children) {
         if (orgaChild.type == "headline") {
-            node.level = orgaChild.level;
-            node.title = orgaText(orgaChild, node);
-            if (orgaChild.keyword) node.keyword = orgaChild.keyword;
-            node.tags = orgaChild.tags;
-            node.drawers = orgaDrawers(orgaChild);
-            if (node.drawers.PROPERTIES)
-                node.folded = node.drawers.PROPERTIES.match(/:VISIBILITY:\s*folded/g) ? true : false;
+            appNode.level = orgaChild.level;
+            node.title = orgaText(orgaChild, appNode);
+            if (orgaChild.keyword) appNode.keyword = orgaChild.keyword;
+            appNode.tags = orgaChild.tags;
+            appNode.drawers = orgaDrawers(orgaChild);
+            if (appNode.drawers.PROPERTIES)
+                appNode.folded = appNode.drawers.PROPERTIES.match(/:VISIBILITY:\s*folded/g) ? true : false;
             else
-                node.folded = false;
+                appNode.folded = false;
         }
         if (orgaChild.type == "paragraph") {
             allText += allText.length ? "\n\n" : "";      // add newlines between para's
-            allText += orgaText(orgaChild, node);
-            BTLinkProcessPara(orgaChild, node);           // pull out any embedded links and make them tree nodes
+            allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode
         }
         if (orgaChild.type == "section") {
-            var childNode = BTNodeProcessSection(orgaChild);
-            childNode.parentId = node.id;                  // remember parent
-            if (childNode.linkChildren) node.linkChildren = true;    // determines display state
-            node.childIds.push(childNode.id);
+            var childAppNode = orgaSection(orgaChild, appNode);
+            if (childAppNode.linkChildren) appNode.linkChildren = true;    // determines display state
         }
     }
-    node.text = allText;
-    if (node.linkChildren && node.childIds.length) Tags.add(node.displayTag());
-    return node;
+    appNode.text = allText;
+    if (appNode.linkChildren && node.childIds.length) Tags.add(appNode.displayTag());
+    return appNode;
 }
 
 function orgaDrawers(node) {
@@ -80,35 +70,27 @@ function orgaLinkOrgText(node) {
     return "[[" + node.uri.raw + "][" + node.desc + "]]";
 }
 
-function orgaText(orgnode, btnode) {
+function orgaText(orgnode, containingNode) {
     // generate text from orga headline or para node. Both can contain texts and links
     // NB also pulling out any keywords (TODO, DONE etc) for display
-    var orgaChild,
-        origText="";
-    for (var i = 0; i < orgnode.children.length; i++) {
-        orgaChild = orgnode.children[i];
+    let linkTitle, node, btString = "";
+    for (const orgaChild of orgnode.children) {
         if (orgaChild.type == "text") {
-            origText += orgaChild.value;
+            btString += orgaChild.value;
         }
         if (orgaChild.type == "link") {
-            origText += orgaLinkOrgText(orgaChild);
-            btnode.linkChildren = true;                 // remember so we can determine display state
-        }
-    }
-    return origText;
-}
+            linkTitle = orgaLinkOrgText(orgaChild);
+            btString += linkTitle;
+            containingNode.linkChildren = true;                 // remember so we can determine display state
 
-function BTLinkProcessPara(para, node) {
-    // Pull any child links out and create BTNodes
-    var orgaChild, btnode, title;
-    for (var i = 0; i < para.children.length; i++) {
-        orgaChild = para.children[i];
-        if (orgaChild.type == "link") {
-            title = orgaLinkOrgText(orgaChild);
-            btnode = new BTLinkNode(BTNode.topIndex, title, "", node.level+1, node.id);
-            AllNodes[BTNode.topIndex++] = btnode;
+            if (orgnode.type == "paragraph") {
+                // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
+                node = new BTNode(BTNode.topIndex++, linkTitle, containingNode.id);
+                new BTLinkNode(node, "", containingNode.level+1);
+            }
         }
     }
+    return btString;
 }
 
 /*
