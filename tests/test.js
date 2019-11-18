@@ -1,3 +1,6 @@
+window.LOCALTEST = true;
+QUnit.config.reorder = false;
+
 
 QUnit.module("App tests", function() {
 
@@ -68,7 +71,6 @@ QUnit.module("App tests", function() {
     });
     
     QUnit.test("Store Tab under tag", function(assert) {
-        LOCALTEST = true;
         assert.ok(window.FileText, "file text still available");
         AllNodes = []; BTNode.topIndex = 1;
         processBTFile(window.FileText);
@@ -89,7 +91,6 @@ QUnit.module("App tests", function() {
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
-        LOCALTEST = true;
         assert.ok(window.FileText, "file text still available");
         AllNodes = []; BTNode.topIndex = 1;
         processBTFile(window.FileText);
@@ -167,3 +168,95 @@ QUnit.module("App tests", function() {
     });
 
 });
+
+/*
+
+QUnit.module("Extension tests", function() {
+
+    QUnit.begin(function() {
+        console.log("Extension messages");
+        window.FileText = "* BrainTool Project\nTech and pointers for building BT.\n** Chrome\nThe main part of the app is a Chrome extension. So some resources...\n\n*** [[https://developer.chrome.com/extensions/devguide][Develop Extensions - Google Chrome]]\nOverview of the processs\n\n*** [[https://developers.chrome.com/extensions/tabs#method-create][chrome.tabs - Google Chrome]]\nTab manger functions.\n\n*** [[https://developer.chrome.com/extensions/windows][chrome.windows - Google Chrome]]\nWindow manager functions\n\n*** [[https://developer.chrome.com/extensions/runtime#method-sendMessage][chrome.runtime - Google Chrome]]\nOther useful api components.\n\n*** [[https://developer.chrome.com/webstore/publish][Publish in the Chrome Web Store]]\noverall publishing process\n\n*** [[https://www.freecodecamp.org/news/how-to-publish-your-chrome-extension-dd8400a3d53/][How To Publish Your Chrome Extension]]\n\n*** [[https://github.com/GoogleChrome/chrome-app-samples/tree/master/samples/gdrive][chrome-app-samples/samples/gdrive at master  GoogleChrome/chrome-app-samples]]";
+        
+        window.postMessage({ 'type': 'LOCALTEST' });        // let extension know we're running tests
+    });
+    
+    let openNodeFinished = false;
+    QUnit.test("Open Node", function(assert) {
+        var done = assert.async();
+        processBTFile(window.FileText);
+
+        const handler = function(event) {
+            // Handle message from Window
+            if (event.source != window)
+                return;
+            switch (event.data.type) {
+            case 'tab_opened':
+                const node = event.data.BTNodeId;
+                assert.equal(nodeId, node, "link click round trip");
+                done();
+                openNodeFinished = true
+                window.removeEventListener('message', handler); // clean up
+                break;
+            }
+        };
+        window.addEventListener('message', handler);
+                
+        const nodeId = 3, url = "https://developer.chrome.com/extensions/devguide";
+        window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+    });
+
+    let openTagFinished = false;
+    QUnit.test("Open Tag", function(assert) {
+        var done = assert.async();
+        let counter = 0;
+        
+        const handler = function(event) {
+            // Handle message from Window
+            if (event.source != window)
+                return;
+            switch (event.data.type) {
+            case 'tab_opened':
+                if (++counter == 7) {
+                    assert.equal(7, counter, "Tag open round trip");
+                    done();
+                    openTagFinished = true;
+                    window.removeEventListener('message', handler); // clean up
+                }
+                break;
+            }
+        };
+        window.addEventListener('message', handler);
+        const doer = function() {
+            if (openNodeFinished) {   
+                alert('starting openTag');
+                openEachWindow(AllNodes[2]);
+            }
+            else {
+                setTimeout(doer, 250);
+            }
+        }
+        doer();
+    });
+    
+    QUnit.test("Delete row", function(assert) {
+        var done = assert.async();
+        const doer = function() {
+            if (openTagFinished) {
+                var trs = $("tr");
+                var tr = trs[3];
+                $(tr).addClass("selected");
+                $("#dialog")[0].showModal();
+                deleteRow();
+                assert.equal($("tr").length, trs.length - 1, 'node deletion via ui');
+                done();
+            }
+            else
+                setTimeout(doer, 250);
+        };
+        doer();        
+    });
+    
+});
+                                
+
+*/

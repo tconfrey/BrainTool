@@ -54,6 +54,13 @@ window.addEventListener('message', function(event) {
             nodeId: event.data.nodeId
         });
         console.count('Content-OUT:node_deleted');
+        break;
+    case 'LOCALTEST':
+        // pass on
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'LOCALTEST',
+        });
     }
 });
 
@@ -91,8 +98,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
 
 // Let extension know bt window is ready to open gdrive app
-chrome.runtime.sendMessage({
-    from: 'btwindow',
-    msg: 'window_ready',
-});
-console.count('Content-OUT:window_ready');
+if (!window.LOCALTEST) {
+    chrome.runtime.sendMessage({
+        from: 'btwindow',
+        msg: 'window_ready',
+    });
+    console.count('Content-OUT:window_ready');
+}

@@ -151,12 +151,12 @@ function createStartingBT() {
         })
 }
 
-var LOCALTEST = false; // overwritten in test harness
+window.LOCALTEST = false; // overwritten in test harness
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
     
     BTFileText = generateOrgFile();
-    if (LOCALTEST) return;
+    if (window.LOCALTEST) return;
     if (typeof gapi === "undefined") return;           // eg when called from test harness
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
@@ -311,6 +311,7 @@ window.addEventListener('message', function(event) {
     console.count("BT-IN:" + event.data.type);
     switch (event.data.type) {
     case 'keys':
+        if (window.LOCALTEST) return;            // running inside test harness
         console.log('Initializing gdrive app...');
         // Client ID and API key from the Developer Console, values storted offline in config.js
         CLIENT_ID = event.data.client_id;

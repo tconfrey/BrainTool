@@ -18,6 +18,22 @@
     <table id="content">
     </table>
     
+    <div id="popup" style="padding: 0">
+      <dialog id="dialog">
+        <table style="width:100%">
+          <tr> 
+            <td><textarea id="title-text" class="editNode" ></textarea></td>
+            <td><textarea id="text-text" class="editNode" ></textarea></td>
+          </tr> 
+        </table>
+        <div id="buttonDiv">
+          <button id="delete" onClick="deleteRow()">Delete Row</button>
+          <button id="update" onClick="updateRow()">Update</button>
+          <button id="open" onClick="openRow()">Open All</button>
+        </div>
+      </dialog>
+    </div>
+
     <script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
     <script src="../app/orga-bundle.js"></script>
     <script src="../extension/BTNode.js"></script>

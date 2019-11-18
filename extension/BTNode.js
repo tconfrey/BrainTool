@@ -68,4 +68,17 @@ class BTChromeNode extends BTNode {
             null;
         return n;
     }
+    
+    static findFromWin(winId) {
+        // Return node associated w display tab
+        var n = AllNodes ?
+            AllNodes.find(function(node) {
+                return (node && (node.windowId == winId));})
+            :
+            null;
+        // Both leaves and parent node have the windowId set, we want the parent if both exist
+        if (n && n.parentId && (AllNodes[n.parentId].windowId == winId))
+            return AllNodes[n.parentId];
+        return n;
+    }
 }

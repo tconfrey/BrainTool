@@ -7,7 +7,7 @@ var tagDiv = document.getElementById('tag');
 var newTag = document.getElementById('newtag');
 var CurrentTab;
 
-function storeBTTab(tabId, tries) {
+function storeBTTab(tabId, tries = 0) {
     // set the global variable on the background page
     var bg = chrome.extension.getBackgroundPage();
     if (!bg) {
@@ -31,7 +31,7 @@ function windowOpen() {
     };
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
-        storeBTTab(window.tabs[0].id, 0);
+        storeBTTab(window.tabs[0].id);
     });
 }
 

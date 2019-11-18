@@ -33,6 +33,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         if (msg.msg == 'node_deleted') {
             deleteNode(msg.nodeId);
         }
+        if (msg.msg == 'LOCALTEST') {
+            // Running under test so there is no external BT top level window
+            chrome.tabs.query({'url' : '*://localhost/test*'},
+                              function(tabs) {
+                                  BTTab = tabs[0].id;
+                                  console.log("Setting test mode w BTTab = " + BTTab);
+                              });
+        }
         break;
     case 'popup':
         if (msg.msg == 'moveTab') {
@@ -83,7 +91,7 @@ function readyOrRefresh() {
     });
 }
 
-function openLink(nodeId, url) {
+function openLink(nodeId, url, tries=1) {
     // handle click on a link - open in appropriate window
     try {
         var BTNode = AllNodes[nodeId];
@@ -131,8 +139,12 @@ function openLink(nodeId, url) {
     }
     catch (err) {
         // try refreshing data structures from storage and try again
+        if (tries > 3) {
+            alert("Error in BrainTool, try closing main BT window and restarting");
+            return;
+        }
         readyOrRefresh();
-        setTimeout(function(nodeId, url){openLink(nodeId, url);}, 100);
+        setTimeout(function(){openLink(nodeId, url, ++tries);}, 100);
     }
 }
 
@@ -173,7 +185,8 @@ function openTag(parentId, data) {
                     BTTab,
                     {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
                 console.count('tab_opened'); 
-            }});
+            }
+        });
     }
 }
             
@@ -225,13 +238,17 @@ function moveTabToTag(tabId, tag) {
     });
 }
 
-function restartExtension() {
+function restartExtension(tries = 1) {
     // Since we're restarting close windows and clear out the cache of opened nodes
 
     // might need to wait for popup.js to store BTTab value before sending it the keys
     if (!BTTab) {
-        console.log("starting Extension setup but BTTab not yet set, trying again...");
-        setTimeout(restartExtension, 100);
+        if (tries > 2) {
+            alert("Error starting BrainTool");
+            return;
+        }
+        console.log("try: " + tries + ". Starting Extension setup but BTTab not yet set, trying again...");
+        setTimeout(function() {restartExtension(++tries);}, 100);
         return;
     }
     
@@ -291,8 +308,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
         AllNodes = [];
         return;
     }
-    var node = AllNodes ? AllNodes.find(function(node) {
-        return (node && (node.tabId == tabId));}) : null;
+    var node = BTChromeNode.findFromTab(tabId);
     if (!node) return;
     delete OpenLinks[node.title];
     node.tabId = null; node.windowId = null;
@@ -309,8 +325,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     // Handle a BT tab being migrated to a new url
     if (!AllNodes || !changeInfo.url) return;                 // don't care
-    var node = AllNodes ? AllNodes.find(function(node) {
-        return (node && (node.tabId == tabId));}) : null;
+    var node = BTChromeNode.findFromTab(tabId);
     if (!node) return;
     if (compareURLs(node.url, changeInfo.url)) return;
 
@@ -337,6 +352,43 @@ chrome.windows.onRemoved.addListener((windowId) => {
         {'type': 'tab_closed', 'BTNodeId': node.id});
     console.count('window_closed'); 
 });
+
+chrome.tabs.onActivated.addListener((info) => {
+    // Update badge and hover text if a BT window has opened or surfaced 
+    console.log("window focus, id: " + info.windowId + " tab: " + info.tabId);   
+    setTimeout(function() {setBadge(info.windowId, info.tabId);}, 1000);
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+    // Update badge
+    console.log("window focus, id: " + windowId);
+    setTimeout(function() {setBadge(windowId, null);}, 1000);
+});
+
+function setBadge(windowId, tabId) {
+    // Badge text should reflect BT tag, color indicates if this tab is in BT, hover text has more info
+    const node = BTChromeNode.findFromWin(windowId);
+    if (!node) {
+        chrome.browserAction.setBadgeText({'text' : ""});
+        chrome.browserAction.setTitle({'title' : 'BrainTool'});
+        return;
+    }
+    chrome.browserAction.setBadgeText({'text' : node.title.toUpperCase().substring(0,3),
+                                       'tabId' : tabId});
+    let openChildren = 0, btTab = false;
+    for (const cid of node.childIds) {
+        if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
+        if (AllNodes[cid].tabId == tabId) btTab = true;
+    }
+    if (btTab)
+        chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
+    else
+        chrome.browserAction.setBadgeBackgroundColor({'color' : '#66A', 'tabId' : tabId});
+    
+    chrome.browserAction.setTitle({'title' : `${node.title}: ${openChildren} open tabs`});
+};
+
+
 
 /*
 // listen for navigation completion and update model accordingly. no current use cases.
