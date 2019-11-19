@@ -35,6 +35,9 @@ class BTAppNode {
     get title() {
         return this._btnode.title;
     }
+    set title(ttl) {
+	this._btnode.title = ttl;
+    }
 
     // Child functions just pass thru to contained btnode
     get childIds() {
