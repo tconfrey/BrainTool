@@ -271,6 +271,13 @@ function initializeUI() {
     $("a.btlink").each(function() {
         this.onclick = handleLinkClick;
     });
+    
+    // double click - show associated window
+    $("table.treetable tr").on("dblclick", function () {
+        const nodeId = this.getAttribute("data-tt-id");
+        window.postMessage({ 'type' : 'show_node', 'nodeId' : nodeId});
+    });
+
 }
 
 // Handle callbacks on node folding, update backing store

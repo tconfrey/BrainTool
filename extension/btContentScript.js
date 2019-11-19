@@ -55,6 +55,15 @@ window.addEventListener('message', function(event) {
         });
         console.count('Content-OUT:node_deleted');
         break;
+    case 'show_node':
+        // pass on
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'show_node',
+            nodeId: event.data.nodeId
+        });
+        console.count('Content-OUT:node_deleted');
+        break;
     case 'LOCALTEST':
         // pass on
         chrome.runtime.sendMessage({

@@ -33,6 +33,9 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         if (msg.msg == 'node_deleted') {
             deleteNode(msg.nodeId);
         }
+        if (msg.msg == 'show_node') {
+            showNode(msg.nodeId);
+        }
         if (msg.msg == 'LOCALTEST') {
             // Running under test so there is no external BT top level window
             chrome.tabs.query({'url' : '*://localhost/test*'},
@@ -202,6 +205,14 @@ function deleteNode(id) {
         parent.removeChild(id);
     
     delete(AllNodes[id]);
+}
+
+function showNode(id) {
+    // Surface the window associated with thide node
+
+    const node = AllNodes[id];
+    if (node && node.windowId)
+        chrome.windows.update(node.windowId, {'focused' : true});
 }
 
 function moveTabToTag(tabId, tag) {
