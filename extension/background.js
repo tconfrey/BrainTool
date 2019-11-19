@@ -373,19 +373,23 @@ function setBadge(windowId, tabId) {
         chrome.browserAction.setTitle({'title' : 'BrainTool'});
         return;
     }
-    chrome.browserAction.setBadgeText({'text' : node.title.toUpperCase().substring(0,3),
-                                       'tabId' : tabId});
+    
     let openChildren = 0, btTab = false;
     for (const cid of node.childIds) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
         if (AllNodes[cid].tabId == tabId) btTab = true;
     }
-    if (btTab)
+    if (btTab) { // One of ours, green highlight and Tag text
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
-    else
+        chrome.browserAction.setBadgeText({'text' : node.title.toUpperCase().substring(0,3),
+                                           'tabId' : tabId});
+    } else { // unmanaged, blue w ? for tag
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#66A', 'tabId' : tabId});
+        chrome.browserAction.setBadgeText({'text' : "??",
+                                           'tabId' : tabId});
+    }
     
-    chrome.browserAction.setTitle({'title' : `${node.title}: ${openChildren} open tabs`});
+    chrome.browserAction.setTitle({'title' : `Tag:${node.title}\n${openChildren} open tabs`});
 };
 
 

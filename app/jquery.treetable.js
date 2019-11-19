@@ -135,6 +135,7 @@
       return this.children.splice(i, 1)
     };
 
+      /* Original
     Node.prototype.render = function() {
       var handler,
           settings = this.settings,
@@ -161,7 +162,40 @@
 
       return this;
     };
+      */
 
+      // Tony Edit to align nodes equally whether parents or not 
+    Node.prototype.render = function() {
+      var handler,
+          settings = this.settings,
+          target;
+
+      if (settings.expandable === true && this.isBranchNode()) {
+        handler = function(e) {
+          $(this).parents("table").treetable("node", $(this).parents("tr").data(settings.nodeIdAttr)).toggle();
+          return e.preventDefault();
+        };
+
+        this.indenter.html(this.expander);
+        target = settings.clickableNodeNames === true ? this.treeCell : this.expander;
+
+        target.off("click.treetable").on("click.treetable", handler);
+        target.off("keydown.treetable").on("keydown.treetable", function(e) {
+          if (e.keyCode == 13) {
+            handler.apply(this, [e]);
+          }
+        });
+      }
+        
+        // Tony Edit: shift siblings of parents left so all a parents children are equal
+        if (this.isBranchNode())
+            this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
+        else            
+            this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
+
+      return this;
+    };
+      
     Node.prototype.reveal = function() {
       if (this.parentId != null) {
         this.parentNode().reveal();
