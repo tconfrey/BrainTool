@@ -194,6 +194,7 @@ function refreshTable() {
     Tags = new Set();
     BTFileText = "";
     BTNode.topIndex = 1;
+    BTNode.AllBTNodes = [];
 
     // Remember window opened state to repopulate later
     $("tr.opened").each(function() {

@@ -77,7 +77,7 @@ class BTChromeNode extends BTNode {
             :
             null;
         // Both leaves and parent node have the windowId set, we want the parent if both exist
-        if (n && n.parentId && (AllNodes[n.parentId].windowId == winId))
+        if (n && n.parentId && AllNodes[n.parentId] && (AllNodes[n.parentId].windowId == winId))
             return AllNodes[n.parentId];
         return n;
     }
