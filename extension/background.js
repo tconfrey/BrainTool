@@ -218,8 +218,14 @@ function showNode(id) {
 function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
 
-    var tagNodeId = BTNode.findFromTitle(tag);
-    const tagNode = tagNodeId ? AllNodes[tagNodeId] : new BTChromeNode(BTNode.topIndex++, tag, null);
+    const tagNodeId = BTNode.findFromTitle(tag);
+    let tagNode;
+    if (tagNodeId) 
+        tagNode = AllNodes[tagNodeId];
+    else {
+        tagNode = new BTChromeNode(BTNode.topIndex++, tag, null);
+        AllNodes[tagNode.id] = tagNode;
+    }
     
     if (tagNode.windowId)
         chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': -1}, function(deets) {
