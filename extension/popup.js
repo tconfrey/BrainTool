@@ -6,6 +6,7 @@ var messageDiv = document.getElementById('message');
 var tagDiv = document.getElementById('tag');
 var newTag = document.getElementById('newtag');
 var CurrentTab;
+var AwesomeWidget;
 
 function storeBTTab(tabId, tries = 0) {
     // set the global variable on the background page
@@ -23,8 +24,8 @@ function storeBTTab(tabId, tries = 0) {
 function windowOpen() {
     // Called on first click on header button, create the BT panel window
     var wargs = {
-//        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
-        'url' : "https://BrainTool.org/app", 
+        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+//        'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100 
@@ -66,7 +67,7 @@ function popupAction () {
                 var tagsArea = document.getElementById('currentTags');
                 tagsArea.innerHTML = tagsString;
                 var input = document.getElementById("newtag");
-                new Awesomplete(input, {
+                AwesomeWidget = new Awesomplete(input, {
 	                list: tagsArray, autoFirst: true
                 });
             });
@@ -78,19 +79,24 @@ popupAction();
 
 
 // set callback on entering tag for tab, nb need to force blur on enter key
-newTag.onkeyup = function(e) {
+window.onkeypress = function(e) {
+    console.log(e.which);
+    if(e.which == 58) {          // :'s behavior is to select suggestion
+        AwesomeWidget.select();
+    }
     if (e.which != 13) return // Enter key
-    newTag.blur();
+//    newTag.blur();
     tabAdded();
 }
 
 
+
 function tabAdded() {
     // Call out to the content script which will get current tab and add to BT
-    var nt = newTag.value;                                     // value from text entry field
-    var BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
+    const nt = newTag.value;                                     // value from text entry field
+    const BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
     
-    // Send msg to BT Content script for processing w tab and tag info
+    // Send msg to BT app for processing w tab and tag info
     chrome.tabs.sendMessage(
         BTTabId,
         {'type': 'new_tab', 'tag': nt},

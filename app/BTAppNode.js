@@ -7,8 +7,8 @@ class BTAppNode {
         this._level = level;
         this._linkChildren = false;
         this._folded = false;
+        this._keyword = null;
         this.drawers = {};
-        this.keyword = null;
         this.tags = [];
         AllNodes[btnode.id] = this;
     }
@@ -37,6 +37,12 @@ class BTAppNode {
     }
     set title(ttl) {
 	this._btnode.title = ttl;
+    }
+    get keyword() {
+        return this._keyword;
+    }
+    set keyword(kw) {
+	    this._keyword = kw;
     }
 
     // Child functions just pass thru to contained btnode
@@ -119,7 +125,7 @@ class BTAppNode {
     orgText() {
         // Generate org text for this node
         let outputOrg = "*".repeat(this._level) + " ";
-        outputOrg += this.keyword ? this.keyword+" " : "";              // TODO DONE etc
+        outputOrg += this._keyword ? this._keyword+" " : "";              // TODO DONE etc
         outputOrg += this._btnode.title;
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
         outputOrg += this.orgDrawers();                                 // add in any drawer text
@@ -168,7 +174,7 @@ class BTAppNode {
     
     displayTitle() {
         let txt = "";
-        if (this.keyword) txt += `<b>${this.keyword}: </b>`;
+        if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
         return txt + BTAppNode._displayTextVersion(this._btnode.title);
     }
 

@@ -48,6 +48,24 @@ class BTNode {
     }
     static AllBTNodes = [];          // track all instances
     static topIndex = 1;             // track the index of the next node to create, static class variable.
+
+    
+    static processTagString(tag) {
+        // Tag string from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
+        // return array[tag, parent, TODO]
+        tag = tag.trim();
+        let match = tag.match(/(.*):(.*):TODO/);
+        if (match)                                // parent:tag:TODO form
+            return [match[2], match[1], "TODO"];
+        match = tag.match(/(.*):TODO/);
+        if (match)                                // tag:TODO form
+            return [match[1], null, "TODO"];
+        match = tag.match(/(.*):(.*)/);
+        if (match)                                // parent:tag form
+            return [match[2], match[1], null];
+        
+        return [tag, null, null];
+        }
 }
 
 class BTChromeNode extends BTNode {

@@ -353,13 +353,12 @@ function cleanTitle(text) {
     return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
 }
 
-
-function storeTab(tag, tab) {
+function storeTab(tg, tab) {
     // put this tab under storage w given tag
 
-    // Add new tag if doesn't exist
-    tag = tag.trim();
-    if (!Tags.has(tag)) addNewTag(tag);
+    // clean tag and add new if doesn't exist
+    const [tag, parent, keyword] = BTNode.processTagString(tg);
+    if (!Tags.has(tag)) addNewTag(tag, parent);
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
@@ -368,8 +367,9 @@ function storeTab(tag, tab) {
 
     const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
     const newNode = new BTAppNode(newBTNode, "", parentNode.level + 1);
+    if (keyword) newNode.keyword = keyword;
 
-    const n = $("table.treetable").treetable("node", parentNodeId);                // find parent node
+    const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
     $("table.treetable").treetable("loadBranch", n, newNode.HTML());               // and insert new row
         
     writeBTFile();              // write back out the update file text
@@ -383,14 +383,16 @@ function storeTab(tag, tab) {
     }, 5);
 }
 
-function addNewTag(tag) {
+function addNewTag(tag, parent) {
     // New tag - create node and add container at bottom
-    tag = tag.trim();
 
-    const newBTNode = new BTNode(BTNode.topIndex++, tag, null);
-    const newNode = new BTAppNode(newBTNode, "", 1);
+    const parentTagId = parent ? BTNode.findFromTitle(parent) : null;
+    const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 1;
+    const newBTNode = new BTNode(BTNode.topIndex++, tag, parentTagId);
+    const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
 
-    $("table.treetable").treetable("loadBranch", null, newNode.HTML());              // insert into tree
+    const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
+    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());           // insert into tree
 
     // Add new category and let extension know about updated tags list
     Tags.add(tag);

@@ -47,13 +47,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         break;
     case 'popup':
         if (msg.msg == 'moveTab') {
-            var tabNode = BTChromeNode.findFromTab(msg.tabId); // Is this tab already a BTNode?
-            if (tabNode) {                                     // if so duplicate
+            const [tag, parent, keyword] = BTNode.processTagString(msg.tag);
+            var tabNode = BTChromeNode.findFromTab(msg.tabId);         // Is this tab already a BTNode?
+            if (tabNode) {                                             // if so duplicate
                 chrome.tabs.duplicate(msg.tabId, function(newTab) {
-                    moveTabToTag(newTab.id, msg.tag);
+                    moveTabToTag(newTab.id, tag);
                 });
             } else {
-                moveTabToTag(msg.tabId, msg.tag);
+                moveTabToTag(msg.tabId, tag);
             }
         }
         break;
