@@ -183,7 +183,7 @@ function writeBTFile() {
 
 
 
-var Tags = new Set();          // track tags for future tab assignment
+var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
@@ -191,7 +191,6 @@ function refreshTable() {
     // refresh from file, first clear current state
     $("#refresh").prop("disabled", true);
     $("#refresh").text('...');
-    Tags = new Set();
     BTFileText = "";
     BTNode.topIndex = 1;
     BTNode.AllBTNodes = [];
@@ -237,9 +236,10 @@ function processBTFile(fileText) {
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
 
+    BTAppNode.generateTags();
+
     // Let extension know about model
-    var tags = JSON.stringify(Array.from(Tags));
-    window.postMessage({ type: 'tags_updated', text: tags});
+    window.postMessage({ type: 'tags_updated', text: Tags});
     console.count('BT-OUT:tags_updated');
     var nodes = JSON.stringify(BTNode.AllBTNodes);    // only send the core data needed in BTNode, not AppNode
     window.postMessage({ type: 'nodes_updated', text: nodes});
@@ -356,13 +356,14 @@ function cleanTitle(text) {
 function storeTab(tg, tab) {
     // put this tab under storage w given tag
 
-    // clean tag and add new if doesn't exist
+    // process tag and add new if doesn't exist
     const [tag, parent, keyword] = BTNode.processTagString(tg);
-    if (!Tags.has(tag)) addNewTag(tag, parent);
+    const existingTag = Tags.reduce((found, cur) => found || (cur.name == tag), false);
+    if (!existingTag) addNewTag(tag, parent);
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
-    const parentNodeId = BTNode.findFromTitle(tag);
+    const parentNodeId = BTAppNode.findFromTag(tag);
     const parentNode = AllNodes[parentNodeId];
 
     const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
@@ -373,7 +374,13 @@ function storeTab(tg, tab) {
     $("table.treetable").treetable("loadBranch", n, newNode.HTML());               // and insert new row
         
     writeBTFile();              // write back out the update file text
-    
+
+    // update and let extension know about updated tags list as needed
+    if (!existingTag) {
+        BTAppNode.generateTags();
+        window.postMessage({ type: 'tags_updated', text: Tags });
+    }
+
     // Update ui components as needed - NB $(".indenter").remove() if redrawing table
     // Seems like sometime treetable hasn't completed the loadBranch so put behind a timeout
     setTimeout(function() {
@@ -384,21 +391,16 @@ function storeTab(tg, tab) {
 }
 
 function addNewTag(tag, parent) {
-    // New tag - create node and add container at bottom
+    // New tag - create node and add to tree
 
-    const parentTagId = parent ? BTNode.findFromTitle(parent) : null;
+    const parentTagId = parent ? BTAppNode.findFromTag(parent) : null;
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 1;
     const newBTNode = new BTNode(BTNode.topIndex++, tag, parentTagId);
     const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
+    newNode.linkChildren = true;
 
     const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
-    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());           // insert into tree
-
-    // Add new category and let extension know about updated tags list
-    Tags.add(tag);
-    var tags = JSON.stringify(Array.from(Tags));
-    window.postMessage({ type: 'tags_updated', text: tags });
-    console.count('BT-OUT:tags_updated');
+    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree
 }
 
 
@@ -534,10 +536,11 @@ function deleteRow() {
 function deleteNode(id) {
     //delete node and clean up
     id = parseInt(id);          // could be string value
-    var node = AllNodes[id];
+    const node = AllNodes[id];
+    const isTag = node.isTag();
 
     // Remove from parent
-    var parent = AllNodes[node.parentId];
+    const parent = AllNodes[node.parentId];
     if (parent)
         parent._btnode.removeChild(id);
     
@@ -547,6 +550,11 @@ function deleteNode(id) {
     // message to update BT background model
     window.postMessage({ type: 'node_deleted', nodeId: id });
     console.count('BT-OUT:node_deleted');
+
+    // Remove from Tags and update extension
+    BTNode.generateTags();
+    window.postMessage({ type: 'tags_updated', text: Tags});
+    console.count('BT-OUT:tags_updated');
     
     // Update File 
     writeBTFile();

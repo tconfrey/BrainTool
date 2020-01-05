@@ -51,7 +51,7 @@ class BTNode {
 
     
     static processTagString(tag) {
-        // Tag string from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
+        // Tag string passed from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
         // return array[tag, parent, TODO]
         tag = tag.trim();
         let match = tag.match(/(.*):(.*):TODO/);

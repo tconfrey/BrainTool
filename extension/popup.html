@@ -3,14 +3,19 @@
   <head>
     <link rel="stylesheet" href="awesomplete.css" />
     <script src="awesomplete.js" async></script>
+    <style>
+      ul {
+      padding-left: 10px;
+      list-style-type:none;
+      }
+     </style>
   </head>
   <body>
     <div id="message"><i>Opening BrainTool...</i></div>
     <div id="tag" style="display:none">
       <h2>Choose Tag</h2>
-      <input type="text" id="newtag" autofocus></input>
-      <br/><br/>
-      <div id="currentTags" style="font-size:x-small"></div>
+      <input type="text" id="newtag" size="35" autofocus></input>
+      <div id="currentTags" style="font-size:x-small; margin-left:-10px"></div>
     </div>
     <script src="popup.js"></script>
   </body>

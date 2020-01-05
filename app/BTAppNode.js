@@ -180,7 +180,6 @@ class BTAppNode {
 
     displayTag() {
         // Visible tag for this node
-
         var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         var reg = new RegExp(regexStr, "mg");
         var hits;
@@ -189,7 +188,35 @@ class BTAppNode {
             outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
         }
         return outputStr;
-    }        
+    }
+
+    isTag() {
+        // Logic to decide if this node can be used to tag web pages => is it a parent of nodes w links
+        if (!this.linkChildren) return false;
+        const children = this.childIds;
+        if (children.length == 0) return false;
+        for (const id of children) {
+            if (AllNodes[id] && AllNodes[id].linkChildren)
+                return true;
+        }
+        return false;
+    }
+
+    static generateTags() {
+        // Iterate thru nodes and generate array of tags and their nesting
+        
+        Tags = new Array();
+        for (const node of AllNodes) {
+            if (node && node.isTag())
+                Tags.push({'name' : node.displayTag(), 'level' : node.level});
+        }
+    }
+    
+    static findFromTag(tag) {
+        var n = AllNodes.find(node => (node && (node.displayTag() == tag)));
+        return n ? n.id : null;
+    }
+
 
 }
 

@@ -36,7 +36,6 @@ function orgaSection(section, parentAppNode) {
         }
     }
     appNode.text = allText;
-    if (appNode.linkChildren && node.childIds.length) Tags.add(appNode.displayTag());
     return appNode;
 }
 

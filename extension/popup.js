@@ -50,6 +50,26 @@ function getCurrentTab (callback) {
     });
 }
 
+
+function generateTagsDisplay(tagsArray) {
+    // given an array of {name:"tag", level:2} generate the display string
+    let str = "";
+    let level = 0;
+    for (const tag of tagsArray) {
+        if (tag.level == level)
+            str += ', ' + tag.name;
+        else {
+            if (tag.level > level)
+                str += '<ul>'.repeat(tag.level - level);
+            else
+                str += '</ul>'.repeat(level - tag.level);
+            str += '<li>' + tag.name;
+        }
+        level = tag.level;
+    }
+    return str + '</ul>';
+}
+
 function popupAction () {
     // open bt window if not open, otherwise populate tag entry form
     
@@ -61,14 +81,13 @@ function popupAction () {
             messageDiv.style.display = 'none';
             tagDiv.style.display = 'block';
             chrome.storage.local.get('tags', function(data) {
-                var tagsArray = JSON.parse(data.tags);
-                var tagsString = tagsArray.join(',&nbsp;&nbsp; ');
-                console.log("tags = " + tagsString);
+                var tagsArray = data.tags; //JSON.parse(data.tags);
+                const tags = tagsArray.map(tag => tag.name);
                 var tagsArea = document.getElementById('currentTags');
-                tagsArea.innerHTML = tagsString;
+                tagsArea.innerHTML = generateTagsDisplay(tagsArray);
                 var input = document.getElementById("newtag");
                 AwesomeWidget = new Awesomplete(input, {
-	                list: tagsArray, autoFirst: true
+	                list: tags, autoFirst: true
                 });
             });
         }); 
