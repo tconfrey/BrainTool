@@ -368,6 +368,7 @@ function storeTab(tg, tab) {
 
     const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
     const newNode = new BTAppNode(newBTNode, "", parentNode.level + 1);
+    newNode.linkChildren = true;                                  // since we're adding a link to the stored tab
     if (keyword) newNode.keyword = keyword;
 
     const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
@@ -552,7 +553,7 @@ function deleteNode(id) {
     console.count('BT-OUT:node_deleted');
 
     // Remove from Tags and update extension
-    BTNode.generateTags();
+    BTAppNode.generateTags();
     window.postMessage({ type: 'tags_updated', text: Tags});
     console.count('BT-OUT:tags_updated');
     
