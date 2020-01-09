@@ -41,6 +41,14 @@ class BTNode {
             this._childIds.splice(index, 1);
     }
 
+    getURL() {
+        // pull url from title string (which is in org format: "asdf [[url][label]] ...")
+        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        const reg = new RegExp(regexStr, "mg");
+        const hits  = reg.exec(this._title);
+        return hits ? hits[1] : "";        
+    }
+
     static findFromTitle(title) {
         var n = BTNode.AllBTNodes ? BTNode.AllBTNodes.find(function(node) {
             return (node && (node.title == title));}) : null;
@@ -97,6 +105,16 @@ class BTChromeNode extends BTNode {
         // Both leaves and parent node have the windowId set, we want the parent if both exist
         if (n && n.parentId && AllNodes[n.parentId] && (AllNodes[n.parentId].windowId == winId))
             return AllNodes[n.parentId];
+        return n;
+    }
+
+    static findFromURL(url) {
+        // Does url belong to an existing BTChromeNode?
+        var n = AllNodes ?
+            AllNodes.find(function(node) {
+                return (node && compareURLs(node.getURL(), url));})
+            :
+            null;
         return n;
     }
 }

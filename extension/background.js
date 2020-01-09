@@ -98,17 +98,17 @@ function readyOrRefresh() {
 function openLink(nodeId, url, tries=1) {
     // handle click on a link - open in appropriate window
     try {
-        var BTNode = AllNodes[nodeId];
-        if (BTNode.tabId && BTNode.windowId) {
+        var node = AllNodes[nodeId];
+        if (node.tabId && node.windowId) {
             // tab exists just highlight it (nb convert from tabId to offset index)
-            chrome.windows.update(BTNode.windowId, {'focused': true});
-            chrome.tabs.get(BTNode.tabId, function(tab) {
+            chrome.windows.update(node.windowId, {'focused': true});
+            chrome.tabs.get(node.tabId, function(tab) {
                 chrome.tabs.highlight({'tabs': tab.index});
             });
             return;
         }
-        var parentNode = AllNodes[BTNode.parentId];
-        if (!parentNode) parentNode = BTNode;                  // open as its own window
+        var parentNode = AllNodes[node.parentId];
+        if (!parentNode) parentNode = node;                  // open as its own window
 
         var index = indexInParent(nodeId);
         if (parentNode.windowId)
@@ -116,12 +116,12 @@ function openLink(nodeId, url, tries=1) {
             chrome.tabs.create({'windowId': parentNode.windowId,
                                 'index': index, 'url': url},
                                function(tab) {
-                                   BTNode.tabId = tab.id;
-                                   BTNode.windowId = parentNode.windowId;
-                                   BTNode.url = url;
-                                   OpenLinks[BTNode.title] = BTNode.tabId;
-                                   chrome.windows.update(BTNode.windowId, {'focused': true});
-                                   chrome.tabs.get(BTNode.tabId, function(tab) {
+                                   node.tabId = tab.id;
+                                   node.windowId = parentNode.windowId;
+                                   node.url = url;
+                                   OpenLinks[node.title] = node.tabId;
+                                   chrome.windows.update(node.windowId, {'focused': true});
+                                   chrome.tabs.get(node.tabId, function(tab) {
                                        chrome.tabs.highlight({'tabs': tab.index});
                                    });
                                });
@@ -130,15 +130,15 @@ function openLink(nodeId, url, tries=1) {
             chrome.windows.create({'url': url, 'left': 500}, function(window) {
                 parentNode.windowId = window.id;
                 OpenNodes[parentNode.title] = window.id;
-                BTNode.tabId = window.tabs[0].id;
-                BTNode.windowId = window.id;
-                BTNode.url = url;
-                OpenLinks[BTNode.title] = BTNode.tabId;
+                node.tabId = window.tabs[0].id;
+                node.windowId = window.id;
+                node.url = url;
+                OpenLinks[node.title] = node.tabId;
             });
         // Send back message that the bt and parent nodes are opened in browser
         chrome.tabs.sendMessage(
             BTTab,
-            {'type': 'tab_opened', 'BTNodeId': BTNode.id, 'BTParentId': parentNode.id});
+            {'type': 'tab_opened', 'BTNodeId': node.id, 'BTParentId': parentNode.id});
         console.count('tab_opened');
     }
     catch (err) {
@@ -228,12 +228,20 @@ function moveTabToTag(tabId, tag) {
         AllNodes[tagNode.id] = tagNode;
     }
     
-    if (tagNode.windowId)
-        chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': -1}, function(deets) {
+    if (tagNode.windowId){
+        // First find where the tab should go in parent (right of any other open BT nodes)
+        let openTabs = 0;
+        for (const childId of tagNode.childIds) {
+            if (AllNodes[childId] && AllNodes[childId].tabId)
+                openTabs++;
+        }
+        const index = openTabs ? openTabs : -1;
+        // now move tab to new position.
+        chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': index}, function(deets) {
             chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
             chrome.windows.update(tagNode.windowId, {'focused': true});
         });
-    else
+    } else
         chrome.windows.create({'tabId': tabId}, function(window) {
             tagNode.windowId = window.id;
             OpenNodes[tag] = window.id;              // remember this node is open
@@ -294,9 +302,15 @@ function compareURLs(first, second) {
     // sometimes I get trailing /'s other times not, also treat http and https as the same,
     // also for some reason google docs immediately redirect to the exact same url but w /u/1/d instead of /d
     // also navigation within window via # anchors is ok
-    first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
-    second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
-    return (first == second);
+    // also if its a gmail url need to match exactly
+
+    if (first.indexOf("mail.google.com/mail") >= 0) {
+        return (first == second);
+    } else {        
+        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+        return (first == second);
+    }
 }
 
 function parentUpdate(node) {
@@ -312,7 +326,6 @@ function parentUpdate(node) {
         chrome.tabs.sendMessage(
             BTTab,
             {'type': 'tab_closed', 'BTNodeId': parent.id});
-        console.count('tab_closed'); 
     }
     // NB leaving the parents windowId set so that any new tabs opened will be in its window
 }
@@ -330,31 +343,42 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     if (!node) return;
     delete OpenLinks[node.title];
     node.tabId = null; node.windowId = null;
-    console.log("closed tab:" + tabId);
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
-    console.count('tab_closed');
     
     // if this was the only bt tab in the window let app know
     parentUpdate(node);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
+    // Handle case of tab finishing loading, want to set tab badge -
+    // Workaround for some kind of issues where I set the badge but it gets cleared somewhere else as the tab is initializing.
+    if (AllNodes && changeInfo.status && changeInfo.status == 'complete') {
+        const node = BTChromeNode.findFromTab(tabId);
+        if (node) setBadgeTab(node.windowId, tabId);
+    }
+    
     // Handle a BT tab being migrated to a new url
     if (!AllNodes || !changeInfo.url) return;                 // don't care
-    var node = BTChromeNode.findFromTab(tabId);
-    if (!node) return;
-    if (compareURLs(node.url, changeInfo.url)) return;
+    const url = changeInfo.url;
+    const node = BTChromeNode.findFromTab(tabId);
+    if (!node) {
+        handlePotentialBTNode(url, state);                           // might be an unopened BTNode clicked from emacs etc
+        return;
+    }
+    if (compareURLs(node.url, url)) return;                   // 'same' url so ignore 
 
     // Don't let BT tabs escape! Open any navigation in a new tab
-    // NB some sites redirect back which can lead to an infinite loop, so don't go back if we've just done so < 3 seconds
-    var d = new Date();
-    var t = d.getTime();
+    // NB some sites redirect back which can lead to an infinite loop. Don't go back if we've just done so
+    const d = new Date();
+    const t = d.getTime();
     if (node.sentBackTime && ((t - node.sentBackTime) < 3000)) return;
     node.sentBackTime = t;                     // very hokey!
-    chrome.tabs.goBack(node.tabId);
-    chrome.tabs.create({'windowId': node.windowId, 'url': changeInfo.url});
+    chrome.tabs.goBack(node.tabId);            // send original tab back to the BT url
+    
+    // index is 'clamped', use 99 to put new tab to the right of any BT tabs
+    chrome.tabs.create({'windowId': node.windowId, 'url': url, 'index': 99}); 
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
@@ -363,27 +387,25 @@ chrome.windows.onRemoved.addListener((windowId) => {
         return (node && (node.windowId == windowId));}) : null;
     if (!node) return;
     delete OpenNodes[node.title];
-    console.log("closed window:" + windowId);
     node.windowId = null; node.tabId = null;
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
-    console.count('window_closed'); 
 });
+
 
 chrome.tabs.onActivated.addListener((info) => {
     // Update badge and hover text if a BT window has opened or surfaced 
-    console.log("window focus, id: " + info.windowId + " tab: " + info.tabId);   
-    setTimeout(function() {setBadge(info.windowId, info.tabId);}, 1000);
+    setTimeout(function() {setBadgeTab(info.windowId, info.tabId);}, 150);
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
     // Update badge
-    console.log("window focus, id: " + windowId);
-    setTimeout(function() {setBadge(windowId, null);}, 1000);
+    setTimeout(function() {setBadgeWin(windowId);}, 50);
 });
 
-function setBadge(windowId, tabId) {
+
+function setBadgeTab(windowId, tabId) {
     // Badge text should reflect BT tag, color indicates if this tab is in BT, hover text has more info
     const node = BTChromeNode.findFromWin(windowId);
     if (!node) {
@@ -406,11 +428,58 @@ function setBadge(windowId, tabId) {
         chrome.browserAction.setBadgeText({'text' : "??",
                                            'tabId' : tabId});
     }
-    
     chrome.browserAction.setTitle({'title' : `Tag:${node.title}\n${openChildren} open tabs`});
-};
+}
 
+function setBadgeWin(windowId) {
+    // Badge hover text shows for active window
+    const node = BTChromeNode.findFromWin(windowId);
+    
+    if (!node) {
+        chrome.browserAction.setTitle({'title' : 'BrainTool'});
+        return;
+    }
+    
+    let openChildren = 0;
+    for (const cid of node.childIds) {
+        if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
+    }    
+    chrome.browserAction.setTitle({'title' : `Tag:${node.title}\n${openChildren} open tabs`});
+}
 
+function handlePotentialBTNode(url, state) {
+    // Check to see if this url belongs to a btnode and if so open as such, even if not opened from BT App
+
+    const node = BTChromeNode.findFromURL(url);
+    const tabId = state.id;
+    if (!node) return;
+    const parentNode = AllNodes[node.parentId] || node;
+    if (parentNode.windowId) {
+        // move tab to parent
+        const index = indexInParent(node.id);
+        node.windowId = parentNode.windowId;
+        chrome.tabs.move(tabId, {'windowId' : parentNode.windowId, 'index' : index},
+                         function(tab) {
+                             chrome.tabs.highlight({'windowId': parentNode.windowId, 'tabs': index},
+                                                   function(win) {
+                                                       chrome.windows.update(parentNode.windowId, {'focused': true});
+                                                   });
+                         });
+    } else {
+        node.windowId = state.windowId;
+        parentNode.windowId = state.windowId;
+    }
+    
+    node.tabId = tabId;
+    node.url = url;
+    OpenLinks[node.title] = node.tabId;
+
+    // Send back message that the bt and parent nodes are opened in browser
+    chrome.tabs.sendMessage(
+        BTTab,
+        {'type': 'tab_opened', 'BTNodeId': node.id, 'BTParentId': parentNode.id});
+    console.count('tab_opened');
+}
 
 /*
 // listen for navigation completion and update model accordingly. no current use cases.
