@@ -13,7 +13,7 @@ var OpenNodes = new Object();   // hash of node name to window id
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
-    console.log('background.js got message:', msg);
+    console.log('\n\n\nbackground.js got message:', msg);
     console.count("BG-IN:" + msg.msg);
     switch (msg.from) {
     case 'btwindow':
@@ -220,6 +220,9 @@ function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
 
     const tagNodeId = BTNode.findFromTitle(tag);
+    const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists we copy the tab, don't move it
+    const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].getURL() : null;
+    let newTabId = tabNodeId ? null : tabId; // if this is already a BT node w another tag we create a new tab
     let tagNode;
     if (tagNodeId) 
         tagNode = AllNodes[tagNodeId];
@@ -227,30 +230,41 @@ function moveTabToTag(tabId, tag) {
         tagNode = new BTChromeNode(BTNode.topIndex++, tag, null);
         AllNodes[tagNode.id] = tagNode;
     }
-    
-    if (tagNode.windowId){
-        // First find where the tab should go in parent (right of any other open BT nodes)
-        let openTabs = 0;
-        for (const childId of tagNode.childIds) {
-            if (AllNodes[childId] && AllNodes[childId].tabId)
-                openTabs++;
-        }
-        const index = openTabs ? openTabs : -1;
-        // now move tab to new position.
-        chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': index}, function(deets) {
-            chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
-            chrome.windows.update(tagNode.windowId, {'focused': true});
-        });
-    } else
-        chrome.windows.create({'tabId': tabId}, function(window) {
-            tagNode.windowId = window.id;
-            OpenNodes[tag] = window.id;              // remember this node is open
-        });
 
+    // So there's 4 cases: Tag already has a window or not, and tab is already a BT node or not
+    // already a BT node => create a new tab
+    if (tagNode.windowId){      // window exists
+        if (url) {              // create new tab w url
+            chrome.tabs.create({'windowId' : tagNode.windowId, 'url': url}, function(tab) {
+                newTabId = tab.id;
+            });
+        } else {                // or move existing tab to window
+            // First find where the tab should go in parent (right of any other open BT nodes)
+            let openTabs = 0;
+            for (const childId of tagNode.childIds) {
+                if (AllNodes[childId] && AllNodes[childId].tabId)
+                    openTabs++;
+            }
+            const index = openTabs ? openTabs : -1;
+            // now move tab to new position.
+            chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': index}, function(deets) {
+                chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
+                chrome.windows.update(tagNode.windowId, {'focused': true});
+            });
+        }}
+    else {                                                // need to create new window
+        const arg = url? {'url': url} : {'tabId': tabId};                // create new or move tab to new window
+        chrome.windows.create(arg, function(window) {
+            newTabId = newTabId ? newTabId : window.tabs[0].id;
+            tagNode.windowId = window.id;
+            OpenNodes[tag] = window.id;                                  // remember this node is open
+        });
+    }
+    
     // get tab url, then create and store new BT node
-    chrome.tabs.get(tabId, function(tab) {
+    chrome.tabs.get(newTabId, function(tab) {
         var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, tagNode.id);
-        linkNode.tabId = tabId;
+        linkNode.tabId = newTabId;
         linkNode.windowId = tagNode.windowId;
 	    linkNode.url = tab.url;
         AllNodes[linkNode.id] = linkNode;
@@ -364,7 +378,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     const url = changeInfo.url;
     const node = BTChromeNode.findFromTab(tabId);
     if (!node) {
-        handlePotentialBTNode(url, state);                           // might be an unopened BTNode clicked from emacs etc
+        handlePotentialBTNode(url, state);                    // might be an unopened BTNode clicked from emacs etc
         return;
     }
     if (compareURLs(node.url, url)) return;                   // 'same' url so ignore 
@@ -375,7 +389,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     const t = d.getTime();
     if (node.sentBackTime && ((t - node.sentBackTime) < 3000)) return;
     node.sentBackTime = t;                     // very hokey!
-    chrome.tabs.goBack(node.tabId);            // send original tab back to the BT url
+    try {
+        console.log("Sending back Tab #", tabId);
+        chrome.tabs.goBack(node.tabId);            // send original tab back to the BT url
+    }
+    catch (err) {
+        console.log("Failed to go back from url: " + url + ", to: " + node.getURL());
+    }
     
     // index is 'clamped', use 99 to put new tab to the right of any BT tabs
     chrome.tabs.create({'windowId': node.windowId, 'url': url, 'index': 99}); 
