@@ -530,7 +530,7 @@ function deleteRow() {
     // Delete this node/row. NB only callable if no children
     var tr = $("tr.selected")[0];
     var nodeId = $(tr).attr('data-tt-id');
-    $(tr).remove();                                   // remove from ui - easy!
+    $("table.treetable").treetable("removeNode", nodeId);               // Remove from UI and treetable
     $("#dialog")[0].close();
     deleteNode(nodeId);
 }
