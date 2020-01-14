@@ -219,6 +219,8 @@ function showNode(id) {
 function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
 
+    chrome.windows.update(BTWin, {'focused': true});           // Start things off w the BT win shown
+    
     const tagNodeId = BTNode.findFromTitle(tag);
     const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists we copy the tab, don't move it
     const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].getURL() : null;
@@ -232,7 +234,7 @@ function moveTabToTag(tabId, tag) {
     }
 
     // So there's 4 cases: Tag already has a window or not, and tab is already a BT node or not
-    // already a BT node => create a new tab
+    // already a BT node => create a new tab, else move existing
     if (tagNode.windowId){      // window exists
         if (url) {              // create new tab w url
             chrome.tabs.create({'windowId' : tagNode.windowId, 'url': url}, function(tab) {

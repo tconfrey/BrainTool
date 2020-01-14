@@ -8,15 +8,16 @@ var newTag = document.getElementById('newtag');
 var CurrentTab;
 var AwesomeWidget;
 
-function storeBTTab(tabId, tries = 0) {
+function storeBTInfo(winId, tabId, tries = 0) {
     // set the global variable on the background page
     var bg = chrome.extension.getBackgroundPage();
     if (!bg) {
         alert("Extension not initialized correctly. \Trying again.");
         setTimeout(function() {
-            storeBTTab(tabId, tries + 1);}, 100);
+            storeBTInfo(winId. tabId, tries + 1);}, 100);
         return;
     }
+    bg.BTWin = winId;
     bg.BTTab = tabId;
     if (tries) alert("BrainTool Extension initialized");
 }
@@ -32,7 +33,7 @@ function windowOpen() {
     };
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
-        storeBTTab(window.tabs[0].id);
+        storeBTInfo(window.id, window.tabs[0].id);
     });
 }
 

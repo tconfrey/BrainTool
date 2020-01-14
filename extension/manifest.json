@@ -31,5 +31,12 @@
       "48": "images/BrainTool48.png",
       "128": "images/BrainTool128.png"
     },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+B"
+            }
+        }
+    },
     "manifest_version": 2
 }
