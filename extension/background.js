@@ -102,14 +102,16 @@ function openLink(nodeId, url, tries=1) {
             // tab exists just highlight it (nb convert from tabId to offset index)
             chrome.windows.update(node.windowId, {'focused': true});
             chrome.tabs.get(node.tabId, function(tab) {
-                chrome.tabs.highlight({'tabs': tab.index});
+                chrome.tabs.highlight({'windowId' : node.windowId, 'tabs': tab.index});
             });
             return;
         }
-        var parentNode = AllNodes[node.parentId];
-        if (!parentNode) parentNode = node;                  // open as its own window
 
-        var index = indexInParent(nodeId);
+        // if this node *is* a parentNode or if no parent (ie top level) open as its own window
+        var parentNode = AllNodes[node.parentId];
+        if (node.childIds.length || !parentNode) parentNode = node;
+
+        var index = (parentNode === node) ? 0 : indexInParent(nodeId);
         if (parentNode.windowId)
             // open tab in this window
             chrome.tabs.create({'windowId': parentNode.windowId,
@@ -332,7 +334,8 @@ function compareURLs(first, second) {
 function parentUpdate(node) {
     // If as a result of a close/nav this tabs/nodes parent is now empty of BT nodes update app
     const parent = AllNodes[node.parentId];
-    if (!parent) return;
+    if (!parent || parent.tabId) return;     // if no parent or parent is open, doesn't matter if kids are not
+    
     let numKids = 0;
     parent.childIds.forEach(function(childId) {
         if (AllNodes[childId].tabId)
@@ -358,12 +361,12 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     var node = BTChromeNode.findFromTab(tabId);
     if (!node) return;
     delete OpenLinks[node.title];
+    
     node.tabId = null; node.windowId = null;
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
-    
-    // if this was the only bt tab in the window let app know
+
     parentUpdate(node);
 });
 
@@ -436,7 +439,7 @@ function setBadgeTab(windowId, tabId) {
         return;
     }
     
-    let openChildren = 0, btTab = false;
+    let openChildren = 0, btTab = node.tabId == tabId;
     for (const cid of node.childIds) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
         if (AllNodes[cid].tabId == tabId) btTab = true;

@@ -92,7 +92,6 @@ class BTChromeNode extends BTNode {
     // Node as seen by the extension. Knows about tabs and window ids
     constructor(id, title, parentId) {
         super(id, title, parentId);
-        this.url = "";
         this.tabId = null;
         this.windowId = null;
     }
