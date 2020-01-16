@@ -13,8 +13,7 @@ var OpenNodes = new Object();   // hash of node name to window id
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
-    console.log('\n\n\nbackground.js got message:', msg);
-    console.count("BG-IN:" + msg.msg);
+    console.count("\n\n\nBackground.js-IN:" + msg.msg);
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'window_ready') {
@@ -318,13 +317,14 @@ function compareURLs(first, second) {
     // sometimes I get trailing /'s other times not, also treat http and https as the same,
     // also for some reason google docs immediately redirect to the exact same url but w /u/1/d instead of /d
     // also navigation within window via # anchors is ok
+    // also maybe ?var= arguments are ok?
     // also if its a gmail url need to match exactly
 
     if (first.indexOf("mail.google.com/mail") >= 0) {
         return (first == second);
     } else {        
-        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
-        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/$/, "");
+        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/$/, "");
         return (first == second);
     }
 }
