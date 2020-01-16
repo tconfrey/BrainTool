@@ -70,6 +70,10 @@ class BTAppNode {
         return this._linkChildren;
     }
 
+    displayTag() {
+        return this._btnode.displayTag();
+    }
+    
     HTML() {
         // Generate HTML for this table row
         var outputHTML = "";

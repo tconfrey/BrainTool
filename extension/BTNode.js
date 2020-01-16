@@ -49,6 +49,18 @@ class BTNode {
         return hits ? hits[1] : "";        
     }
 
+    displayTag() {
+        // Visible tag for this node
+        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        var reg = new RegExp(regexStr, "mg");
+        var hits;
+        var outputStr = this._title;
+        while (hits = reg.exec(outputStr)) {
+            outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
+        }
+        return outputStr;
+    }
+
     static findFromTitle(title) {
         var n = BTNode.AllBTNodes ? BTNode.AllBTNodes.find(function(node) {
             return (node && (node.title == title));}) : null;

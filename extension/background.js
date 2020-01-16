@@ -443,14 +443,14 @@ function setBadgeTab(windowId, tabId) {
     }
     if (btTab) { // One of ours, green highlight and Tag text
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
-        chrome.browserAction.setBadgeText({'text' : node.title.toUpperCase().substring(0,3),
+        chrome.browserAction.setBadgeText({'text' : node.displayTag().substring(0,3),
                                            'tabId' : tabId});
     } else { // unmanaged, blue w ? for tag
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#66A', 'tabId' : tabId});
         chrome.browserAction.setBadgeText({'text' : "??",
                                            'tabId' : tabId});
     }
-    chrome.browserAction.setTitle({'title' : `Tag:${node.title}\n${openChildren} open tabs`});
+    chrome.browserAction.setTitle({'title' : `Tag:${node.displayTag()}\n${openChildren} open tabs`});
 }
 
 function setBadgeWin(windowId) {
