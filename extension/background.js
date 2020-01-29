@@ -342,11 +342,14 @@ function parentUpdate(node) {
             numKids++;
     });
     if (!numKids) {
+        parent.windowId = null;         // no tabs => no longer a BT window
         chrome.tabs.sendMessage(
             BTTab,
             {'type': 'tab_closed', 'BTNodeId': parent.id});
     }
-    // NB leaving the parents windowId set so that any new tabs opened will be in its window
+    // NB Design choice - not leaving the parents windowId set
+    // which would have any new tabs opened from this parent in this window
+    // I think it makes more sense to reset the window state
 }
 
 
@@ -358,10 +361,11 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
         AllNodes = [];
         return;
     }
-    var node = BTChromeNode.findFromTab(tabId);
+
+    const node = BTChromeNode.findFromTab(tabId);
     if (!node) return;
+
     delete OpenLinks[node.title];
-    
     node.tabId = null; node.windowId = null;
     chrome.tabs.sendMessage(
         BTTab,
@@ -371,8 +375,10 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
-    // Handle case of tab finishing loading, want to set tab badge -
-    // Workaround for some kind of issues where I set the badge but it gets cleared somewhere else as the tab is initializing.
+    // Two cases
+    // - BT tabs navigating away
+    // - Tab finishing loading, want to set tab badge. 
+    //       Workaround for some kind of issues where I set the badge but it gets cleared somewhere else as the tab is initializing.
     if (AllNodes && changeInfo.status && changeInfo.status == 'complete') {
         const node = BTChromeNode.findFromTab(tabId);
         if (node) setBadgeTab(node.windowId, tabId);
@@ -433,8 +439,9 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
 function setBadgeTab(windowId, tabId) {
     // Badge text should reflect BT tag, color indicates if this tab is in BT, hover text has more info
     const node = BTChromeNode.findFromWin(windowId);
+
     if (!node) {
-        chrome.browserAction.setBadgeText({'text' : ""});
+        chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId});
         chrome.browserAction.setTitle({'title' : 'BrainTool'});
         return;
     }
@@ -450,8 +457,7 @@ function setBadgeTab(windowId, tabId) {
                                            'tabId' : tabId});
     } else { // unmanaged, blue w ? for tag
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#66A', 'tabId' : tabId});
-        chrome.browserAction.setBadgeText({'text' : "??",
-                                           'tabId' : tabId});
+        chrome.browserAction.setBadgeText({'text' : "??", 'tabId' : tabId});
     }
     chrome.browserAction.setTitle({'title' : `Tag:${node.displayTag()}\n${openChildren} open tabs`});
 }
