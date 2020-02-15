@@ -319,14 +319,16 @@ function compareURLs(first, second) {
     // sometimes I get trailing /'s other times not, also treat http and https as the same,
     // also for some reason google docs immediately redirect to the exact same url but w /u/1/d instead of /d
     // also navigation within window via # anchors is ok
-    // also maybe ?var= arguments are ok?
+    // also maybe ?var= arguments are ok? Not on many sites (eg hn) where there's a ?page=123. If needed add back in
+    //.replace(/\?.*$/, "")
+    
     // also if its a gmail url need to match exactly
 
     if (first.indexOf("mail.google.com/mail") >= 0) {
         return (first == second);
     } else {        
-        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/$/, "");
-        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/$/, "");
+        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
         return (first == second);
     }
 }
