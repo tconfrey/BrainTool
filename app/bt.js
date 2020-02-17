@@ -395,7 +395,7 @@ function addNewTag(tag, parent) {
     // New tag - create node and add to tree
 
     const parentTagId = parent ? BTAppNode.findFromTag(parent) : null;
-    const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 1;
+    const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
     const newBTNode = new BTNode(BTNode.topIndex++, tag, parentTagId);
     const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
     newNode.linkChildren = true;
