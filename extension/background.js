@@ -499,8 +499,11 @@ function handlePotentialBTNode(url, state) {
                                                    });
                          });
     } else {
-        node.windowId = state.windowId;
-        parentNode.windowId = state.windowId;
+        chrome.windows.create({"tabId": tabId},
+                              function(window) {
+                                  node.windowId = window.id;
+                                  parentNode.windowId = window.id;
+                              });
     }
     
     node.tabId = tabId;
