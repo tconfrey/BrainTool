@@ -157,7 +157,10 @@ function writeBTFile() {
     
     BTFileText = generateOrgFile();
     if (window.LOCALTEST) return;
-    if (typeof gapi === "undefined") return;           // eg when called from test harness
+    if (typeof gapi === "undefined") {           // eg when called from test harness
+	alert("BT - error in writeBTFile");
+	return;
+    }
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
         'mimeType': 'text/plain' // mimeType at Google Drive
@@ -175,6 +178,11 @@ function writeBTFile() {
               headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
               body: form
           }).then((res) => {
+	      if (!res.ok) {
+		  alert("BT - error in writeBTFile!");
+		  console.log("GAPI response:\n", res);
+		  return;
+	      }
               return res.json();
           }).then(function(val) {
               console.log(val);
