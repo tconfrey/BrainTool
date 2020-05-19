@@ -167,7 +167,7 @@ function writeBTFile() {
     };
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
-    console.log("writing BT file");
+    console.log("writing BT file. accessToken = ", accessToken);
 
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', new Blob([BTFileText], {type: 'text/plain'}));

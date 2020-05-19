@@ -106,11 +106,13 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 });
 
 
-// Let extension know bt window is ready to open gdrive app
-if (!window.LOCALTEST) {
+// Let extension know bt window is ready to open gdrive app. Only run once
+NotLoaded = true;
+if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({
         from: 'btwindow',
         msg: 'window_ready',
     });
+    NotLoaded = false;
     console.count('Content-OUT:window_ready');
 }

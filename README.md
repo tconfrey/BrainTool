@@ -1,8 +1,8 @@
 ![BrainTool](/site/logo.png "Logo Title Text 1")
 
-BrainTool is a Chrome extension that can be used as a unique standalone hierarchical bookmarks manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
+BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
-The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying, at least for me, the two main ways I capture information.
+The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying, at least for me, two primary ways to capture information.
 
 Currently it is at a minimal MVP-for-me level of functionality so I have not yet published it. That said I'd love comments from a handful of early adopters.
 

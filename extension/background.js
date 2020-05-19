@@ -391,20 +391,27 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     const url = changeInfo.url;
     const node = BTChromeNode.findFromTab(tabId);
     if (!node) {
-        handlePotentialBTNode(url, state);                    // might be an unopened BTNode clicked from emacs etc
+        handlePotentialBTNode(url, state);                    // might be a BTNode opened from elsewhere
         return;
     }
-    if (compareURLs(node.url, url)) return;                   // 'same' url so ignore 
+    if ((!node.url) || compareURLs(node.url, url)) {          // 'same' url so ignore 
+	    console.log("Node:" + JSON.stringify(node) + "\nNavigated to url:" + url + "\nSeems ok!");
+	    return;
+    }
 
     // Don't let BT tabs escape! Open any navigation in a new tab
     // NB some sites redirect back which can lead to an infinite loop. Don't go back if we've just done so
     const d = new Date();
     const t = d.getTime();
     if (node.sentBackTime && ((t - node.sentBackTime) < 3000)) return;
-    node.sentBackTime = t;                     // very hokey!
+    node.sentBackTime = t;                        // very hokey!
     try {
         console.log("Sending back Tab #", tabId);
-        chrome.tabs.goBack(node.tabId);            // send original tab back to the BT url
+        chrome.tabs.goBack(node.tabId,            // send original tab back to the BT url
+			   function() {
+			       if (chrome.runtime.lastError)
+                       alert("BT Error: ", JSON.stringify(chrome.runtime.lastError.message));
+			   });
     }
     catch (err) {
         console.log("Failed to go back from url: " + url + ", to: " + node.getURL());
@@ -481,11 +488,26 @@ function setBadgeWin(windowId) {
 }
 
 function handlePotentialBTNode(url, state) {
-    // Check to see if this url belongs to a btnode and if so open as such, even if not opened from BT App
+    // Check to see if this url belongs to a btnode and if so:
+    // if its already open, just highlight, else open as such, even if not opened from BT App
 
+    console.log("handlePotentialBTNode: " +  url + ", state: " + JSON.stringify(state));
     const node = BTChromeNode.findFromURL(url);
     const tabId = state.id;
     if (!node) return;
+    console.log("node: " + JSON.stringify(node));
+    if (node.windowId && node.tabId) {
+        // node already open elsewhere. Delete this tab and find and highlight BT version
+        console.log(url + " already open, just highlighting it");
+        const index = indexInParent(node.id);
+        chrome.tabs.highlight({'windowId': node.windowId, 'tabs': index},
+                              function(win) {
+                                  chrome.tabs.get(tabId, function(tab) {
+                                      chrome.tabs.remove(tabId);});
+                                  chrome.windows.update(node.windowId, {'focused': true});
+                              });
+        return;
+    }
     const parentNode = AllNodes[node.parentId] || node;
     if (parentNode.windowId) {
         // move tab to parent

@@ -1,6 +1,6 @@
 # BrainTool Philosophy
 
-BrainTool is not a tabs manager, it's a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
+BrainTool is a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
 <br/><br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 <br/><br/>
@@ -23,7 +23,7 @@ From a Chrome session new links can be added to the tree and links from the tree
 
 ## Security
 
-BrainTool is comprised of a Chrome extension and a javascript Google Drive application. The app is entirely a static client-side app served from [my github account](https://github.com/tconfrey/BrainTool). On first startup the app asks your permission to create, read and write a file called BrainTool.org on your google drive. That file is used to store the window and link tree. So in use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure.
+BrainTool is comprised of a Chrome extension and a javascript Google Drive application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). On first startup the app asks your permission to create, read and write a file called BrainTool.org on your google drive. That file is used to store the window and link tree. So in use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure.
 
 ## Headlines, Tags and Categories
     
@@ -31,7 +31,7 @@ These are different things in org but in BT they are all the same. Every headlin
 
 ## Links
 
-All url links in the .org file are shown as leaf nodes in the tree under their appropriate tag. Links in org-mode are represented as [[link url][link title]], when editing a link within the BT tree view this convention is followed.
+All url links in the .org file are shown as leaf nodes in the tree under their appropriate tag. Links in org-mode are represented as [[link url][link title]]. When editing a link within the BT tree view this convention is followed.
 
 ## Editing
 
@@ -39,7 +39,7 @@ All url links in the .org file are shown as leaf nodes in the tree under their a
 
 The text and displayed link name can be edited within the extension window by clicking on the button in the middle column - kindof a janky ui but good enough until I find the time to improve my front-end skills. The popup also offers an accelerator to open all links for a given tag (they will open in a single dedicated Chrome window.)
 
-The whole thing can also be edited in any text editor. As noted the key feature of BT is the integration with my org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs where I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit I hit the Refresh button in the tree to sync the display. Before editing in emacs I need to remember to M-x revert-buffer to pull in any new changes from the app. This sounds like a lot of overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
+The whole thing can also be edited in any text editor. As noted the key feature of BT is the integration with an org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs where I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit hit the Refresh button in the tree to sync the display. This sounds like extra overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
 
 For a non org-mode user who wants to have greater control over the tree and its contents the org syntax is pretty minimally invasive. See [this tutorial](https://orgmode.org/worg/org-tutorials/org4beginners.html) for a minimal intro to emacs and org to give emacs a whirl. Or use your editor of choice noting to retain the *, ** header hierarchy and the [[url][display text]] structure for links.
 
@@ -50,9 +50,7 @@ One thing I struggled with is how to handle navigation away from an opened BT wi
 
 ## Known issues, future plans
 
-- Currently the app is pretty destructive to org-mode markup. Tags, TODO's and properties get overwritten. That's fine for basic users but unacceptable for regular org-mode users. I need to store and re-write any org-specific markup. 
 - It might be good to be able to reference multiple .org files and either combine or swap between them in the app.
-- Ideally there'd be a more visual correlation between the BrainTool tree and the corresponding open browser windows. Extensions offer minimal customization options but I could add a badge to the toolbar button.
-- I should support extension preferences to define the backing file name and the BT window screen location and dimensions. 
+- I should support extension preferences to define the BT window screen location and dimensions. 
 - There's a built in collaboration aspect given that the drive file can be shared! I could see having common curated BrainTool file instances being a good way to share information within an organization.
-- My long term vision is that each link and note can have multiple tags and that the tool supports searching and reorganizing by different tag hierarchies.
+- My long term vision is that each link and note can have multiple tags and that the tool supports searching and reorganizing by different tag hierarchies. I'm investigating the use of [org-roam](https://org-roam.readthedocs.io/en/master/)
