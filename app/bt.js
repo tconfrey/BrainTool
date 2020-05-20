@@ -158,8 +158,8 @@ function writeBTFile() {
     BTFileText = generateOrgFile();
     if (window.LOCALTEST) return;
     if (typeof gapi === "undefined") {           // eg when called from test harness
-	alert("BT - error in writeBTFile");
-	return;
+	    alert("BT - error in writeBTFile");
+	    return;
     }
     var metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
@@ -178,11 +178,17 @@ function writeBTFile() {
               headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
               body: form
           }).then((res) => {
-	      if (!res.ok) {
-		  alert("BT - error in writeBTFile!");
-		  console.log("GAPI response:\n", res);
-		  return;
-	      }
+	          if (!res.ok) {
+		          alert("BT - error writing to GDrive, reuthenticating...");
+		          console.log("GAPI response:\n", res);
+                  gapi.auth.authorize(
+                      {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
+                  ).then((res) => {
+                      if (res.status && res.status.signed_in) {
+                          writeBTFile();                        // try again
+                      }});
+		          return('GAPI error');
+	          }
               return res.json();
           }).then(function(val) {
               console.log(val);

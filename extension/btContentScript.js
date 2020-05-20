@@ -77,7 +77,7 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
-    console.log("Content script received msg from app:" + msg);
+    console.log("Content script received msg from app:" + JSON.stringify(msg));
     console.count("Content-IN:"+msg.type);
     switch (msg.type) {
     case 'keys':                // info about gdrive app
