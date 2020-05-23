@@ -5,8 +5,13 @@
     <script src="awesomplete.js" async></script>
     <style>
       ul {
-      padding-left: 10px;
-      list-style-type:none;
+        padding-left: 10px;
+        list-style-type: none;
+      }
+      textarea {
+        font-size: x-small;
+        margin-top: 10px;
+        color: gray;
       }
      </style>
   </head>
@@ -14,7 +19,8 @@
     <div id="message"><i>Opening BrainTool...</i></div>
     <div id="tag" style="display:none">
       <h2>Choose Tag</h2>
-      <input type="text" id="newtag" size="35" autofocus></input>
+      <input type="text" id="newtag" size="30" autofocus></input>
+      <textarea id="note" rows="2" cols="34" disabled>Note:</textarea>
       <div id="currentTags" style="font-size:x-small; margin-left:-10px"></div>
     </div>
     <script src="popup.js"></script>

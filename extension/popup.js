@@ -2,9 +2,10 @@
 
 'use strict';
 
-var messageDiv = document.getElementById('message');
-var tagDiv = document.getElementById('tag');
-var newTag = document.getElementById('newtag');
+const messageDiv = document.getElementById('message');
+const tagDiv = document.getElementById('tag');
+const newTag = document.getElementById('newtag');
+const note = document.getElementById('note');
 var CurrentTab;
 var AwesomeWidget;
 
@@ -25,8 +26,8 @@ function storeBTInfo(winId, tabId, tries = 0) {
 function windowOpen() {
     // Called on first click on header button, create the BT panel window
     var wargs = {
-//        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
-        'url' : "https://BrainTool.org/app", 
+        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+//        'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100 
@@ -98,14 +99,23 @@ function popupAction () {
 popupAction();
 
 
-// set callback on entering tag for tab, nb need to force blur on enter key
+// set callback on entering tag for tab
 window.onkeypress = function(e) {
-    console.log(e.which);
     if(e.which == 58) {          // :'s behavior is to select suggestion
         AwesomeWidget.select();
     }
-    if (e.which != 13) return // Enter key
-//    newTag.blur();
+    if (e.which != 13) return    // Ignore if not Enter key
+
+    // Enter in tag field selects note textarea
+    if (document.activeElement.id == 'newtag') {
+        AwesomeWidget.select();
+        note.disabled= false;
+        note.value="";
+        note.focus();
+        note.select();
+        return;
+    }
+    // Enter in note => we're done
     tabAdded();
 }
 
@@ -114,13 +124,14 @@ window.onkeypress = function(e) {
 function tabAdded() {
     // Call out to the content script which will get current tab and add to BT
     const nt = newTag.value;                                     // value from text entry field
+    const noteText = note.value;
     const BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
+    const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
     
     // Send msg to BT app for processing w tab and tag info
     chrome.tabs.sendMessage(
         BTTabId,
-        {'type': 'new_tab', 'tag': nt},
-        {} , 
+        message, 
         function (rsp) {
             if (rsp)        // Send msg to background to perform move (cos this script ends when looses focus)
                 chrome.runtime.sendMessage({

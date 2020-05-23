@@ -347,7 +347,7 @@ window.addEventListener('message', function(event) {
         gapi.load('client:auth2', initClient);             // initialize gdrive app
         break;
     case 'new_tab':
-        storeTab(event.data.tag, event.data.tab);
+        storeTab(event.data.tag, event.data.tab, event.data.note);
         break;
     case 'tab_opened':
         var nodeId = event.data.BTNodeId;
@@ -367,7 +367,7 @@ function cleanTitle(text) {
     return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
 }
 
-function storeTab(tg, tab) {
+function storeTab(tg, tab, note) {
     // put this tab under storage w given tag
 
     // process tag and add new if doesn't exist
@@ -381,7 +381,7 @@ function storeTab(tg, tab) {
     const parentNode = AllNodes[parentNodeId];
 
     const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
-    const newNode = new BTAppNode(newBTNode, "", parentNode.level + 1);
+    const newNode = new BTAppNode(newBTNode, note || "", parentNode.level + 1);
     newNode.linkChildren = true;                                  // since we're adding a link to the stored tab
     if (keyword) newNode.keyword = keyword;
 

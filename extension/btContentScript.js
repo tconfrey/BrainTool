@@ -89,7 +89,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         chrome.storage.local.get('tabsList', function (data) {
             var tab = data.tabsList[0];
             console.log("adding " + tab.title + " w tag [" + msg.tag + "]");
-            window.postMessage({type: 'new_tab', tag: msg.tag, tab: tab});
+            window.postMessage({type: 'new_tab', tag: msg.tag, tab: tab, note: msg.note});
             console.count('Content-OUT:new_tab');
         });
         response("cheers mate");
@@ -107,7 +107,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
 
 // Let extension know bt window is ready to open gdrive app. Only run once
-NotLoaded = true;
+var NotLoaded = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({
         from: 'btwindow',
