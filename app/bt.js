@@ -504,7 +504,17 @@ function openRow() {
     const appNode = AllNodes[nodeId];
     if (!appNode) return;
 
-    openEachWindow(appNode);
+    const num_kids = appNode.childIds.length;
+    if (num_kids) {
+        // container node handle as such
+        openEachWindow(appNode);
+    }
+    else {
+        // individual link
+        const url = appNode.getURL();
+        window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+        console.count('BT-OUT:link_click');
+    }
 
     // close the dialog
     $("#dialog")[0].close();

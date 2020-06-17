@@ -70,6 +70,11 @@ class BTAppNode {
         return this._linkChildren;
     }
 
+    getURL() {
+        return this._btnode.getURL();
+    }
+
+    
     displayTag() {
         return this._btnode.displayTag();
     }
