@@ -71,7 +71,7 @@ table.treetable tr.branch {
 }
 
 table.treetable tr.selected {
-    background-color: #cd72ae /*#4b9643;  #cfc;*/
+    background-color: #9d9; /* #cd72ae #4b9643;  #cfc;*/
 /*  background-color: #3875d7;
   color: #fff; */
 }
@@ -111,7 +111,7 @@ table.treetable tr span.elipse {
 
 
 table.treetable tr.opened {
-    background-color: #EFE;
+    background-color: #dFd;
 }
 tr.opened td.left {
     font-weight: bold;
@@ -130,16 +130,19 @@ table.treetable span.btText {
 table.treetable span.btTitle {
     padding-left: 0px;
 }
+table.treetable tr.hovered {
+    background-color: #cec;
+}
 
 
 #button {
-    height: 0.85em;
-    width: 1.4em;
-    background-color: #4b9643; /* #9d9; */
-    padding: 0px;
-    border: 0px;
-    margin-left: auto;
-    margin-right: auto;
+    background-color: #cec; /* #9d9; */
+    position: absolute;
+    z-index: 1000;
+    padding-left: 10px;
+    padding-right: 3px;
+    right: 15px;
+    border-radius: 10px;
     cursor: pointer;
 }
 

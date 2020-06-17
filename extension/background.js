@@ -175,15 +175,20 @@ function openTag(parentId, data) {
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // When done record window in local node store (also need tabs?) and send back message per tab
             var id, tab, node;
+            console.log("openTag->windows.create cb, tabs:" + JSON.stringify(win.tabs));
             parentNode.windowId = win.id;
             OpenNodes[parentNode.title] = win.id;
             for (var i=0; i<ary.length; i++) {
                 id = ary[i].nodeId;
                 node = AllNodes[id];
                 node.windowId = win.id;
+
+                // NB tabs might not be loaded at this point, handlePotentialBTNode will catch it later
                 tab = win.tabs.find(function(element) {
-                    return (compareURLs(element.url, AllNodes[id].url));
+                    return (element && element.url && compareURLs(element.url, AllNodes[id].url));
                 });
+                if (!tab) continue;
+                
                 node.tabId = tab.id;
                 OpenLinks[node.title] = node.tabId;
                 chrome.tabs.sendMessage(
@@ -381,6 +386,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     // - BT tabs navigating away
     // - Tab finishing loading, want to set tab badge. 
     //       Workaround for some kind of issues where I set the badge but it gets cleared somewhere else as the tab is initializing.
+
     if (AllNodes && changeInfo.status && changeInfo.status == 'complete') {
         const node = BTChromeNode.findFromTab(tabId);
         if (node) setBadgeTab(node.windowId, tabId);
@@ -409,8 +415,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
         console.log("Sending back Tab #", tabId);
         chrome.tabs.goBack(node.tabId,            // send original tab back to the BT url
 			   function() {
-			       if (chrome.runtime.lastError)
-                       alert("BT Error: ", JSON.stringify(chrome.runtime.lastError.message));
+			       if (chrome.runtime.lastError) {
+                       const err = JSON.stringify(chrome.runtime.lastError.message);
+                       alert("BT Error: " + err) ;
+                   }
 			   });
     }
     catch (err) {
@@ -491,11 +499,9 @@ function handlePotentialBTNode(url, state) {
     // Check to see if this url belongs to a btnode and if so:
     // if its already open, just highlight, else open as such, even if not opened from BT App
 
-    console.log("handlePotentialBTNode: " +  url + ", state: " + JSON.stringify(state));
     const node = BTChromeNode.findFromURL(url);
     const tabId = state.id;
     if (!node) return;
-    console.log("node: " + JSON.stringify(node));
     if (node.windowId && node.tabId) {
         // node already open elsewhere. Delete this tab and find and highlight BT version
         console.log(url + " already open, just highlighting it");

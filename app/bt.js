@@ -421,18 +421,23 @@ function addNewTag(tag, parent) {
 
 /* Edit Operations */
 function buttonShow() {
-    // Show button to perform row operations, triggered on hover
-    var td = $(this).find(".middle")
+    // Show buttons to perform row operations, triggered on hover
+    $(this).addClass("hovered");
+    var td = $(this).find(".right")
     $("#button").detach().appendTo($(td));
-    $("#button").show(100);
+    const offset = $(this).offset();
+    $("#button").offset({top: offset.top - 1});
+    $("#button").show();
 }
+
 function buttonHide() {
-    // hide button to perform row operations, triggered on exit
+    // hide button to perform row operations, triggered on exit    
+    $(this).removeClass("hovered");
     $("#button").hide();
     $("#button").detach().appendTo($("#dialog")); // was append"body"
 }
 
-$("#button").click(function(e) {
+$("#edit").click(function(e) {
     // position and populate the dialog and open it
     var top = e.originalEvent.clientY;
     $(this).closest("tr").addClass('selected');
@@ -462,6 +467,12 @@ $("#popup").click(function(e) {
     }
 });
 
+function dialogClose() {
+    $('#dialog')[0].close();
+    $("tr.selected").removeClass('selected');
+}
+    
+
 function populateDialog() {
     // set up the dialog for use
     const tr = $("tr.selected")[0];
@@ -476,8 +487,6 @@ function populateDialog() {
     $("#title-text").val(titletxt);
     $("#text-text").val(txttxt);
     $("#delete").prop("disabled", kids);
-    $("#update").prop("disabled", true);
-    $("#open").prop("disabled", !kids);
     return true;
 }
 
@@ -490,7 +499,7 @@ function openRow() {
     // Open all links under this row in windows per tag
 
     // First find all AppNodes involved - selected plus children
-    const tr = $("tr.selected")[0];
+    const tr = $("tr.hovered")[0];
     const nodeId = $(tr).attr('data-tt-id');
     const appNode = AllNodes[nodeId];
     if (!appNode) return;
@@ -542,12 +551,21 @@ function escapeRegExp(string) {
 
 function deleteRow() {
     // Delete this node/row. NB only callable if no children
-    var tr = $("tr.selected")[0];
-    var nodeId = $(tr).attr('data-tt-id');
-    $("table.treetable").treetable("removeNode", nodeId);               // Remove from UI and treetable
-    $("#dialog")[0].close();
-    deleteNode(nodeId);
+    buttonHide();
+    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+    const appNode = AllNodes[nodeId];
+    if (!appNode) return false;
+    const kids = appNode.childIds.length;
+
+    // If children nodes ask for confirmation
+    if (!kids || confirm('Delete all?')) {
+        $("table.treetable").treetable("removeNode", nodeId);               // Remove from UI and treetable
+        $("#dialog")[0].close();
+        deleteNode(nodeId);
+    }   
 }
+
 function deleteNode(id) {
     //delete node and clean up
     id = parseInt(id);          // could be string value

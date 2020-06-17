@@ -79,8 +79,8 @@ class BTAppNode {
         var outputHTML = "";
         outputHTML += `<tr data-tt-id='${this._btnode.id}`;
         if (this._btnode.parentId || this._btnode.parentId === 0) outputHTML += `' data-tt-parent-id='${this._btnode.parentId}`;
-        outputHTML += `'><td class='left'><span class='btTitle'>${this.displayTitle()}</span></td><td class='middle'/>`;
-        outputHTML += `<td><span class='btText'>${this.displayText()}</span></td></tr>`;
+        outputHTML += `'><td class='left'><span class='btTitle'>${this.displayTitle()}</span></td>`;
+        outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
 
