@@ -460,6 +460,7 @@ function setBadgeTab(windowId, tabId) {
     if (!node) {
         chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId});
         chrome.browserAction.setTitle({'title' : 'BrainTool'});
+        chrome.storage.local.set({currentTag: ""});
         return;
     }
     
@@ -468,15 +469,19 @@ function setBadgeTab(windowId, tabId) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
         if (AllNodes[cid].tabId == tabId) btTab = true;
     }
+    const displayName = node.displayTag();
     if (btTab) { // One of ours, green highlight and Tag text
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
-        chrome.browserAction.setBadgeText({'text' : node.displayTag().substring(0,3),
+        chrome.browserAction.setBadgeText({'text' : displayName.substring(0,3),
                                            'tabId' : tabId});
     } else { // unmanaged, blue w ? for tag
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#66A', 'tabId' : tabId});
         chrome.browserAction.setBadgeText({'text' : "??", 'tabId' : tabId});
     }
-    chrome.browserAction.setTitle({'title' : `Tag:${node.displayTag()}\n${openChildren} open tabs`});
+    chrome.browserAction.setTitle({'title' : `Tag:${displayName}\n${openChildren} open tabs`});
+
+    // Store current windows tag for use by pop to default any new tab name
+    chrome.storage.local.set({currentTag: displayName});
 }
 
 function setBadgeWin(windowId) {
@@ -485,6 +490,7 @@ function setBadgeWin(windowId) {
     
     if (!node) {
         chrome.browserAction.setTitle({'title' : 'BrainTool'});
+        chrome.storage.local.set({currentTag: ""});
         return;
     }
     
@@ -492,7 +498,11 @@ function setBadgeWin(windowId) {
     for (const cid of node.childIds) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
     }    
-    chrome.browserAction.setTitle({'title' : `Tag:${node.title}\n${openChildren} open tabs`});
+    const displayName = node.displayTag();
+    chrome.browserAction.setTitle({'title' : `Tag:${displayName}\n${openChildren} open tabs`});
+    // Store current windows tag for use by pop to default any new tab name
+    chrome.storage.local.set({currentTag: displayName});
+
 }
 
 function handlePotentialBTNode(url, state) {

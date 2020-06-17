@@ -44,7 +44,6 @@ function getCurrentTab (callback) {
         // NB only one tab should be active and in the current window 
         chrome.storage.local.set({tabsList: list}, function() {
             CurrentTab = list[0];
-            console.log("tabsList is set");                              
             if(callback) {
                 callback(list);
             }
@@ -74,7 +73,8 @@ function generateTagsDisplay(tagsArray) {
 
 function popupAction () {
     // open bt window if not open, otherwise populate tag entry form
-    
+
+    console.log('popup action()');
     var btTab = chrome.extension.getBackgroundPage() ? chrome.extension.getBackgroundPage().BTTab : null;
     if (!btTab) {
         windowOpen();
@@ -83,13 +83,18 @@ function popupAction () {
             messageDiv.style.display = 'none';
             tagDiv.style.display = 'block';
             chrome.storage.local.get('tags', function(data) {
-                var tagsArray = data.tags; //JSON.parse(data.tags);
+                var tagsArray = data.tags;
                 const tags = tagsArray.map(tag => tag.name);
                 var tagsArea = document.getElementById('currentTags');
                 tagsArea.innerHTML = generateTagsDisplay(tagsArray);
                 var input = document.getElementById("newtag");
+                input.value = "";
                 AwesomeWidget = new Awesomplete(input, {
 	                list: tags, autoFirst: true
+                });
+                // Pull currentTag from local storage and prepopulate widget
+                chrome.storage.local.get('currentTag', function(data) {
+                    input.value = data.currentTag;
                 });
             });
         }); 
