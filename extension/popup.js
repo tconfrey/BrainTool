@@ -74,7 +74,6 @@ function generateTagsDisplay(tagsArray) {
 function popupAction () {
     // open bt window if not open, otherwise populate tag entry form
 
-    console.log('popup action()');
     var btTab = chrome.extension.getBackgroundPage() ? chrome.extension.getBackgroundPage().BTTab : null;
     if (!btTab) {
         windowOpen();
@@ -95,21 +94,32 @@ function popupAction () {
                 // Pull currentTag from local storage and prepopulate widget
                 chrome.storage.local.get('currentTag', function(data) {
                     input.value = data.currentTag;
+                    Defaulted = true;
                 });
             });
         }); 
     }
 }
 
+var Defaulted = false;                  // capture whether the tag value was defaulted to window tag
+var KeyCount = 0;
 popupAction();
 
-
 // set callback on entering tag for tab
-window.onkeypress = function(e) {
-    if(e.which == 58) {          // :'s behavior is to select suggestion
+window.onkeyup = function(e) {
+
+    // We previously set a default if window already has a tag. Make it easy to delete.
+    // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
+    if (Defaulted && (KeyCount < 2) && (e.key == "Backspace")) {
+        var input = document.getElementById("newtag");
+        input.value = "";
+    }
+    KeyCount++;
+    
+    if(e.key == ":") {          // :'s behavior is to select suggestion
         AwesomeWidget.select();
     }
-    if (e.which != 13) return    // Ignore if not Enter key
+    if (e.key != "Enter") return    // Ignore if not Enter key
 
     // Enter in tag field selects note textarea
     if (document.activeElement.id == 'newtag') {
