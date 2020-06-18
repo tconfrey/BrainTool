@@ -111,7 +111,7 @@ table.treetable tr span.elipse {
 
 
 table.treetable tr.opened {
-    background-color: #dFd;
+    background-color: #cec;
 }
 tr.opened td.left {
     font-weight: bold;
@@ -131,42 +131,6 @@ table.treetable span.btTitle {
     padding-left: 0px;
 }
 table.treetable tr.hovered {
-    background-color: #cec;
+    background-color: #aca;
 }
 
-
-#button {
-    background-color: #cec; /* #9d9; */
-    position: absolute;
-    z-index: 1000;
-    padding-left: 10px;
-    padding-right: 3px;
-    right: 15px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-dialog {
-    border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
-  border-radius: 6px;
-  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  position: fixed;
-}
-
-dialog textarea {
-    width: 90%;
-    height: 5em;
-}
-#editText {
-    margin-right: 0px;
-    margin-left: 10px;
-}
-
-#buttonDiv {
-    width: 80%;
-    margin: auto;
-    padding-top: 10px;
-    display: flex;
-    justify-content: space-around;
-}

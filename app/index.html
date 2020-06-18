@@ -9,13 +9,34 @@
     </script>
     <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
     <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <link href="bt.css" rel="stylesheet" type="text/css" />
     <script src="jquery.treetable.js"></script>
   </head>
   <body>
-    <!--Add buttons to initiate auth sequence and sign out-->
-    <button id="authorize_button" style="display: none;">Authorize</button>
-    <button id="signout_button" style="display: none;">Sign Out</button>
+    
+    <div id="auth_menu">
+      <div id="menu_button" style="height:11px;" onClick="toggleMenu()">
+        <img id="open" class="open-icon">
+        <img id="close" class="close-icon" style="display: none;">
+      </div>
+      <div id="auth_screen" style="display: block;">
+        <img src="../site/logo.png" style="width: 80%; display: block; margin-left: auto; margin-right: auto;"/>
+        <p style="text-align: center;">Welcome to BrainTool!</p>
+        <p style="margin: 10px; text-align: justify;">
+          BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. In order to operate BT needs you to grant it permission to read and write this file, and to read filenames so that it can find the file in the future. Data is exchanged only between the BT app running in Chrome and your GDrive, and only in encrypted format. There are no BT servers and nothing is ever stored anywhere but within the BrainTool.org file that is fully under your control. See <a href="https://braintool.org/overview" target="_blank">our website</a> for more details.
+        </p>
+        <!--Add buttons to initiate auth sequence and sign out-->
+        <div class="buttonDiv" style="padding-bottom: 5px; padding-top: 0px;">
+          <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
+          <button id="signout_button" style="display: none;">Remove GDrive Authorization</button>
+        </div>
+      </div>
+    </div>
 
+    <div id="loading">
+      <p style="text-align: center; margin-top:50px">
+        Authenticating with Google <br/>and loading your BrainTool file...</p>
+    </div>
     <div id="button" style="display: none;">
       <input id="edit" type="image" id="image" alt="Edit" title="Edit"
              src="resources/noun_edit_1513603.png"  height="18" width="20">
@@ -29,7 +50,7 @@
     </table>
     <div style="width: 100%;">
       <div id="inner">
-        <button id="refresh" onclick="refreshTable()">Refresh</button>
+        <button id="refresh" onclick="refreshTable()" style="display: none;">Refresh</button>
       </div>
     </div>
 
@@ -41,7 +62,7 @@
             <td><textarea id="text-text" class="editNode" ></textarea></td>
           </tr> 
         </table>
-        <div id="buttonDiv">
+        <div class="buttonDiv">
           <button id="update" onClick="updateRow()">Update</button>
           <button id="cancel" onClick="dialogClose()">Cancel</button>
         </div>

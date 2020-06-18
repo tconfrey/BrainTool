@@ -42,13 +42,30 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
-      //  signoutButton.style.display = 'block';
+        signoutButton.style.display = 'block';
         FindOrCreateBTFile();
+        setTimeout(toggleMenu, 2000);
     } else {
+        $("#auth_screen").show();
+        $("#loading").hide();
         authorizeButton.style.display = 'block';
         signoutButton.style.display = 'none';
     }
 }
+
+function toggleMenu() {
+    // Toggle the visibility of the intro page, auth/de-auth button and open/close icon
+    if ($("#auth_screen").is(":visible")) {
+        $("#auth_screen").slideUp(750);
+        $("#close").show();
+        $("#open").hide();
+    } else {
+        $("#auth_screen").slideDown(750);
+        $("#close").hide();
+        $("#open").show();
+    }
+}
+        
 
 /**
  *  Sign in the user upon button click.
@@ -165,6 +182,7 @@ function writeBTFile() {
         'name': 'BrainTool.org', // Filename at Google Drive
         'mimeType': 'text/plain' // mimeType at Google Drive
     };
+    try {
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
     console.log("writing BT file. accessToken = ", accessToken);
@@ -193,6 +211,11 @@ function writeBTFile() {
           }).then(function(val) {
               console.log(val);
           });
+    }
+    catch(err) {
+        alert("BT - error writing to GDrive. Check permissions and retry");
+        console.log("Error in writeBTFile: ", JSON.stringify(err));
+    }
 }
 
 
@@ -299,6 +322,9 @@ function initializeUI() {
         window.postMessage({ 'type' : 'show_node', 'nodeId' : nodeId});
     });
 
+    // Hide loading notice and show refresh button
+    $("#loading").hide();
+    $("#refresh").show();
 }
 
 // Handle callbacks on node folding, update backing store
@@ -434,7 +460,7 @@ function buttonHide() {
     // hide button to perform row operations, triggered on exit    
     $(this).removeClass("hovered");
     $("#button").hide();
-    $("#button").detach().appendTo($("#dialog")); // was append"body"
+    $("#button").detach().appendTo($("#dialog"));
 }
 
 $("#edit").click(function(e) {
