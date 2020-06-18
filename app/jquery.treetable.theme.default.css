@@ -147,7 +147,7 @@ table.treetable tr.hovered {
 }
 
 dialog {
-  border: 1px solid rgba(0, 0, 0, 0.3);
+    border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
   border-radius: 6px;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
   width: 80%;

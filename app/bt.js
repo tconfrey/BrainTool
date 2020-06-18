@@ -482,11 +482,10 @@ function populateDialog() {
     
     const titletxt = appNode.title;
     const txttxt = appNode.text;
-    const kids = appNode.childIds.length;
     
     $("#title-text").val(titletxt);
     $("#text-text").val(txttxt);
-    $("#delete").prop("disabled", kids);
+    $("#update").prop("disabled", true);
     return true;
 }
 

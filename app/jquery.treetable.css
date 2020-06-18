@@ -31,18 +31,35 @@ table.treetable span.indenter a {
     width: 150px;
     margin: 0 auto;
 }
+
+button {
+    color: #AAA;
+    border-style: double;
+    border-radius: 3px;
+}
+
+button:not([disabled]):hover {
+    color: #222;
+    background-color: #ACA;
+}
+    
 #refresh {
     width: 120px;
-    color: #AAA;
 }
-#refresh:hover {
-    color: #222;
-    background-color: #6A6;
-}
+
+    
 
 span.elipse {
      cursor:pointer;
      color:blue;
      text-decoration:underline;
      padding-left: 0.1em;
+}
+
+textarea {
+    font-size: .8em;
+    line-height: 1.2;
+    /* font-family: "Palatino";
+     font-family: "Arial";
+     line-height: 1;*/
 }
