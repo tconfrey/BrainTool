@@ -105,9 +105,24 @@ var Defaulted = false;                  // capture whether the tag value was def
 var KeyCount = 0;
 popupAction();
 
+newtag.onkeydown = function(e) {
+    if (e.key == "Tab") {
+        newTagEntered();
+        e.preventDefault();
+    }
+}
+
+function newTagEntered() {
+    // handle tag selection
+    AwesomeWidget.select();
+    note.disabled= false;
+    note.value="";
+    note.focus();
+    note.select();
+}
+
 // set callback on entering tag for tab
 window.onkeyup = function(e) {
-
     // We previously set a default if window already has a tag. Make it easy to delete.
     // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
     if (Defaulted && (KeyCount < 2) && (e.key == "Backspace")) {
@@ -123,11 +138,7 @@ window.onkeyup = function(e) {
 
     // Enter in tag field selects note textarea
     if (document.activeElement.id == 'newtag') {
-        AwesomeWidget.select();
-        note.disabled= false;
-        note.value="";
-        note.focus();
-        note.select();
+        newTagEntered();
         return;
     }
     // Enter in note => we're done
