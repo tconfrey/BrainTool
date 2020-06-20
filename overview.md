@@ -1,19 +1,17 @@
 # BrainTool Philosophy
 
-BrainTool is a knowledge/notes/links manager that looks like a bookmark manager. Only links that are explicitly put under management show in the tree. Links are organized hierarchically under nested 'tags'. Links with the same tag are maintained within a single browser window. Its easy to assign a tag to a link you are viewing (click the BT icon in the toolbar and use the autocomplete shown to input a tag name), at which point it's added to the tree and its tab moved into the same window as its fellows.
+BrainTool is a knowledge/notes/links/browser manager. While browsing you 'tag' web pages via the BrainTool Chrome plugin to store them in your personal braintool file. Tags provide a grouping for sets of web pages, they are nested in a hierarchy and have attached notes. Each tag is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window with tabs for tagged links. The side-panel indicates which links are currently open in a tab and allows fast access to open or access the page.
+
+By tagging links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file saved to your Google Drive. As you tag pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is structured in an [org-mode](http://orgmode.org) format.
+
+The text file can be edited in any text editor, ideally emacs with org-mode. For me, the tools creator, it unites two of the main ways I capture information - in plain text notes typed into an emacs editor, and via links to relevant web pages.
+
 <br/><br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 <br/><br/>
 <img src="/site/bt-screenshot4.png" style="border:solid; width:50%; border-width:thin;">
 <br/><br/>
-
-But that's only a part of the tool. The BT Chrome extension is actually a browser-based view onto a plain text file represented in the text-based emacs [orgmode](http://orgmode.org) format and stored on your Google Drive. That file can be edited in any text editor, ideally emacs with org-mode.
-<br/><br/>
 <img src="/site/bt-screenshot2.png" style="border:solid; border-width:thin;">
-
-The idea is to marry together two of the main ways I personally capture information
-- in notes typed into plain text files (in my case via an emacs org-mode buffer),
-- and in urls I access in Chrome, whether the results of previous research sessions or a set of Google Docs I need to reference or work on.
 
 ## Overview
 
