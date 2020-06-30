@@ -29,6 +29,9 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         if (msg.msg == 'tag_open') {
             openTag(msg.parent, msg.data);
         }
+        if (msg.msg == 'close_node') {
+            closeNode(msg.nodeId);
+        }
         if (msg.msg == 'node_deleted') {
             deleteNode(msg.nodeId);
         }
@@ -220,6 +223,20 @@ function showNode(id) {
     const node = AllNodes[id];
     if (node && node.windowId)
         chrome.windows.update(node.windowId, {'focused' : true});
+}
+
+function closeNode(id) {
+    // Close this nodes window or tabid. NB tbas have a tab id and window id, windows only have win id
+
+    const node = AllNodes[id];
+    console.log("closing id=", id);
+    if (node && node.tabId){
+        chrome.tabs.remove(node.tabId);
+        return;
+    }
+    if (node && node.windowId) {
+        chrome.windows.remove(node.windowId);
+    }
 }
 
 function moveTabToTag(tabId, tag) {

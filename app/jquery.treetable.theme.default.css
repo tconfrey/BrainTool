@@ -116,9 +116,6 @@ table.treetable tr.opened {
 tr.opened td.left {
     font-weight: bold;
 }
-table.treetable td.middle {
-    width: 1.6em;
-}
 td.left {
     vertical-align: middle;
 }
@@ -134,3 +131,11 @@ table.treetable tr.hovered {
     background-color: #aca;
 }
 
+table.treetable tr.dropTarget {
+    background-color: #191;
+}
+table.treetable td.dropOver {
+    border-bottom-style: solid;
+    border-bottom-color: grey;
+    border-bottom-width: 3px;
+}

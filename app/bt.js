@@ -272,7 +272,7 @@ function processBTFile(fileText) {
     tab.html(table);
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
-
+    
     BTAppNode.generateTags();
 
     // Let extension know about model
@@ -321,11 +321,132 @@ function initializeUI() {
         const nodeId = this.getAttribute("data-tt-id");
         window.postMessage({ 'type' : 'show_node', 'nodeId' : nodeId});
     });
+    
+    // make rows draggable    
+    $("tr").draggable({
+        helper: function() {
+            buttonHide();
+            const clone = $(this).clone();
+            return clone;
+        },     
+        start: dragStart,       // call fn below on start
+        handle: "#move",        // use the #move button as handle
+        axis: "y",
+        scrollSpeed: 10,
+        containment: "#content",
+        cursor: "move",
+        cursorAt: {left: 390},
+        opacity: .5,
+        revert: "invalid"       // revert when drag ends but not over droppable
+    });
 
+    // make rows droppable
+    $("tr").droppable({
+        drop: function(event, ui) {
+            dropNode(event, ui);
+        },
+        over: function(event, ui) {
+            // highlight node a drop would drop into and underline the potential position
+            $(this).children('td').first().addClass("dropOver");
+            if ($(this).hasClass('branch'))
+                $(this).addClass("dropTarget");
+            else {
+                const parentId = $(this).attr('data-tt-parent-id');
+                $("tr[data-tt-id='"+parentId+"']").addClass("dropTarget");
+            }
+        },
+        out: function(event, ui) {
+            // undo the above
+            $(this).children('td').first().removeClass("dropOver");
+            if ($(this).hasClass('branch'))
+                $(this).removeClass("dropTarget");
+            else {
+                const parentId = $(this).attr('data-tt-parent-id');
+                $("tr[data-tt-id='"+parentId+"']").removeClass("dropTarget");
+            }
+        }
+    });
+    
     // Hide loading notice and show refresh button
     $("#loading").hide();
     $("#refresh").show();
 }
+
+function dragStart(event, ui) {
+    // Called when drag operation is initiated. Set dragged row to be full sized
+    const w = $(this).css('width');
+    const h = $(this).css('height');
+    ui.helper.css('width', w).css('height', h);
+
+    $(this).addClass("dragTarget");
+
+    // collapse open subtree if any
+    const nodeId = $(this).attr('data-tt-id');
+    if (AllNodes[nodeId].childIds.length) {
+        const treeTable = $("#content");
+        treeTable.treetable("collapseNode", nodeId);
+    }
+}
+function dropNode(event, ui) {
+    // Drop node w class=dragTarget onto node w class=dropTarget in position below class=dropOver
+    console.log("dropping");
+    const dragNode = $(".dragTarget")[0];
+    const dropParent = $(".dropTarget")[0];
+    const dropBelow = $($(".dropOver")[0]).parent();
+
+    const dragNodeId = $(dragNode).attr('data-tt-id');
+    const dropParentId = $(dropParent).attr('data-tt-id');
+    const treeTable = $("#content");
+
+    if (dropParentId) {
+        // First set the correct parentage, model then tree
+        const nodeIndex = $(dropBelow).index();
+        const parentIndex = $(dropParent).index();
+        BTNode.reparentNode(dropParentId, dragNodeId, nodeIndex - parentIndex);
+        treeTable.treetable("move", dragNodeId, dropParentId);
+        
+        // Then move to correct position under parent and update file
+        positionNode(dragNode, dropParent, dropBelow);
+        writeBTFile();
+    }
+    
+    // Clean up
+    $(dragNode).removeClass("dragTarget").removeClass("hovered", 750);
+    $(dropParent).removeClass("dropTarget");
+    $("td").removeClass("dropOver");
+}
+
+function positionNode(dragNode, dropParent, dropBelow) {
+    console.log("positioning");
+    const newPos = $("tr").index(dropBelow);
+    const dropParentId = $(dropParent).attr('data-tt-id');
+    const treeTable = $("#content");
+    const treeParent = treeTable.treetable("node", dropParentId);
+    const db = dropBelow[0];
+    function compare(a,b) {
+        if (a<b) return -1;
+        if (b<a) return 1;
+        return 0;
+    }
+    treeTable.treetable("sortBranch", treeParent,
+                        function(a,b) {
+                            aa = a.row[0];
+                            bb = b.row[0];
+                            if (aa == dragNode){
+                                if (bb == db)
+                                    return 1;
+                                return (compare (newPos, $("tr").index(bb)));
+                            }
+                            if (bb == dragNode) {
+                                if (aa == db)
+                                    return -1;
+                                return (compare ($("tr").index(aa), newPos));
+                            }
+                            return (compare ($("tr").index(aa), $("tr").index(bb)));
+                        });
+//    initializeUI();  
+}
+    
 
 // Handle callbacks on node folding, update backing store
 function nodeExpand(arg) {
@@ -356,6 +477,12 @@ function handleLinkClick(e) {
     e.preventDefault();
 }
 
+// Used below to ensure gapi is set up etc before trying to load file
+var windowLoaded = false;
+window.addEventListener('load', function() {
+    windowLoaded = true;
+});
+
 //  Handle relayed messages from Content script
 window.addEventListener('message', function(event) {
     // Handle message from Window
@@ -370,7 +497,10 @@ window.addEventListener('message', function(event) {
         // Client ID and API key from the Developer Console, values storted offline in config.js
         CLIENT_ID = event.data.client_id;
         API_KEY = event.data.api_key;
-        gapi.load('client:auth2', initClient);             // initialize gdrive app
+        if (windowLoaded && (typeof gapi !== 'undefined'))
+            gapi.load('client:auth2', initClient);             // initialize gdrive app
+        else
+            waitForGapi()
         break;
     case 'new_tab':
         storeTab(event.data.tag, event.data.tab, event.data.note);
@@ -387,6 +517,17 @@ window.addEventListener('message', function(event) {
         break;
     }
 });
+
+function waitForGapi () {
+    // gapi needed to access gdrive not yet loaded this script needs to wait
+    // NB shoudl probably error out sometime but there is a loading indicator showing at this point.
+    if (windowLoaded && (typeof gapi !== 'undefined'))
+        gapi.load('client:auth2', initClient);             // initialize gdrive app
+    else {
+        $("#loadingMessage").append(".");
+        setTimeout(waitForGapi, 250);
+    }
+}
 
 function cleanTitle(text) {
     // clean page title text of things that can screw up BT. Currently []
@@ -452,7 +593,15 @@ function buttonShow() {
     var td = $(this).find(".right")
     $("#button").detach().appendTo($(td));
     const offset = $(this).offset();
-    $("#button").offset({top: offset.top - 1});
+    $("#button").offset({top: offset.top});
+    if ($(this).hasClass("opened")){
+        $("#expand").hide();
+        $("#collapse").show();
+    }
+    else {
+        $("#expand").show();
+        $("#collapse").hide();
+    }
     $("#button").show();
 }
 
@@ -569,7 +718,6 @@ function openEachWindow(node) {
         console.count('BT-OUT:tag_open');
     }
 
-    
     if (node.childIds.length)    // iterate again and recurse for container nodes to each open their windows
         node.childIds.forEach(function(childId) {
             const child = AllNodes[childId];
@@ -578,6 +726,27 @@ function openEachWindow(node) {
         });
 }
 
+function closeRow() {
+    // close this node's tab or window
+    const tr = $("tr.hovered")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+
+    function closeNode(nodeId){    
+        const appNode = AllNodes[nodeId];
+        if (!appNode) return;
+        window.postMessage({ 'type': 'close_node', 'nodeId': nodeId});
+        console.count('BT-OUT:close_node');
+        
+        if (appNode.childIds.length)    // iterate again and recurse for container nodes to each open their windows
+            appNode.childIds.forEach(function(childId) {
+                const child = AllNodes[childId];
+                if (child.childIds.length)
+                    closeNode(child);
+        });
+        
+    }
+    closeNode(nodeId);
+}
 
 function escapeRegExp(string) {
     // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
@@ -585,7 +754,7 @@ function escapeRegExp(string) {
 }
 
 function deleteRow() {
-    // Delete this node/row. NB only callable if no children
+    // Delete this node/row.
     buttonHide();
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
     const nodeId = $(tr).attr('data-tt-id');

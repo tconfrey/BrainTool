@@ -2,12 +2,14 @@
 
 BrainTool is a knowledge/notes/links/browser manager. While browsing you 'tag' web pages via the BrainTool Chrome plugin to store them in your personal braintool file. Tags provide a grouping for sets of web pages, they are nested in a hierarchy and have attached notes. Each tag is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window with tabs for tagged links. The side-panel indicates which links are currently open in a tab and allows fast access to open or access the page.
 
-By tagging links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file saved to your Google Drive. As you tag pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is structured in an [org-mode](http://orgmode.org) format.
-
-The text file can be edited in any text editor, ideally emacs with org-mode. For me, the tools creator, it unites two of the main ways I capture information - in plain text notes typed into an emacs editor, and via links to relevant web pages.
-
-<br/><br/>
+<br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
+
+By tagging links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file saved to your Google Drive. As you tag pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in an [org-mode](http://orgmode.org) format.
+
+The text file can be edited in any text editor, ideally emacs with org-mode. At least for me, the tool's creator, it unites two of the main ways I capture information - in plain text notes typed into an emacs editor, and via links to relevant web pages.
+
+<br/>
 <br/><br/>
 <img src="/site/bt-screenshot4.png" style="border:solid; width:50%; border-width:thin;">
 <br/><br/>

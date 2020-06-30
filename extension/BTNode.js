@@ -32,11 +32,14 @@ class BTNode {
     get childIds() {
         return this._childIds;
     }
-    addChild(id) {
-        this._childIds.push(id);
+    addChild(id, index = -1) {
+        if (index < 0)
+            this._childIds.push(parseInt(id));
+        else
+            this._childIds.splice(index, 0, parseInt(id));
     }
     removeChild(id) {
-        let index = this._childIds.indexOf(id);
+        let index = this._childIds.indexOf(parseInt(id));
         if (index > -1)
             this._childIds.splice(index, 1);
     }
@@ -85,7 +88,16 @@ class BTNode {
             return [match[2], match[1], null];
         
         return [tag, null, null];
-        }
+    }
+
+    static reparentNode(newP, node, index = -1) {
+        // move node from pre parent to new one, optional positional order
+        
+        const oldP = AllNodes[node].parentId;
+        AllNodes[node].parentId = newP;
+        AllNodes[oldP].removeChild(node);
+        AllNodes[newP].addChild(node, index);
+    }
 }
 
 class BTChromeNode extends BTNode {

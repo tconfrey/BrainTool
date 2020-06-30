@@ -46,6 +46,15 @@ window.addEventListener('message', function(event) {
         });
         console.count('Content-OUT:tag_open');
         break;
+    case 'close_node':
+        // pass on to background
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'close_node',
+            nodeId: event.data.nodeId
+        });
+        console.count('Content-OUT:close_node');
+        break;
     case 'node_deleted':
         // pass on
         chrome.runtime.sendMessage({

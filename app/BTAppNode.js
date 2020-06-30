@@ -32,6 +32,9 @@ class BTAppNode {
     get parentId() {
         return this._btnode.parentId;
     }
+    set parentId(id) {
+        this._btnode.parentId = id;
+    }
     get title() {
         return this._btnode.title;
     }
@@ -49,8 +52,8 @@ class BTAppNode {
     get childIds() {
         return this._btnode.childIds;
     }
-    addChild(id) {
-        this._btnode.addChild(id);
+    addChild(id, index= -1) {
+        this._btnode.addChild(id, index);
     }
     removeChild(id) {
         this._btnode.removeChild(id);
@@ -112,7 +115,7 @@ class BTAppNode {
                 drawerText += "  :END:\n";
             }
         }
-        if (this.folded && (!this.drawers || !this.drawers.PROPERTIES))
+        if (this.childIds.length && this.folded && (!this.drawers || !this.drawers.PROPERTIES))
             //need to add in the PROPERTIES drawer if we need to store the nodes folded state
             drawerText += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
         return drawerText;
