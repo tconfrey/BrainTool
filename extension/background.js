@@ -166,7 +166,7 @@ function openTag(parentId, data) {
         var win = parentNode.windowId;
         parentNode.windowId = null;
         chrome.windows.remove(win, function() {
-            openTag(parentId, data); // once more from the top
+            setTimeout(function(){openTag(parentId, data);}, 500); // once more from the top
         });
     } else {
         // Create array of urls to open

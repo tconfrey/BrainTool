@@ -486,6 +486,7 @@ window.addEventListener('load', function() {
 //  Handle relayed messages from Content script
 window.addEventListener('message', function(event) {
     // Handle message from Window
+    let nodeId, parentId;
     if (event.source != window)
         return;
     console.log('bt.js got message:', event);
@@ -506,15 +507,24 @@ window.addEventListener('message', function(event) {
         storeTab(event.data.tag, event.data.tab, event.data.note);
         break;
     case 'tab_opened':
-        var nodeId = event.data.BTNodeId;
-        var parentId = event.data.BTParentId;
+        nodeId = event.data.BTNodeId;
+        parentId = event.data.BTParentId;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         break;
     case 'tab_closed':
-        var nodeId = event.data.BTNodeId;
-        $("tr[data-tt-id='"+nodeId+"']").removeClass("opened");
-        break;
+        nodeId = event.data.BTNodeId;
+        parentId = AllNodes[nodeId] ? AllNodes[nodeId].parentId : 0;
+        let parentElt = $("tr[data-tt-id='"+parentId+"']");
+
+        // update ui and animate to indicate change
+        $("tr[data-tt-id='"+nodeId+"']").removeClass("opened", 1000);
+        if (!parentId) break;
+        parentElt.addClass("hovered",
+                           {duration: 1000,
+                            complete: function() {
+                                parentElt.removeClass("hovered", 1000);
+                            }});
     }
 });
 
@@ -590,7 +600,7 @@ function addNewTag(tag, parent) {
 function buttonShow() {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
-    var td = $(this).find(".right")
+    const td = $(this).find(".right")
     $("#button").detach().appendTo($(td));
     const offset = $(this).offset();
     $("#button").offset({top: offset.top});
@@ -601,6 +611,13 @@ function buttonShow() {
     else {
         $("#expand").show();
         $("#collapse").hide();
+    }
+    // show expand is not all kids of branch are open
+    if ($(this).hasClass("branch")) {
+        const id = this.getAttribute("data-tt-id");
+        const notOpenKids = $("tr[data-tt-parent-id='"+id+"']").not(".opened");
+        if (notOpenKids && notOpenKids.length)
+            $("#expand").show();
     }
     $("#button").show();
 }
