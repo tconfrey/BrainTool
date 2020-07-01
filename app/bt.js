@@ -18,7 +18,9 @@ var tipsArray = [
     "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
     "Create tags like ToRead to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly.",
-    "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions"
+    "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
+    "You can tag individual gmails or google docs into the BT tree",
+    "BT uses org format for links: [[URL][Link Text]], both can be edited"
 ];
 
 /**

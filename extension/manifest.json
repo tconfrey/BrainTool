@@ -1,7 +1,7 @@
 {
     "name": " BrainTool",
     "version": "1.0",
-    "description": "Sync tabs and notes to a emacs .org format backing store.",
+    "description": "Manage links and notes with hierarichal tags. Sync to an editable emacs-org format plain text file on your GDrive.",
     "permissions": ["tabs", "storage"], // ideally would use "activeTab" but then openAll won't get actions
     "background": {
         "scripts": ["background.js", "config.js", "BTNode.js"],
@@ -34,7 +34,7 @@
     "commands": {
         "_execute_browser_action": {
             "suggested_key": {
-                "default": "Ctrl+B"
+                "default": "Alt+B"
             }
         }
     },

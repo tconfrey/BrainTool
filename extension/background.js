@@ -443,7 +443,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, state) => {
     }
     
     // index is 'clamped', use 99 to put new tab to the right of any BT tabs
-    chrome.tabs.create({'windowId': node.windowId, 'url': url, 'index': 99}); 
+    try {
+        chrome.tabs.create({'windowId': node.windowId, 'url': url, 'index': 99},
+                           function () {
+			                   if (chrome.runtime.lastError) {
+                                   const err = JSON.stringify(chrome.runtime.lastError.message);
+                                   console.log("Failed to open tab, err:" + err, "\nTrying in a current window");
+                                   chrome.tabs.create({'url': url});
+                               }
+			               });
+    }
+    catch (err) {
+        console.log("Failed to open tab in ", node.windowId, ". err=", JSON.stringify(err), "\nTrying in a new window");
+        chrome.tabs.create({'url': url});
+    }
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
