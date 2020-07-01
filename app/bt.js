@@ -18,7 +18,7 @@ var tipsArray = [
     "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
     "Create tags like ToRead to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly.",
-    "Option-b is the BrainTool accelerator key. You can change that in Chrome://extensions"
+    "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions"
 ];
 
 /**
@@ -433,12 +433,15 @@ function dropNode(event, ui) {
 }
 
 function positionNode(dragNode, dropParent, dropBelow) {
+    // Position dragged node below the dropbelow element under the parent
+    // NB treetable does not support this so we need to use this sort method
     console.log("positioning");
     const newPos = $("tr").index(dropBelow);
     const dropParentId = $(dropParent).attr('data-tt-id');
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
     const db = dropBelow[0];
+    $(dragNode).attr('data-tt-parent-id', dropParentId);
     function compare(a,b) {
         if (a<b) return -1;
         if (b<a) return 1;
@@ -446,6 +449,7 @@ function positionNode(dragNode, dropParent, dropBelow) {
     }
     treeTable.treetable("sortBranch", treeParent,
                         function(a,b) {
+                            // Compare based on position except for dragnode 
                             aa = a.row[0];
                             bb = b.row[0];
                             if (aa == dragNode){
@@ -460,7 +464,6 @@ function positionNode(dragNode, dropParent, dropBelow) {
                             }
                             return (compare ($("tr").index(aa), $("tr").index(bb)));
                         });
-//    initializeUI();  
 }
     
 
