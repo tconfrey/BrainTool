@@ -110,6 +110,9 @@ newtag.onkeydown = function(e) {
         newTagEntered();
         e.preventDefault();
     }
+    if(e.key == ":") {          // :'s behavior is to select suggestion
+        AwesomeWidget.select();
+    }
 }
 
 function newTagEntered() {
@@ -130,10 +133,6 @@ window.onkeyup = function(e) {
         input.value = "";
     }
     KeyCount++;
-    
-    if(e.key == ":") {          // :'s behavior is to select suggestion
-        AwesomeWidget.select();
-    }
     if (e.key != "Enter") return    // Ignore if not Enter key
 
     // Enter in tag field selects note textarea

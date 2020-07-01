@@ -12,6 +12,15 @@ var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
 
+var tipsArray = [
+    "Type ':' when selecting a tag to add a subtag.",
+    "Double click on a table row to highlight its open window, if any.",
+    "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
+    "Create tags like ToRead to keep track of pages you want to come back to.",
+    "Remember to Refresh if you've been editing the BrainTool.org file directly.",
+    "Option-b is the BrainTool accelerator key. You can change that in Chrome://extensions"
+];
+
 /**
  *  Initializes the API client library and sets up sign-in state
  *  listeners.
@@ -53,6 +62,12 @@ function updateSigninStatus(isSignedIn) {
     }
 }
 
+function addTip() {
+    // add random entry from the tipsArray
+    indx = Math.floor(Math.random() * tipsArray.length);
+    $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
+}
+
 function toggleMenu() {
     // Toggle the visibility of the intro page, auth/de-auth button and open/close icon
     if ($("#auth_screen").is(":visible")) {
@@ -60,6 +75,7 @@ function toggleMenu() {
         $("#close").show();
         $("#open").hide();
     } else {
+        addTip();
         $("#auth_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
