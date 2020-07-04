@@ -159,12 +159,13 @@ class BTAppNode {
     static _displayTextVersion(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
-        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        var reg = new RegExp(regexStr, "mg");
-        var hits;
-        var outputStr = txt;
+        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        const reg = new RegExp(regexStr, "mg");
+        let hits;
+        let outputStr = txt;
         while (hits = reg.exec(outputStr)) {
-            outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + hits[2] + "</a>" + outputStr.substring(hits.index + hits[0].length);
+            const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
+            outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
         }
         return outputStr;
     }
@@ -188,18 +189,6 @@ class BTAppNode {
         let txt = "";
         if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
         return txt + BTAppNode._displayTextVersion(this._btnode.title);
-    }
-
-    displayTag() {
-        // Visible tag for this node
-        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        var reg = new RegExp(regexStr, "mg");
-        var hits;
-        var outputStr = this._btnode.title;
-        while (hits = reg.exec(outputStr)) {
-            outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
-        }
-        return outputStr;
     }
 
     isTag() {

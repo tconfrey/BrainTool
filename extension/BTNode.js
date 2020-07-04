@@ -1,6 +1,5 @@
 class BTNode {
     constructor(id, title, parentId) {
-        // TODO Level and Text move to AppNode
         this._id = id;
         this._title = title;
         this._parentId = parentId;
@@ -61,6 +60,7 @@ class BTNode {
         while (hits = reg.exec(outputStr)) {
             outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
         }
+        if (outputStr == "undefined") outputStr = this.getURL(); // if no tag text use url
         return outputStr;
     }
 

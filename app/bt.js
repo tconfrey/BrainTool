@@ -17,7 +17,7 @@ var tipsArray = [
     "Double click on a table row to highlight its open window, if any.",
     "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
     "Create tags like ToRead to keep track of pages you want to come back to.",
-    "Remember to Refresh if you've been editing the BrainTool.org file directly.",
+    "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited"
@@ -55,6 +55,7 @@ function updateSigninStatus(isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
         FindOrCreateBTFile();
+        addTip();               // display tip text
         setTimeout(toggleMenu, 2000);
     } else {
         $("#auth_screen").show();
@@ -77,7 +78,7 @@ function toggleMenu() {
         $("#close").show();
         $("#open").hide();
     } else {
-        addTip();
+        addTip();               // display tip text
         $("#auth_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
@@ -158,7 +159,7 @@ function createStartingBT() {
     var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
     var form = new FormData();
     
-    fetch('/BrainTool.org')     // fetch template file from bt server
+    fetch('/app/BrainTool.org')     // fetch template file from bt server
         .then(response => {
             if (!response.ok) {
                 throw new Error("HTTP error " + response.status);
