@@ -37,14 +37,12 @@ All url links in the .org file are shown as leaf nodes in the tree under their a
 
 <img src="/site/bt-screenshot3.png" style="border:solid; width:50%; height:50%; float:left; border-width:thin; margin-right: 10px;">
 
-The text and displayed link name can be edited within the extension window by clicking on the button in the middle column - kindof a janky ui but good enough until I find the time to improve my front-end skills. The popup also offers an accelerator to open all links for a given tag (they will open in a single dedicated Chrome window.)
-
-The whole thing can also be edited in any text editor. As noted the key feature of BT is the integration with an org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs where I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit hit the Refresh button in the tree to sync the display. This sounds like extra overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
+The text and displayed link name can be edited within the extension window. The whole thing can also be edited in any text editor. As noted the key feature of BT is the integration with an org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs where I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit hit the Refresh button in the tree to sync the display. This sounds like extra overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
 
 For a non org-mode user who wants to have greater control over the tree and its contents the org syntax is pretty minimally invasive. See [this tutorial](https://orgmode.org/worg/org-tutorials/org4beginners.html) for a minimal intro to emacs and org to give emacs a whirl. Or use your editor of choice noting to retain the *, ** header hierarchy and the [[url][display text]] structure for links.
 
 ## Navigation
-The tree shows the current open state of links and tags via highlighting. Click on a link to open it or to bring its already-opened Chrome window to the top.
+The tree shows the current open state of links and tags via highlighting. Click on a link to open it or to bring its already-opened Chrome window to the top. Double click any highlighted row to go to that window or tab.
 
 One thing I struggled with is how to handle navigation away from an opened BT window. I settled on intercepting the tabs navigation and redirecting to a new tab, leaving the original tab showing the page linked to from BT. This seems most intuitive to me given the tools operating model of not trying to track all windows and navigation but to capture only explicitly tagged pages which are intended to be added to my knowledge base.
 
