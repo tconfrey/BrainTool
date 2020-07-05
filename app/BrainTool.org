@@ -2,12 +2,12 @@
 As an example in a recursive kind of way this tag and its children capture notes about BrainTool.
 
 ** Resources
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
 Things that might help you take better advantage of BrainTool.
 
 *** [[https://braintool.org][Homepage]]
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Its a static site served from GitHub.
 
 **** [[https://github.com/tconfrey/BrainTool][tconfrey/BrainTool: Initial experiments with a Chrome plug-in / emacs .org file mashup]]
@@ -16,8 +16,11 @@ Here's the repo
 **** [[https://braintool.org/overview][BrainTool Philosophy | Tony Confrey]]
 More details
 
-*** [[https://emacs.org][emacs]]
-The other way to use your BrainTool file is via a text editor and emacs is the ultimate.
+*** [[https://emacs.org/][emacs]]
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
 
 **** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
 
@@ -30,6 +33,9 @@ The structure of your tags and links is captured in an org-mode format. Probably
 Jethro Kuan's workflow
 
 ** Complementary Tools
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Useful tools in an BrainTool/org-mode based workflow.
 
 *** [[https://organice.200ok.ch/][organice]]
@@ -57,6 +63,9 @@ Full text search on all your browser history. Very Cool!
 Similar L&F to BT but no tags or textfile access and in my case led to a proliferation of stuff I didn't care about.
 
 ** Contributions
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Thanks to the people behind these tools and resources for letting me stand on their shoulders.
 
 *** [[https://leaverou.github.io/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
@@ -90,6 +99,9 @@ Tab manger functions.
 * house
 
 ** Kitchen Project
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 
 *** [[https://www.livehome3d.com/mac/live-home-3d][Live Home 3D Home Design Software for Mac]]
 Cool 3d modeling software
@@ -106,6 +118,9 @@ lighting
 * Personal
 
 ** Finance
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 
 *** [[https://secure.netlinksolution.com/nextgen/][Client Login]]
 Taxes tool
@@ -118,9 +133,15 @@ NMIS investments site
 
 *** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Income Tracking - Google Sheets]]
 
+** [[https://myhealth.atriushealth.org/][MyHealth Online - Log Into Your Atrius Health Medical Record]]
+health portal
+
 * Homepage
 
 * ToRead
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Maybe also create a WasRead w summary after reading?
 
 ** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
@@ -130,8 +151,6 @@ Google paper
 
 ** [[https://spectrum.ieee.org/biomedical/diagnostics/how-ibm-watson-overpromised-and-underdelivered-on-ai-health-care][How Ibm Watson Overpromised And Underdelivered On Ai Health Care - IEEE Spectrum]]
 
-** [[https://tylermcginnis.com/var-let-const/][var vs let vs const in JavaScript]]
-
 ** [[https://hitinfrastructure.com/news/fhir-may-not-help-healthcare-orgs-achieve-semantic-interoperability][FHIR May Not Help Healthcare Orgs Achieve Semantic Interoperability]]
 
 ** [[http://nautil.us/issue/79/catalysts/picassos-got-nothing-on-ai-artists][I Am Not a Machine. Yes You Are. - Issue 79: Catalysts - Nautilus]]
@@ -139,3 +158,28 @@ Google paper
 ** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
 
 ** [[https://distill.pub/2017/aia/][Using Artificial Intelligence to Augment Human Intelligence]]
+
+* XYZ Project
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+All my links for the xyz project.
+
+** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
+Project Confluence page
+
+** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software | Atlassian]]
+Jira board
+
+
+** [[https://github.com/][GitHub]]
+Git repo
+
+
+** [[https://slack.com/][Where work happens | Slack]]
+Slack channel
+
+
+** [[https://docs.google.com/document/u/0/][Google Docs]]
+Project document
+

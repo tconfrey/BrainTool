@@ -20,7 +20,8 @@ var tipsArray = [
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
-    "BT uses org format for links: [[URL][Link Text]], both can be edited"
+    "BT uses org format for links: [[URL][Link Text]], both can be edited",
+    "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page."
 ];
 
 /**
@@ -817,8 +818,12 @@ function deleteNode(id) {
 
     // Remove from parent
     const parent = AllNodes[node.parentId];
-    if (parent)
+    if (parent) {
         parent._btnode.removeChild(id);
+        const openKids = $("tr[data-tt-parent-id='"+parent.id+"']").hasClass("opened");
+        if (!openKids)
+            $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
+    }
     
     // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
     delete(AllNodes[id]);

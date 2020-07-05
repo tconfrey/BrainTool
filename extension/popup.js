@@ -9,6 +9,12 @@ const note = document.getElementById('note');
 var CurrentTab;
 var AwesomeWidget;
 
+// handle click on note field
+document.onclick = function(e) {
+    if (e.target == note)
+        newTagEntered();
+};
+
 function storeBTInfo(winId, tabId, tries = 0) {
     // set the global variable on the background page
     var bg = chrome.extension.getBackgroundPage();
@@ -113,7 +119,7 @@ newtag.onkeydown = function(e) {
     if(e.key == ":") {          // :'s behavior is to select suggestion
         AwesomeWidget.select();
     }
-}
+};
 
 function newTagEntered() {
     // handle tag selection
@@ -149,6 +155,7 @@ window.onkeyup = function(e) {
 function tabAdded() {
     // Call out to the content script which will get current tab and add to BT
     const nt = newTag.value;                                     // value from text entry field
+    if (nt == "") return;
     const noteText = note.value;
     const BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
     const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
