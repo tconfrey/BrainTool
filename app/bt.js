@@ -543,6 +543,9 @@ window.addEventListener('message', function(event) {
         // update ui and animate to indicate change
         $("tr[data-tt-id='"+nodeId+"']").removeClass("opened", 1000);
         if (!parentId) break;
+        const openKids = $("tr[data-tt-parent-id='"+parentId+"']").hasClass("opened");
+        if (!openKids)
+            $("tr[data-tt-id='"+parentId+"']").removeClass("opened");
         parentElt.addClass("hovered",
                            {duration: 1000,
                             complete: function() {
