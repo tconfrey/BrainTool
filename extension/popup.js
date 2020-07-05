@@ -32,8 +32,8 @@ function storeBTInfo(winId, tabId, tries = 0) {
 function windowOpen() {
     // Called on first click on header button, create the BT panel window
     var wargs = {
-        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
-//        'url' : "https://BrainTool.org/app", 
+//        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+        'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100 
