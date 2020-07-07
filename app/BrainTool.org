@@ -8,6 +8,9 @@ As an example in a recursive kind of way this tag and its children capture notes
 Things that might help you take better advantage of BrainTool.
 
 *** [[https://braintool.org][Homepage]]
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Its a static site served from GitHub.
 
 **** [[https://github.com/tconfrey/BrainTool][tconfrey/BrainTool: Initial experiments with a Chrome plug-in / emacs .org file mashup]]
@@ -16,7 +19,10 @@ Here's the repo
 **** [[https://braintool.org/overview][BrainTool Philosophy | Tony Confrey]]
 More details
 
-*** [[https://www.gnu.org/software/emacs/][emacs]
+*** [[https://www.gnu.org/software/emacs/][emacs]]
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
 
 **** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
