@@ -2,12 +2,12 @@
 As an example in a recursive kind of way this tag and its children capture notes about BrainTool.
 
 ** Resources
-Things that might help you take better advantage of BrainTool.
-
-*** [[https://braintool.org][Homepage]]
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
+Things that might help you take better advantage of BrainTool.
+
+*** [[https://braintool.org][Homepage]]
 Its a static site served from GitHub.
 
 **** [[https://github.com/tconfrey/BrainTool][tconfrey/BrainTool: Initial experiments with a Chrome plug-in / emacs .org file mashup]]
@@ -16,10 +16,7 @@ Here's the repo
 **** [[https://braintool.org/overview][BrainTool Philosophy | Tony Confrey]]
 More details
 
-*** [[https://emacs.org/][emacs]]
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
+*** [[https://www.gnu.org/software/emacs/][emacs]
 The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
 
 **** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
@@ -96,6 +93,9 @@ Tab manger functions.
 
 **** [[https://www.freecodecamp.org/news/how-to-publish-your-chrome-extension-dd8400a3d53/][How To Publish a Chrome Extension]]
 
+** [[chrome://extensions/][Extensions]]
+Extensions manager. Details button to edit.
+
 * house
 
 ** Kitchen Project
@@ -139,9 +139,6 @@ health portal
 * Homepage
 
 * ToRead
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
 Maybe also create a WasRead w summary after reading?
 
 ** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
@@ -153,17 +150,16 @@ Google paper
 
 ** [[https://hitinfrastructure.com/news/fhir-may-not-help-healthcare-orgs-achieve-semantic-interoperability][FHIR May Not Help Healthcare Orgs Achieve Semantic Interoperability]]
 
-** [[http://nautil.us/issue/79/catalysts/picassos-got-nothing-on-ai-artists][I Am Not a Machine. Yes You Are. - Issue 79: Catalysts - Nautilus]]
+** [[https://distill.pub/2017/aia/][Using Artificial Intelligence to Augment Human Intelligence]]
 
 ** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
-
-** [[https://distill.pub/2017/aia/][Using Artificial Intelligence to Augment Human Intelligence]]
+podcast interview
 
 * XYZ Project
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-All my links for the xyz project.
+All my links for the XYZ project.
 
 ** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
 Project Confluence page
@@ -171,15 +167,11 @@ Project Confluence page
 ** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software | Atlassian]]
 Jira board
 
-
 ** [[https://github.com/][GitHub]]
 Git repo
-
 
 ** [[https://slack.com/][Where work happens | Slack]]
 Slack channel
 
-
 ** [[https://docs.google.com/document/u/0/][Google Docs]]
 Project document
-

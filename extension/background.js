@@ -455,8 +455,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         chrome.tabs.goBack(
             node.tabId,            // send original tab back to the BT url
 		    function() {
-                // on success open url in new tab, if error it probably a server redirect url manipulation so leave well enough alone
+                // on success open url in new tab,
+                // if error its probably a server redirect url manipulation so capture redirected url
 			    if (chrome.runtime.lastError) {
+                    node.url = url;
                     const err = JSON.stringify(chrome.runtime.lastError.message);
                     console.log("BT Failed to go back: " + err) ;
                 }
