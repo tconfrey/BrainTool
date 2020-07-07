@@ -519,7 +519,9 @@ function setBadgeTab(windowId, tabId) {
     }
     
     let openChildren = 0, btTab = node.tabId == tabId;
-    for (const cid of node.childIds) {
+    let countsAsKid = node.childIds.slice();
+    countsAsKid.push(node.id);
+    for (const cid of countsAsKid) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
         if (AllNodes[cid].tabId == tabId) btTab = true;
     }
