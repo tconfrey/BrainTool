@@ -7,6 +7,7 @@
 
 chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
+var ManagedTabs = [];
 var AllNodes;                   // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
 var OpenNodes = new Object();   // hash of node name to window id
@@ -121,6 +122,7 @@ function openLink(nodeId, url, tries=1) {
                                 'index': index, 'url': url},
                                function(tab) {
                                    node.tabId = tab.id;
+                                   ManagedTabs.push(node.tabId);
                                    node.windowId = parentNode.windowId;
                                    node.url = url;
                                    OpenLinks[node.title] = node.tabId;
@@ -135,6 +137,7 @@ function openLink(nodeId, url, tries=1) {
                 parentNode.windowId = window.id;
                 OpenNodes[parentNode.title] = window.id;
                 node.tabId = window.tabs[0].id;
+                ManagedTabs.push(node.tabId);
                 node.windowId = window.id;
                 node.url = url;
                 OpenLinks[node.title] = node.tabId;
@@ -194,6 +197,7 @@ function openTag(parentId, data) {
                 
                 node.tabId = tab.id;
                 OpenLinks[node.title] = node.tabId;
+                ManagedTabs.push(node.tabId);
                 chrome.tabs.sendMessage(
                     BTTab,
                     {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
@@ -230,12 +234,15 @@ function showNode(id) {
 }
 
 function closeNode(id) {
-    // Close this nodes window or tabid. NB tbas have a tab id and window id, windows only have win id
+    // Close this nodes window or tabid. NB tabs have a tab id and window id, windows only have win id
 
     const node = AllNodes[id];
     console.log("closing id=", id);
     if (node && node.tabId){
         chrome.tabs.remove(node.tabId);
+        // and remove from list of managed tabs
+        var index = ManagedTabs.indexOf(node.tabId);
+        if (index !== -1) ManagedTabs.splice(index, 1);
         return;
     }
     if (node && node.windowId) {
@@ -399,6 +406,10 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 
     delete OpenLinks[node.title];
     node.tabId = null; node.windowId = null;
+    // and remove from list of managed tabs
+    var index = ManagedTabs.indexOf(tabId);
+    if (index !== -1) ManagedTabs.splice(index, 1);
+    
     chrome.tabs.sendMessage(
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
@@ -565,7 +576,8 @@ function handlePotentialBTNode(url, tab) {
                               });
         return;
     }
-    const parentNode = AllNodes[node.parentId] || node;
+    // 'parentNode' is the tagged node w dedicated window. Could be node if it has a url
+    const parentNode = (node.childIds.length) ? node : AllNodes[node.parentId] || node;
     if (parentNode.windowId) {
         // move tab to parent
         const index = indexInParent(node.id);
@@ -588,6 +600,7 @@ function handlePotentialBTNode(url, tab) {
     node.tabId = tabId;
     node.url = url;
     OpenLinks[node.title] = node.tabId;
+    ManagedTabs.push(tabId);
 
     // Send back message that the bt and parent nodes are opened in browser
     chrome.tabs.sendMessage(

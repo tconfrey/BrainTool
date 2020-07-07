@@ -21,11 +21,13 @@ function storeBTInfo(winId, tabId, tries = 0) {
     if (!bg) {
         alert("Extension not initialized correctly. \Trying again.");
         setTimeout(function() {
-            storeBTInfo(winId. tabId, tries + 1);}, 100);
+            storeBTInfo(winId, tabId, tries + 1);}, 100);
         return;
     }
     bg.BTWin = winId;
     bg.BTTab = tabId;
+    console.log("setting ManagedTabs=[]");
+    bg.ManagedTabs = [];
     if (tries) alert("BrainTool Extension initialized");
 }
     
@@ -51,7 +53,7 @@ function getCurrentTab (callback) {
         chrome.storage.local.set({tabsList: list}, function() {
             CurrentTab = list[0];
             if(callback) {
-                callback(list);
+                callback(list[0]);
             }
         });
     });
@@ -80,13 +82,18 @@ function generateTagsDisplay(tagsArray) {
 function popupAction () {
     // open bt window if not open, otherwise populate tag entry form
 
-    var btTab = chrome.extension.getBackgroundPage() ? chrome.extension.getBackgroundPage().BTTab : null;
+    const bgPage = chrome.extension.getBackgroundPage();
+    const btTab = bgPage ? bgPage.BTTab : null;
     if (!btTab) {
         windowOpen();
     } else {
-        getCurrentTab(function () {
+        getCurrentTab(function (tab) {
             messageDiv.style.display = 'none';
             tagDiv.style.display = 'block';
+            console.log("this tab:", tab.id, "\n ManagedTabs:", btTab.ManagedTabs);
+            if (bgPage.ManagedTabs && bgPage.ManagedTabs.includes(CurrentTab.id)) {
+                ReadOnly = true;
+            }
             chrome.storage.local.get('tags', function(data) {
                 var tagsArray = data.tags;
                 const tags = tagsArray.map(tag => tag.name);
@@ -101,6 +108,11 @@ function popupAction () {
                 chrome.storage.local.get('currentTag', function(data) {
                     input.value = data.currentTag;
                     Defaulted = true;
+                    if (ReadOnly) {
+                        note.value = "This tab is already under BT control";
+                        note.disabled = true;
+                        input.disabled = true;
+                    }
                 });
             });
         }); 
@@ -109,6 +121,7 @@ function popupAction () {
 
 var Defaulted = false;                  // capture whether the tag value was defaulted to window tag
 var KeyCount = 0;
+var ReadOnly = false;                   // capture whether tab is already stored in BT => should not edit here
 popupAction();
 
 newtag.onkeydown = function(e) {
@@ -123,6 +136,7 @@ newtag.onkeydown = function(e) {
 
 function newTagEntered() {
     // handle tag selection
+    if (ReadOnly) return;       // => already a BT node, ignore input
     AwesomeWidget.select();
     note.disabled= false;
     note.value="";
@@ -157,8 +171,14 @@ function tabAdded() {
     const nt = newTag.value;                                     // value from text entry field
     if (nt == "") return;
     const noteText = note.value;
-    const BTTabId = chrome.extension.getBackgroundPage().BTTab;  // extension global for bttab
+    const btTab = chrome.extension.getBackgroundPage();
+    const BTTabId = btTab.BTTab;  // extension global for bttab
     const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
+
+    // Remember this tab is a BT managed tab
+    let mTabs = btTab.ManagedTabs;
+    mTabs.push(CurrentTab.id);
+    btTab.ManagedTabs = mTabs;
     
     // Send msg to BT app for processing w tab and tag info
     chrome.tabs.sendMessage(
