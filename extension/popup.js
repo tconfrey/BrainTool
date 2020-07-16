@@ -43,6 +43,8 @@ function windowOpen() {
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
         storeBTInfo(window.id, window.tabs[0].id);
+        
+        chrome.windows.update(window.id, {'focused' : true});
     });
 }
 

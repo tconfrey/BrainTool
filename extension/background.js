@@ -208,11 +208,12 @@ function openTag(parentId, data) {
 }
 
 function showNode(id) {
-    // Surface the window associated with this node
+    // Surface the window/tab associated with this node
 
     const node = AllNodes[id];
-    if (node && node.windowId && node.tabId) {
+    if (node && node.windowId)
         chrome.windows.update(node.windowId, {'focused' : true});
+    if (node && node.windowId && node.tabId) {
         chrome.tabs.get(node.tabId, function(tab) {
             chrome.tabs.highlight({'windowId' : node.windowId, 'tabs': tab.index});
         });

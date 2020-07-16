@@ -106,7 +106,8 @@ class BTNode {
         if (!node) return;
 
         // recurse to delete children if any
-        node.childIds.forEach(BTNode.deleteNode);
+        const children = [...node.childIds];
+        children.forEach(BTNode.deleteNode);
         
         // Remove from parent
         const parent = AllNodes[node.parentId];
