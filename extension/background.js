@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
             closeNode(msg.nodeId);
         }
         if (msg.msg == 'node_deleted') {
-            deleteNode(msg.nodeId);
+            BTNode.deleteNode(msg.nodeId);
         }
         if (msg.msg == 'show_node') {
             showNode(msg.nodeId);
@@ -151,7 +151,7 @@ function openLink(nodeId, url, tries=1) {
     catch (err) {
         // try refreshing data structures from storage and try again
         if (tries > 3) {
-            alert("Error in BrainTool, try closing main BT window and restarting");
+            alert("Error in BrainTool:[", JSON.stringify(err), "]\nTry closing main BT window and restarting");
             return;
         }
         readyOrRefresh();
@@ -205,20 +205,6 @@ function openTag(parentId, data) {
             }
         });
     }
-}
-            
-                              
-function deleteNode(id) {
-    // node was deleted in BT ui. Just do the housekeeping here
-
-    var node = AllNodes[id];
-    
-    // Remove from parent
-    var parent = AllNodes[node.parentId];
-    if (parent)
-        parent.removeChild(id);
-    
-    delete(AllNodes[id]);
 }
 
 function showNode(id) {

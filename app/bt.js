@@ -817,20 +817,17 @@ function deleteNode(id) {
     //delete node and clean up
     id = parseInt(id);          // could be string value
     const node = AllNodes[id];
-    const isTag = node.isTag();
-
-    // Remove from parent
+    if (!node) return;
+    BTNode.deleteNode(id)       // delete from model. NB handles recusion to children
+    
+    // Update parent display
     const parent = AllNodes[node.parentId];
     if (parent) {
-        parent._btnode.removeChild(id);
         const openKids = $("tr[data-tt-parent-id='"+parent.id+"']").hasClass("opened");
         if (!openKids)
             $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
     }
     
-    // Remove node. NB deleting cos I'm using ID for array index - maybe should have a level of indirection?
-    delete(AllNodes[id]);
-
     // message to update BT background model
     window.postMessage({ type: 'node_deleted', nodeId: id });
     console.count('BT-OUT:node_deleted');

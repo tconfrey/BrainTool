@@ -65,7 +65,7 @@ class BTNode {
     }
 
     static findFromTitle(title) {
-        var n = BTNode.AllBTNodes ? BTNode.AllBTNodes.find(function(node) {
+        var n = AllNodes.length ? AllNodes.find(function(node) {
             return (node && (node.title == title));}) : null;
         return n ? n.id : null;
     }
@@ -97,6 +97,25 @@ class BTNode {
         AllNodes[node].parentId = newP;
         AllNodes[oldP].removeChild(node);
         AllNodes[newP].addChild(node, index);
+    }
+
+    static deleteNode(nodeId) {
+        // Cleanly delete this node
+
+        const node = AllNodes[nodeId];
+        if (!node) return;
+
+        // recurse to delete children if any
+        node.childIds.forEach(deleteNode(nodeId));
+        
+        // Remove from parent
+        const parent = AllNodes[node.parentId];
+        if (parent)
+            parent.removeChild(nodeId);
+
+        delete(BTNode.AllBTNodes[nodeId]);
+        delete(AllNodes[nodeId]);
+    
     }
 }
 
