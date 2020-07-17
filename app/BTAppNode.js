@@ -72,6 +72,14 @@ class BTAppNode {
     get linkChildren() {
         return this._linkChildren;
     }
+    
+    set open(val) {
+        // Track whether node is open (highlighted in tree and w an existing tab
+        this._btnode.open = val;
+    }
+    get open() {
+        return this._btnode.open;
+    }
 
     getURL() {
         return this._btnode.getURL();

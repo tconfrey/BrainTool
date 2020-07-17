@@ -532,11 +532,13 @@ window.addEventListener('message', function(event) {
     case 'tab_opened':
         nodeId = event.data.BTNodeId;
         parentId = event.data.BTParentId;
+        AllNodes[nodeId].open = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         break;
     case 'tab_closed':
         nodeId = event.data.BTNodeId;
+        AllNodes[nodeId].open = false;
         parentId = AllNodes[nodeId] ? AllNodes[nodeId].parentId : 0;
         let parentElt = $("tr[data-tt-id='"+parentId+"']");
 
@@ -604,6 +606,7 @@ function storeTab(tg, tab, note) {
     setTimeout(function() {
         $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
         $("tr[data-tt-id='"+parentNodeId+"']").addClass("opened");
+        newNode.open = true;
         initializeUI();
     }, 5);
 }
@@ -735,10 +738,12 @@ function openRow() {
         openEachWindow(appNode);
     }
     else {
-        // individual link
-        const url = appNode.getURL();
-        window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
-        console.count('BT-OUT:link_click');
+        // individual link, open if not already
+        if (!appNode.open) {
+            const url = appNode.getURL();
+            window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+            console.count('BT-OUT:link_click');
+        }
     }
 
     // close the dialog
@@ -760,7 +765,8 @@ function openEachWindow(node) {
         $("tr[data-tt-id='"+id+"']").find("a").each(function() {
             const url = $(this).attr('href');
             if (url == "#") return;                           // ignore the '...' hover link
-            tabsToOpen.push({'nodeId': id, 'url': url });
+            if (AllNodes[id] && !AllNodes[id].open)           // only open if not already
+                tabsToOpen.push({'nodeId': id, 'url': url });
         });
     });
     

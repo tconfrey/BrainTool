@@ -159,21 +159,18 @@ function openLink(nodeId, url, tries=1) {
     }
 }
 
-function openTag(parentId, data) {
+function openTag(parentId, ary) {
     // passed an array of {nodeId, url} to open in top window
-    var ary = data;
+
     var parentNode = AllNodes[parentId];
     if (!parentNode) return;                                    // shrug
     if (parentNode.windowId) {
-        // for now close and re-open, shoudl be more elegant
-        var win = parentNode.windowId;
-        parentNode.windowId = null;
-        chrome.windows.remove(win, function() {
-            setTimeout(function(){openTag(parentId, data);}, 500); // once more from the top
-        });
+        // open one by one in parent. NB reverse is a bit hooky to address indexInParent when tabs are about to be opened async
+        for (const node of ary.reverse())
+            openLink(node.nodeId, node.url);
     } else {
         // Create array of urls to open
-        var urls = []
+        var urls = [];
         for (var i=0; i<ary.length; i++) {
             urls.push(ary[i].url);
             AllNodes[ary[i].nodeId].url = ary[i].url;
