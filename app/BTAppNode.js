@@ -77,7 +77,6 @@ class BTAppNode {
         return this._btnode.getURL();
     }
 
-    
     displayTag() {
         return this._btnode.displayTag();
     }
@@ -201,6 +200,43 @@ class BTAppNode {
                 return true;
         }
         return false;
+    }
+
+    isOpenableWindow() {
+        // does this node own a window (is not just a link w no kids and not just a parent of non-link nodes
+        const children = this.childIds;
+        if (children.length == 0) return false;
+        for (const id of children) {
+            if (AllNodes[id] && AllNodes[id].getURL() && !AllNodes[id].childIds.length)
+                return true;
+        }
+        return false;
+    }
+    
+    countOpenableTabs() {
+        // used to warn of opening too many tabs
+        let childCounts = this.childIds.map(x => AllNodes[x].countOpenableTabs());
+
+        const me = (this.getURL() && !this.open) ? 1 : 0;
+
+        let n = 0;
+        if (childCounts.length)
+            n = childCounts.reduce((accumulator, currentValue) => accumulator + currentValue);
+        
+        return n + me;
+    }
+
+    countOpenableWindows() {
+        // used to warn of opening too many windows
+        let childCounts = this.childIds.map(x => AllNodes[x].countOpenableWindows());
+
+        const me = this.isOpenableWindow() ? 1 : 0;
+
+        let n = 0;
+        if (childCounts.length)
+            n = childCounts.reduce((accumulator, currentValue) => accumulator + currentValue);
+        
+        return n + me;
     }
 
     static generateTags() {

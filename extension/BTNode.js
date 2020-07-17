@@ -4,6 +4,7 @@ class BTNode {
         this._title = title;
         this._parentId = parentId;
         this._childIds = [];
+        this._open = false;
         if (parentId && BTNode.AllBTNodes[parentId]) {
             BTNode.AllBTNodes[parentId].addChild(id);
         }
@@ -26,6 +27,14 @@ class BTNode {
     }
     get parentId() {
         return this._parentId;
+    }
+
+    set open(val) {
+        // Track whether node is open (highlighted in tree and w an existing tab
+        this._open = val;
+    }
+    get open() {
+        return this._open;
     }
     
     get childIds() {
@@ -63,6 +72,7 @@ class BTNode {
         if (outputStr == "undefined") outputStr = this.getURL(); // if no tag text use url
         return outputStr;
     }
+
 
     static findFromTitle(title) {
         var n = AllNodes.length ? AllNodes.find(function(node) {

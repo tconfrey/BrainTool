@@ -721,6 +721,14 @@ function openRow() {
     const appNode = AllNodes[nodeId];
     if (!appNode) return;
 
+    const numWins = appNode.countOpenableWindows();
+    const numTabs = appNode.countOpenableTabs();
+
+    // Warn if opening lots of stuff
+    if ((numWins > 2) || (numTabs > 20))
+        if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
+            return;
+    
     const num_kids = appNode.childIds.length;
     if (num_kids) {
         // container node handle as such
