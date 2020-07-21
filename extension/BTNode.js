@@ -51,6 +51,14 @@ class BTNode {
         if (index > -1)
             this._childIds.splice(index, 1);
     }
+    allDescendents() {
+        // return an array of all children and all their children etc
+        let ids = [this._id];
+        this.childIds.forEach(function (id) {
+            ids.push(AllNodes[id].allDescendents());
+        });
+        return ids.flat(Infinity);
+    }
 
     getURL() {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
@@ -136,6 +144,13 @@ class BTChromeNode extends BTNode {
         super(id, title, parentId);
         this.tabId = null;
         this.windowId = null;
+    }
+
+    managedTabs(){
+        // return an array of open tab ids for this node and its descendants
+        let nids = this.allDescendents();
+        nids = nids.filter(nid => AllNodes[nid].tabId).map(nid => AllNodes[nid].tabId);
+        return nids;
     }
     
     static findFromTab(tabId) {

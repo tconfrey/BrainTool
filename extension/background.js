@@ -34,6 +34,12 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
             closeNode(msg.nodeId);
         }
         if (msg.msg == 'node_deleted') {
+            // First remove from list of managed tabs
+            let mtabs = AllNodes[msg.nodeId].managedTabs();
+            mtabs.forEach(tabId => {
+                const index = ManagedTabs.indexOf(tabId);
+                if (index !== -1) ManagedTabs.splice(index, 1);
+            });
             BTNode.deleteNode(msg.nodeId);
         }
         if (msg.msg == 'show_node') {
@@ -124,7 +130,6 @@ function openLink(nodeId, url, tries=1) {
                                    node.tabId = tab.id;
                                    ManagedTabs.push(node.tabId);
                                    node.windowId = parentNode.windowId;
-                                   node.url = url;
                                    OpenLinks[node.title] = node.tabId;
                                    chrome.windows.update(node.windowId, {'focused': true});
                                    chrome.tabs.get(node.tabId, function(tab) {
@@ -139,7 +144,6 @@ function openLink(nodeId, url, tries=1) {
                 node.tabId = window.tabs[0].id;
                 ManagedTabs.push(node.tabId);
                 node.windowId = window.id;
-                node.url = url;
                 OpenLinks[node.title] = node.tabId;
             });
         // Send back message that the bt and parent nodes are opened in browser
@@ -166,14 +170,13 @@ function openTag(parentId, ary) {
     if (!parentNode) return;                                    // shrug
     if (parentNode.windowId) {
         // open one by one in parent. NB reverse is a bit hooky to address indexInParent when tabs are about to be opened async
-        for (const node of ary.reverse())
-            openLink(node.nodeId, node.url);
+        for (const elt of ary.reverse())
+            openLink(elt.nodeId, elt.url);
     } else {
         // Create array of urls to open
         var urls = [];
         for (var i=0; i<ary.length; i++) {
             urls.push(ary[i].url);
-            AllNodes[ary[i].nodeId].url = ary[i].url;
         }
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // When done record window in local node store (also need tabs?) and send back message per tab
@@ -188,7 +191,7 @@ function openTag(parentId, ary) {
 
                 // NB tabs might not be loaded at this point, handlePotentialBTNode will catch it later
                 tab = win.tabs.find(function(element) {
-                    return (element && element.url && compareURLs(element.url, AllNodes[id].url));
+                    return (element && element.url && compareURLs(element.url, AllNodes[id].getURL()));
                 });
                 if (!tab) continue;
                 
@@ -283,10 +286,9 @@ function moveTabToTag(tabId, tag) {
     
     // get tab url, then create and store new BT node
     chrome.tabs.get(newTabId, function(tab) {
-        var linkNode = new BTChromeNode(BTNode.topIndex++, tab.url, tagNode.id);
+        var linkNode = new BTChromeNode(BTNode.topIndex++, `[[${tab.url}]]`, tagNode.id);
         linkNode.tabId = newTabId;
         linkNode.windowId = tagNode.windowId;
-	    linkNode.url = tab.url;
         AllNodes[linkNode.id] = linkNode;
         OpenLinks[linkNode.title] = tabId;           // remember this link is open
         
@@ -344,8 +346,8 @@ function compareURLs(first, second) {
     if (first.indexOf("mail.google.com/mail") >= 0) {
         return (first == second);
     } else {        
-        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
-        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/#.*$/, "").replace(/\/$/, "");
+        first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
+        second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
         return (first == second);
     }
 }
@@ -423,7 +425,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         handlePotentialBTNode(url, tab);                    // might be a BTNode opened from elsewhere
         return;
     }
-    if ((!node.url) || compareURLs(node.url, url)) {          // 'same' url so ignore 
+    if ((!node.getURL()) || compareURLs(node.getURL(), url)) {          // 'same' url so ignore 
 	    console.log("Node:" + JSON.stringify(node) + "\nNavigated to url:" + url + "\nSeems ok!");
 	    return;
     }
@@ -442,7 +444,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 // on success open url in new tab,
                 // if error its probably a server redirect url manipulation so capture redirected url
 			    if (chrome.runtime.lastError) {
-                    node.url = url;
+                    node.title = `[[${url}]]`;
                     const err = JSON.stringify(chrome.runtime.lastError.message);
                     console.log("BT Failed to go back: " + err) ;
                 }
@@ -586,7 +588,6 @@ function handlePotentialBTNode(url, tab) {
     }
     
     node.tabId = tabId;
-    node.url = url;
     OpenLinks[node.title] = node.tabId;
     ManagedTabs.push(tabId);
 
