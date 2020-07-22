@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         }
         break;
     case 'popup':
-        if (msg.msg == 'moveTab') {
+        if (msg.msg == 'move_tab') {
             const [tag, parent, keyword] = BTNode.processTagString(msg.tag);
             var tabNode = BTChromeNode.findFromTab(msg.tabId);         // Is this tab already a BTNode?
             if (tabNode) {                                             // if so duplicate
@@ -504,15 +504,16 @@ function setBadgeTab(windowId, tabId) {
         return;
     }
     
-    let openChildren = 0, btTab = node.tabId == tabId;
+    let openChildren = 0;
+    let isBTTab = (node.tabId == tabId);
     let countsAsKid = node.childIds.slice();
     countsAsKid.push(node.id);
     for (const cid of countsAsKid) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
-        if (AllNodes[cid].tabId == tabId) btTab = true;
+        if (AllNodes[cid].tabId == tabId) isBTTab = true;
     }
     const displayName = node.displayTag();
-    if (btTab) { // One of ours, green highlight and Tag text
+    if (isBTTab) { // One of ours, green highlight and Tag text
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
         chrome.browserAction.setBadgeText({'text' : displayName.substring(0,3),
                                            'tabId' : tabId});

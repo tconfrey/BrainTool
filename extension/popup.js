@@ -33,17 +33,23 @@ function storeBTInfo(winId, tabId, tries = 0) {
     
 function windowOpen() {
     // Called on first click on header button, create the BT panel window
+
+    // First check for existing BT Tab - this would be an error condition or after an Extension restart.
+    // Either way best thing is to kill it and start fresh.
+    chrome.tabs.query({title: "BrainTool Chrome Extension"},
+                      (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
+
+    // Create window, remember it and highlight it
     var wargs = {
-//        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
-        'url' : "https://BrainTool.org/app", 
+        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+//        'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
-        'width' : 500, 'height' : 1100 
+        'width' : 500, 'height' : 1100
     };
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
         storeBTInfo(window.id, window.tabs[0].id);
-        
         chrome.windows.update(window.id, {'focused' : true});
     });
 }
@@ -190,7 +196,7 @@ function tabAdded() {
             if (rsp)        // Send msg to background to perform move (cos this script ends when looses focus)
                 chrome.runtime.sendMessage({
                     from: 'popup',
-                    msg: 'moveTab',
+                    msg: 'move_tab',
                     tabId: CurrentTab.id,
                     tag: nt
                 });
