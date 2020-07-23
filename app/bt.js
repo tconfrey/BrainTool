@@ -253,6 +253,7 @@ function refreshTable() {
     BTNode.AllBTNodes = [];
 
     // Remember window opened state to repopulate later
+    OpenedNodes = [];
     $("tr.opened").each(function() {
         var id = $(this).attr("data-tt-id");
         var node = AllNodes[id];

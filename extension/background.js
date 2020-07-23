@@ -213,9 +213,9 @@ function showNode(id) {
     const node = AllNodes[id];
     if (node && node.windowId)
         chrome.windows.update(node.windowId, {'focused' : true});
-    if (node && node.windowId && node.tabId) {
+    if (node && node.tabId) {
         chrome.tabs.get(node.tabId, function(tab) {
-            chrome.tabs.highlight({'windowId' : node.windowId, 'tabs': tab.index});
+            chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index});
         });
     }
 }
