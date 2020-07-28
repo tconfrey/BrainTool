@@ -90,7 +90,7 @@ class BTAppNode {
     }
     
     HTML() {
-        // Generate HTML for this table row
+        // Generate HTML for this nodes table row
         var outputHTML = "";
         outputHTML += `<tr data-tt-id='${this._btnode.id}`;
         if (this._btnode.parentId || this._btnode.parentId === 0) outputHTML += `' data-tt-parent-id='${this._btnode.parentId}`;
@@ -166,7 +166,7 @@ class BTAppNode {
     static _displayTextVersion(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
-        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        const regexStr = "\\[\\[(http.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
         let hits;
         let outputStr = txt;
@@ -278,4 +278,10 @@ class BTLinkNode extends BTAppNode {
             return super.orgTextwChildren(); // call function on super class to write out,
         return "";
     }
+
+    HTML() {
+        // only generate an HTML node for non file: links (file links pulled in from org won't work in the context of the browser)
+        if (this.getURL().indexOf('file://') >= 0)
+            return super.HTML();
+        return "";
 }   
