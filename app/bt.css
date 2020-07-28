@@ -95,3 +95,8 @@ img.close-icon {
     border-color: #AAA;
     border-radius: 4px;
 }                    
+
+.file-link {
+    padding-left: .2em;
+    background-color: #cec;
+}
