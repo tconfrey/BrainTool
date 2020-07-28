@@ -166,13 +166,16 @@ class BTAppNode {
     static _displayTextVersion(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
-        const regexStr = "\\[\\[(http.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
         let hits;
         let outputStr = txt;
         while (hits = reg.exec(outputStr)) {
             const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
-            outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
+            if (hits[1].indexOf('file://') >= 0)
+                outputStr = outputStr.substring(0, hits.index) + "<span class='file-link'>" + h2 + "</span>" + outputStr.substring(hits.index + hits[0].length);
+            else                
+                outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
         }
         return outputStr;
     }
