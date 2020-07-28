@@ -128,7 +128,7 @@ table.treetable span.btTitle {
     padding-left: 0px;
 }
 table.treetable tr.hovered {
-    background-color: #aca;
+    background-color: #7bb07b; /* #aca; */
 }
 
 table.treetable tr.dropTarget {

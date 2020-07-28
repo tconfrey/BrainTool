@@ -1,6 +1,6 @@
 
 #button {
-    background-color: #aca; /* #cec; */
+    background-color: #7bb07b; /* #cec; #aca */
     position: absolute;
     z-index: 1000;
     padding-left: 10px;
@@ -48,7 +48,7 @@ button {
 
 button:not([disabled]):hover {
     color: #222;
-    background-color: #ACA;
+    background-color: #7bb07b; /* #ACA; */
 }
     
 #refresh {
@@ -86,7 +86,7 @@ img.close-icon {
 }
     
 #menu_button {
-    background-color: #ACA;
+    background-color: #7bb07b; /* #ACA; */
 }
 
 #auth_menu {
