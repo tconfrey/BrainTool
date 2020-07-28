@@ -284,4 +284,5 @@ class BTLinkNode extends BTAppNode {
         if (this.getURL().indexOf('file://') >= 0)
             return super.HTML();
         return "";
-}   
+    }
+}
