@@ -288,4 +288,10 @@ class BTLinkNode extends BTAppNode {
             return super.HTML();
         return "";
     }
+    
+    displayTag() {
+        // No display tag for linknodes cos they should never be a tag
+        return "";
+    }
 }
+
