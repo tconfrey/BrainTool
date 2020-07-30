@@ -59,7 +59,7 @@ function orgaLinkOrgText(node) {
 function orgaText(orgnode, containingNode) {
     // generate text from orga headline or para node. Both can contain texts and links
     // NB also pulling out any keywords (TODO, DONE etc) for display
-    let linkTitle, node, btString = "";
+    let linkTitle, node, lnkNode, btString = "";
     for (const orgaChild of orgnode.children) {
         if (orgaChild.type == "text") {
             btString += orgaChild.value;
@@ -67,12 +67,13 @@ function orgaText(orgnode, containingNode) {
         if (orgaChild.type == "link") {
             linkTitle = orgaLinkOrgText(orgaChild);
             btString += linkTitle;
-            containingNode.linkChildren = true;                 // remember so we can determine display state
+            if (orgaChild.uri.protocol.match('http'))
+                containingNode.linkChildren = true;                 // remember so we can determine display state
 
             if (orgnode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
                 node = new BTNode(BTNode.topIndex++, linkTitle, containingNode.id);
-                new BTLinkNode(node, "", containingNode.level+1);
+                lnkNode = new BTLinkNode(node, "", containingNode.level+1, orgaChild.uri.protocol);
             }
         }
     }

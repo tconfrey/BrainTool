@@ -848,11 +848,11 @@ function deleteRow() {
     const nodeId = $(tr).attr('data-tt-id');
     const appNode = AllNodes[nodeId];
     if (!appNode) return false;
-    const kids = appNode.childIds.length;
+    const kids = appNode.childIds.length && appNode.isTag(); // Tag determines non link kids
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete all?')) {
-        $("table.treetable").treetable("removeNode", nodeId);               // Remove from UI and treetable
+        $("table.treetable").treetable("removeNode", nodeId);          // Remove from UI and treetable
         $("#dialog")[0].close();
         deleteNode(nodeId);
     }   

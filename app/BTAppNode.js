@@ -292,10 +292,19 @@ class BTAppNode {
 
 class BTLinkNode extends BTAppNode {
     // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
-    constructor(id, title, text, level, parentId) {
-        super(id, title, text, level, parentId);
-        this._linkChildren = true;   // by definition
+    constructor(btnode, text, level, protocol) {
+        super(btnode, text, level);
+        this._protocol = protocol;
+        this._linkChildren = protocol.match('http') ? true : false;
     }
+    
+    set protocol(ptxt) {
+        this._protocol = ptxt;
+    }
+    get protocol() {
+        return this._protocol;
+    }
+
     orgTextwChildren() {
         // only generate org text for links with added descriptive text
         if (this._text.length)
@@ -304,8 +313,9 @@ class BTLinkNode extends BTAppNode {
     }
 
     HTML() {
-        // only generate an HTML node for non file: links (file links pulled in from org won't work in the context of the browser)
-        if (this.getURL().indexOf('file://') >= 0)
+        // only generate an HTML node for http[s]: links
+        // other links (eg file:) pulled in from org won't work in the context of the browser
+        if (this.protocol.match('http'))
             return super.HTML();
         return "";
     }
