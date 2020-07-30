@@ -52,19 +52,6 @@ function orgaDrawers(node) {
     return drawers;
 }
 
-function orgaFolded(node) {
-    // Look for org mode drawer w VISIBILITY property for folded state
-    var orgaChild;
-    for (var i = 0; i < node.children.length; i++) {
-        orgaChild = node.children[i];
-        if (orgaChild.type == "drawer" && orgaChild.name == "PROPERTIES" && orgaChild.value) {
-            if (orgaChild.value.match(/:VISIBILITY:\s*folded/g))
-                return true;
-        }
-    }
-    return false;
-}
-
 function orgaLinkOrgText(node) {
     return "[[" + node.uri.raw + "][" + node.desc + "]]";
 }
@@ -91,28 +78,3 @@ function orgaText(orgnode, containingNode) {
     }
     return btString;
 }
-
-/*
-
-function summarizeText(txtsAry) {
-    // generate shorter version when needed
-    var lnkLen = txtsAry.reduce(function(acc, cv) { return acc + (cv.desc ? cv.desc.length : 0);}, 0);
-    var txtCount = txtsAry.reduce(function(acc, cv) { return acc + (cv.desc ? 0 : 1);}, 0);
-    var max = 150;
-    var nonLnk = 150 - lnkLen;
-    var txtLen = parseInt(nonLnk / txtCount);
-    var out = "";
-    txtsAry.forEach(function(e) {
-        if (e.desc) out += e.txt;       // link
-        else {
-            if (e.txt.length <= txtLen) out += e.txt;
-            else {
-                var end = txtLen        // walk up to next space before chopping
-                while ((e.txt[end++] !== ' ') && (end < e.txt.length)) {};
-                out += e.txt.substring(0,end) + "<span class='elipse'>... </span>";
-            }
-        }
-    });
-    return out;
-}
-*/

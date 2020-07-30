@@ -71,7 +71,7 @@ window.addEventListener('message', function(event) {
             msg: 'show_node',
             nodeId: event.data.nodeId
         });
-        console.count('Content-OUT:node_deleted');
+        console.count('Content-OUT:show_node');
         break;
     case 'LOCALTEST':
         // pass on

@@ -12,6 +12,8 @@ var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
 
+var ButtonRowHTML; 
+
 var tipsArray = [
     "Type ':' when selecting a tag to add a subtag.",
     "Double click on a table row to highlight its open window, if any.",
@@ -403,6 +405,16 @@ function initializeUI() {
     // Hide loading notice and show refresh button
     $("#loading").hide();
     $("#refresh").show();
+
+    // Copy buttonRow's html for potential later recreation (see below)
+    ButtonRowHTML = $("#buttonRow")[0].outerHTML;
+}
+
+function reCreateButtonRow() {
+    // For some unknown reason very occasionally the buttonRow div gets lost/deleted
+    console.log("RECREATING BUTTONROW!!");
+    const $ButtonRowHTML = $(ButtonRowHTML);
+    $ButtonRowHTML.appendTo($("#dialog"))
 }
 
 function dragStart(event, ui) {
@@ -643,9 +655,15 @@ function buttonShow() {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
     const td = $(this).find(".right")
-    $("#button").detach().appendTo($(td));
+
+    if ($("#buttonRow").index() < 0) {
+        // Can't figure out how sometimes after a Drag/drop the element is deleted
+        reCreateButtonRow();
+    }
+    
+    $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset();
-    $("#button").offset({top: offset.top});
+    $("#buttonRow").offset({top: offset.top});
     if ($(this).hasClass("opened")){
         $("#expand").hide();
         $("#collapse").show();
@@ -661,14 +679,14 @@ function buttonShow() {
         if (notOpenKids && notOpenKids.length)
             $("#expand").show();
     }
-    $("#button").show();
+    $("#buttonRow").show();
 }
 
 function buttonHide() {
     // hide button to perform row operations, triggered on exit    
     $(this).removeClass("hovered");
-    $("#button").hide();
-    $("#button").detach().appendTo($("#dialog"));
+    $("#buttonRow").hide();
+    $("#buttonRow").detach().appendTo($("#dialog"));
 }
 
 $("#edit").click(function(e) {
@@ -697,7 +715,7 @@ $("#popup").click(function(e) {
     {
         $("#dialog")[0].close();
         $("tr.selected").removeClass('selected');
-        $("#button").show(100);
+        $("#buttonRow").show(100);
     }
 });
 
