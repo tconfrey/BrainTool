@@ -29,6 +29,13 @@ class BTAppNode {
     get level() {
         return this._level;
     }
+    resetLevel(l) {
+        // after a ui drag/drop need to reset level under new parent
+        this.level = l;
+        this.childIds.forEach(childId => {
+            AllNodes[childId].resetLevel(l-1);
+        });
+    }
     get parentId() {
         return this._btnode.parentId;
     }
@@ -248,6 +255,20 @@ class BTAppNode {
             n = childCounts.reduce((accumulator, currentValue) => accumulator + currentValue);
         
         return n + me;
+    }
+
+    static reparentNode(newP, node, index = -1) {
+        // move node from pre parent to new one, optional positional order
+        
+        const oldP = AllNodes[node].parentId;
+        if (!oldP) return;      // top level node, no need to reparent 
+        AllNodes[node].parentId = newP;
+        AllNodes[oldP].removeChild(node);
+        AllNodes[newP].addChild(node, index);
+        // Update nesting level as needed (== org *** nesting)
+        const newLevel = AllNodes[newP].level + 1;
+        if (AllNodes[node].level != newLevel)
+            AllNodes[node].resetLevel(newLevel);
     }
 
     static generateTags() {

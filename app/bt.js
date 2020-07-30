@@ -447,7 +447,7 @@ function dropNode(event, ui) {
         // First set the correct parentage, model then tree
         const nodeIndex = $(dropBelow).index();
         const parentIndex = $(dropParent).index();
-        BTNode.reparentNode(dropParentId, dragNodeId, nodeIndex - parentIndex);
+        BTAppNode.reparentNode(dropParentId, dragNodeId, nodeIndex - parentIndex);
         treeTable.treetable("move", dragNodeId, dropParentId);
         
         // Then move to correct position under parent and update file

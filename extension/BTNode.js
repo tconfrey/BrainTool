@@ -108,16 +108,6 @@ class BTNode {
         return [tag, null, null];
     }
 
-    static reparentNode(newP, node, index = -1) {
-        // move node from pre parent to new one, optional positional order
-        
-        const oldP = AllNodes[node].parentId;
-        if (!oldP) return;      // top level node, no need to reparent 
-        AllNodes[node].parentId = newP;
-        AllNodes[oldP].removeChild(node);
-        AllNodes[newP].addChild(node, index);
-    }
-
     static deleteNode(nodeId) {
         // Cleanly delete this node
 
