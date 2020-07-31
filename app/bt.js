@@ -911,6 +911,11 @@ function updateRow() {
     // Update File 
     writeBTFile();
 
+    // Update extension
+    BTAppNode.generateTags();
+    window.postMessage({ type: 'tags_updated', text: Tags});
+    console.count('BT-OUT:tags_updated');
+
     // reset ui
     $("#dialog")[0].close();
     $("tr.selected").removeClass('selected');
