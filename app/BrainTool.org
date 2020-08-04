@@ -147,10 +147,7 @@ health portal
 * Homepage
 
 * ToRead
-Maybe also create a WasRead w summary after reading?
-
-** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
-Google paper
+Potentially move to Reference after reading
 
 ** [[https://techcrunch.com/2019/08/27/why-one-app-to-rule-them-all-is-not-the-future-of-digital-health/][Why one app to rule them all is not the future of digital health | TechCrunch]]
 
@@ -162,6 +159,10 @@ Google paper
 
 ** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
 podcast interview
+
+* Reference
+** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
+Google paper on predicting outcomes from health records
 
 * XYZ Project
   :PROPERTIES:

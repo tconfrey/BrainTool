@@ -86,6 +86,9 @@ class BTAppNode {
     get open() {
         return this._btnode.open;
     }
+    hasOpenChildren() {
+        return this.childIds.some(id => AllNodes[id].open);
+    }
 
     getURL() {
         return this._btnode.getURL();

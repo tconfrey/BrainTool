@@ -400,7 +400,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
         BTTab,
         {'type': 'tab_closed', 'BTNodeId': node.id});
 
-    if (node.childIds.length)          // if this is a parent node w link then its its own window
+    if (node.isTag())          // if this is a parent node w link then its its own window
         parentUpdate(node.id);
     else
         parentUpdate(node.parentId);
@@ -568,7 +568,7 @@ function handlePotentialBTNode(url, tab) {
         return;
     }
     // 'parentNode' is the tagged node w dedicated window. Could be node if it has a url
-    const parentNode = (node.childIds.length) ? node : AllNodes[node.parentId] || node;
+    const parentNode = (node.isTag()) ? node : AllNodes[node.parentId] || node;
     if (parentNode.windowId) {
         // move tab to parent
         const index = indexInParent(node.id);
