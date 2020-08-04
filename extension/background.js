@@ -119,7 +119,7 @@ function openLink(nodeId, url, tries=1) {
 
         // if this node *is* a parentNode or if no parent (ie top level) open as its own window
         var parentNode = AllNodes[node.parentId];
-        if (node.childIds.length || !parentNode) parentNode = node;
+        if (node.isTag() || !parentNode) parentNode = node;
 
         var index = (parentNode === node) ? 0 : indexInParent(nodeId);
         if (parentNode.windowId)

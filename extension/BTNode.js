@@ -5,6 +5,7 @@ class BTNode {
         this._parentId = parentId;
         this._childIds = [];
         this._open = false;
+        this._hasWebLinks = false;
         if (parentId && BTNode.AllBTNodes[parentId]) {
             BTNode.AllBTNodes[parentId].addChild(id);
         }
@@ -37,6 +38,13 @@ class BTNode {
         return this._open;
     }
     
+    set hasWebLinks(bool) {
+        this._hasWebLinks = bool;
+    }
+    get hasWebLinks() {
+        return this._hasWebLinks;
+    }
+
     get childIds() {
         return this._childIds;
     }
@@ -60,9 +68,16 @@ class BTNode {
         return ids.flat(Infinity);
     }
 
+    isTag() {
+        // Is this node used as a tag => has webLink children
+        return this.childIds.some(id => AllNodes[id].hasWebLinks);
+    }
+            
+
     getURL() {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
-        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        // nb only find http urls, purposely ignore file: links
+        const regexStr = "\\[\\[(http.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
         const hits  = reg.exec(this._title);
         return hits ? hits[1] : "";        

@@ -5,7 +5,6 @@ class BTAppNode {
         this._btnode = btnode;
         this._text = text;
         this._level = level;
-        this._linkChildren = false;
         this._folded = false;
         this._keyword = null;
         this.drawers = {};
@@ -73,11 +72,11 @@ class BTAppNode {
         return this._folded;
     }
 
-    set linkChildren(bool) {
-        this._linkChildren = bool;
+    set hasWebLinks(bool) {
+        this._btnode.hasWebLinks = bool;
     }
-    get linkChildren() {
-        return this._linkChildren;
+    get hasWebLinks() {
+        return this._btnode.hasWebLinks;
     }
     
     set open(val) {
@@ -210,25 +209,7 @@ class BTAppNode {
 
     isTag() {
         // Logic to decide if this node can be used to tag web pages => is it a parent of nodes w links
-        if (!this.linkChildren) return false;
-        const children = this.childIds;
-        if (children.length == 0) return false;
-        for (const id of children) {
-            if (AllNodes[id] && AllNodes[id].linkChildren)
-                return true;
-        }
-        return false;
-    }
-
-    isOpenableWindow() {
-        // does this node own a window (is not just a link w no kids and not just a parent of non-link nodes
-        const children = this.childIds;
-        if (children.length == 0) return false;
-        for (const id of children) {
-            if (AllNodes[id] && AllNodes[id].getURL() && !AllNodes[id].childIds.length)
-                return true;
-        }
-        return false;
+        return this._btnode.isTag();
     }
     
     countOpenableTabs() {
@@ -248,7 +229,7 @@ class BTAppNode {
         // used to warn of opening too many windows
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableWindows());
 
-        const me = this.isOpenableWindow() ? 1 : 0;
+        const me = this._btnode.isTag() ? 1 : 0;
 
         let n = 0;
         if (childCounts.length)
@@ -295,7 +276,7 @@ class BTLinkNode extends BTAppNode {
     constructor(btnode, text, level, protocol) {
         super(btnode, text, level);
         this._protocol = protocol;
-        this._linkChildren = protocol.match('http') ? true : false;
+        this.hasWebLinks = protocol.match('http') ? true : false;
     }
     
     set protocol(ptxt) {

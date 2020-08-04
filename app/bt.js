@@ -283,7 +283,7 @@ function generateTable() {
     // Generate table from BT Nodes
     var outputHTML = "<table>";
     AllNodes.forEach(function(node) {
-        if (!node || !node.linkChildren) return;
+        if (!node || !node.hasWebLinks) return;
         outputHTML += node.HTML();
     });
     outputHTML += "</table>";
@@ -327,7 +327,7 @@ function processBTFile(fileText) {
 
     // set collapsed state as per org data
     AllNodes.forEach(function(node) {
-        if (node && node.folded && node.linkChildren) // NB no linkChildren => not displayed in tree
+        if (node && node.folded && node.hasWebLinks) // NB no weblinks => not displayed in tree
             tab.treetable("collapseNode", node.id);
     });
 
@@ -612,7 +612,7 @@ function storeTab(tg, tab, note) {
 
     const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
     const newNode = new BTAppNode(newBTNode, note || "", parentNode.level + 1);
-    newNode.linkChildren = true;                                  // since we're adding a link to the stored tab
+    newNode.hasWebLinks = true;                                  // since we're adding a link to the stored tab
     if (keyword) newNode.keyword = keyword;
 
     const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
@@ -643,7 +643,7 @@ function addNewTag(tag, parent) {
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
     const newBTNode = new BTNode(BTNode.topIndex++, tag, parentTagId);
     const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
-    newNode.linkChildren = true;
+    newNode.hasWebLinks = true;
 
     const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
     $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree

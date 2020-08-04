@@ -32,7 +32,7 @@ function orgaSection(section, parentAppNode) {
         }
         if (orgaChild.type == "section") {
             var childAppNode = orgaSection(orgaChild, appNode);
-            if (childAppNode.linkChildren) appNode.linkChildren = true;    // determines display state
+            if (childAppNode.hasWebLinks) appNode.hasWebLinks = true;    // determines display state
         }
     }
     appNode.text = allText;
@@ -68,7 +68,7 @@ function orgaText(orgnode, containingNode) {
             linkTitle = orgaLinkOrgText(orgaChild);
             btString += linkTitle;
             if (orgaChild.uri.protocol.match('http'))
-                containingNode.linkChildren = true;                 // remember so we can determine display state
+                containingNode.hasWebLinks = true;                 // remember so we can determine display state
 
             if (orgnode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
