@@ -1,15 +1,16 @@
 class BTNode {
-    constructor(id, title, parentId) {
-        this._id = id;
+    constructor(title, parentId = null) {
+        this._id = BTNode.topIndex++;
         this._title = title;
         this._parentId = parentId;
+        this._URL = BTNode.URLFromTitle(title);
+	    this._displayTag = BTNode.displayTagFromTitle(title);
         this._childIds = [];
-        this._open = false;
-        this._hasWebLinks = false;
-        if (parentId && BTNode.AllBTNodes[parentId]) {
-            BTNode.AllBTNodes[parentId].addChild(id);
+        this._isOpen = false;
+        if (parentId && AllNodes[parentId]) {
+            AllNodes[parentId].addChild(this._id);
         }
-        BTNode.AllBTNodes[id] = this;
+        AllNodes[this._id] = this;
     }
 
     get id() {
@@ -18,9 +19,17 @@ class BTNode {
     
     set title(ttl) {
         this._title = ttl;
+        this._URL = BTNode.URLFromTitle(ttl);         // regenerate URL when title is changed
+	    this._displayTag = BTNode.displayTagFromTitle(ttl);
     }
     get title() {
         return this._title;
+    }
+    get URL() {
+        return this._URL;
+    }
+    get displayTag() {
+	return this._displayTag;
     }
 
     set parentId(i) {
@@ -30,19 +39,18 @@ class BTNode {
         return this._parentId;
     }
 
-    set open(val) {
+    set isOpen(val) {
         // Track whether node is open (highlighted in tree and w an existing tab
-        this._open = val;
+        this._isOpen = val;
     }
-    get open() {
-        return this._open;
+    get isOpen() {
+        return this._isOpen;
     }
-    
-    set hasWebLinks(bool) {
-        this._hasWebLinks = bool;
-    }
+
     get hasWebLinks() {
-        return this._hasWebLinks;
+	    // Calculate on demand since it may change based on node creation/deletion
+	    if (this.URL) return true;
+	    return this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
 
     get childIds() {
@@ -69,30 +77,24 @@ class BTNode {
     }
 
     isTag() {
-        // Is this node used as a tag => has webLink children
+        // Is this node used as a tag => has webLinked children
         return this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
             
 
-    getURL() {
+    static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
         // nb only find http urls, purposely ignore file: links
         const regexStr = "\\[\\[(http.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
-        const hits  = reg.exec(this._title);
+        const hits  = reg.exec(title);
         return hits ? hits[1] : "";        
     }
 
-    displayTag() {
-        // Visible tag for this node
-        var regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        var reg = new RegExp(regexStr, "mg");
-        var hits;
-        var outputStr = this._title;
-        while (hits = reg.exec(outputStr)) {
-            outputStr = outputStr.substring(0, hits.index) + hits[2] + outputStr.substring(hits.index + hits[0].length);
-        }
-        if (outputStr == "undefined") outputStr = this.getURL(); // if no tag text use url
+    static displayTagFromTitle(title) {
+        // Visible tag for this node. Pull tags out, use url if no tag
+        let outputStr = title.replace(/\[\[(.*?)\]\[(.*?)\]\]/gm, (match, $1, $2) =>
+				      {return $2 || $1;});
         return outputStr;
     }
 
@@ -102,8 +104,14 @@ class BTNode {
             return (node && (node.title == title));}) : null;
         return n ? n.id : null;
     }
-    static AllBTNodes = [];          // track all instances
-    static topIndex = 1;             // track the index of the next node to create, static class variable.
+
+    static reset() {
+        // Called when reloading nodes etc
+        AllNodes = [];
+        BTNode.topIndex = 1;
+    }
+    
+    static topIndex = 1;    // track the index of the next node to create, static class variable.
 
     
     static processTagString(tag) {
@@ -138,7 +146,6 @@ class BTNode {
         if (parent)
             parent.removeChild(nodeId);
 
-        delete(BTNode.AllBTNodes[nodeId]);
         delete(AllNodes[nodeId]);
     
     }
@@ -146,12 +153,29 @@ class BTNode {
 
 class BTChromeNode extends BTNode {
     // Node as seen by the extension. Knows about tabs and window ids
-    constructor(id, title, parentId) {
-        super(id, title, parentId);
-        this.tabId = null;
-        this.windowId = null;
+
+    constructor(bnode) {
+	// Trivial ctor and 'assign' allow us to clone the base node created on the app side while adding new ChromeNode behavior.
+	    super(''); Object.assign(this, bnode);
+        this._tabId = null;
+        this._windowId = null;
+        AllNodes[this._id] = this;
     }
 
+    get tabId() {
+	    return this._tabId;
+    }
+    set tabId(id) {
+	    this._tabId = id;
+    }
+
+    get windowId() {
+	    return this._windowId;
+    }
+    set windowId(id) {
+	    this._windowId = id;
+    }
+    
     managedTabs(){
         // return an array of open tab ids for this node and its descendants
         let nids = this.allDescendents();
@@ -186,7 +210,7 @@ class BTChromeNode extends BTNode {
         // Does url belong to an existing BTChromeNode?
         var n = AllNodes ?
             AllNodes.find(function(node) {
-                return (node && compareURLs(node.getURL(), url));})
+                return (node && compareURLs(node.URL, url));})
             :
             null;
         return n;

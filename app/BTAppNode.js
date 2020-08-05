@@ -9,7 +9,7 @@ class BTAppNode {
         this._keyword = null;
         this.drawers = {};
         this.tags = [];
-        AllNodes[btnode.id] = this;
+        AllNodes[this._btnode.id] = this;
     }
 
     get id() {
@@ -35,6 +35,21 @@ class BTAppNode {
             AllNodes[childId].resetLevel(l-1);
         });
     }
+    get keyword() {
+        return this._keyword;
+    }
+    set keyword(kw) {
+	    this._keyword = kw;
+    }
+
+    set folded(f) {
+        this._folded = f;
+    }
+    get folded() {
+        return this._folded;
+    }
+
+    // These functions just pass thru to contained btnode
     get parentId() {
         return this._btnode.parentId;
     }
@@ -45,16 +60,9 @@ class BTAppNode {
         return this._btnode.title;
     }
     set title(ttl) {
-	this._btnode.title = ttl;
-    }
-    get keyword() {
-        return this._keyword;
-    }
-    set keyword(kw) {
-	    this._keyword = kw;
+	    this._btnode.title = ttl;
     }
 
-    // Child functions just pass thru to contained btnode
     get childIds() {
         return this._btnode.childIds;
     }
@@ -65,37 +73,34 @@ class BTAppNode {
         this._btnode.removeChild(id);
     }
     
-    set folded(f) {
-        this._folded = f;
-    }
-    get folded() {
-        return this._folded;
-    }
-
-    set hasWebLinks(bool) {
-        this._btnode.hasWebLinks = bool;
-    }
     get hasWebLinks() {
         return this._btnode.hasWebLinks;
     }
     
-    set open(val) {
+    set isOpen(val) {
         // Track whether node is open (highlighted in tree and w an existing tab
-        this._btnode.open = val;
+        this._btnode.isOpen = val;
     }
-    get open() {
-        return this._btnode.open;
+    get isOpen() {
+        return this._btnode.isOpen;
     }
+
+    get URL() {
+        return this._btnode.URL;
+    }
+
+    get displayTag() {
+        return this._btnode.displayTag;
+    }
+    isTag() {
+        // Can this node can be used to tag web pages => is it a parent of nodes w links
+        return this._btnode.isTag();
+    }
+
+
+    // And other AppNode behavior
     hasOpenChildren() {
-        return this.childIds.some(id => AllNodes[id].open);
-    }
-
-    getURL() {
-        return this._btnode.getURL();
-    }
-
-    displayTag() {
-        return this._btnode.displayTag();
+        return this.childIds.some(id => AllNodes[id].isOpen);
     }
     
     HTML() {
@@ -209,17 +214,12 @@ class BTAppNode {
         if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
         return txt + BTAppNode._displayTextVersion(this._btnode.title);
     }
-
-    isTag() {
-        // Logic to decide if this node can be used to tag web pages => is it a parent of nodes w links
-        return this._btnode.isTag();
-    }
     
     countOpenableTabs() {
         // used to warn of opening too many tabs
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableTabs());
 
-        const me = (this.getURL() && !this.open) ? 1 : 0;
+        const me = (this.URL && !this.isOpen) ? 1 : 0;
 
         let n = 0;
         if (childCounts.length)
@@ -261,12 +261,12 @@ class BTAppNode {
         Tags = new Array();
         for (const node of AllNodes) {
             if (node && node.isTag())
-                Tags.push({'name' : node.displayTag(), 'level' : node.level});
+                Tags.push({'name' : node.displayTag, 'level' : node.level});
         }
     }
     
     static findFromTag(tag) {
-        var n = AllNodes.find(node => (node && (node.displayTag() == tag)));
+        var n = AllNodes.find(node => (node && (node.displayTag == tag)));
         return n ? n.id : null;
     }
 
@@ -279,7 +279,6 @@ class BTLinkNode extends BTAppNode {
     constructor(btnode, text, level, protocol) {
         super(btnode, text, level);
         this._protocol = protocol;
-        this.hasWebLinks = protocol.match('http') ? true : false;
     }
     
     set protocol(ptxt) {
@@ -304,7 +303,7 @@ class BTLinkNode extends BTAppNode {
         return "";
     }
     
-    displayTag() {
+    get displayTag() {
         // No display tag for linknodes cos they should never be a tag
         return "";
     }

@@ -1,6 +1,44 @@
 window.LOCALTEST = true;
 QUnit.config.reorder = false;
 
+QUnit.module("BTNode tests", function() {
+
+    QUnit.begin(function() {
+        console.log("BTNode tests. Set up goes here");
+    });
+
+    QUnit.test("First Test", function(assert) {
+        assert.equal(4, 2+2, "Adding looks ok");
+    });
+
+    QUnit.test("Basic BTNode Tests", function(assert) {
+        const node1 = new BTNode("[[https://testing/1/2/3][Test Node]]");
+        assert.equal (node1.URL, "https://testing/1/2/3", "getURL");
+        const node2 = new BTNode("[[file:file.org][Test Node]]", node1.id);
+        assert.equal (node2.URL, "", "getURL w file:");
+        assert.equal (node2.id, 2, "Ids managed ok");
+        assert.equal (node2.parentId, 1, "parent hooked up ok");
+        assert.deepEqual (node1.childIds, [2], "child hooked up ok");
+	    assert.equal (node2.displayTag, "Test Node", "display Tag ok");
+	
+	    node2.title = "Pre [[https://testing/1/2/3][Test Node2]] and [[foo][bar]]";
+	    assert.equal (node2.displayTag, "Pre Test Node2 and bar", "display Tag updated ok");
+	    
+	    node2.title = "Pre [[https://testing/1/2/3][]]";
+	    assert.equal (node2.displayTag, "Pre https://testing/1/2/3", "display Tag defaults ok");
+    });
+
+    QUnit.test("Functional BTNode Tests", function(assert) {
+	    const n1 = new BTNode("Top Level");
+	    const n2 = new BTNode("Second Level", n1.id);
+	    const n3 = new BTNode("[[file:somefile][file link]] blah", n2.id);
+	    const n4 = new BTNode("[[http://google.com][goog]] also blah", n2.id);
+	    assert.notOk (n3.hasWebLinks, "file: links are not web links");
+	    assert.ok (n4.hasWebLinks, "http links are web links");
+	    assert.ok ((n1.hasWebLinks && n2.hasWebLinks), "weblinkage bubbles up to ancestors");
+    });
+});
+                
 
 QUnit.module("App tests", function() {
 

@@ -11,7 +11,7 @@ function parseBTFile(fileText) {
 
 function orgaSection(section, parentAppNode) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    const node = new BTNode(BTNode.topIndex++, "", parentAppNode ? parentAppNode.id : null);
+    const node = new BTNode("", parentAppNode ? parentAppNode.id : null);
     const appNode = new BTAppNode(node, "", 0);
     let allText = "";
     for (const orgaChild of section.children) {
@@ -32,7 +32,6 @@ function orgaSection(section, parentAppNode) {
         }
         if (orgaChild.type == "section") {
             var childAppNode = orgaSection(orgaChild, appNode);
-            if (childAppNode.hasWebLinks) appNode.hasWebLinks = true;    // determines display state
         }
     }
     appNode.text = allText;
@@ -67,12 +66,10 @@ function orgaText(orgnode, containingNode) {
         if (orgaChild.type == "link") {
             linkTitle = orgaLinkOrgText(orgaChild);
             btString += linkTitle;
-            if (orgaChild.uri.protocol.match('http'))
-                containingNode.hasWebLinks = true;                 // remember so we can determine display state
 
             if (orgnode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
-                node = new BTNode(BTNode.topIndex++, linkTitle, containingNode.id);
+                node = new BTNode(linkTitle, containingNode.id);
                 lnkNode = new BTLinkNode(node, "", containingNode.level+1, orgaChild.uri.protocol);
             }
         }

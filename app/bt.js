@@ -313,7 +313,8 @@ function processBTFile(fileText) {
     // Let extension know about model
     window.postMessage({ type: 'tags_updated', text: Tags});
     console.count('BT-OUT:tags_updated');
-    var nodes = JSON.stringify(BTNode.AllBTNodes);    // only send the core data needed in BTNode, not AppNode
+    // only send the core data needed in BTNode, not full AppNode
+    var nodes = JSON.stringify(AllNodes.map(appNode => appNode._btnode));    
     window.postMessage({ type: 'nodes_updated', text: nodes});
     console.count('BT-OUT:nodes_updated');
 
@@ -557,13 +558,13 @@ window.addEventListener('message', function(event) {
     case 'tab_opened':
         nodeId = event.data.BTNodeId;
         parentId = event.data.BTParentId;
-        AllNodes[nodeId].open = true;
+        AllNodes[nodeId].isOpen = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         break;
     case 'tab_closed':
         nodeId = event.data.BTNodeId;
-        AllNodes[nodeId].open = false;
+        AllNodes[nodeId].isOpen = false;
         parentId = AllNodes[nodeId] ? AllNodes[nodeId].parentId : 0;
         let parentElt = $("tr[data-tt-id='"+parentId+"']");
 
@@ -609,9 +610,8 @@ function storeTab(tg, tab, note) {
     const parentNodeId = BTAppNode.findFromTag(tag);
     const parentNode = AllNodes[parentNodeId];
 
-    const newBTNode = new BTNode(BTNode.topIndex++, `[[${url}][${title}]]`, parentNodeId);
+    const newBTNode = new BTNode(`[[${url}][${title}]]`, parentNodeId);
     const newNode = new BTAppNode(newBTNode, note || "", parentNode.level + 1);
-    newNode.hasWebLinks = true;                                  // since we're adding a link to the stored tab
     if (keyword) newNode.keyword = keyword;
 
     const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
@@ -630,7 +630,7 @@ function storeTab(tg, tab, note) {
     setTimeout(function() {
         $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
         $("tr[data-tt-id='"+parentNodeId+"']").addClass("opened");
-        newNode.open = true;
+        newNode.isOpen = true;
         initializeUI();
     }, 5);
 }
@@ -640,9 +640,8 @@ function addNewTag(tag, parent) {
 
     const parentTagId = parent ? BTAppNode.findFromTag(parent) : null;
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
-    const newBTNode = new BTNode(BTNode.topIndex++, tag, parentTagId);
+    const newBTNode = new BTNode(tag, parentTagId);
     const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
-    newNode.hasWebLinks = true;
 
     const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
     $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree
@@ -770,7 +769,7 @@ function openRow() {
     else {
         // individual link, open if not already
         if (!appNode.open) {
-            const url = appNode.getURL();
+            const url = appNode.URL;
             window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
             console.count('BT-OUT:link_click');
         }
@@ -795,7 +794,7 @@ function openEachWindow(node) {
         $("tr[data-tt-id='"+id+"']").find("a").each(function() {
             const url = $(this).attr('href');
             if (url == "#") return;                           // ignore the '...' hover link
-            if (AllNodes[id] && !AllNodes[id].open)           // only open if not already
+            if (AllNodes[id] && !AllNodes[id].isOpen)           // only open if not already
                 tabsToOpen.push({'nodeId': id, 'url': url });
         });
     });

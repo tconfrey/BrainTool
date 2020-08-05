@@ -88,19 +88,17 @@ function indexInParent(nodeId) {
 function readyOrRefresh() {
     // Called on startup or refresh (and as a last resort when link msgs are received but AllNodes is empty)
     chrome.storage.local.get('nodes', function(data) {
-        var nodes = JSON.parse(data.nodes);
-        var chromeNode;
-        AllNodes = new Array();
+        const nodes = JSON.parse(data.nodes);
+        BTNode.reset();
         nodes.forEach(function(node) {
             if (!node) return;                                        // nodes array can be sparse
-            chromeNode = new BTChromeNode(node._id, node._title, node._parentId);
-            AllNodes[chromeNode.id] = chromeNode;
+            const chromeNode = new BTChromeNode(node);
+            
             // restore open state w tab and window ids. preserves state across refreshes
             // These are object structures indexed by _title
             chromeNode.tabId = OpenLinks[node._title] ? OpenLinks[node._title] : null; 
             chromeNode.windowId = OpenNodes[node._title] ? OpenNodes[node._title] : null;
         });
-        BTNode.topIndex = AllNodes.length;
     });
 }
 
@@ -191,7 +189,7 @@ function openTag(parentId, ary) {
 
                 // NB tabs might not be loaded at this point, handlePotentialBTNode will catch it later
                 tab = win.tabs.find(function(element) {
-                    return (element && element.url && compareURLs(element.url, AllNodes[id].getURL()));
+                    return (element && element.url && compareURLs(element.url, AllNodes[id].URL));
                 });
                 if (!tab) continue;
                 
@@ -243,16 +241,10 @@ function moveTabToTag(tabId, tag) {
     chrome.windows.update(BTWin, {'focused': true});           // Start things off w the BT win shown
     
     const tagNodeId = BTNode.findFromTitle(tag);
-    const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists we copy the tab, don't move it
-    const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].getURL() : null;
-    let newTabId = tabNodeId ? null : tabId; // if this is already a BT node w another tag we create a new tab
-    let tagNode;
-    if (tagNodeId) 
-        tagNode = AllNodes[tagNodeId];
-    else {
-        tagNode = new BTChromeNode(BTNode.topIndex++, tag, null);
-        AllNodes[tagNode.id] = tagNode;
-    }
+    const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists copy tab, don't move it
+    const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].URL : null;
+    let newTabId = tabNodeId ? null : tabId;           // already BT node w diff tag => create a new
+    let tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(new BTNode(tag));
 
     // So there's 4 cases: Tag already has a window or not, and tab is already a BT node or not
     // already a BT node => create a new tab, else move existing
@@ -286,7 +278,7 @@ function moveTabToTag(tabId, tag) {
     
     // get tab url, then create and store new BT node
     chrome.tabs.get(newTabId, function(tab) {
-        var linkNode = new BTChromeNode(BTNode.topIndex++, `[[${tab.url}]]`, tagNode.id);
+        var linkNode = new BTChromeNode(new BTNode(`[[${tab.url}]]`, tagNode.id));
         linkNode.tabId = newTabId;
         linkNode.windowId = tagNode.windowId;
         AllNodes[linkNode.id] = linkNode;
@@ -425,7 +417,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         handlePotentialBTNode(url, tab);                    // might be a BTNode opened from elsewhere
         return;
     }
-    if ((!node.getURL()) || compareURLs(node.getURL(), url)) {          // 'same' url so ignore 
+    if ((!node.URL) || compareURLs(node.URL, url)) {          // 'same' url so ignore 
 	    console.log("Node:" + JSON.stringify(node) + "\nNavigated to url:" + url + "\nSeems ok!");
 	    return;
     }
@@ -463,7 +455,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 			});
     }
     catch (err) {
-        console.log("Failed to go back from url: " + url + ", to: " + node.getURL());
+        console.log("Failed to go back from url: " + url + ", to: " + node.URL);
     }
 });
 
@@ -512,7 +504,7 @@ function setBadgeTab(windowId, tabId) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
         if (AllNodes[cid].tabId == tabId) isBTTab = true;
     }
-    const displayName = node.displayTag();
+    const displayName = node.displayTag;
     if (isBTTab) { // One of ours, green highlight and Tag text
         chrome.browserAction.setBadgeBackgroundColor({'color' : '#6A6', 'tabId' : tabId});
         chrome.browserAction.setBadgeText({'text' : displayName.substring(0,3),
@@ -541,7 +533,7 @@ function setBadgeWin(windowId) {
     for (const cid of node.childIds) {
         if (AllNodes[cid] && AllNodes[cid].tabId) openChildren++;
     }    
-    const displayName = node.displayTag();
+    const displayName = node.displayTag;
     chrome.browserAction.setTitle({'title' : `Tag:${displayName}\n${openChildren} open tabs`});
     // Store current windows tag for use by pop to default any new tab name
     chrome.storage.local.set({currentTag: displayName});

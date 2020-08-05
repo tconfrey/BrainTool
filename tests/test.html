@@ -1,23 +1,70 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>BrainTool Test Suite</title>
-    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
+    <title>BrainTool Chrome Extension</title>
+    <meta charset="utf-8" />
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous">
     </script>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link href="../app/jquery.treetable.css" rel="stylesheet" type="text/css" />
     <link href="../app/jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <link href="../app/bt.css" rel="stylesheet" type="text/css" />
     <script src="../app/jquery.treetable.js"></script>
   </head>
   <body>
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
-    <table id="content">
-    </table>
+
+     <div id="auth_menu">
+      <div id="menu_button" style="height:11px;" onClick="toggleMenu()">
+        <img id="open" class="open-icon">
+        <img id="close" class="close-icon" style="display: none;">
+      </div>
+      <div id="auth_screen" style="display: block;">
+        <img src="../site/logo.png" style="width: 80%; display: block; margin-left: auto; margin-right: auto;"/>
+        <p style="text-align: center;">Welcome to BrainTool!</p>
+        <p style="margin: 10px; text-align: justify;">
+          BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. In order to operate BT needs you to grant it permission to read and write this file, and to read filenames so that it can find the file in the future. Data is exchanged only between the BT app running in Chrome and your GDrive, and only in encrypted format. There are no BT servers and nothing is ever stored anywhere but within the BrainTool.org file that is fully under your control. See <a href="https://braintool.org/overview" target="_blank">our website</a> for more details.
+        </p>
+        <p id="tip" style="margin: 10px; text-align: justify;">
+          Note that the initial tree shows some useful information on BT and gives some examples of how to use tags. Feel free to delete anything you don't want.
+        </p>
+        <!--Add buttons to initiate auth sequence and sign out-->
+        <div class="buttonDiv" style="padding-bottom: 5px; padding-top: 0px;">
+          <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
+          <button id="signout_button" style="display: none;">Remove GDrive Authorization</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="loading">
+      <p id="loadingMessage" style="text-align: center; margin-top:50px">
+        Authenticating with Google <br/>and loading your BrainTool file...</p>
+    </div>
+    <div id="buttonRow" style="display: none;">
+      <img id="move" type="image" alt="Move" title="Move"
+             src="../app/resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
+      <img id="edit" alt="Edit" title="Edit" style="opacity: 0.75;"
+             src="../app/resources/edit.png"  height="16" width="16">
+      <img id="expand" alt="Open" onClick="openRow()" title="Open" style="opacity: 0.75;"
+             src="../app/resources/expand.png" height="16" width="16">
+      <img id="collapse" alt="Close" onClick="closeRow()" title="Close" style="opacity: 0.75;"
+             src="../app/resources/collapse.png" height="16" width="16">
+      <img id="delete" alt="Delete"  onClick="deleteRow()" title="Delete" style="opacity: 0.75;"
+             src="../app/resources/delete.png" height="16" width="16">
+    </div>
     
+    <table id="content" >
+    </table>
+    <div style="width: 100%;">
+      <div id="inner">
+        <button id="refresh" onclick="refreshTable()" style="display: none;">Refresh</button>
+      </div>
+    </div>
+
     <div id="popup" style="padding: 0">
       <dialog id="dialog">
         <table style="width:100%">
@@ -26,15 +73,14 @@
             <td><textarea id="text-text" class="editNode" ></textarea></td>
           </tr> 
         </table>
-        <div id="buttonDiv">
-          <button id="delete" onClick="deleteRow()">Delete Row</button>
+        <div class="buttonDiv">
           <button id="update" onClick="updateRow()">Update</button>
-          <button id="open" onClick="openRow()">Open All</button>
+          <button id="cancel" onClick="dialogClose()">Cancel</button>
         </div>
       </dialog>
     </div>
-
-    <script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
+   
+    <script src="https://code.jquery.com/qunit/qunit-2.10.1.js"></script>
     <script src="../app/orga-bundle.js"></script>
     <script src="../extension/BTNode.js"></script>
     <script src="../app/BTAppNode.js"></script>
