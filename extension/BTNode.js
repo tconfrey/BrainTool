@@ -10,8 +10,11 @@ class BTNode {
         if (parentId && AllNodes[parentId]) {
             AllNodes[parentId].addChild(this._id);
         }
-        AllNodes[this._id] = this;
+        // Global instance store. Check existence so staticBase, below, works.
+        // NB Entries could be overwritten by derived class ctor:
+        if (typeof AllNodes !== 'undefined') AllNodes[this._id] = this;    
     }
+    static baseNode = new BTNode('');
 
     get id() {
         return this._id;
@@ -80,8 +83,18 @@ class BTNode {
         // Is this node used as a tag => has webLinked children
         return this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
-            
 
+    toBTNode() {
+        // Generic fn to return this objects properties
+        let props = {};
+        let keys = Object.keys(BTNode.baseNode);
+        for (let i =0; i< keys.length; i++){
+            props[keys[i]] = this[keys[i]];
+        }
+        return props;
+    }
+
+    
     static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
         // nb only find http urls, purposely ignore file: links
@@ -160,6 +173,7 @@ class BTChromeNode extends BTNode {
         this._tabId = null;
         this._windowId = null;
         AllNodes[this._id] = this;
+        BTNode.topIndex += 1;
     }
 
     get tabId() {

@@ -11,13 +11,12 @@ function parseBTFile(fileText) {
 
 function orgaSection(section, parentAppNode) {
     // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
-    const node = new BTNode("", parentAppNode ? parentAppNode.id : null);
-    const appNode = new BTAppNode(node, "", 0);
+    const appNode = new BTAppNode("", parentAppNode ? parentAppNode.id : null, "", 0);
     let allText = "";
     for (const orgaChild of section.children) {
         if (orgaChild.type == "headline") {
             appNode.level = orgaChild.level;
-            node.title = orgaText(orgaChild, appNode);
+            appNode.title = orgaText(orgaChild, appNode);
             if (orgaChild.keyword) appNode.keyword = orgaChild.keyword;
             appNode.tags = orgaChild.tags;
             appNode.drawers = orgaDrawers(orgaChild);
@@ -69,8 +68,7 @@ function orgaText(orgnode, containingNode) {
 
             if (orgnode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
-                node = new BTNode(linkTitle, containingNode.id);
-                lnkNode = new BTLinkNode(node, "", containingNode.level+1, orgaChild.uri.protocol);
+                lnkNode = new BTLinkNode(linkTitle, containingNode.id, "", containingNode.level+1, orgaChild.uri.protocol);
             }
         }
     }

@@ -118,7 +118,7 @@ function appendPre(message) {
 /**
  * Find or initialize BT file
  */
-var fileid;
+var BTFileID;
 function FindOrCreateBTFile() {
     try {
         gapi.client.drive.files.list({
@@ -129,7 +129,7 @@ function FindOrCreateBTFile() {
             var files = response.result.files;
             if (files && files.length > 0) {
                 var file = files[0];
-                fileid = file.id;
+                BTFileID = file.id;
                 getBTFile();
             } else {
                 console.log('BrainTool.org file not found.');
@@ -146,7 +146,7 @@ function FindOrCreateBTFile() {
 function getBTFile() {
     try {
     gapi.client.drive.files.get({
-        fileId: fileid,
+        fileId: BTFileID,
         alt: 'media'
     }).then(
         function(response) {
@@ -193,7 +193,7 @@ function createStartingBT() {
                 return res.json();
             }).then(function(val) {
                 console.log("Created ", val);
-                fileid = val.id;
+                BTFileID = val.id;
                 getBTFile();
             });
         })
@@ -224,7 +224,7 @@ function writeBTFile() {
         form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
         form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
 
-        fetch('https://www.googleapis.com/upload/drive/v3/files/' + encodeURIComponent(fileid) + '?uploadType=multipart',
+        fetch('https://www.googleapis.com/upload/drive/v3/files/' + encodeURIComponent(BTFileID) + '?uploadType=multipart',
               {
                   method: 'PATCH', 
                   headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
@@ -264,9 +264,9 @@ function refreshTable() {
     $("#refresh").text('...');
     BTFileText = "";
     BTNode.topIndex = 1;
-    BTNode.AllBTNodes = [];
 
     // Remember window opened state to repopulate later
+    // TODO populate from node.opened
     OpenedNodes = [];
     $("tr.opened").each(function() {
         var id = $(this).attr("data-tt-id");
@@ -297,7 +297,6 @@ function processBTFile(fileText) {
 
     // First clean up from any previous state
     BTNode.topIndex = 1;
-    BTNode.AllBTNodes = [];
     AllNodes = [];
     
     parseBTFile(fileText);
@@ -314,7 +313,7 @@ function processBTFile(fileText) {
     window.postMessage({ type: 'tags_updated', text: Tags});
     console.count('BT-OUT:tags_updated');
     // only send the core data needed in BTNode, not full AppNode
-    var nodes = JSON.stringify(AllNodes.map(appNode => appNode._btnode));    
+    var nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
     window.postMessage({ type: 'nodes_updated', text: nodes});
     console.count('BT-OUT:nodes_updated');
 
@@ -527,9 +526,9 @@ function handleLinkClick(e) {
 }
 
 // Used below to ensure gapi is set up etc before trying to load file
-var windowLoaded = false;
+var WindowLoaded = false;
 window.addEventListener('load', function() {
-    windowLoaded = true;
+    WindowLoaded = true;
 });
 
 //  Handle relayed messages from Content script
@@ -547,7 +546,7 @@ window.addEventListener('message', function(event) {
         // Client ID and API key from the Developer Console, values storted offline in config.js
         CLIENT_ID = event.data.client_id;
         API_KEY = event.data.api_key;
-        if (windowLoaded && (typeof gapi !== 'undefined'))
+        if (WindowLoaded && (typeof gapi !== 'undefined'))
             gapi.load('client:auth2', initClient);             // initialize gdrive app
         else
             waitForGapi()
@@ -584,7 +583,7 @@ window.addEventListener('message', function(event) {
 function waitForGapi () {
     // gapi needed to access gdrive not yet loaded this script needs to wait
     // NB shoudl probably error out sometime but there is a loading indicator showing at this point.
-    if (windowLoaded && (typeof gapi !== 'undefined'))
+    if (WindowLoaded && (typeof gapi !== 'undefined'))
         gapi.load('client:auth2', initClient);             // initialize gdrive app
     else {
         $("#loadingMessage").append(".");
@@ -602,16 +601,15 @@ function storeTab(tg, tab, note) {
 
     // process tag and add new if doesn't exist
     const [tag, parent, keyword] = BTNode.processTagString(tg);
-    const existingTag = Tags.reduce((found, cur) => found || (cur.name == tag), false);
+    const existingTag = Tags.some(tag => (cur.name == tag));
     if (!existingTag) addNewTag(tag, parent);
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
     const parentNodeId = BTAppNode.findFromTag(tag);
     const parentNode = AllNodes[parentNodeId];
-
-    const newBTNode = new BTNode(`[[${url}][${title}]]`, parentNodeId);
-    const newNode = new BTAppNode(newBTNode, note || "", parentNode.level + 1);
+    const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNodeId,
+                                  note || "", parentNode.level + 1);
     if (keyword) newNode.keyword = keyword;
 
     const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
@@ -640,8 +638,7 @@ function addNewTag(tag, parent) {
 
     const parentTagId = parent ? BTAppNode.findFromTag(parent) : null;
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
-    const newBTNode = new BTNode(tag, parentTagId);
-    const newNode = new BTAppNode(newBTNode, "", parentTagLevel+1);
+    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
 
     const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
     $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree
@@ -655,7 +652,7 @@ function buttonShow() {
     const td = $(this).find(".right")
 
     if ($("#buttonRow").index() < 0) {
-        // Can't figure out how sometimes after a Drag/drop the element is deleted
+        // Can't figure out how but sometimes after a Drag/drop the element is deleted
         reCreateButtonRow();
     }
     
@@ -670,7 +667,7 @@ function buttonShow() {
         $("#expand").show();
         $("#collapse").hide();
     }
-    // show expand is not all kids of branch are open
+    // show expand if not all kids of branch are open
     if ($(this).hasClass("branch")) {
         const id = this.getAttribute("data-tt-id");
         const notOpenKids = $("tr[data-tt-parent-id='"+id+"']").not(".opened");
@@ -689,16 +686,16 @@ function buttonHide() {
 
 $("#edit").click(function(e) {
     // position and populate the dialog and open it
-    var top = e.originalEvent.clientY;
+    const top = e.originalEvent.clientY;
     $(this).closest("tr").addClass('selected');
-    var dialog = $("#dialog")[0];
-    var table = $("#content")[0];
+    const dialog = $("#dialog")[0];
 
     if ((top + $(dialog).height() + 50) < $(window).height())
         $(dialog).css("top", top+10);
     else
         // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - $(dialog).height() - 50); 
+        $(dialog).css("top", top - $(dialog).height() - 50);
+    
     if (populateDialog()) {
         dialog.showModal();
     } else {
@@ -757,13 +754,13 @@ function openRow() {
     const numTabs = appNode.countOpenableTabs();
 
     // Warn if opening lots of stuff
-    if ((numWins > 2) || (numTabs > 20))
+    if ((numWins > 2) || (numTabs > 10))
         if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
             return;
     
     const num_kids = appNode.childIds.length;
     if (num_kids) {
-        // container node handle as such
+        // container node, handle as such
         openEachWindow(appNode);
     }
     else {
@@ -781,19 +778,15 @@ function openRow() {
 }
 
 function openEachWindow(node) {
-    const rowIds = [];
+    // Open all links under this node
+    const rowIds = node.childIds.concat(node.id);
     const tabsToOpen = [];
     
-    rowIds.push(node.id);
-    node.childIds.forEach(function(childId) {
-        rowIds.push(childId);
-    });
-
     // iterate thru rows and find all links and send msg to extension to open them
     rowIds.forEach(function(id) {
         $("tr[data-tt-id='"+id+"']").find("a").each(function() {
             const url = $(this).attr('href');
-            if (url == "#") return;                           // ignore the '...' hover link
+            if (url == "#") return;                             // ignore the '...' hover link
             if (AllNodes[id] && !AllNodes[id].isOpen)           // only open if not already
                 tabsToOpen.push({'nodeId': id, 'url': url });
         });
@@ -804,7 +797,8 @@ function openEachWindow(node) {
         console.count('BT-OUT:tag_open');
     }
 
-    if (node.childIds.length)    // iterate again and recurse for container nodes to each open their windows
+    // iterate again and recurse for container nodes to each open their windows
+    if (node.childIds.length)    
         node.childIds.forEach(function(childId) {
             const child = AllNodes[childId];
             if (child.childIds.length)
@@ -822,8 +816,9 @@ function closeRow() {
         if (!appNode) return;
         window.postMessage({ 'type': 'close_node', 'nodeId': nodeId});
         console.count('BT-OUT:close_node');
-        
-        if (appNode.childIds.length)    // iterate again and recurse for container nodes to each open their windows
+
+        // iterate again and recurse for container nodes to each close their windows
+        if (appNode.childIds.length)   
             appNode.childIds.forEach(function(childId) {
                 const child = AllNodes[childId];
                 if (child.childIds.length)
@@ -836,21 +831,21 @@ function closeRow() {
 
 function escapeRegExp(string) {
     // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
 function deleteRow() {
-    // Delete this node/row.
+    // Delete selected node/row.
     buttonHide();
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
     const nodeId = $(tr).attr('data-tt-id');
     const appNode = AllNodes[nodeId];
     if (!appNode) return false;
-    const kids = appNode.childIds.length && appNode.isTag(); // Tag determines non link kids
+    const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete all?')) {
-        $("table.treetable").treetable("removeNode", nodeId);          // Remove from UI and treetable
+        $("table.treetable").treetable("removeNode", nodeId);        // Remove from UI and treetable
         $("#dialog")[0].close();
         deleteNode(nodeId);
     }   
@@ -890,17 +885,15 @@ $(".editNode").on('change keyup paste', function() {
 
 
 function updateRow() {
-    // Update this node/row.
+    // Update this node/row after edit.
 
-    var tr = $("tr.selected")[0];
-    var nodeId = $(tr).attr('data-tt-id');
-    var node = AllNodes[nodeId];
-    var titleText = $("#title-text").val();
-    var textText = $("#text-text").val();
+    const tr = $("tr.selected")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+    const node = AllNodes[nodeId];
 
     // Update Model
-    node.title = titleText;
-    node.text = textText;
+    node.title = $("#title-text").val();
+    node.text = $("#text-text").val();
     
     // Update ui
     $(tr).find("span.btTitle").html(node.displayTitle());
@@ -922,7 +915,7 @@ function updateRow() {
 
 function generateOrgFile() {
     // iterate thru nodes to do the work
-    var orgText = "";
+    let orgText = "";
     AllNodes.forEach(function (node) {
         // start at top level nodes and recurse, cos child nodes don't necessarily follow parent nodes in array
         if (node && (node.level == 1))

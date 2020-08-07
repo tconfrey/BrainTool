@@ -1,19 +1,15 @@
-class BTAppNode {
+class BTAppNode extends BTNode {
     // Centralizes all the app-only logic of reading and writing to org, creating the ui etc
 
-    constructor(btnode, text, level) {
-        this._btnode = btnode;
+    constructor(title, parent, text, level) {
+        super(title, parent);
         this._text = text;
         this._level = level;
         this._folded = false;
         this._keyword = null;
         this.drawers = {};
         this.tags = [];
-        AllNodes[this._btnode.id] = this;
-    }
-
-    get id() {
-        return this._btnode.id;
+        AllNodes[this._id] = this;
     }
 
     set text(txt) {
@@ -32,7 +28,7 @@ class BTAppNode {
         // after a ui drag/drop need to reset level under new parent
         this.level = l;
         this.childIds.forEach(childId => {
-            AllNodes[childId].resetLevel(l-1);
+            AllNodes[childId].resetLevel(l+1);
         });
     }
     get keyword() {
@@ -48,66 +44,17 @@ class BTAppNode {
     get folded() {
         return this._folded;
     }
-
-    // These functions just pass thru to contained btnode
-    get parentId() {
-        return this._btnode.parentId;
-    }
-    set parentId(id) {
-        this._btnode.parentId = id;
-    }
-    get title() {
-        return this._btnode.title;
-    }
-    set title(ttl) {
-	    this._btnode.title = ttl;
-    }
-
-    get childIds() {
-        return this._btnode.childIds;
-    }
-    addChild(id, index= -1) {
-        this._btnode.addChild(id, index);
-    }
-    removeChild(id) {
-        this._btnode.removeChild(id);
-    }
     
-    get hasWebLinks() {
-        return this._btnode.hasWebLinks;
-    }
-    
-    set isOpen(val) {
-        // Track whether node is open (highlighted in tree and w an existing tab
-        this._btnode.isOpen = val;
-    }
-    get isOpen() {
-        return this._btnode.isOpen;
-    }
-
-    get URL() {
-        return this._btnode.URL;
-    }
-
-    get displayTag() {
-        return this._btnode.displayTag;
-    }
-    isTag() {
-        // Can this node can be used to tag web pages => is it a parent of nodes w links
-        return this._btnode.isTag();
-    }
-
-
-    // And other AppNode behavior
     hasOpenChildren() {
         return this.childIds.some(id => AllNodes[id].isOpen);
     }
     
     HTML() {
         // Generate HTML for this nodes table row
-        var outputHTML = "";
-        outputHTML += `<tr data-tt-id='${this._btnode.id}`;
-        if (this._btnode.parentId || this._btnode.parentId === 0) outputHTML += `' data-tt-parent-id='${this._btnode.parentId}`;
+        let outputHTML = "";
+        outputHTML += `<tr data-tt-id='${this.id}`;
+        if (this.parentId || this.parentId === 0)
+            outputHTML += `' data-tt-parent-id='${this.parentId}`;
         outputHTML += `'><td class='left'><span class='btTitle'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
@@ -159,7 +106,7 @@ class BTAppNode {
         // Generate org text for this node
         let outputOrg = "*".repeat(this._level) + " ";
         outputOrg += this._keyword ? this._keyword+" " : "";              // TODO DONE etc
-        outputOrg += this._btnode.title;
+        outputOrg += this.title;
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
         outputOrg += this.orgDrawers();                                 // add in any drawer text
         outputOrg += this._text ? this._text + "\n" : "";
@@ -169,7 +116,7 @@ class BTAppNode {
     orgTextwChildren() {
         // Generate org text for this node and its descendents
         let outputOrg = this.orgText();
-        this._btnode.childIds.forEach(function(id) {
+        this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
             let txt = AllNodes[id].orgTextwChildren();
             outputOrg += txt.length ? "\n" + txt : "";           // eg BTLinkNodes might not have text 
@@ -177,7 +124,7 @@ class BTAppNode {
         return outputOrg;
     }
     
-    static _displayTextVersion(txt) {
+    static _orgTextToHTML(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
         const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
@@ -195,24 +142,35 @@ class BTAppNode {
     }
     
     displayText() {
-        var htmlText = BTAppNode._displayTextVersion(this._text);
+        // Node text as seen in the tree. Insert ... link to text that won't fit
+        const htmlText = BTAppNode._orgTextToHTML(this._text);
         if (htmlText.length < 250) return htmlText;
+        
         // if we're chopping the string need to ensure not splitting a link
-        var rest = htmlText.substring(250);
-        var reg = /.*?<\/a>/gm;                                // non greedy to get first
-        var ellipse = "<span class='elipse'>... </span>";
-        if (!reg.exec(rest)) return htmlText.substring(0,250)+ellipse; // no closing a tag so we're ok
-        var closeIndex = reg.lastIndex;
-        rest = htmlText.substring(250, 250+closeIndex);     // there is a closing a, find if there's a starting one
+        const ellipse = "<span class='elipse'>... </span>";
+        let rest = htmlText.substring(250);
+        let reg = /.*?<\/a>/gm;                                // non greedy to get first
+        if (!reg.exec(rest))
+            // no closing a tag so we're ok
+            return htmlText.substring(0,250)+ellipse;
+
+        // there is a closing a, find if there's a starting one
+        const closeIndex = reg.lastIndex;
+        rest = htmlText.substring(250, 250+closeIndex);     
         reg = /<a href/gm;
-        if (reg.exec(rest)) return htmlText.substring(0,250)+ellipse;  // there's a matching open so 0..250 string is clean
+        if (reg.exec(rest))
+            // there's a matching open so 0..250 string is clean
+            return htmlText.substring(0,250)+ellipse;
+
+        // Return text to end of href
         return htmlText.substring(0, 250+closeIndex)+ellipse;
     }
     
     displayTitle() {
+        // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
         let txt = "";
         if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
-        return txt + BTAppNode._displayTextVersion(this._btnode.title);
+        return txt + BTAppNode._orgTextToHTML(this.title);
     }
     
     countOpenableTabs() {
@@ -232,7 +190,7 @@ class BTAppNode {
         // used to warn of opening too many windows
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableWindows());
 
-        const me = this._btnode.isTag() ? 1 : 0;
+        const me = this.isTag() ? 1 : 0;
 
         let n = 0;
         if (childCounts.length)
@@ -276,8 +234,8 @@ class BTAppNode {
 
 class BTLinkNode extends BTAppNode {
     // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
-    constructor(btnode, text, level, protocol) {
-        super(btnode, text, level);
+    constructor(title, parent, text, level, protocol) {
+        super(title, parent, text, level);
         this._protocol = protocol;
     }
     
