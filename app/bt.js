@@ -1,20 +1,14 @@
+/*** 
+ * 
+ * Manages the App window UI and associated logic.
+ * NB Runs in context of BT window, not the background BT extension or the helper btContent scripts 
+ * 
+ ***/
 
-//NB Runs in context of BT window, not the background BT extension or the helper btContent scripts
+const authorizeButton = document.getElementById('authorize_button');
+const signoutButton = document.getElementById('signout_button');
 
-// Array of API discovery doc URLs for APIs used by the quickstart
-var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-var CLIENT_ID, API_KEY;
-
-// Authorization scopes required by the API; multiple scopes can be
-// included, separated by spaces.
-var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly';
-
-var authorizeButton = document.getElementById('authorize_button');
-var signoutButton = document.getElementById('signout_button');
-
-var ButtonRowHTML; 
-
-var tipsArray = [
+const tipsArray = [
     "Type ':' when selecting a tag to add a subtag.",
     "Double click on a table row to highlight its open window, if any.",
     "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
@@ -26,39 +20,14 @@ var tipsArray = [
     "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page."
 ];
 
-/**
- *  Initializes the API client library and sets up sign-in state
- *  listeners.
- */
-function initClient() {
-    gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-    }).then(function () {
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-        // Handle the initial sign-in state.
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        authorizeButton.onclick = handleAuthClick;
-        signoutButton.onclick = handleSignoutClick;
-    }, function(error) {
-        appendPre(JSON.stringify(error, null, 2));
-    });
-}
-
-/**
- *  Called when the signed in status changes, to update the UI
- *  appropriately. After a sign-in, the API is called.
- */
 function updateSigninStatus(isSignedIn) {
+    // CallBack on GDrive signin state change
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
         FindOrCreateBTFile();
-        addTip();               // display tip text
+        addTip();                                          // display tip text
         setTimeout(toggleMenu, 2000);
     } else {
         $("#auth_screen").show();
@@ -87,173 +56,14 @@ function toggleMenu() {
         $("#open").show();
     }
 }
-        
 
-/**
- *  Sign in the user upon button click.
- */
-function handleAuthClick(event) {
-    gapi.auth2.getAuthInstance().signIn();
-}
-
-/**
- *  Sign out the user upon button click.
- */
-function handleSignoutClick(event) {
-    gapi.auth2.getAuthInstance().signOut();
-}
-
-/**
- * Append a pre element to the body containing the given message
- * as its text node. Used to display error results of the API call.
- *
- * @param {string} message Text to be placed in pre element.
- */
 function appendPre(message) {
     var pre = document.getElementById('content');
     var textContent = document.createTextNode(message + '\n');
     pre.appendChild(textContent);
 }
 
-/**
- * Find or initialize BT file
- */
-var BTFileID;
-function FindOrCreateBTFile() {
-    try {
-        gapi.client.drive.files.list({
-            'pageSize': 1,
-            'fields': "files(id, name)",
-            'q': "name='BrainTool.org' and not trashed"
-        }).then(function(response) {
-            var files = response.result.files;
-            if (files && files.length > 0) {
-                var file = files[0];
-                BTFileID = file.id;
-                getBTFile();
-            } else {
-                console.log('BrainTool.org file not found.');
-                createStartingBT();
-            }
-        });
-    }
-    catch (err) {   
-        alert("BT - error reading file list from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
-    }
-}
-
-function getBTFile() {
-    try {
-    gapi.client.drive.files.get({
-        fileId: BTFileID,
-        alt: 'media'
-    }).then(
-        function(response) {
-            processBTFile(response.body);
-        },
-        function(error) {
-            console.log("Error - Could not read BT file");
-        });
-    }
-    catch(err) {
-        alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
-    }
-}
-
-
-function createStartingBT() {
-    // Read the template bt file from the server and upload to gdrive
-
-    var metadata = {
-        'name': 'BrainTool.org', // Filename at Google Drive
-        'mimeType': 'text/plain' // mimeType at Google Drive
-/*      'parents': ['### folder ID ###'], // Folder ID at Google Drive */
-    };
-    var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
-    var form = new FormData();
-    
-    fetch('/app/BrainTool.org')     // fetch template file from bt server
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("HTTP error " + response.status);
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-            form.append('file', blob);
-
-            fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
-                method: 'POST',
-                headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                body: form,
-            }).then((res) => {
-                return res.json();
-            }).then(function(val) {
-                console.log("Created ", val);
-                BTFileID = val.id;
-                getBTFile();
-            });
-        })
-        .catch(function () {
-            this.dataError = true;
-        })
-}
-
-window.LOCALTEST = false; // overwritten in test harness
-function writeBTFile() {
-    // Write file contents into BT.org file on GDrive
-    
-    BTFileText = generateOrgFile();
-    if (window.LOCALTEST) return;
-    if (typeof gapi === "undefined") {           // eg when called from test harness
-	    alert("BT - error in writeBTFile");
-	    return;
-    }
-    var metadata = {
-        'name': 'BrainTool.org', // Filename at Google Drive
-        'mimeType': 'text/plain' // mimeType at Google Drive
-    };
-    try {
-        var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
-        var form = new FormData();
-        console.log("writing BT file. accessToken = ", accessToken);
-
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
-
-        fetch('https://www.googleapis.com/upload/drive/v3/files/' + encodeURIComponent(BTFileID) + '?uploadType=multipart',
-              {
-                  method: 'PATCH', 
-                  headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                  body: form
-              }).then((res) => {
-	              if (!res.ok) {
-		              alert("BT - error writing to GDrive, reuthenticating...");
-		              console.log("GAPI response:\n", res);
-                      gapi.auth.authorize(
-                          {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
-                      ).then((res) => {
-                          if (res.status && res.status.signed_in) {
-                              writeBTFile();                        // try again
-                          }});
-		              return('GAPI error');
-	              }
-                  return res.json();
-              }).then(function(val) {
-                  console.log(val);
-              });
-    }
-    catch(err) {
-        alert("BT - error writing to GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
-    }
-}
-
-
-
+var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
@@ -525,31 +335,16 @@ function handleLinkClick(e) {
     e.preventDefault();
 }
 
-// Used below to ensure gapi is set up etc before trying to load file
-var WindowLoaded = false;
-window.addEventListener('load', function() {
-    WindowLoaded = true;
-});
-
 //  Handle relayed messages from Content script
 window.addEventListener('message', function(event) {
     // Handle message from Window
     let nodeId, parentId;
     if (event.source != window)
         return;
-    console.log('bt.js got message:', event);
-    console.count("BT-IN:" + event.data.type);
+    console.log(`bt.js got ${event.data.type} message:`, event);
     switch (event.data.type) {
     case 'keys':
-        if (window.LOCALTEST) return;            // running inside test harness
-        console.log('Initializing gdrive app...');
-        // Client ID and API key from the Developer Console, values storted offline in config.js
-        CLIENT_ID = event.data.client_id;
-        API_KEY = event.data.api_key;
-        if (WindowLoaded && (typeof gapi !== 'undefined'))
-            gapi.load('client:auth2', initClient);             // initialize gdrive app
-        else
-            waitForGapi()
+        processKeys(event.data.client_id, event.data.api_key);
         break;
     case 'new_tab':
         storeTab(event.data.tag, event.data.tab, event.data.note);
@@ -560,6 +355,7 @@ window.addEventListener('message', function(event) {
         AllNodes[nodeId].isOpen = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+        initializeUI();
         break;
     case 'tab_closed':
         nodeId = event.data.BTNodeId;
@@ -580,17 +376,6 @@ window.addEventListener('message', function(event) {
     }
 });
 
-function waitForGapi () {
-    // gapi needed to access gdrive not yet loaded this script needs to wait
-    // NB shoudl probably error out sometime but there is a loading indicator showing at this point.
-    if (WindowLoaded && (typeof gapi !== 'undefined'))
-        gapi.load('client:auth2', initClient);             // initialize gdrive app
-    else {
-        $("#loadingMessage").append(".");
-        setTimeout(waitForGapi, 250);
-    }
-}
-
 function cleanTitle(text) {
     // clean page title text of things that can screw up BT. Currently []
     return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
@@ -601,7 +386,7 @@ function storeTab(tg, tab, note) {
 
     // process tag and add new if doesn't exist
     const [tag, parent, keyword] = BTNode.processTagString(tg);
-    const existingTag = Tags.some(tag => (cur.name == tag));
+    const existingTag = Tags.some(atag => (atag.name == tag));
     if (!existingTag) addNewTag(tag, parent);
     
     const url = tab.url;
@@ -612,25 +397,17 @@ function storeTab(tg, tab, note) {
                                   note || "", parentNode.level + 1);
     if (keyword) newNode.keyword = keyword;
 
-    const n = $("table.treetable").treetable("node", parentNodeId);                // find parent treetable node
-    $("table.treetable").treetable("loadBranch", n, newNode.HTML());               // and insert new row
+    const n = $("table.treetable").treetable("node", parentNodeId);      // find parent treetable node
+    $("table.treetable").treetable("loadBranch", n, newNode.HTML());     // and insert new row
+    initializeUI();
         
-    writeBTFile();              // write back out the update file text
+    writeBTFile();                                                       // write out updated file
 
     // update and let extension know about updated tags list as needed
     if (!existingTag) {
         BTAppNode.generateTags();
         window.postMessage({ type: 'tags_updated', text: Tags });
     }
-
-    // Update ui components as needed - NB $(".indenter").remove() if redrawing table
-    // Seems like sometime treetable hasn't completed the loadBranch so put behind a timeout
-    setTimeout(function() {
-        $("tr[data-tt-id='"+newNode.id+"']").addClass("opened");
-        $("tr[data-tt-id='"+parentNodeId+"']").addClass("opened");
-        newNode.isOpen = true;
-        initializeUI();
-    }, 5);
 }
 
 function addNewTag(tag, parent) {

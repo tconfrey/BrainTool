@@ -4,24 +4,73 @@
     <link rel="stylesheet" href="awesomplete.css" />
     <script src="awesomplete.js" async></script>
     <style>
-      ul {
-        padding-left: 10px;
-        list-style-type: none;
+      body {
+        background-color: #7bb07bb3;
+      }
+      h2 {
+        color: #225222;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        text-align:center;
+      }
+      h3 {
+        color: #225222;
+        font-style: italic;
+        margin-top: 10px;
+        margin-bottom: 0px;
       }
       textarea {
         font-size: x-small;
-        margin-top: 10px;
-        color: #444;
+        margin-top: 5px;
+        margin-right: 1px;
+        background-color: #e6f3e7;
+      }
+      form {
+        font-style: italic;
+        font-size: x-small;
+        opacity: 60%;
+      }
+      input[type="radio"] {
+        vertical-align: bottom;
+      }
+      ul {
+        padding-left: 10px;
+        margin-top: 3px;
+        list-style-type: none;
+      }
+      #newtag {
+        background-color: #e6f3e7;
+        border-color: #686;
+        border-width: 1px;
+        border-style: solid;
+      }
+      #currentTags {
+        font-size:x-small;
+        margin-left:-10px;
       }
      </style>
   </head>
   <body>
     <div id="message"><i>Opening BrainTool...</i></div>
     <div id="tag" style="display:none">
-      <h2>Choose Tag</h2>
-      <input type="text" id="newtag" size="30" autofocus></input>
-      <textarea id="note" rows="2" cols="34" disabled>Note:</textarea>
-      <div id="currentTags" style="font-size:x-small; margin-left:-10px"></div>
+      <div align="center">
+        <h2>Choose Tag</h2>
+        <input type="text" id="newtag" size="30" autofocus></input>
+        <textarea id="note" rows="2" cols="33" disabled>Note:</textarea>
+        <form id="tabAction">
+          <label class="radio-inline">
+            <input type="radio" name="bta" value="pop" id="pop" checked>Pop
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="bta" value="hide" id="hide">Hide
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="bta" value="close" id="close">Close
+          </label>
+        </form>
+      </div>
+      <h3>Existing Tags:</h3>
+      <div id="currentTags"></div>
     </div>
     <script src="popup.js"></script>
   </body>

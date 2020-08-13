@@ -5,8 +5,7 @@ window.addEventListener('message', function(event) {
     // Handle message from Window
     if (event.source != window)
         return;
-    console.log('content_script.js got message from Window:', event);
-    console.count("Content-IN:"+event.data.type);
+    console.log(`Content-IN ${event.data.type} from bt.js:`, event);
     switch (event.data.type) {
     case 'tags_updated':
         // pull tags info from message and post to local storage
@@ -86,8 +85,7 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
-    console.log("Content script received msg from app:" + JSON.stringify(msg));
-    console.count("Content-IN:"+msg.type);
+    console.log(`Content-IN ${msg.type} from background.js:`, msg);
     switch (msg.type) {
     case 'keys':                // info about gdrive app
         window.postMessage({type: 'keys', 'client_id': msg.client_id, 'api_key': msg.api_key});
@@ -97,7 +95,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     case 'new_tab':             // new tab to be added to BT
         chrome.storage.local.get('tabsList', function (data) {
             var tab = data.tabsList[0];
-            console.log("adding " + tab.title + " w tag [" + msg.tag + "]");
             window.postMessage({type: 'new_tab', tag: msg.tag, tab: tab, note: msg.note});
             console.count('Content-OUT:new_tab');
         });

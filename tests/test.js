@@ -5,10 +5,7 @@ QUnit.module("BTNode tests", function() {
 
     QUnit.begin(function() {
         console.log("BTNode tests. Set up goes here");
-    });
-
-    QUnit.test("First Test", function(assert) {
-        assert.equal(4, 2+2, "Adding looks ok");
+        AllNodes = [];
     });
 
     QUnit.test("Basic BTNode Tests", function(assert) {
@@ -36,6 +33,35 @@ QUnit.module("BTNode tests", function() {
 	    assert.notOk (n3.hasWebLinks, "file: links are not web links");
 	    assert.ok (n4.hasWebLinks, "http links are web links");
 	    assert.ok ((n1.hasWebLinks && n2.hasWebLinks), "weblinkage bubbles up to ancestors");
+    });
+
+    QUnit.test("Basic BTAppNode Tests", function(assert) {
+        const an1 = new BTAppNode("Top Level", null, "AppNode 1", 1);
+        const an2 = new BTAppNode("Second Level", an1.id, "AppNode 2", 2);
+        const an3 = new BTAppNode("[[file:somefile][file link]] blah", an2.id, "AppNode 3", 3);
+        const an4 = new BTAppNode("[[http://google.com][goog]] also blah", an2.id, "AppNode 4", 3);
+        assert.equal (an4.level, 3, "Level ok");
+        assert.equal (an2.parentId, an1.id, "Parenting ok");
+        assert.equal (an4.URL, "http://google.com", "URL passthru ok");
+        assert.equal (an4.displayTag, "goog also blah", "displayTag passthru ok");
+        assert.equal (an4.displayTitle(), "<a href='http://google.com' class='btlink'>goog</a> also blah", "dispTitle");
+        assert.equal (an3.level, 3, "Level ok on creation");
+        an2.resetLevel(1);
+        assert.equal (an3.level, 2, "Level reset ok");
+        assert.notOk (an1.hasOpenChildren(), "initial open captured correctly");
+        an4.isOpen = true;
+        assert.ok (an4.isOpen, "child open ok");
+        assert.ok (an2.hasOpenChildren(), "parent openChildren updated ok");
+        const baseAn1 = {
+            "_URL": an1.URL,
+            "_childIds": an1.childIds,
+            "_displayTag": "Top Level",
+            "_id": an1.id,
+            "_isOpen": false,
+            "_parentId": null,
+            "_title": "Top Level"
+        }
+        assert.propEqual(baseAn1, an1.toBTNode(), "base class generation");
     });
 });
                 

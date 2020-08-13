@@ -11,6 +11,7 @@ var ManagedTabs = [];
 var AllNodes;                   // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
 var OpenNodes = new Object();   // hash of node name to window id
+var TabAction = 'pop';          // default operation on tagged tab (pop, hide, close, set by popup)
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
@@ -55,16 +56,22 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         }
         break;
     case 'popup':
-        if (msg.msg == 'move_tab') {
-            const [tag, parent, keyword] = BTNode.processTagString(msg.tag);
-            var tabNode = BTChromeNode.findFromTab(msg.tabId);         // Is this tab already a BTNode?
-            if (tabNode) {                                             // if so duplicate
+        const [tag, parent, keyword] = BTNode.processTagString(msg.tag);
+        if (msg.msg == 'add_move_tab') {
+            var tabNode = BTChromeNode.findFromTab(msg.tabId);       // Is this tab already a BTNode?
+            if (tabNode) {                                           // if so duplicate
                 chrome.tabs.duplicate(msg.tabId, function(newTab) {
                     moveTabToTag(newTab.id, tag);
                 });
             } else {
                 moveTabToTag(msg.tabId, tag);
             }
+        }
+        if (msg.msg == 'add_tab') {
+            // create parent tag node if needed and then the node itself
+            const tagNodeId = BTNode.findFromTitle(tag);
+            const tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(tag);
+            new BTChromeNode(msg.title, tagNode.id);
         }
         break;
     }
@@ -92,7 +99,7 @@ function readyOrRefresh() {
         BTNode.reset();
         nodes.forEach(function(node) {
             if (!node) return;                                        // nodes array can be sparse
-            const chromeNode = new BTChromeNode(node);
+            const chromeNode = new BTChromeNode('', null, node);
             
             // restore open state w tab and window ids. preserves state across refreshes
             // These are object structures indexed by _title
@@ -237,14 +244,12 @@ function closeNode(id) {
 
 function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
-
-    chrome.windows.update(BTWin, {'focused': true});           // Start things off w the BT win shown
     
     const tagNodeId = BTNode.findFromTitle(tag);
     const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists copy tab, don't move it
     const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].URL : null;
     let newTabId = tabNodeId ? null : tabId;           // already BT node w diff tag => create a new
-    let tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(new BTNode(tag));
+    let tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(tag);
 
     // So there's 4 cases: Tag already has a window or not, and tab is already a BT node or not
     // already a BT node => create a new tab, else move existing
@@ -263,26 +268,31 @@ function moveTabToTag(tabId, tag) {
             const index = openTabs ? openTabs : -1;
             // now move tab to new position.
             chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': index}, function(deets) {
-                chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
-                chrome.windows.update(tagNode.windowId, {'focused': true});
+                if (TabAction == 'pop') {
+                    // If default pop action selected, pop BT win and new tab to top
+                    chrome.windows.update(BTWin, {'focused': true});
+                    chrome.tabs.highlight({'windowId': tagNode.windowId, 'tabs': deets.index});
+                    chrome.windows.update(tagNode.windowId, {'focused': true});
+                }
             });
         }}
-    else {                                                // need to create new window
-        const arg = url? {'url': url} : {'tabId': tabId};                // create new or move tab to new window
+    else {                                                          // need to create new window
+        const arg = url ? {'url': url} : {'tabId': tabId};
+        if (TabAction != 'pop') arg.focused = false;
         chrome.windows.create(arg, function(window) {
             newTabId = newTabId ? newTabId : window.tabs[0].id;
             tagNode.windowId = window.id;
-            OpenNodes[tag] = window.id;                                  // remember this node is open
+            OpenNodes[tag] = window.id;                             // remember this node is open
         });
     }
     
     // get tab url, then create and store new BT node
     chrome.tabs.get(newTabId, function(tab) {
-        var linkNode = new BTChromeNode(new BTNode(`[[${tab.url}]]`, tagNode.id));
+        var linkNode = new BTChromeNode(`[[${tab.url}][${tab.title}]]`, tagNode.id);
         linkNode.tabId = newTabId;
         linkNode.windowId = tagNode.windowId;
         AllNodes[linkNode.id] = linkNode;
-        OpenLinks[linkNode.title] = tabId;           // remember this link is open
+        OpenLinks[linkNode.title] = tabId;                          // remember this link is open
         
         // Send back message that the link and tag nodes are opened in browser
         chrome.tabs.sendMessage(

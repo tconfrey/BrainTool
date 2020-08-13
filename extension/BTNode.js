@@ -167,13 +167,15 @@ class BTNode {
 class BTChromeNode extends BTNode {
     // Node as seen by the extension. Knows about tabs and window ids
 
-    constructor(bnode) {
-	// Trivial ctor and 'assign' allow us to clone the base node created on the app side while adding new ChromeNode behavior.
-	    super(''); Object.assign(this, bnode);
+    constructor(title = '', parentId = null, btobj = null) {
+	    // Trivial ctor and 'assign' allow us to clone the base node created on the app side
+        // while adding new ChromeNode behavior.
+	    super(title, parentId);
+        if (btobj)
+            Object.assign(this, btobj);
         this._tabId = null;
         this._windowId = null;
         AllNodes[this._id] = this;
-        BTNode.topIndex += 1;
     }
 
     get tabId() {

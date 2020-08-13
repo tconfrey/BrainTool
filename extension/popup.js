@@ -1,40 +1,64 @@
-// this code runs under the popup and controls the tag entry for adding a page to BT
-
+/*** 
+ * 
+ * This code runs under the popup and controls the tag entry for adding a page to BT.
+ * Trying to keep it minimal. No jQuery etc.
+ * 
+ ***/
 'use strict';
 
-const messageDiv = document.getElementById('message');
-const tagDiv = document.getElementById('tag');
-const newTag = document.getElementById('newtag');
-const note = document.getElementById('note');
+const Note = document.getElementById('note');
 var CurrentTab;
 var AwesomeWidget;
 
-// handle click on note field
-document.onclick = function(e) {
-    if (e.target == note)
-        newTagEntered();
-};
+function popupAction () {
+    // Activate popup -> open bt window if not open, otherwise populate tag entry form
 
-function storeBTInfo(winId, tabId, tries = 0) {
-    // set the global variable on the background page
-    var bg = chrome.extension.getBackgroundPage();
-    if (!bg) {
-        alert("Extension not initialized correctly. \Trying again.");
-        setTimeout(function() {
-            storeBTInfo(winId, tabId, tries + 1);}, 100);
-        return;
+    const bgPage = chrome.extension.getBackgroundPage();
+    const tabAction = bgPage.TabAction || 'pop';     // should be set, but default to be safe
+    const btTab = bgPage ? bgPage.BTTab : null;
+    if (!btTab) {
+        windowOpen();
+    } else {
+        getCurrentTab(function (tab) {
+            const messageDiv = document.getElementById('message');
+            const tagDiv = document.getElementById('tag');
+            messageDiv.style.display = 'none';
+            tagDiv.style.display = 'block';
+            console.log("this tab:", tab.id, "\n ManagedTabs:", btTab.ManagedTabs);
+            if (bgPage.ManagedTabs && bgPage.ManagedTabs.includes(CurrentTab.id)) {
+                ReadOnly = true;
+            }
+            chrome.storage.local.get('tags', function(data) {
+                const tagsArray = data.tags;
+                const tags = tagsArray.map(tag => tag.name);
+                const newTag = document.getElementById('newtag');
+                const tagsArea = document.getElementById('currentTags');
+                tagsArea.innerHTML = generateTagsDisplay(tagsArray);
+                newTag.value = "";
+                AwesomeWidget = new Awesomplete(newTag, {
+	                list: tags, autoFirst: true
+                });
+                // set radio button
+                document.getElementById(tabAction).checked = true;
+                // Pull currentTag from local storage and prepopulate widget
+                chrome.storage.local.get('currentTag', function(data) {
+                    newTag.value = data.currentTag;
+                    Defaulted = true;
+                    if (ReadOnly) {
+                        Note.value = "This tab is already under BT control";
+                        Note.disabled = true;
+                        newTag.disabled = true;
+                    }
+                });
+            });
+        }); 
     }
-    bg.BTWin = winId;
-    bg.BTTab = tabId;
-    console.log("setting ManagedTabs=[]");
-    bg.ManagedTabs = [];
-    if (tries) alert("BrainTool Extension initialized");
 }
-    
+
 function windowOpen() {
     // Called on first click on header button, create the BT panel window
 
-    // First check for existing BT Tab - this would be an error condition or after an Extension restart.
+    // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
     chrome.tabs.query({title: "BrainTool Chrome Extension"},
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
@@ -54,7 +78,26 @@ function windowOpen() {
     });
 }
 
-function getCurrentTab (callback) {
+function storeBTInfo(winId, tabId, tries = 0) {
+    // tell the persistent background page details on the BrainTool application tab/window.
+    const bg = chrome.extension.getBackgroundPage();
+    if (!bg) {
+        if (tries > 40) {
+            alert("Extension not initialized correctly. \nGiving Up. \n:-(");
+            return;
+        }
+        alert("Extension not initialized correctly. \Trying again.");
+        setTimeout(function() {
+            storeBTInfo(winId, tabId, tries + 1);}, 250);
+        return;
+    }
+    bg.BTWin = winId;
+    bg.BTTab = tabId;
+    bg.ManagedTabs = [];
+    if (tries) alert("BrainTool Extension initialized");
+}
+
+function getCurrentTab (callback =  null) {
     // fill a storage variable w the tab to be stored
     chrome.tabs.query({active: true, currentWindow: true}, function(list) {
         // NB only one tab should be active and in the current window 
@@ -87,52 +130,20 @@ function generateTagsDisplay(tagsArray) {
     return str + '</ul>';
 }
 
-function popupAction () {
-    // open bt window if not open, otherwise populate tag entry form
-
-    const bgPage = chrome.extension.getBackgroundPage();
-    const btTab = bgPage ? bgPage.BTTab : null;
-    if (!btTab) {
-        windowOpen();
-    } else {
-        getCurrentTab(function (tab) {
-            messageDiv.style.display = 'none';
-            tagDiv.style.display = 'block';
-            console.log("this tab:", tab.id, "\n ManagedTabs:", btTab.ManagedTabs);
-            if (bgPage.ManagedTabs && bgPage.ManagedTabs.includes(CurrentTab.id)) {
-                ReadOnly = true;
-            }
-            chrome.storage.local.get('tags', function(data) {
-                var tagsArray = data.tags;
-                const tags = tagsArray.map(tag => tag.name);
-                var tagsArea = document.getElementById('currentTags');
-                tagsArea.innerHTML = generateTagsDisplay(tagsArray);
-                var input = document.getElementById("newtag");
-                input.value = "";
-                AwesomeWidget = new Awesomplete(input, {
-	                list: tags, autoFirst: true
-                });
-                // Pull currentTag from local storage and prepopulate widget
-                chrome.storage.local.get('currentTag', function(data) {
-                    input.value = data.currentTag;
-                    Defaulted = true;
-                    if (ReadOnly) {
-                        note.value = "This tab is already under BT control";
-                        note.disabled = true;
-                        input.disabled = true;
-                    }
-                });
-            });
-        }); 
-    }
-}
 
 var Defaulted = false;                  // capture whether the tag value was defaulted to window tag
 var KeyCount = 0;
 var ReadOnly = false;                   // capture whether tab is already stored in BT => should not edit here
+
+
 popupAction();
 
-newtag.onkeydown = function(e) {
+// NB don't know why but doesn't work w event directly on Note
+document.onclick = function(e) {
+    if (e.target == Note)
+        newTagEntered();
+};
+document.getElementById('newtag').onkeydown = function(e) {
     if (e.key == "Tab") {
         newTagEntered();
         e.preventDefault();
@@ -142,14 +153,23 @@ newtag.onkeydown = function(e) {
     }
 };
 
+// Capture radio button updates and update background page
+document.querySelectorAll('input[name="bta"]').forEach(
+    elt => elt.addEventListener('change', function(e) {
+        const newTabAction = document.querySelector('input[type="radio"]:checked').value;
+        const bgPage = chrome.extension.getBackgroundPage();
+        if (bgPage)
+            bgPage.TabAction = newTabAction;
+    }));
+
 function newTagEntered() {
     // handle tag selection
     if (ReadOnly) return;       // => already a BT node, ignore input
     AwesomeWidget.select();
-    note.disabled= false;
-    note.value="";
-    note.focus();
-    note.select();
+    Note.disabled= false;
+    if (Note.value == "Note:")
+        Note.value="";          // Remove prompt text, but not previously entered notes
+    Note.focus();
 }
 
 // set callback on entering tag for tab
@@ -157,8 +177,8 @@ window.onkeyup = function(e) {
     // We previously set a default if window already has a tag. Make it easy to delete.
     // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
     if (Defaulted && (KeyCount < 2) && (e.key == "Backspace")) {
-        var input = document.getElementById("newtag");
-        input.value = "";
+        const newTag = document.getElementById("newtag");
+        newTag.value = "";
     }
     KeyCount++;
     if (e.key != "Enter") return    // Ignore if not Enter key
@@ -172,42 +192,47 @@ window.onkeyup = function(e) {
     tabAdded();
 }
 
-
-
 function tabAdded() {
-    // Call out to the content script which will get current tab and add to BT
-    const nt = newTag.value;                                     // value from text entry field
+    // Call out to BT app to inform of new node, then update the bckground script
+    const nt = document.getElementById('newtag').value;          // value from text entry field
     if (nt == "") return;
-    const noteText = note.value;
-    const btTab = chrome.extension.getBackgroundPage();
-    const BTTabId = btTab.BTTab;  // extension global for bttab
+    const noteText = Note.value;
+    const bgPage = chrome.extension.getBackgroundPage();
+    const BTTabId = bgPage.BTTab;                 // extension global for bttab
+    const tabAction = bgPage.TabAction;           // pop, close etc from radio btn in popup
     const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
 
     // Remember this tab is a BT managed tab
-    let mTabs = btTab.ManagedTabs;
+    let mTabs = bgPage.ManagedTabs;
     mTabs.push(CurrentTab.id);
-    btTab.ManagedTabs = mTabs;
+    bgPage.ManagedTabs = mTabs;
     
-    // Send msg to BT app for processing w tab and tag info
+    // Send msg to BT app for processing w text and tag info, then update bg
     chrome.tabs.sendMessage(
         BTTabId,
         message, 
         function (rsp) {
-            if (rsp)        // Send msg to background to perform move (cos this script ends when looses focus)
+            if (tabAction == 'close')
+                chrome.tabs.remove(CurrentTab.id);
+            if (rsp) {
+                // Send msg to background to perform appropriate add node or add & move action.
+                // Move may pop or not. (NB this script ends when looses focus.)
+                const msgType = (tabAction == 'close') ? 'add_tab' : 'add_move_tab';
                 chrome.runtime.sendMessage({
                     from: 'popup',
-                    msg: 'move_tab',
+                    msg: msgType,
                     tabId: CurrentTab.id,
-                    tag: nt
+                    tag: nt,
+                    title: `[[${CurrentTab.url}][${CurrentTab.title}]]`
                 });
-            else 
-                alert("Must be an error! ");
+            }
+            else // Shouldn't get here
+                alert("Error in tabAdded!");
             window.close();
         });
-    console.count('new_tab');
 }
 
-// Listen for messages from other components
+// Listen for messages from other components. Currently just to know to close BT popup.
 chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
