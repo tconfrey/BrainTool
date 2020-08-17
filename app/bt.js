@@ -17,7 +17,8 @@ const tipsArray = [
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
-    "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page."
+    "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page.",
+    "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs"
 ];
 
 
@@ -257,7 +258,7 @@ function dropNode(event, ui) {
         // First set the correct parentage, model then tree
         const nodeIndex = $(dropBelow).index();
         const parentIndex = $(dropParent).index();
-        BTAppNode.reparentNode(dropParentId, dragNodeId, nodeIndex - parentIndex);
+        AllNodes[dragNodeId].reparentNode(dropParentId, nodeIndex - parentIndex);
         treeTable.treetable("move", dragNodeId, dropParentId);
         
         // Then move to correct position under parent and update file

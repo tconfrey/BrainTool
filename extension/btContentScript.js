@@ -63,6 +63,17 @@ window.addEventListener('message', function(event) {
         });
         console.count('Content-OUT:node_deleted');
         break;
+    case 'node_reparented':
+        // pass on
+        chrome.runtime.sendMessage({
+            from: 'btwindow',
+            msg: 'node_reparented',
+            nodeId: event.data.nodeId,
+            parentId: event.data.parentId,
+            index: event.data.index
+        });
+        console.count('Content-OUT:node_reparented');
+        break;
     case 'show_node':
         // pass on
         chrome.runtime.sendMessage({

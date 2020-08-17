@@ -199,18 +199,21 @@ class BTAppNode extends BTNode {
         return n + me;
     }
 
-    static reparentNode(newP, node, index = -1) {
-        // move node from pre parent to new one, optional positional order
+    reparentNode(newP, index = -1) {
+        // move node from existing parent to new one, optional positional order
+
+        super.reparentNode(newP, index);
         
-        const oldP = AllNodes[node].parentId;
-        if (!oldP) return;      // top level node, no need to reparent 
-        AllNodes[node].parentId = newP;
-        AllNodes[oldP].removeChild(node);
-        AllNodes[newP].addChild(node, index);
         // Update nesting level as needed (== org *** nesting)
         const newLevel = AllNodes[newP].level + 1;
-        if (AllNodes[node].level != newLevel)
-            AllNodes[node].resetLevel(newLevel);
+        if (this.level != newLevel)
+            this.resetLevel(newLevel);
+
+        // message to update BT background model
+        window.postMessage(
+            { type: 'node_reparented', nodeId: this.id, parentId: newP, index: index });
+        console.count('BT-OUT:node_deleted');
+
     }
 
     static generateTags() {

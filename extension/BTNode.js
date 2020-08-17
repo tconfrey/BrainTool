@@ -32,7 +32,7 @@ class BTNode {
         return this._URL;
     }
     get displayTag() {
-	return this._displayTag;
+	    return this._displayTag;
     }
 
     set parentId(i) {
@@ -93,7 +93,16 @@ class BTNode {
         }
         return props;
     }
-
+    
+    reparentNode(newP, index = -1) {
+        // move node from existing parent to new one, optional positional order
+        
+        const oldP = this.parentId;
+        if (oldP)
+            AllNodes[oldP].removeChild(this.id);
+        this.parentId = newP;
+        AllNodes[newP].addChild(this.id, index);
+    }
     
     static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
