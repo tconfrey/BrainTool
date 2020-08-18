@@ -27,7 +27,7 @@ function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
-        FindOrCreateBTFile();
+        findOrCreateBTFile();
         addTip();                                          // display tip text
         setTimeout(toggleMenu, 2000);
     } else {
@@ -58,12 +58,6 @@ function toggleMenu() {
     }
 }
 
-function appendPre(message) {
-    var pre = document.getElementById('content');
-    var textContent = document.createTextNode(message + '\n');
-    pre.appendChild(textContent);
-}
-
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
@@ -86,7 +80,7 @@ function refreshTable() {
     });
     AllNodes = [];
     
-    FindOrCreateBTFile();
+    findOrCreateBTFile();
 }
 
 

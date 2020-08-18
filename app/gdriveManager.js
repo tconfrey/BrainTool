@@ -25,29 +25,34 @@ function processKeys(clientId, APIKey) {
     CLIENT_ID = clientId;
     API_KEY = APIKey;
     if (WindowLoaded && (typeof gapi !== 'undefined'))
-        gapi.load('client:auth2', initClient);             // initialize gdrive app
+        gapi.load('client:auth2', initClient);             // load auth lib & initialize gdrive app
     else
         waitForGapi();
 }
 
 function initClient() {
     // Initializes the API client library and sets up sign-in state listeners
-    gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-    }).then(function () {
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    try {
+	gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES
+	}).then(function () {
+            // Listen for sign-in state changes.
+            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-        // Handle the initial sign-in state.
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        authorizeButton.onclick = handleAuthClick;
-        signoutButton.onclick = handleSignoutClick;
-    }, function(error) {
-        appendPre(JSON.stringify(error, null, 2));
-    });
+            // Handle the initial sign-in state.
+            updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            authorizeButton.onclick = handleAuthClick;
+            signoutButton.onclick = handleSignoutClick;
+	}, function(error) {
+            alert (`Error initializing GDrive API: [${JSON.stringify(error, null, 2)}]`);
+	});
+    }
+    catch (err) {
+	alert(`Error in initClient: [${JSON.stringify(error, null, 2)}]`);
+    }
 }
 
 
@@ -82,7 +87,7 @@ function handleSignoutClick(event) {
  * Find or initialize BT file
  */
 var BTFileID;
-function FindOrCreateBTFile() {
+function findOrCreateBTFile() {
     try {
         gapi.client.drive.files.list({
             'pageSize': 1,
@@ -102,22 +107,23 @@ function FindOrCreateBTFile() {
     }
     catch (err) {   
         alert("BT - error reading file list from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+        console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
     }
 }
 
 function getBTFile() {
     try {
-    gapi.client.drive.files.get({
-        fileId: BTFileID,
-        alt: 'media'
-    }).then(
-        function(response) {
-            processBTFile(response.body);
-        },
-        function(error) {
-            console.log("Error - Could not read BT file");
-        });
+	gapi.client.drive.files.get({
+            fileId: BTFileID,
+            alt: 'media'
+	}).then(
+            function(response) {
+		processBTFile(response.body);
+            },
+            function(error) {
+		console.log("Error in getBTFile - Could not read BT file", JSON.stringify(error));
+		alert(`Could not read BT file. Google says: [${JSON.stringify(error)}]. Maybe Try toggling permissions.`);
+            });
     }
     catch(err) {
         alert("BT - error reading BT file from GDrive. Check permissions and retry");
@@ -130,14 +136,14 @@ function createStartingBT() {
     // Read the template bt file from the server and upload to gdrive
 
     var metadata = {
-        'name': 'BrainTool.org', // Filename at Google Drive
-        'mimeType': 'text/plain' // mimeType at Google Drive
-/*      'parents': ['### folder ID ###'], // Folder ID at Google Drive */
+        'name': 'BrainTool.org',                   // Filename at Google Drive
+        'mimeType': 'text/plain'                   // mimeType at Google Drive
+	/*      'parents': ['### folder ID ###'],  // Folder ID at Google Drive */
     };
-    var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
+    var accessToken = gapi.auth.getToken().access_token; // gapi gives me an approved access token.
     var form = new FormData();
     
-    fetch('/app/BrainTool.org')     // fetch template file from bt server
+    fetch('/app/BrainTool.org')                    // fetch template file from bt server
         .then(response => {
             if (!response.ok) {
                 throw new Error("HTTP error " + response.status);
@@ -160,8 +166,8 @@ function createStartingBT() {
                 getBTFile();
             });
         })
-        .catch(function () {
-            this.dataError = true;
+        .catch(function (err) {
+            alert(`Error creating initial BT file template: [${JSON.stringify(err)}]`);
         })
 }
 
@@ -172,8 +178,8 @@ function writeBTFile() {
     BTFileText = generateOrgFile();
     if (window.LOCALTEST) return;
     if (typeof gapi === "undefined") {           // eg when called from test harness
-	    alert("BT - error in writeBTFile");
-	    return;
+	alert("BT - error in writeBTFile");
+	return;
     }
     const metadata = {
         'name': 'BrainTool.org', // Filename at Google Drive
@@ -195,17 +201,17 @@ function writeBTFile() {
                   headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
                   body: form
               }).then((res) => {
-	              if (!res.ok) {
-		              alert("BT - error writing to GDrive, reuthenticating...");
-		              console.log("GAPI response:\n", res);
-                      gapi.auth.authorize(
+	          if (!res.ok) {
+		      alert("BT - error writing to GDrive, reuthenticating...");
+		      console.log("GAPI response:\n", res);
+		      gapi.auth.authorize(
                           {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
-                      ).then((res) => {
+		      ).then((res) => {
                           if (res.status && res.status.signed_in) {
-                              writeBTFile();                        // try again
+			      writeBTFile();                        // try again
                           }});
-		              return('GAPI error');
-	              }
+		      return('GAPI error');
+	          }
                   return res.json();
               }).then(function(val) {
                   console.log(val);
