@@ -47,11 +47,11 @@ function initClient() {
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
 	}, function(error) {
-            alert (`Error initializing GDrive API: [${JSON.stringify(error, null, 2)}]`);
+            alert (`Error initializing GDrive API: [${JSON.stringify(error.result.error)}]`);
 	});
     }
     catch (err) {
-	alert(`Error in initClient: [${JSON.stringify(error, null, 2)}]`);
+	alert(`Error in initClient: [${JSON.stringify(err)}]`);
     }
 }
 
@@ -122,7 +122,7 @@ function getBTFile() {
             },
             function(error) {
 		console.log("Error in getBTFile - Could not read BT file", JSON.stringify(error));
-		alert(`Could not read BT file. Google says: [${JSON.stringify(error)}]. Maybe Try toggling permissions.`);
+		alert(`Could not read BT file. Google says: [${JSON.stringify(error.result.error)}]. Maybe Try toggling permissions.`);
             });
     }
     catch(err) {
