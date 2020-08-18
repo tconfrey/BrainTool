@@ -122,7 +122,7 @@ function getBTFile() {
             },
             function(error) {
 		console.log("Error in getBTFile - Could not read BT file", JSON.stringify(error));
-		alert(`Could not read BT file. Google says: [${JSON.stringify(error.result.error)}]. Maybe Try toggling permissions.`);
+		alert(`Could not read BT file. Google says: [${JSON.stringify(error.result.error)}].\n Maybe Try toggling permissions.`);
             });
     }
     catch(err) {
