@@ -80,7 +80,7 @@ function refreshTable() {
     });
     AllNodes = [];
     
-    findOrCreateBTFile();
+    getBTFile();
 }
 
 
