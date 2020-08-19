@@ -1,6 +1,6 @@
 {
     "name": " BrainTool",
-    "version": "1.0",
+    "version": "0.1",
     "description": "Manage links and notes with hierarichal tags. Sync to an editable emacs-org format plain text file on your GDrive.",
     "permissions": ["tabs", "storage"], // ideally would use "activeTab" but then openAll won't get actions
     "background": {
