@@ -1,8 +1,9 @@
 {
-    "name": " BrainTool",
+    "manifest_version": 2,
+    "name": "BrainTool",
     "version": "0.1",
-    "description": "Manage links and notes with hierarichal tags. Sync to an editable emacs-org format plain text file on your GDrive.",
-    "permissions": ["tabs", "storage"], // ideally would use "activeTab" but then openAll won't get actions
+    "description": "Manage links and notes with hierarchical tags. Sync to an editable emacs-org format plain text file on your GDrive.",
+    "permissions": ["tabs", "storage"],
     "background": {
         "scripts": ["background.js", "config.js", "BTNode.js"],
         "persistent": false
@@ -10,7 +11,6 @@
     "content_scripts": [
         {
             "matches": ["https://BrainTool.org/app/*"],
-//            "matches": ["http://localhost/*"],   // "https://tconfrey.github.io/BrainTool/*"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }
@@ -37,6 +37,5 @@
                 "default": "Alt+B"
             }
         }
-    },
-    "manifest_version": 2
+    }
 }
