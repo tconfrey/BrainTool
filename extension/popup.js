@@ -14,7 +14,6 @@ function popupAction () {
     // Activate popup -> open bt window if not open, otherwise populate tag entry form
 
     const bgPage = chrome.extension.getBackgroundPage();
-    const tabAction = bgPage.TabAction || 'pop';     // should be set, but default to be safe
     const btTab = bgPage ? bgPage.BTTab : null;
     if (!btTab) {
         windowOpen();
@@ -28,6 +27,8 @@ function popupAction () {
             if (bgPage.ManagedTabs && bgPage.ManagedTabs.includes(CurrentTab.id)) {
                 ReadOnly = true;
             }
+            // should be set, but default to be safe
+            const tabAction = bgPage ? bgPage.TabAction || 'pop' : 'pop';
             chrome.storage.local.get('tags', function(data) {
                 const tagsArray = data.tags;
                 const tags = tagsArray.map(tag => tag.name);
@@ -82,13 +83,13 @@ function storeBTInfo(winId, tabId, tries = 0) {
     // tell the persistent background page details on the BrainTool application tab/window.
     const bg = chrome.extension.getBackgroundPage();
     if (!bg) {
-        if (tries > 40) {
+        if (tries > 4) {
             alert("Extension not initialized correctly. \nGiving Up. \n:-(");
             return;
         }
         alert("Extension not initialized correctly. \Trying again.");
         setTimeout(function() {
-            storeBTInfo(winId, tabId, tries + 1);}, 250);
+            storeBTInfo(winId, tabId, tries + 1);}, 1250);
         return;
     }
     bg.BTWin = winId;
