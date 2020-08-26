@@ -83,13 +83,14 @@ function storeBTInfo(winId, tabId, tries = 0) {
     // tell the persistent background page details on the BrainTool application tab/window.
     const bg = chrome.extension.getBackgroundPage();
     if (!bg) {
-        if (tries > 4) {
+        if (tries > 6) {
             alert("Extension not initialized correctly. \nGiving Up. \n:-(");
             return;
         }
-        alert("Extension not initialized correctly. \Trying again.");
+	if (tries > 5)
+            alert("Extension not initialized yet. \Trying again.");
         setTimeout(function() {
-            storeBTInfo(winId, tabId, tries + 1);}, 1250);
+            storeBTInfo(winId, tabId, tries + 1);}, 250);
         return;
     }
     bg.BTWin = winId;
@@ -237,7 +238,7 @@ function tabAdded() {
 chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
-        if (msg.msg == 'ready') {
+        if (msg.msg == 'window_ready') {
             console.log("BT window is ready");
             window.close();
         }

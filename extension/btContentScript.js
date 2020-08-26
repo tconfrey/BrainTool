@@ -21,7 +21,7 @@ window.addEventListener('message', function(event) {
         // and let extension know bt window is set
         chrome.runtime.sendMessage({
             from: 'btwindow',
-            msg: 'ready',
+            msg: 'nodes_ready',
         });
         console.count('Content-OUT:ready');
         break;

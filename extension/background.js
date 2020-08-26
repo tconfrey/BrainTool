@@ -19,11 +19,11 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'window_ready') {
-            restartExtension();
+            initializeExtension();
         }
-        if (msg.msg == 'ready') {
+        if (msg.msg == 'nodes_ready') {
             // maybe give original window focus here?
-            readyOrRefresh();
+            loadNodes();
         }
         if (msg.msg == 'link_click') {
             openLink(msg.nodeId, msg.url);
@@ -95,7 +95,7 @@ function indexInParent(nodeId) {
     return index;
 }
 
-function readyOrRefresh() {
+function loadNodes() {
     // Called on startup or refresh
     // (and as a last resort when link msgs are received but AllNodes is empty)
     chrome.storage.local.get('nodes', function(data) {
@@ -162,7 +162,7 @@ function openLink(nodeId, url, tries=1) {
             alert("Error in BrainTool:[", JSON.stringify(err), "]\nTry closing main BT window and restarting");
             return;
         }
-        readyOrRefresh();
+        loadNodes();
         setTimeout(function(){openLink(nodeId, url, ++tries);}, 100);
     }
 }
@@ -305,17 +305,17 @@ function moveTabToTag(tabId, tag) {
                     });
 }
 
-function restartExtension(tries = 1) {
+function initializeExtension(tries = 1) {
     // Since we're restarting close windows and clear out the cache of opened nodes
 
     // might need to wait for popup.js to store BTTab value before sending it the keys
     if (!BTTab) {
-        if (tries > 2) {
+        if (tries > 6) {
             alert("Error starting BrainTool");
             return;
         }
         console.log("try: " + tries + ". Starting Extension setup but BTTab not yet set, trying again...");
-        setTimeout(function() {restartExtension(++tries);}, 100);
+        setTimeout(function() {initializeExtension(++tries);}, 250);
         return;
     }
     
