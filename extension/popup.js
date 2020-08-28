@@ -13,8 +13,12 @@ var AwesomeWidget;
 function popupAction () {
     // Activate popup -> open bt window if not open, otherwise populate tag entry form
 
-    const bgPage = chrome.extension.getBackgroundPage();
-    const btTab = bgPage ? bgPage.BTTab : null;
+    const bgPage = chrome.extension.getBackgroundPage();     // syncronous, so waits
+    if (!bgPage) {
+        alert ("Can't open BrainTool extension!");
+        return;
+    }
+    const btTab = bgPage.BTTab;                              // BT tab if open already
     if (!btTab) {
         windowOpen();
     } else {
@@ -66,7 +70,7 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     var wargs = {
-//        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app", 
+        //'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
         'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
@@ -74,30 +78,10 @@ function windowOpen() {
     };
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
-        storeBTInfo(window.id, window.tabs[0].id);
         chrome.windows.update(window.id, {'focused' : true});
     });
 }
 
-function storeBTInfo(winId, tabId, tries = 0) {
-    // tell the persistent background page details on the BrainTool application tab/window.
-    const bg = chrome.extension.getBackgroundPage();
-    if (!bg) {
-        if (tries > 6) {
-            alert("Extension not initialized correctly. \nGiving Up. \n:-(");
-            return;
-        }
-	if (tries > 5)
-            alert("Extension not initialized yet. \Trying again.");
-        setTimeout(function() {
-            storeBTInfo(winId, tabId, tries + 1);}, 250);
-        return;
-    }
-    bg.BTWin = winId;
-    bg.BTTab = tabId;
-    bg.ManagedTabs = [];
-    if (tries) alert("BrainTool Extension initialized");
-}
 
 function getCurrentTab (callback =  null) {
     // fill a storage variable w the tab to be stored

@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'window_ready') {
-            initializeExtension();
+            initializeExtension(sender.tab.id);
         }
         if (msg.msg == 'nodes_ready') {
             // maybe give original window focus here?
@@ -305,20 +305,10 @@ function moveTabToTag(tabId, tag) {
                     });
 }
 
-function initializeExtension(tries = 1) {
+function initializeExtension(bttab) {
     // Since we're restarting close windows and clear out the cache of opened nodes
 
-    // might need to wait for popup.js to store BTTab value before sending it the keys
-    if (!BTTab) {
-        if (tries > 6) {
-            alert("Error starting BrainTool");
-            return;
-        }
-        console.log("try: " + tries + ". Starting Extension setup but BTTab not yet set, trying again...");
-        setTimeout(function() {initializeExtension(++tries);}, 250);
-        return;
-    }
-    
+    BTTab = bttab;
     chrome.tabs.sendMessage(                        // send over gdrive app info
         BTTab,
         {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
