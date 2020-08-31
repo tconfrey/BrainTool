@@ -10,14 +10,9 @@ const Note = document.getElementById('note');
 var CurrentTab;
 var AwesomeWidget;
 
-function popupAction () {
+function popupAction (bgPage) {
     // Activate popup -> open bt window if not open, otherwise populate tag entry form
 
-    const bgPage = chrome.extension.getBackgroundPage();     // syncronous, so waits
-    if (!bgPage) {
-        alert ("Can't open BrainTool extension!");
-        return;
-    }
     const btTab = bgPage.BTTab;                              // BT tab if open already
     if (!btTab) {
         windowOpen();
@@ -122,7 +117,12 @@ var KeyCount = 0;
 var ReadOnly = false;                   // capture whether tab is already stored in BT => should not edit here
 
 
-popupAction();
+chrome.runtime.getBackgroundPage(function(bgp) {
+    if (bgp)
+        popupAction(bgp);
+    else
+        alert ("BT Background page not initialized, try again");
+});
 
 // NB don't know why but doesn't work w event directly on Note
 document.onclick = function(e) {
