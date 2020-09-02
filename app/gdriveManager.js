@@ -8,8 +8,8 @@
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 var CLIENT_ID, API_KEY;
 
-// Authorization scopes required by the API; multiple scopes can be
-// included, separated by spaces.
+// Authorization scopes required by the API;
+// Need to be able to create/read/write BTFile and to query for its existence
 var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly';
 
 // Used below to ensure gapi is set up etc before trying to load the file
@@ -30,32 +30,6 @@ function processKeys(clientId, APIKey) {
         waitForGapi();
 }
 
-function initClient() {
-    // Initializes the API client library and sets up sign-in state listeners
-    try {
-	gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES
-	}).then(function () {
-            // Listen for sign-in state changes.
-            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-            // Handle the initial sign-in state.
-            updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-            authorizeButton.onclick = handleAuthClick;
-            signoutButton.onclick = handleSignoutClick;
-	}, function(error) {
-            alert (`Error initializing GDrive API: [${JSON.stringify(error.result.error)}]`);
-	});
-    }
-    catch (err) {
-	alert(`Error in initClient: [${JSON.stringify(err)}]`);
-    }
-}
-
-
 function waitForGapi () {
     // gapi needed to access gdrive not yet loaded => this script needs to wait
     // NB shoudl probably error out sometime but there is a loading indicator showing at this point.
@@ -64,6 +38,31 @@ function waitForGapi () {
     else {
         $("#loadingMessage").append(".");
         setTimeout(waitForGapi, 250);
+    }
+}
+
+function initClient() {
+    // Initializes the API client library and sets up sign-in state listeners
+    try {
+	    gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES
+	    }).then(function () {
+            // Listen for sign-in state changes.
+            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+            // Handle the initial sign-in state.
+            updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            authorizeButton.onclick = handleAuthClick;
+            signoutButton.onclick = handleSignoutClick;
+	    }, function(error) {
+            alert (`Error initializing GDrive API: [${JSON.stringify(error.result.error)}]`);
+	    });
+    }
+    catch (err) {
+	    alert(`Error in initClient: [${JSON.stringify(err)}]`);
     }
 }
 
@@ -138,12 +137,17 @@ function createStartingBT() {
     var metadata = {
         'name': 'BrainTool.org',                   // Filename at Google Drive
         'mimeType': 'text/plain'                   // mimeType at Google Drive
-	/*      'parents': ['### folder ID ###'],  // Folder ID at Google Drive */
+	/*      'parents': ['### folder ID ###'],      // Folder ID at Google Drive */
     };
-    var accessToken = gapi.auth.getToken().access_token; // gapi gives me an approved access token.
-    var form = new FormData();
     
-    fetch('/app/BrainTool.org')                    // fetch template file from bt server
+    // get accessToken, pass retry cb for if not available
+    const accessToken = getAccessToken(createStartingBT);
+    if (!accessToken) 
+        return;
+
+    // fetch template file from bt server and write to GDrive
+    var form = new FormData();    
+    fetch('/app/BrainTool.org')                    
         .then(response => {
             if (!response.ok) {
                 throw new Error("HTTP error " + response.status);
@@ -171,22 +175,56 @@ function createStartingBT() {
         })
 }
 
+function getAccessToken(cb) {
+    // Get token or die trying
+    
+    const accessToken = gapi.auth.getToken() ? gapi.auth.getToken().access_token : null;
+    if (accessToken) 
+        return accessToken;
+
+    // else there's some kind of issue. retry
+	alert("BT - Error Google Access Token not available. Trying to reAuth...");
+    if (cb)
+        reAuth(cb);
+    return null;
+}
+
+function reAuth(callback) {
+    // If access to gdrive fails try a reauth
+
+	gapi.auth.authorize(
+        {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
+	).then((res) => {
+        if (res.status && res.status.signed_in) {
+            alert("reAuth succeeded. Continuing");
+			if (callback)
+                callback();                         // try again
+        } else {
+            console.log("Error in reAuth.");
+        }});
+    return;
+}
+
 window.LOCALTEST = false; // overwritten in test harness
 function writeBTFile() {
     // Write file contents into BT.org file on GDrive
     
     BTFileText = generateOrgFile();
     if (window.LOCALTEST) return;
-    if (typeof gapi === "undefined") {           // eg when called from test harness
-	alert("BT - error in writeBTFile");
-	return;
+    if (typeof gapi === "undefined") {           // Should not happen
+	    alert("BT - Error in writeBTFile. Google API not available.");
+	    return;
     }
     const metadata = {
-        'name': 'BrainTool.org', // Filename at Google Drive
-        'mimeType': 'text/plain' // mimeType at Google Drive
+        'name': 'BrainTool.org',                 // Filename at Google Drive
+        'mimeType': 'text/plain'                 // mimeType at Google Drive
     };
     try {
-        const accessToken = gapi.auth.getToken().access_token;
+        // get accessToken, pass retry cb for if not available
+        const accessToken = getAccessToken(writeBTFile);
+        if (!accessToken) 
+            return;
+
         let form = new FormData();
         console.log("writing BT file. accessToken = ", accessToken);
 
@@ -201,24 +239,19 @@ function writeBTFile() {
                   headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
                   body: form
               }).then((res) => {
-	          if (!res.ok) {
-		      alert("BT - error writing to GDrive, reuthenticating...");
-		      console.log("GAPI response:\n", res);
-		      gapi.auth.authorize(
-                          {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
-		      ).then((res) => {
-                          if (res.status && res.status.signed_in) {
-			      writeBTFile();                        // try again
-                          }});
-		      return('GAPI error');
-	          }
+	              if (!res.ok) {
+		              alert("BT - error writing to GDrive, reuthenticating...");
+		              console.log("GAPI response:\n", JSON.stringify(res));
+                      reAuth(writeBTFile);
+		              return('GAPI error');
+	              }
                   return res.json();
               }).then(function(val) {
                   console.log(val);
               });
     }
     catch(err) {
-        alert("BT - error writing to GDrive. Check permissions and retry");
+        alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
         console.log("Error in writeBTFile: ", JSON.stringify(err));
     }
 }

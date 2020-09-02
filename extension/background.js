@@ -7,6 +7,7 @@
 
 chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
+var BTWin;
 var ManagedTabs = [];           // global, used by popup to recognize BT tabs
 var AllNodes;                   // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
@@ -19,7 +20,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
         if (msg.msg == 'window_ready') {
-            initializeExtension(sender.tab.id);
+            initializeExtension(sender);
         }
         if (msg.msg == 'nodes_ready') {
             // maybe give original window focus here?
@@ -269,7 +270,7 @@ function moveTabToTag(tabId, tag) {
             chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': index},
                              function(deets) {
                                  if (TabAction == 'pop') {
-                                     // If default pop action selected, pop BT win and new tab to top
+                                     // If default pop action, pop BT tab and then new tab to top
                                      chrome.windows.update(BTWin, {'focused': true});
                                      chrome.tabs.highlight(
                                          {'windowId': tagNode.windowId, 'tabs': deets.index}
@@ -277,8 +278,8 @@ function moveTabToTag(tabId, tag) {
                                      chrome.windows.update(tagNode.windowId, {'focused': true});
                                  }
                              });
-        }}
-    else {                                                          // need to create new window
+        }
+    } else {                                                        // need to create new window
         const arg = url ? {'url': url} : {'tabId': tabId};
         if (TabAction != 'pop') arg.focused = false;
         chrome.windows.create(arg, function(window) {
@@ -305,10 +306,12 @@ function moveTabToTag(tabId, tag) {
                     });
 }
 
-function initializeExtension(bttab) {
+function initializeExtension(sender) {
+    // sender is the BTContent script. We pull out its identifiers
     // Since we're restarting close windows and clear out the cache of opened nodes
 
-    BTTab = bttab;
+    BTTab = sender.tab.id;
+    BTWin = sender.tab.windowId;
     chrome.tabs.sendMessage(                        // send over gdrive app info
         BTTab,
         {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
