@@ -18,6 +18,19 @@ window.addEventListener('load', function() {
     WindowLoaded = true;
 });
 
+
+function waitForKeys() {
+    // Fail safe, if request to background script for keys failed we should try try again.
+    if (!API_KEY) return;                       // all good
+    
+    $("#loadingMessage").append(".");
+    chrome.runtime.sendMessage({
+        from: 'btwindow',
+        msg: 'window_ready',
+    });
+    setTimeout(waitForKeys, 500);
+}
+
 function processKeys(clientId, APIKey) {
     // Client ID and API key from the Developer Console, values storted offline in config.js
     if (window.LOCALTEST) return;                          // running inside test harness

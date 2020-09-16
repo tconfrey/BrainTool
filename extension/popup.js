@@ -153,7 +153,7 @@ function newTagEntered() {
     if (ReadOnly) return;       // => already a BT node, ignore input
     AwesomeWidget.select();
     Note.disabled= false;
-    if (Note.value == "Note:")
+    if (Note.value == "Note (or hit Return):")
         Note.value="";          // Remove prompt text, but not previously entered notes
     Note.focus();
 }

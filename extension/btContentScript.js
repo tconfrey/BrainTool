@@ -123,7 +123,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 });
 
 
-// Let extension know bt window is ready to open gdrive app. Only run once
+// Let extension know bt window is ready to open gdrive app. Should only run once
 var NotLoaded = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({
@@ -131,5 +131,6 @@ if (!window.LOCALTEST && NotLoaded) {
         msg: 'window_ready',
     });
     NotLoaded = false;
+    setTimeout(waitForKeys, 500);
     console.count('Content-OUT:window_ready');
 }
