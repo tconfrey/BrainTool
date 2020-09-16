@@ -101,6 +101,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     case 'keys':                // info about gdrive app
         window.postMessage({type: 'keys', 'client_id': msg.client_id, 'api_key': msg.api_key});
         response("cheers mate");
+        WaitingForKeys = false;
         console.count('Content-OUT:keys');
         break;
     case 'new_tab':             // new tab to be added to BT
@@ -125,6 +126,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
 // Let extension know bt window is ready to open gdrive app. Should only run once
 var NotLoaded = true;
+var WaitingForKeys = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({
         from: 'btwindow',
@@ -133,4 +135,16 @@ if (!window.LOCALTEST && NotLoaded) {
     NotLoaded = false;
     setTimeout(waitForKeys, 500);
     console.count('Content-OUT:window_ready');
+}
+
+function waitForKeys() {
+    // Fail safe, if request to background script for keys failed we should try try again.
+    if (!WaitingForKeys) return;                       // all good
+    
+    chrome.runtime.sendMessage({
+        from: 'btwindow',
+        msg: 'window_ready',
+    });
+    console.count('Content-OUT:window_ready');
+    setTimeout(waitForKeys, 1000);
 }
