@@ -75,7 +75,7 @@ function handleAuthClick(event) {
         gapi.auth2.getAuthInstance().signIn();
     }
     catch (err) {
-        alert(`Error signing in: \n[${JSON.srtingify(err)}]`);
+        alert(`Error signing in: \n[${JSON.stringify(err)}]`);
     }
 }
 function handleSignoutClick(event) {
@@ -85,7 +85,7 @@ function handleSignoutClick(event) {
         gapi.auth2.getAuthInstance().signOut();
     }
     catch (err) {
-        alert(`Error signing out: \n[${JSON.srtingify(err)}]`);
+        alert(`Error signing out: \n[${JSON.stringify(err)}]`);
     }
 }
 
