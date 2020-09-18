@@ -22,7 +22,7 @@ window.addEventListener('load', function() {
 function processKeys(clientId, APIKey) {
     // Client ID and API key from the Developer Console, values storted offline in config.js
     if (window.LOCALTEST) return;                          // running inside test harness
-    console.log('Initializing gdrive app...');
+    console.log('Loading Google API...');
     CLIENT_ID = clientId;
     API_KEY = APIKey;
     if (WindowLoaded && (typeof gapi !== 'undefined'))
@@ -44,6 +44,7 @@ function waitForGapi () {
 
 function initClient() {
     // Initializes the API client library and sets up sign-in state listeners
+    console.log("Initializing GDrive client app");
     try {
 	    gapi.client.init({
             apiKey: API_KEY,
@@ -59,7 +60,7 @@ function initClient() {
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
 	    }, function(error) {
-            alert (`Error initializing GDrive API: [${JSON.stringify(error.result.error)}]`);
+            alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
 	    });
     }
     catch (err) {
@@ -67,18 +68,14 @@ function initClient() {
     }
 }
 
-
-/**
- *  Sign in the user upon button click.
- */
 function handleAuthClick(event) {
+    // Sign in the user upon button click.
+    console.log("Signing in user");
     gapi.auth2.getAuthInstance().signIn();
 }
-
-/**
- *  Sign out the user upon button click.
- */
 function handleSignoutClick(event) {
+    // Sign out the user upon button click.
+    console.log("Signing out user");
     gapi.auth2.getAuthInstance().signOut();
 }
 
@@ -122,7 +119,7 @@ function getBTFile() {
             },
             function(error) {
 		console.log("Error in getBTFile - Could not read BT file", JSON.stringify(error));
-		alert(`Could not read BT file. Google says: [${JSON.stringify(error.result.error)}].\n Maybe Try toggling permissions.`);
+		alert(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Try toggling permissions.`);
             });
     }
     catch(err) {
