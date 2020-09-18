@@ -71,12 +71,22 @@ function initClient() {
 function handleAuthClick(event) {
     // Sign in the user upon button click.
     console.log("Signing in user");
-    gapi.auth2.getAuthInstance().signIn();
+    try {
+        gapi.auth2.getAuthInstance().signIn();
+    }
+    catch (err) {
+        alert(`Error signing in: \n[${JSON.srtingify(err)}]`);
+    }
 }
 function handleSignoutClick(event) {
     // Sign out the user upon button click.
     console.log("Signing out user");
-    gapi.auth2.getAuthInstance().signOut();
+    try {
+        gapi.auth2.getAuthInstance().signOut();
+    }
+    catch (err) {
+        alert(`Error signing out: \n[${JSON.srtingify(err)}]`);
+    }
 }
 
 
