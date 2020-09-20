@@ -42,9 +42,11 @@ function waitForGapi () {
     }
 }
 
+var initClientReturned = false;
 function initClient() {
     // Initializes the API client library and sets up sign-in state listeners
     console.log("Initializing GDrive client app");
+    setTimeout(checkInitClientReturned, 10000);
     try {
 	    gapi.client.init({
             apiKey: API_KEY,
@@ -52,6 +54,11 @@ function initClient() {
             discoveryDocs: DISCOVERY_DOCS,
             scope: SCOPES
 	    }).then(function () {
+            initClientReturned = true;
+            if (!gapi.auth2 || !gapi.auth2.getAuthInstance()) {
+                alert("Error GDrive API reporting not authorized. Try reloading");
+                return;
+            }
             // Listen for sign-in state changes.
             gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
@@ -60,12 +67,20 @@ function initClient() {
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
 	    }, function(error) {
+            initClientReturned = true;
             alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
 	    });
     }
     catch (err) {
+        initClientReturned = true;
 	    alert(`Error in initClient: [${JSON.stringify(err)}]`);
     }
+}
+function checkInitClientReturned() {
+    // The gapi.client.init promise sometimes just never completes
+    if (initClientReturned) return;
+    alert("GDrive API initialization never returned. Trying again");
+    initClient();
 }
 
 function handleAuthClick(event) {
