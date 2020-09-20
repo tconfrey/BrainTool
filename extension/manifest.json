@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "BrainTool",
-    "version": "0.1.8",
+    "version": "0.1.7",
     "description": "A better way to manage Tabs, Links and Notes.",
     "permissions": ["tabs", "storage"],
     "background": {
