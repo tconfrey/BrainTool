@@ -29,8 +29,8 @@ function updateSigninStatus(isSignedIn) {
         signoutButton.style.display = 'block';
         findOrCreateBTFile();
         $("#intro_text").slideUp(750);
-        $("#tip").animate({backgroundColor: MediumSeaGreen}, 2000, 
-                          function(){ $("#tip").animate({backgroundColor: White}, 2000);}
+        $("#tip").animate({backgroundColor: 'MediumSeaGreen'}, 2000, 
+                          function(){ $("#tip").animate({backgroundColor: 'transparent'}, 2000);}
                          );
         setTimeout(toggleMenu, 7500);
     } else {
