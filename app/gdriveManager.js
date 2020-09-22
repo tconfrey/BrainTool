@@ -9,8 +9,10 @@ var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/res
 var CLIENT_ID, API_KEY;
 
 // Authorization scopes required by the API;
-// Need to be able to create/read/write BTFile and to query for its existence
-var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly';
+// Need to be able to create/read/write BTFile
+var SCOPES = 'https://www.googleapis.com/auth/drive.file';
+//  Turns out query is supported by .file for app-created files and make approavl simpler.
+// https://www.googleapis.com/auth/drive.metadata.readonly';
 
 // Used below to ensure gapi is set up etc before trying to load the file
 var WindowLoaded = false;
