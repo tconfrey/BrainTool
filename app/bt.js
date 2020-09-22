@@ -28,8 +28,8 @@ function updateSigninStatus(isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
         findOrCreateBTFile();
-        addTip();                                          // display tip text
-        setTimeout(toggleMenu, 2000);
+        $("#intro_text").slideUp(750);
+        setTimeout(toggleMenu, 7500);
     } else {
         $("#auth_screen").show();
         $("#loading").hide();
