@@ -23,7 +23,7 @@ From a Chrome session new links can be added to the tree and links from the tree
 
 ## Security
 
-BrainTool is comprised of a Chrome extension and a javascript Google Drive application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). On first startup the app asks your permission to create, read and write a file called BrainTool.org on your google drive. That file is used to store the window and link tree. So in use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. Also, see the [official privacy policy.](BrainToolProvacyPolicy.pdf)
+BrainTool is comprised of a Chrome extension and a javascript Google Drive application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). On first startup the app asks your permission to create, read and write a file called BrainTool.org on your google drive. That file is used to store the window and link tree. So in use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. Also, see the [official privacy policy.](./BrainToolPrivacyPolicy.pdf)
 
 ## Headlines, Tags and Categories
     
