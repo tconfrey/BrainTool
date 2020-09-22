@@ -21,7 +21,7 @@ const tipsArray = [
     "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs"
 ];
 
-
+var firstUse = true;
 function updateSigninStatus(isSignedIn) {
     // CallBack on GDrive signin state change
     if (isSignedIn) {
@@ -29,8 +29,8 @@ function updateSigninStatus(isSignedIn) {
         signoutButton.style.display = 'block';
         findOrCreateBTFile();
         $("#intro_text").slideUp(750);
-        $("#tip").animate({backgroundColor: '#7bb07b'}, 2000).animate({backgroundColor: '#ffffff'}, 2000)
-        setTimeout(toggleMenu, 7500);
+        $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: '#ffffff'}, 3000)
+        setTimeout(toggleMenu, 16000);
     } else {
         $("#auth_screen").show();
         $("#loading").hide();
@@ -52,7 +52,10 @@ function toggleMenu() {
         $("#close").show();
         $("#open").hide();
     } else {
-        addTip();               // display tip text
+        if (firstUse)
+            firstUse = false;
+        else
+            addTip();               // display tip text on subsequent views
         $("#auth_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
