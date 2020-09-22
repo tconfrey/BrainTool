@@ -27,10 +27,16 @@ function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
+        if (firstUse) {
+            $("#intro_text").slideUp(750);
+            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: '#ffffff'}, 3000)
+            setTimeout(toggleMenu, 16000);
+        } else {
+            $("#intro_text").hide();
+            addTip();
+            setTimeout(toggleMenu, 6000);
+        }
         findOrCreateBTFile();
-        $("#intro_text").slideUp(750);
-        $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: '#ffffff'}, 3000)
-        setTimeout(toggleMenu, 16000);
     } else {
         $("#auth_screen").show();
         $("#loading").hide();
