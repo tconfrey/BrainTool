@@ -150,16 +150,17 @@ function findOrCreateBTFile() {
 
 function getBTFile() {
     try {
-	gapi.client.drive.files.get({
+	    gapi.client.drive.files.get({
             fileId: BTFileID,
             alt: 'media'
-	}).then(
+	    }).then(
             function(response) {
-		processBTFile(response.body);
+		        processBTFile(response.body);
             },
             function(error) {
-		console.log("Error in getBTFile - Could not read BT file", JSON.stringify(error));
-		alert(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Try toggling permissions.`);
+		        console.log("Error in getBTFile - Could not read BT file:", JSON.stringify(error));
+		        alert(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
+                reAuth(getBTFile);
             });
     }
     catch(err) {
@@ -278,7 +279,7 @@ function writeBTFile() {
                   body: form
               }).then((res) => {
 	              if (!res.ok) {
-		              alert("BT - error writing to GDrive, reuthenticating...");
+		              alert("BT - error writing to GDrive, reauthenticating...");
 		              console.log("GAPI response:\n", JSON.stringify(res));
                       reAuth(writeBTFile);
 		              return('GAPI error');
