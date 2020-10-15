@@ -98,7 +98,7 @@ function indexInParent(nodeId) {
 
 function loadNodes() {
     // Called on startup or refresh
-    // (and as a last resort when link msgs are received but AllNodes is empty)
+    // (and as a last resort when link msgs are received but nodes are somehow out of sync)
     chrome.storage.local.get('nodes', function(data) {
         const nodes = JSON.parse(data.nodes);
         BTNode.reset();
@@ -114,7 +114,7 @@ function loadNodes() {
     });
 }
 
-function openLink(nodeId, url, tries=1) {
+function openLink(nodeId, url, tries=0) {
     // handle click on a link - open in appropriate window
     try {
         var node = AllNodes[nodeId];
@@ -160,8 +160,14 @@ function openLink(nodeId, url, tries=1) {
     catch (err) {
         // try refreshing data structures from storage and try again
         if (tries > 3) {
-            alert("Error in BrainTool:[", JSON.stringify(err), "]\nTry closing main BT window and restarting");
+            chrome.windows.create({'url': url, 'left': 500}); // open anyway to be helpful
+            alert("Error in BrainTool\nTry closing main BT window and restarting:[", err, "]");
             return;
+        }
+        if (tries) {
+            // send msg to bt to reload nodes into local storage
+            chrome.tabs.sendMessage(BTTab, {'type': 'error_restore_nodes'});
+            console.count('error_restore_nodes');
         }
         loadNodes();
         setTimeout(function(){openLink(nodeId, url, ++tries);}, 100);

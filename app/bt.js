@@ -22,8 +22,16 @@ const tipsArray = [
 ];
 
 var firstUse = true;
-function updateSigninStatus(isSignedIn) {
+function updateSigninStatus(isSignedIn, error=false) {
     // CallBack on GDrive signin state change
+    if (error) {
+        let msg = "Error Authenticating with Google. Google says:<br/>";
+        msg += (error.details) ? error.details : JSON.stringify(error);
+        msg += "<br/>If this is a cookie issue be aware that Google uses cookies for authentication.";
+        msg += "<br/>Go to <a href='chrome://settings/content/cookies'>settings</a> and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
+        $("#loadingMessage").html(msg);
+        return;
+    }
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'block';
@@ -377,6 +385,13 @@ window.addEventListener('message', function(event) {
                             complete: function() {
                                 parentElt.removeClass("hovered", 1000);
                             }});
+        break;
+    case 'error_restore_nodes':
+        // sent from background when it thinks node arrays are out of sync
+        // send the core data needed in BTNode, not full AppNode
+        var nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
+        window.postMessage({ type: 'nodes_updated', text: nodes});
+        console.count('BT-OUT:nodes_updated');
         break;
     }
 });

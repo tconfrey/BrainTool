@@ -120,6 +120,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         window.postMessage({type: 'tab_closed', BTNodeId: msg.BTNodeId});
         console.count('Content-OUT:tab_closed');
         break;
+    case 'error_restore_nodes':
+        window.postMessage({type: 'error_restore_nodes'});
+        console.count('Content-OUT:error_restore_nodes');
+        break;
     }
 });
 

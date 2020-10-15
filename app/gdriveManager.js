@@ -74,6 +74,7 @@ function initClient() {
 	    }, function(error) {
             initClientReturned = true;
             alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
+            updateSigninStatus(false, error);
 	    });
     }
     catch (err) {
