@@ -28,7 +28,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         let msg = "Error Authenticating with Google. Google says:<br/>";
         msg += (error.details) ? error.details : JSON.stringify(error);
         msg += "<br/>If this is a cookie issue be aware that Google uses cookies for authentication.";
-        msg += "<br/>Go to <a href='chrome://settings/content/cookies'>settings</a> and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
+        msg += "<br/>Go to chrome://settings/content/cookies and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
         $("#loadingMessage").html(msg);
         return;
     }
