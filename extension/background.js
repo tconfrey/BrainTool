@@ -225,7 +225,10 @@ function showNode(id) {
         chrome.windows.update(node.windowId, {'focused' : true});
     if (node && node.tabId) {
         // nb convert from tabId to offset index
+        // nb,nb tabs.highlight should do the job
+        //       but sometimes the window does not get focus so do that explicitly
         chrome.tabs.get(node.tabId, function(tab) {
+            chrome.windows.update(tab.windowId, {'focused' : true});
             chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index});
         });
     }
