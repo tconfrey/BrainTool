@@ -1,4 +1,4 @@
-![BrainTool](/site/logo.png "Logo Title Text 1")
+# A Better Way to Manage Tabs, Links and Notes
 
 BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
