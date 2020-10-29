@@ -28,8 +28,8 @@
     <header class="page-header" role="banner"
             style="background-image: url('/site/AppStoreCollatoral/BraintoolMarqueeLarge.png');
                    background-repeat: round;">
-      <h1 class="project-name"> </h1>
-      <h2 class="project-tagline"> </h2>
+      <h1 class="project-name" style="opacity:0.0;">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
+      <h2 class="project-tagline" style="opacity:0.0;>{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
     </header>
 
     <main id="content" class="main-content" role="main">
