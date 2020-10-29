@@ -10,4 +10,4 @@ If you want to try it ping me at braintool.extension@gmail.com
 
 There's more info in the [Overview](http://braintool.org/overview) and the required official privacy policy is [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback.
 
-Tony
+Tony 
