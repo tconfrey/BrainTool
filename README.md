@@ -6,7 +6,7 @@ The BrainTool panel in Chrome uses the org-mode tree structure but concentrates 
 
 Currently it works for my workflow and is at a general MVP level of functionality. It is published to the Chrome Extension store but unlisted. I'd love comments from a handful of early adopters.
 
-If you want to try it ping me at braintool.extension@gmail.com
+If you want to try it check it out on the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) or ping me at braintool.extension@gmail.com .
 
 There's more info in the [Overview](http://braintool.org/overview) and the required official privacy policy is [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
 

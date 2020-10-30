@@ -155,10 +155,15 @@ function processBTFile(fileText) {
     });
 
     initializeUI();
-    
+    refreshRefresh();
+}
+
+function refreshRefresh() {
+    // set refresh button back on
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
 }
+    
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified

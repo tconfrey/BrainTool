@@ -239,6 +239,7 @@ function reAuth(callback) {
             alert("reAuth succeeded. Continuing");
 			if (callback)
                 callback();                         // try again
+            refreshRefresh();
         } else {
             console.log("Error in reAuth.");
         }});
