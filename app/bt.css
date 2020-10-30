@@ -111,6 +111,6 @@ img.close-icon {
     width: 100%;
     height: auto;
     opacity: 0.15;
-    z-index: 2;
+    z-index: -1;
     object-fit: cover;
 }
