@@ -103,6 +103,7 @@ img.close-icon {
 
 #auth_screen {
     position: relative;
+    overflow: hidden;
 }
 #background_image {   
     position: absolute;
