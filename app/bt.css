@@ -100,3 +100,15 @@ img.close-icon {
     padding-left: .2em;
     background-color: #cec;
 }
+
+#auth_screen {
+    position: relative;
+}
+#background_image {   
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    opacity: 0.5;
+}
