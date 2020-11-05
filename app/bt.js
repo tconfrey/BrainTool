@@ -214,7 +214,8 @@ function initializeUI() {
             if ($(this).hasClass('branch'))
                 $(this).addClass("dropTarget");
             else {
-                const parentId = $(this).attr('data-tt-parent-id');
+                // nb at top level parent is null so dropping onto $this
+                const parentId = $(this).attr('data-tt-parent-id') || $(this).attr('data-tt-id');
                 $("tr[data-tt-id='"+parentId+"']").addClass("dropTarget");
             }
         },
@@ -224,7 +225,7 @@ function initializeUI() {
             if ($(this).hasClass('branch'))
                 $(this).removeClass("dropTarget");
             else {
-                const parentId = $(this).attr('data-tt-parent-id');
+                const parentId = $(this).attr('data-tt-parent-id') || $(this).attr('data-tt-id');
                 $("tr[data-tt-id='"+parentId+"']").removeClass("dropTarget");
             }
         }
