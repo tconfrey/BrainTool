@@ -104,17 +104,17 @@ function generateTagsDisplay(tagsArray) {
             str += "</ul>";
             if (level > tag.level)
                 str += "</ul>".repeat(level - tag.level);
-            str += "<ul><li>" + name;
+            str += `<ul><li><span id='${tag.name}'>${name}</span></li>`;
         }
         else {
             if (tag.level == level)
-                str += ', ' + name;
+                str += `, <span id='${tag.name}'>${name}</span>`;
             else {
                 if (tag.level > level)
                     str += '<ul>'.repeat(tag.level - level);
                 else
                     str += '</ul>'.repeat(level - tag.level);
-                str += '<li>' + name;
+                str += `<li><span id='${tag.name}'>${name}</span>`;
             }
         }
         level = tag.level;
@@ -139,6 +139,17 @@ chrome.runtime.getBackgroundPage(function(bgp) {
 document.onclick = function(e) {
     if (e.target == Note)
         newTagEntered();
+    if (e.target.tagName == 'SPAN') {
+        // tag selected by clicking. Fill in input field and trigger selection
+        const val = e.target.textContent;
+        document.getElementById('newtag').value = val;
+        
+        document.querySelectorAll("span").forEach(function(el) {
+            el.classList.remove("highlight");
+        });
+        
+        newTagEntered();
+    }
 };
 document.getElementById('newtag').onkeydown = function(e) {
     if (e.key == "Tab") {
@@ -178,7 +189,16 @@ window.onkeyup = function(e) {
         newTag.value = "";
     }
     KeyCount++;
-    if (e.key != "Enter") return    // Ignore if not Enter key
+    if (e.key != "Enter") {
+        document.querySelectorAll("span").forEach(function(el) {
+            el.classList.remove("highlight");
+        });
+        const suggestions = AwesomeWidget.suggestions || [];
+        suggestions.forEach(function(sug) {
+            document.getElementById(sug.value).classList.add("highlight");
+        });
+        return;    // Ignore if not Enter key
+    }
 
     // Enter in tag field selects note textarea
     if (document.activeElement.id == 'newtag') {
