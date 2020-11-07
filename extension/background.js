@@ -9,7 +9,7 @@ chrome.runtime.onInstalled.addListener(function() {});
 var BTTab;
 var BTWin;
 var ManagedTabs = [];           // global, used by popup to recognize BT tabs
-var AllNodes;                   // array of BTNodes
+var AllNodes = [];              // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
 var OpenNodes = new Object();   // hash of node name to window id
 var TabAction = 'pop';          // default operation on tagged tab (pop, hide, close, set by popup)
@@ -60,20 +60,20 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         }
         break;
     case 'popup':
-        const [tag, parent, keyword] = BTNode.processTagString(msg.tag);
+        let [tag, parent, keyword, tagPath] = BTNode.processTagString(msg.tag);
         if (msg.msg == 'add_move_tab') {
-            const tabNode = BTChromeNode.findFromTab(msg.tabId);       // Is this tab already a BTNode?
-            if (tabNode) {                                           // if so duplicate
+            const tabNode = BTChromeNode.findFromTab(msg.tabId);       // Already a BTNode?
+            if (tabNode) {                                             // if so duplicate
                 chrome.tabs.duplicate(msg.tabId, function(newTab) {
-                    moveTabToTag(newTab.id, tag);
+                    moveTabToTag(newTab.id, tagPath);
                 });
             } else {
-                moveTabToTag(msg.tabId, tag);
+                moveTabToTag(msg.tabId, tagPath);
             }
         }
         if (msg.msg == 'add_tab') {
             // create parent tag node if needed and then the node itself
-            const tagNodeId = BTNode.findFromTitle(tag);
+            const tagNodeId = BTNode.findFromTagPath(tagPath);
             const tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(tag);
             new BTChromeNode(msg.title, tagNode.id);
         }
@@ -254,7 +254,7 @@ function closeNode(id) {
 function moveTabToTag(tabId, tag) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
     
-    const tagNodeId = BTNode.findFromTitle(tag);
+    const tagNodeId = BTNode.findFromTagPath(tag);
     const tabNodeId = BTChromeNode.findFromTab(tabId);         // if exists copy tab, don't move it
     const url = tabNodeId && AllNodes[tabNodeId] ? AllNodes[tabNodeId].URL : null;
     let newTabId = tabNodeId ? null : tabId;           // already BT node w diff tag => create a new
@@ -475,20 +475,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-
-/* Turns out the tab onRemoved is called anyway and so this is not needed
-chrome.windows.onRemoved.addListener((windowId) => {
-    // listen for windows being closed
-    var node = AllNodes ? AllNodes.find(function(node) {
-        return (node && (node.windowId == windowId));}) : null;
-    if (!node) return;
-    delete OpenNodes[node.title];
-    node.windowId = null; node.tabId = null;
-    chrome.tabs.sendMessage(
-        BTTab,
-        {'type': 'tab_closed', 'BTNodeId': node.id});
-});
-*/
 
 chrome.tabs.onActivated.addListener((info) => {
     // Update badge and hover text if a BT window has opened or surfaced 

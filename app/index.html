@@ -48,7 +48,9 @@
     <div id="buttonRow" style="display: none;">
       <img id="move" type="image" alt="Move" title="Move"
              src="resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
-      <img id="edit" alt="Edit" title="Edit" style="opacity: 0.75;"
+      <img id="todo" alt="ToDo" onClick="toDo()" title="ToDo"
+             src="resources/done.png"  height="16" width="16">
+      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
              src="resources/edit.png"  height="16" width="16">
       <img id="expand" alt="Open" onClick="openRow()" title="Open" style="opacity: 0.75;"
              src="resources/expand.png" height="16" width="16">

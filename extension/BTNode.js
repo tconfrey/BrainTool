@@ -7,6 +7,8 @@ class BTNode {
 	    this._displayTag = BTNode.displayTagFromTitle(title);
         this._childIds = [];
         this._isOpen = false;
+        this._tagPath = '';
+        this.generateUniqueTagPath();
         if (parentId && AllNodes[parentId]) {
             AllNodes[parentId].addChild(this._id);
         }
@@ -33,6 +35,9 @@ class BTNode {
     }
     get displayTag() {
 	    return this._displayTag;
+    }
+    get tagPath() {
+        return this._tagPath;
     }
 
     set parentId(i) {
@@ -127,6 +132,11 @@ class BTNode {
         return n ? n.id : null;
     }
 
+    static findFromTagPath(tagPath) {
+        var n = AllNodes.find(node => (node && (node.tagPath == tagPath)));
+        return n ? n.id : null;
+    }
+
     static reset() {
         // Called when reloading nodes etc
         AllNodes = [];
@@ -138,19 +148,19 @@ class BTNode {
     
     static processTagString(tag) {
         // Tag string passed from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
-        // return array[tag, parent, TODO]
+        // return array[tag, parent, TODO, tagpath]
         tag = tag.trim();
         let match = tag.match(/(.*):(.*):TODO/);
         if (match)                                // parent:tag:TODO form
-            return [match[2], match[1], "TODO"];
+            return [match[2], match[1], "TODO", match[1]+':'+match[2]];
         match = tag.match(/(.*):TODO/);
         if (match)                                // tag:TODO form
-            return [match[1], null, "TODO"];
+            return [match[1], null, "TODO", match[1]];
         match = tag.match(/(.*):(.*)/);
         if (match)                                // parent:tag form
-            return [match[2], match[1], null];
+            return [match[2], match[1], null, match[1]+':'+match[2]];
         
-        return [tag, null, null];
+        return [tag, null, null, tag];
     }
 
     static deleteNode(nodeId) {
@@ -169,8 +179,37 @@ class BTNode {
             parent.removeChild(nodeId);
 
         delete(AllNodes[nodeId]);
-    
     }
+
+    generateUniqueTagPath() {
+        // same tag can be under multiple parents, generate a unique tagPath
+        
+        if (this.displayTag == "" || (!this.isTag())) {
+            // eg linkNode or non tag
+            this._tagPath = this._displayTag;
+            return;
+        }
+        const sameTag = AllNodes.filter(nn => nn.isTag() && nn.displayTag == this.displayTag);
+        if (sameTag.length == 1) {
+            // unique
+            this._tagPath = this._displayTag;
+            return;
+        }
+        sameTag.forEach(function(nn) {
+            const parentTag = AllNodes[nn.parentId] ? AllNodes[nn.parentId].displayTag : "";
+            nn._tagPath = parentTag + ":" + nn.displayTag;
+        });
+    }
+        
+    static generateUniqueTagPaths() {
+        // same tag can be under multiple parents, generate a unique tagPath for each node
+        AllNodes.forEach(function(n) {
+            n.generateUniqueTagPath();
+        });
+    }
+
+
+            
 }
 
 class BTChromeNode extends BTNode {
@@ -210,7 +249,7 @@ class BTChromeNode extends BTNode {
     
     static findFromTab(tabId) {
         // Return node associated w display tab
-        var n = AllNodes ?
+        var n = AllNodes.length ?
             AllNodes.find(function(node) {
                 return (node && (node.tabId == tabId));})
             :
@@ -220,7 +259,7 @@ class BTChromeNode extends BTNode {
     
     static findFromWin(winId) {
         // Return node associated w display tab
-        var n = AllNodes ?
+        var n = AllNodes.length ?
             AllNodes.find(function(node) {
                 return (node && (node.windowId == winId));})
             :
@@ -233,7 +272,7 @@ class BTChromeNode extends BTNode {
 
     static findFromURL(url) {
         // Does url belong to an existing BTChromeNode?
-        var n = AllNodes ?
+        var n = AllNodes.length ?
             AllNodes.find(function(node) {
                 return (node && compareURLs(node.URL, url));})
             :

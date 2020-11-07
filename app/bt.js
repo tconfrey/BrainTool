@@ -129,7 +129,7 @@ function processBTFile(fileText) {
     tab.html(table);
     tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
-    
+
     BTAppNode.generateTags();
 
     // Let extension know about model
@@ -378,6 +378,7 @@ window.addEventListener('message', function(event) {
         break;
     case 'tab_closed':
         nodeId = event.data.BTNodeId;
+        if (!AllNodes[nodeId]) return;
         AllNodes[nodeId].isOpen = false;
         parentId = AllNodes[nodeId] ? AllNodes[nodeId].parentId : 0;
         let parentElt = $("tr[data-tt-id='"+parentId+"']");
@@ -409,15 +410,20 @@ function cleanTitle(text) {
 
 function storeTab(tg, tab, note) {
     // put this tab under storage w given tag
+    
+    // NB tg may be tag, parent:tag, tag:keyword, parent:tag:keyword
+    // where tag may be new, new under parent, or existing but under parent to disambiguate
 
     // process tag and add new if doesn't exist
-    const [tag, parent, keyword] = BTNode.processTagString(tg);
-    const existingTag = Tags.some(atag => (atag.name == tag));
-    if (!existingTag) addNewTag(tag, parent);
+    let [tag, parent, keyword, tagPath] = BTNode.processTagString(tg);
+    const existingTag = Tags.some(atag => atag.name == tagPath);
+    if (!existingTag)
+        // add new node for tag and get back its unique tagPath
+        tagPath = addNewTag(tag, parent);
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
-    const parentNodeId = BTAppNode.findFromTag(tag);
+    const parentNodeId = BTNode.findFromTagPath(tagPath);
     const parentNode = AllNodes[parentNodeId];
     const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNodeId,
                                   note || "", parentNode.level + 1);
@@ -439,16 +445,24 @@ function storeTab(tg, tab, note) {
 function addNewTag(tag, parent) {
     // New tag - create node and add to tree
 
-    const parentTagId = parent ? BTAppNode.findFromTag(parent) : null;
+    const parentTagId = parent ? BTAppNode.findFromTagPath(parent) : null;
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
     const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
 
     const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
     $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree
+    return newNode.tagPath;
 }
 
 
-/* Edit Operations */
+
+/*** 
+ * 
+ * Row Operations
+ * buttonShow/Hide, Edit Dialog control, Open Tab/Tag(Window), Close, Delete, ToDo
+ * 
+ ***/
+
 function buttonShow() {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
@@ -487,10 +501,10 @@ function buttonHide() {
     $("#buttonRow").detach().appendTo($("#dialog"));
 }
 
-$("#edit").click(function(e) {
+function editRow(e) {
     // position and populate the dialog and open it
-    const top = e.originalEvent.clientY;
-    $(this).closest("tr").addClass('selected');
+    const top = e.clientY;
+    $(e.target).closest("tr").addClass('selected');
     const dialog = $("#dialog")[0];
 
     if ((top + $(dialog).height() + 50) < $(window).height())
@@ -505,6 +519,14 @@ $("#edit").click(function(e) {
         $(this).closest("tr").removeClass('selected');
         alert("Error editing here, please update the org file directly and Refresh");
     }
+}
+
+$("textarea").change(function() {
+    $("#update").prop("disabled", true);
+});
+
+$(".editNode").on('change keyup paste', function() {
+    $("#update").prop('disabled', false);
 });
 
 $("#popup").click(function(e) {
@@ -523,11 +545,16 @@ function dialogClose() {
 }
     
 
+function selectedNode() {
+    // Return the node currently highlighted or selected
+    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    const nodeId = $(tr).attr('data-tt-id');
+    return AllNodes[nodeId];
+}
+
 function populateDialog() {
     // set up the dialog for use
-    const tr = $("tr.selected")[0];
-    const nodeId = $(tr).attr('data-tt-id');
-    const appNode = AllNodes[nodeId];
+    const appNode = selectedNode();
     if (!appNode) return false;
     
     const titletxt = appNode.title;
@@ -538,19 +565,13 @@ function populateDialog() {
     $("#update").prop("disabled", true);
     return true;
 }
-
-$("textarea").change(function() {
-    $("#update").prop("disabled", true);
-});
     
 
 function openRow() {
     // Open all links under this row in windows per tag
 
     // First find all AppNodes involved - selected plus children
-    const tr = $("tr.hovered")[0];
-    const nodeId = $(tr).attr('data-tt-id');
-    const appNode = AllNodes[nodeId];
+    const appNode = selectedNode();
     if (!appNode) return;
 
     const numWins = appNode.countOpenableWindows();
@@ -611,12 +632,10 @@ function openEachWindow(node) {
 
 function closeRow() {
     // close this node's tab or window
-    const tr = $("tr.hovered")[0];
-    const nodeId = $(tr).attr('data-tt-id');
+    const appNode = selectedNode();  
+    if (!appNode) return;
 
-    function closeNode(nodeId){    
-        const appNode = AllNodes[nodeId];
-        if (!appNode) return;
+    function closeNode(appNode){
         window.postMessage({ 'type': 'close_node', 'nodeId': nodeId});
         console.count('BT-OUT:close_node');
 
@@ -629,7 +648,7 @@ function closeRow() {
         });
         
     }
-    closeNode(nodeId);
+    closeNode(appNode);
 }
 
 function escapeRegExp(string) {
@@ -640,17 +659,15 @@ function escapeRegExp(string) {
 function deleteRow() {
     // Delete selected node/row.
     buttonHide();
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const nodeId = $(tr).attr('data-tt-id');
-    const appNode = AllNodes[nodeId];
+    const appNode = selectedNode();
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete all?')) {
-        $("table.treetable").treetable("removeNode", nodeId);        // Remove from UI and treetable
+        $("table.treetable").treetable("removeNode", appNode.id);        // Remove from UI and treetable
         $("#dialog")[0].close();
-        deleteNode(nodeId);
+        deleteNode(appNode.id);
     }   
 }
 
@@ -659,7 +676,7 @@ function deleteNode(id) {
     id = parseInt(id);          // could be string value
     const node = AllNodes[id];
     if (!node) return;
-    BTNode.deleteNode(id)       // delete from model. NB handles recusion to children
+    BTNode.deleteNode(id);       // delete from model. NB handles recusion to children
     
     // Update parent display
     const parent = AllNodes[node.parentId];
@@ -682,17 +699,12 @@ function deleteNode(id) {
     writeBTFile();
 }
 
-$(".editNode").on('change keyup paste', function() {
-    $("#update").prop('disabled', false);
-});
-
 
 function updateRow() {
     // Update this node/row after edit.
-
-    const tr = $("tr.selected")[0];
-    const nodeId = $(tr).attr('data-tt-id');
-    const node = AllNodes[nodeId];
+    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    const node = selectedNode();
+    if (!node) return;
 
     // Update Model
     node.title = $("#title-text").val();
@@ -715,6 +727,21 @@ function updateRow() {
     $("tr.selected").removeClass('selected');
     initializeUI();
 }
+
+function toDo() {
+    // iterate todo state of selected node/row (TODO -> DONE -> '').
+    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    const appNode = selectedNode();
+    if (!appNode) return false;
+
+    appNode.iterateKeyword()    // ask node to update
+
+    // Update ui and file
+    $(tr).find("span.btTitle").html(appNode.displayTitle());
+    initializeUI();
+    writeBTFile();
+}
+
 
 function generateOrgFile() {
     // iterate thru nodes to do the work

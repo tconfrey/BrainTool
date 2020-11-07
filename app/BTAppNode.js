@@ -37,6 +37,21 @@ class BTAppNode extends BTNode {
     set keyword(kw) {
 	    this._keyword = kw;
     }
+    iterateKeyword() {
+        // TODO -> DONE -> ''
+        switch (this._keyword) {
+        case 'TODO':
+            this._keyword = "DONE";
+            break;
+        case 'DONE':
+            this._keyword = null;
+            break;
+        case null:
+            this._keyword = "TODO";
+            break;
+        }
+    }
+                
 
     set folded(f) {
         this._folded = f;
@@ -218,20 +233,24 @@ class BTAppNode extends BTNode {
 
     static generateTags() {
         // Iterate thru nodes and generate array of tags and their nesting
+
+        function tagsForNode(id) {
+            // recurse over children
+            if (!AllNodes[id]) return;
+            if (AllNodes[id].isTag())
+                Tags.push({'name' : AllNodes[id].tagPath, 'level' : AllNodes[id].level});
+            for (const nid of AllNodes[id].childIds)
+                tagsForNode(nid);
+        }
         
+        // first make sure each node has a unique tagPath
+        BTNode.generateUniqueTagPaths();
         Tags = new Array();
         for (const node of AllNodes) {
-            if (node && node.isTag())
-                Tags.push({'name' : node.displayTag, 'level' : node.level});
+            if (node && node.level == 1)
+                tagsForNode(node.id);
         }
     }
-    
-    static findFromTag(tag) {
-        var n = AllNodes.find(node => (node && (node.displayTag == tag)));
-        return n ? n.id : null;
-    }
-
-
 }
 
 
