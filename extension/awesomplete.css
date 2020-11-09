@@ -90,7 +90,8 @@
 	}
 	
 		.awesomplete mark {
-			background: hsl(65, 100%, 50%);
+			background: #cec;
+/*			background: hsl(65, 100%, 50%); */
 		}
 		
 		.awesomplete li:hover mark {
