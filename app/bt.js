@@ -9,7 +9,7 @@ const authorizeButton = document.getElementById('authorize_button');
 const signoutButton = document.getElementById('signout_button');
 
 const tipsArray = [
-    "Type ':' when selecting a tag to add a subtag.",
+    "Add ':' at the end of a tag to add a subtag.",
     "Double click on a table row to highlight its open window, if any.",
     "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
     "Create tags like ToRead to keep track of pages you want to come back to.",
@@ -18,7 +18,8 @@ const tipsArray = [
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
     "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page.",
-    "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs"
+    "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs",
+    "Use the TODO button on a row to toggle between TODO, DONE and ''"
 ];
 
 var firstUse = true;
@@ -55,7 +56,7 @@ function updateSigninStatus(isSignedIn, error=false) {
 
 function addTip() {
     // add random entry from the tipsArray
-    indx = Math.floor(Math.random() * tipsArray.length);
+    let indx = Math.floor(Math.random() * tipsArray.length);
     $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
 }
 
@@ -308,8 +309,8 @@ function positionNode(dragNode, dropParent, dropBelow) {
     treeTable.treetable("sortBranch", treeParent,
                         function(a,b) {
                             // Compare based on position except for dragnode 
-                            aa = a.row[0];
-                            bb = b.row[0];
+                            let aa = a.row[0];
+                            let bb = b.row[0];
                             if (aa == dragNode){
                                 if (bb == db)
                                     return 1;
@@ -591,7 +592,7 @@ function openRow() {
         // individual link, open if not already
         if (!appNode.open) {
             const url = appNode.URL;
-            window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+            window.postMessage({ 'type': 'link_click', 'nodeId': appNode.id, 'url': url });
             console.count('BT-OUT:link_click');
         }
     }
@@ -636,7 +637,7 @@ function closeRow() {
     if (!appNode) return;
 
     function closeNode(appNode){
-        window.postMessage({ 'type': 'close_node', 'nodeId': nodeId});
+        window.postMessage({ 'type': 'close_node', 'nodeId': appNode.id});
         console.count('BT-OUT:close_node');
 
         // iterate again and recurse for container nodes to each close their windows

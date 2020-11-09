@@ -66,8 +66,8 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     var wargs = {
-        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
-        //'url' : "https://BrainTool.org/app", 
+        //'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
+        'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100
@@ -193,11 +193,11 @@ window.onkeyup = function(e) {
         document.querySelectorAll("span").forEach(function(el) {
             el.classList.remove("highlight");
         });
-        const suggestions = AwesomeWidget.suggestions || [];
+        const suggestions = AwesomeWidget.isOpened ? AwesomeWidget.suggestions || [] : [];
         suggestions.forEach(function(sug) {
             document.getElementById(sug.value).classList.add("highlight");
         });
-        return;    // Ignore if not Enter key
+        return;    // Done, unless Enter key
     }
 
     // Enter in tag field selects note textarea
