@@ -20,7 +20,7 @@ To tag and save a page just takes three or four characters with built-in auto-co
 </tr>
 
 <tr>
-<td style="border:none;">
+<td style="border:none; padding-left:0px;">
 Optionally add short or detailed notes to give context and aid recall. 
 <br/><br/>Pop, Hide or Close tagged pages to support different organizational workflows.
 </td>
