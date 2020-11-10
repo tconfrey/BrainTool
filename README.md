@@ -7,21 +7,21 @@ BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs mana
 <table style="border:none;">
 <tr>
 <td style="border:none; vertical-align:top;">
-The BrainTool side panel shows your nested tag hierarchy.
+The BrainTool side panel shows your nested tag hierarchy. Each tag groups a set of links.
 </td>
-<td style="border:none;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
+<td style="border:none; padding-left:0px;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
 
 <tr id='2'>
 <td style="border:none;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
-Type three or four characters to auto-complete and save a page. 
+To tag and save a page just takes three or four characters with built-in auto-complete. 
 </td>
 </tr>
 
 <tr>
 <td style="border:none;">
-Add short or detailed notes to give context and aid recall. 
+Optionally add short or detailed notes to give context and aid recall. 
 <br/><br/>Pop, Hide or Close tagged pages to support different organizational workflows.
 </td>
 <td style="border:none;"><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
@@ -30,7 +30,7 @@ Add short or detailed notes to give context and aid recall.
 
 Open, Close and Control all pages by tag with a single click. Great for switching between tasks and projects and keeping your work-space clean.
 <br/><br/>
-Drag, drop and reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
+Drag, drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
 
 <img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
