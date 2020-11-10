@@ -4,26 +4,30 @@
 
 BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
-<div>
+<div id='1'>
 <div style="width: 40%; float:left;">
 The BrainTool side panel shows your nested tag hierarchy.
 </div>
 <img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width: 40%; float:right;">
 </div>
-<div>
+<br/>
+
+<div id='2'>
 <div style="width: 40%; float:right;">
 Type three or four characters to auto-complete and save a page. Add short or detailed notes to aid recall.
-<div>
+</div>
 <img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin; width:60%; float:left; margin-right: 30px;">
 </div>
+
 <br/>
-<div>
+<div id='3'>
 <img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin; width:60%; float:right;">
 
 Open, Close and Control all pages by tag with a single click. Great for switching between tasks and projects and keeping your work-space clean.
 </div>
 <br/>
-<div>
+
+<div id='4'>
 <img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%; text-align:center;">
 <br/>
 
@@ -31,6 +35,7 @@ Drag, drop and reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or
 
 Close, Hide or Pop tagged pages to support different organizational workflows.
 </div>
+
 All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
 <br/>
