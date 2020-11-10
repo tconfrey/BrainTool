@@ -8,7 +8,7 @@ BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs mana
 The BrainTool side panel shows your nested tag hierarchy.
 </div>
 <div style="float:right">
-<img src="/site/SidePanel.png" style="border:solid; border-width:thin; width: 50%;">
+<img src="/site/sidePanel.png" style="border:solid; border-width:thin; width: 50%;">
 </div>
 
 Type three or four characters to auto-complete and save a page. Add short or detailed notes to aid recall.
