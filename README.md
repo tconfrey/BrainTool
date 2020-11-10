@@ -6,11 +6,11 @@ BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs mana
 
 The BrainTool side panel shows your nested tag hierarchy. 
 <br/>
-<img src="/site/AppStoreCollatoral/SidePanel.png" style="border:solid; border-width:thin;">
+<img src="/site/AppStoreCollatoral/SidePanel.png" style="border:solid; border-width:2px;">
 
 Type three or four characters to auto-complete and save a page. Add short or detailed notes to aid recall.
 <br/>
-<img src="/site/AppStoreCollatoral/AutoComplete.png" style="border:solid; border-width:thin;">
+<img src="/site/AppStoreCollatoral/Autocomplete.png" style="border:solid; border-width:thin;">
 
 Open, Close and Control all pages by tag with a single click. Great for switching between tasks and projects and keeping your work-space clean.
 <br/>
