@@ -9,7 +9,7 @@ BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs mana
 <td style="border:none; vertical-align:top;">
 The BrainTool side panel shows your nested tag hierarchy.
 </td>
-<td style="border:none;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; height:250px;"></td>
+<td style="border:none;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
 
 <tr id='2'>
