@@ -4,37 +4,34 @@
 
 BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 
-<table>
+<table style="border:none;">
 <tr>
 <td>
 The BrainTool side panel shows your nested tag hierarchy.
 </td>
-<td><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width: 40%; float:right;"></td>
+<td><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin;"></td>
 </tr>
 
 <tr id='2'>
-<td><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin; width:60%;"></td>
+<td><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td>
 Type three or four characters to auto-complete and save a page. Add short or detailed notes to aid recall.
 </td>
 </tr>
 
 <tr>
-<td><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin; width:60%"></td>
 <td>
 Open, Close and Control all pages by tag with a single click. Great for switching between tasks and projects and keeping your work-space clean.
 </td>
-</tr>
-
-<tr id='4'>
-<td><img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;"></td>
-<td>
-Drag, drop and reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
-
-Close, Hide or Pop tagged pages to support different organizational workflows.
-</td>
+<td><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 </tr>
 </table>
+
+Drag, drop and reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
+<br/>
+Close, Hide or Pop tagged pages to support different organizational workflows.
+
+<img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;"></td>
 
 All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
