@@ -7,7 +7,7 @@ BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs mana
 <table style="border:none;">
 <tr>
 <td style="border:none; vertical-align:top; padding-left:0px; padding-top: 50px;">
-The BrainTool side panel shows your nested tag hierarchy. Each tag groups a set of links. Open tabs are shown highlighted, <b>TODO</b> items are indicated in <b>bold</b>.
+The BrainTool side panel shows your nested tag hierarchy. Each tag groups a set of links (and other tags). A tag is associated with a Chrome window where each tab contains a tagged link or page. Open tabs and Chrome windows are shown highlighted. <b>TODO</b> items are indicated in <b>bold</b>.
 </td>
 <td style="border:none; padding-left:0px;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
@@ -28,7 +28,7 @@ Optionally add short or detailed notes to give context and aid recall, or just h
 </tr>
 </table>
 
-Open, Close and Control all pages by tag with a single click. Great for switching between tasks and projects and keeping your work-space clean.
+Open, Close and Control all pages by tag with a single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean.
 <br/><br/>
 Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
