@@ -46,10 +46,10 @@ The tree shows the current open state of links and tags via highlighting. Click 
 
 One thing I struggled with is how to handle navigation away from an opened BT window. I settled on intercepting the tabs navigation and redirecting to a new tab, leaving the original tab showing the page linked to from BT. This seems most intuitive to me given the tools operating model of not trying to track all windows and navigation but to capture only explicitly tagged pages which are intended to be added to my knowledge base.
 
-## Known issues, future plans (LMK if one of these is important to you)
+## Known issues, future plans <small>(LMK if one of these is important to you)</small>
 
 - Due to the navigation feature mentioned above on some sites you'll get multiple tabs when you open a BT Link. Thats because those sites do a url redirect. This is a bug but its hard for me to fix in a generic manner.
-- Chrome's search only finds visible text, what makes sense, but the result is that you can't search your BT tree. I will add keyword search at some point.
+- Chrome's search only finds visible text, which makes sense, but the result is that you can't search your BT tree. I will add keyword search at some point.
 - It would be good to be able to reference multiple .org files and either combine or swap between them in the app.
 - The risk with an app like BrainTool is loosing your data. I'm going to add code to write a backup file on a daily basis so you have a rolling 7 day backup.
 - I should support extension preferences to define the BT window screen location and dimensions.
