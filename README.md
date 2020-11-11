@@ -15,14 +15,14 @@ The BrainTool side panel shows your nested tag hierarchy. Each tag groups a set 
 <tr id='2'>
 <td style="border:none; padding-left:0px;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
-To tag and save a page just takes three or four characters with built-in auto-complete. 
+To tag and save a page just takes three or four keystrokes with built-in auto-complete - click the BrainTool icon or use Option-b and just start typing.
 </td>
 </tr>
 
 <tr>
 <td style="border:none; padding-left:0px;">
-Optionally add short or detailed notes to give context and aid recall. 
-<br/><br/>Pop, Hide or Close tagged pages to support different organizational workflows.
+Optionally add short or detailed notes to give context and aid recall, or just hit Enter to tear off the tab and save it with its tag-mates.
+<br/><br/>Pop (tag window to top), Hide (don't pop) and Close support different organizational workflows.
 </td>
 <td style="border:none;"><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 </tr>
