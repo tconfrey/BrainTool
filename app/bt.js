@@ -19,6 +19,7 @@ const tipsArray = [
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
     "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page.",
     "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs",
+    "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''"
 ];
 
