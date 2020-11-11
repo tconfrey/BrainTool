@@ -2,18 +2,18 @@
 
 ##  Install from the [Chrome Web Store!](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 
-BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
+BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text file on your Google Drive to become a more all encompassing personal knowledge management tool (more details below).
 
 <table style="border:none;">
 <tr>
-<td style="border:none; vertical-align:top;">
+<td style="border:none; vertical-align:top; padding-left:0px;">
 The BrainTool side panel shows your nested tag hierarchy. Each tag groups a set of links.
 </td>
 <td style="border:none; padding-left:0px;"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
 
 <tr id='2'>
-<td style="border:none;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
+<td style="border:none; padding-left:0px;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
 To tag and save a page just takes three or four characters with built-in auto-complete. 
 </td>
