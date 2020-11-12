@@ -54,5 +54,6 @@ One thing I struggled with is how to handle navigation away from an opened BT wi
 - The risk with an app like BrainTool is loosing your data. I'm going to add code to write a backup file on a daily basis so you have a rolling 7 day backup.
 - I should support extension preferences to define the BT window screen location and dimensions.
 - I've hard coded TODO/DONE/empty as the only supported workflow states. I could support a preference string defining the list of states to use.
+- If you are working directly with the BrainTool.org file you might find that whitespace is changed as the file is read and written by the app. I faithfully maintain header items and levels, free text, header properties and TODO state. But other things like tables ad embedded markup may be overwritten.
 - There's a built in collaboration aspect given that the drive file can be shared! I could see having common curated BrainTool file instances being a good way to share information within an organization.
 - My long term vision is that each link and note can have multiple tags and that the tool supports searching and reorganizing by different tag hierarchies. I'm investigating the use of [org-roam](https://org-roam.readthedocs.io/en/master/)
