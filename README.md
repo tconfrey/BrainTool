@@ -17,10 +17,10 @@ Here's a couple of videos showing more details:
 </td></tr>
 <tr>
 <td  style="border:none; padding-left:0px;">
-<iframe src="https://www.youtube.com/embed/UfvceH03iAc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe src="http://www.youtube.com/embed/UfvceH03iAc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </td>
 <td  style="border:none; padding-left:0px;">
-<iframe src="https://www.youtube.com/embed/8NZ6q5Y4Q0s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe src="http://www.youtube.com/embed/8NZ6q5Y4Q0s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </td>
 </tr>
 <tr id='2'>
