@@ -29,7 +29,6 @@ Here's a couple of videos showing more details:
 To tag and save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Option-b, and just start typing.
 </td>
 </tr>
-
 <tr>
 <td style="border:none; padding-left:0px;">
 Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its tag-mates.
