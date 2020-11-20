@@ -1,12 +1,21 @@
+/*** 
+ * 
+ * Thin wrapper on top of orga. See orga-bundle.js
+ * 
+ ***/
+
 var AllNodes = [];
 
 function parseBTFile(fileText) {
-    // crearte and recursively walk orga parse tree to create bt model
+    // create and recursively walk orga parse tree to create bt model
     const parseTree = orgaparse(fileText);
     for (const orgaNode of parseTree.children) {
         if (orgaNode.type == "section")
             orgaSection(orgaNode, null);
     }
+
+    // save top level properties if any
+    AllNodes.metaProperties = parseTree.meta.property;
 }
 
 function orgaSection(section, parentAppNode) {
@@ -73,4 +82,21 @@ function orgaText(orgnode, containingNode) {
         }
     }
     return btString;
+}
+
+function metaPropertiesToString(obj) {
+    // return the string to be used to output meta properties to .org file
+    // obj is as captured in original parse, either a string or array of strings
+    if (!obj) return "";
+    if (!$.isArray(obj))
+        obj = obj.split();      // now it is!
+    let str = "";
+    obj.forEach(function(st) {
+        const version = st.match(/BTVersion (\d+)/);
+        if (version)            // increment version
+            str += "#+PROPERTY: BTVersion " + (parseInt(version[1]) + 1) + "\n";
+        else
+            str += "#+PROPERTY: " + st + "\n";
+    });
+    return str;
 }

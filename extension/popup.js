@@ -29,6 +29,7 @@ function popupAction (bgPage) {
             // should be set, but default to be safe
             const tabAction = bgPage ? bgPage.TabAction || 'pop' : 'pop';
             chrome.storage.local.get('tags', function(data) {
+                // array of [{name: , level:}]
                 const tagsArray = data.tags;
                 const tags = tagsArray.map(tag => tag.name);
                 const newTag = document.getElementById('newtag');
@@ -94,17 +95,27 @@ function getCurrentTab (callback =  null) {
 
 function generateTagsDisplay(tagsArray) {
     // given an array of {name:"tag", level:2} generate the display string
-    let str = "";
+    let str = "<ul>";
     let level = 0;
     for (const tag of tagsArray) {
-        if (tag.level == level)
-            str += ', ' + tag.name;
+        // non unique tags are passed as a tag path, eg parentTag:childTag
+        let name = tag.name.match(/(.*):(.*)/) ? tag.name.match(/(.*):(.*)/)[2] : tag.name;
+        if (tag.level == 1) {          // top level always on new line
+            str += "</ul>";
+            if (level > tag.level)
+                str += "</ul>".repeat(level - tag.level);
+            str += `<ul><li><span id='${tag.name}'>${name}</span></li>`;
+        }
         else {
-            if (tag.level > level)
-                str += '<ul>'.repeat(tag.level - level);
-            else
-                str += '</ul>'.repeat(level - tag.level);
-            str += '<li>' + tag.name;
+            if (tag.level == level)
+                str += `, <span id='${tag.name}'>${name}</span>`;
+            else {
+                if (tag.level > level)
+                    str += '<ul>'.repeat(tag.level - level);
+                else
+                    str += '</ul>'.repeat(level - tag.level);
+                str += `<li><span id='${tag.name}'>${name}</span>`;
+            }
         }
         level = tag.level;
     }
@@ -128,6 +139,17 @@ chrome.runtime.getBackgroundPage(function(bgp) {
 document.onclick = function(e) {
     if (e.target == Note)
         newTagEntered();
+    if (e.target.tagName == 'SPAN') {
+        // tag selected by clicking. Fill in input field and trigger selection
+        const val = e.target.textContent;
+        document.getElementById('newtag').value = val;
+        
+        document.querySelectorAll("span").forEach(function(el) {
+            el.classList.remove("highlight");
+        });
+        
+        newTagEntered();
+    }
 };
 document.getElementById('newtag').onkeydown = function(e) {
     if (e.key == "Tab") {
@@ -167,7 +189,16 @@ window.onkeyup = function(e) {
         newTag.value = "";
     }
     KeyCount++;
-    if (e.key != "Enter") return    // Ignore if not Enter key
+    if (e.key != "Enter") {
+        document.querySelectorAll("span").forEach(function(el) {
+            el.classList.remove("highlight");
+        });
+        const suggestions = AwesomeWidget.isOpened ? AwesomeWidget.suggestions || [] : [];
+        suggestions.forEach(function(sug) {
+            document.getElementById(sug.value).classList.add("highlight");
+        });
+        return;    // Done, unless Enter key
+    }
 
     // Enter in tag field selects note textarea
     if (document.activeElement.id == 'newtag') {
@@ -180,12 +211,15 @@ window.onkeyup = function(e) {
 
 function tabAdded() {
     // Call out to BT app to inform of new node, then update the bckground script
-    const nt = document.getElementById('newtag').value;          // value from text entry field
+
+    // value from text entry field may be tag, parent:tag, tag:keyword, parent:tag:keyword
+    // where tag may be new, new under parent, or existing but under parent to disambiguate
+    const nt = document.getElementById('newtag').value;          
     if (nt == "") return;
     const noteText = Note.value;
     const bgPage = chrome.extension.getBackgroundPage();
     const BTTabId = bgPage.BTTab;                 // extension global for bttab
-    const tabAction = bgPage.TabAction;           // pop, close etc from radio btn in popup
+    const tabAction = bgPage.TabAction;           // pop|close|hide from radio btn in popup
     const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
 
     // Remember this tab is a BT managed tab

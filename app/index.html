@@ -36,19 +36,22 @@
         <p style="margin: 10px; text-align: justify;">Look here for tips or see <a href="https://braintool.org/overview" target="_blank">our website</a> for more.
         </p>
         <p id="tip" style="margin: 10px; text-align: justify;">
-          NB This initial tree shows some examples of how to use tags. Feel free to delete anything you don't want by hovering over the row and hitting the trash button.
+          NB This initial tree shows some examples of how to use tags. Feel free to build on this or delete anything you don't want by hovering over the row and hitting the trash button.<br/>
+          You are in the first 100 BT users. If you are going to rate the app less than 5 stars I'd appreciate constructive criticism instead. Contact me at braintool.extension@gmail.com or via the Chrome Store. Thank You!
         </p>
       </div>
     </div>
 
     <div id="loading">
       <p id="loadingMessage" style="text-align: center; margin-top:50px">
-        Authenticating with Google <br/>and loading your BrainTool file...</p>
+        Authenticating with Google <br/>and loading your BrainTool file<br/>...</p>
     </div>
     <div id="buttonRow" style="display: none;">
       <img id="move" type="image" alt="Move" title="Move"
              src="resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
-      <img id="edit" alt="Edit" title="Edit" style="opacity: 0.75;"
+      <img id="todo" alt="ToDo" onClick="toDo()" title="ToDo"
+             src="resources/done.png"  height="16" width="16">
+      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
              src="resources/edit.png"  height="16" width="16">
       <img id="expand" alt="Open" onClick="openRow()" title="Open" style="opacity: 0.75;"
              src="resources/expand.png" height="16" width="16">
