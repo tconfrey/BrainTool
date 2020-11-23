@@ -91,12 +91,14 @@ function metaPropertiesToString(obj) {
     if (!$.isArray(obj))
         obj = obj.split();      // now it is!
     let str = "";
+    let metaprops = [];
     obj.forEach(function(st) {
         const version = st.match(/BTVersion (\d+)/);
         if (version)            // increment version
-            str += "#+PROPERTY: BTVersion " + (parseInt(version[1]) + 1) + "\n";
-        else
-            str += "#+PROPERTY: " + st + "\n";
+            st = "BTVersion " + (parseInt(version[1]) + 1);
+        str += "#+PROPERTY: " + st + "\n";
+        metaprops.push(st);
     });
+    AllNodes.metaProperties = metaprops;        // update AllNodes for next time around
     return str;
 }

@@ -66,7 +66,7 @@ Project document
     :END:
  Thanks to the people behind these tools and resources for letting me stand on their shoulders.
 
-**** [[https://leaverou.github.io/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
+**** [[https://projects.verou.me/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
  JavaScript autocomplete library
 
 **** [[https://github.com/orgapp/orgajs][orgapp/orgajs: parse org-mode content into AST]]

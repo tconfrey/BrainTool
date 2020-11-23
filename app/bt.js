@@ -374,16 +374,16 @@ function handleLinkClick(e) {
 window.addEventListener('message', function(event) {
     // Handle message from Window
     function propogateOpened(parentId) {
-        // recursively pass opened class to parent if appropriate
+        // recursively pass upwards adding opened class if appropriate
         if (!parentId) return;               // terminate recursion
-        $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-        if ($("tr[data-tt-id='"+parentId+"']").hasClass("collapsed")) {
-            propogateOpened(AllNodes[parentId].parentId);
-        }
+        if ($("tr[data-tt-id='"+parentId+"']").hasClass("collapsed"))
+            $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+        propogateOpened(AllNodes[parentId].parentId);
     };
     function propogateClosed(parentId) {
-        // not not open and recurse to parent
-        if (!parentId) return;                // terminate recursion
+        // note not open and recurse to parent
+        if (!parentId || AllNodes[parentId].hasOpenDescendants())
+            return;                          // terminate recursion
         let parentElt = $("tr[data-tt-id='"+parentId+"']");
         parentElt.removeClass("opened");
         parentElt.addClass("hovered",
@@ -391,9 +391,7 @@ window.addEventListener('message', function(event) {
                             complete: function() {
                                 parentElt.removeClass("hovered", 1000);
                             }});
-        if (parentElt.hasClass("collapsed")) {
-            propogateClosed(AllNodes[parentId].parentId);
-        }
+        propogateClosed(AllNodes[parentId].parentId);
     };
     let nodeId, parentId;
     if (event.source != window)
@@ -411,6 +409,7 @@ window.addEventListener('message', function(event) {
         parentId = event.data.BTParentId;
         AllNodes[nodeId].isOpen = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
+        $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         propogateOpened(parentId);
         initializeUI();
         break;
@@ -422,7 +421,6 @@ window.addEventListener('message', function(event) {
 
         // update ui and animate parent to indicate change
         $("tr[data-tt-id='"+nodeId+"']").removeClass("opened", 1000);
-        if (!parentId || AllNodes[parentId].hasOpenChildren()) break;
         propogateClosed(parentId);
         break;
     case 'error_restore_nodes':
