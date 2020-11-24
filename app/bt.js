@@ -447,23 +447,23 @@ function storeTab(tg, tab, note) {
     // process tag and add new if doesn't exist
     let [tag, parent, keyword, tagPath] = BTNode.processTagString(tg);
     const existingTag = Tags.some(atag => atag.name == tagPath);
+    let parentNode;
     if (!existingTag)
     {   // add new node for tag 
-        let parentNode = addNewTag(tag, parent);
-        let parentNodeId = parentNode.id;
+        parentNode = addNewTag(tag, parent);
         BTAppNode.generateTags();
     } else {
         let parentNodeId = BTNode.findFromTagPath(tagPath);
-        let parentNode = AllNodes[parentNodeId];
+        parentNode = AllNodes[parentNodeId];
     }
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
-    const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNodeId,
+    const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
                                   note || "", parentNode.level + 1);
     if (keyword) newNode.keyword = keyword;
 
-    const n = $("table.treetable").treetable("node", parentNodeId);      // find parent treetable node
+    const n = $("table.treetable").treetable("node", parentNode.id);     // find parent treetable node
     $("table.treetable").treetable("loadBranch", n, newNode.HTML());     // and insert new row
 
     function compare(a,b) {
