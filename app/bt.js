@@ -448,8 +448,8 @@ function storeTab(tg, tab, note) {
     let [tag, parent, keyword, tagPath] = BTNode.processTagString(tg);
     const existingTag = Tags.some(atag => atag.name == tagPath);
     if (!existingTag)
-        // add new node for tag and get back its unique tagPath
-        tagPath = addNewTag(tag, parent);
+        // add new node for tag //and get back its unique tagPath
+        addNewTag(tag, parent);
     
     const url = tab.url;
     const title = cleanTitle(tab.title);
