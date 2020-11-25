@@ -185,9 +185,7 @@ function openTag(parentId, ary) {
             openLink(elt.nodeId, elt.url);
     } else {
         // Create array of urls to open
-        var urls = [];
-        for (const elt of ary)
-            urls.push(elt.url);
+        const urls = ary.map(elt => elt.url);
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // When done record in local node store and send back message per tab
             let id, tab, node;
@@ -201,7 +199,9 @@ function openTag(parentId, ary) {
 
                 // NB tabs might not be loaded at this point, handlePotentialBTNode will catch it later
                 tab = win.tabs.find(function(element) {
-                    return (element && element.url && compareURLs(element.url, AllNodes[id].URL));
+                    return (element &&
+                            element.pendingUrl &&
+                            compareURLs(element.pendingUrl, AllNodes[id].URL));
                 });
                 if (!tab) continue;
                 
