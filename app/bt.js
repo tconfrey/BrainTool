@@ -393,6 +393,12 @@ window.addEventListener('message', function(event) {
                             }});
         propogateClosed(AllNodes[parentId].parentId);
     };
+    function errorRestoreNodes() {
+        // got an unknown node id from background so iniatiate a refresh
+        const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
+        window.postMessage({ type: 'nodes_updated', text: nodes});
+        console.count('BT-OUT:nodes_updated');
+    }
     let nodeId, parentId;
     if (event.source != window)
         return;
@@ -407,6 +413,10 @@ window.addEventListener('message', function(event) {
     case 'tab_opened':
         nodeId = event.data.BTNodeId;
         parentId = event.data.BTParentId;
+        if (!AllNodes[nodeId]) {
+            errorRestoreNodes();
+            break;
+        }
         AllNodes[nodeId].isOpen = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
@@ -415,7 +425,10 @@ window.addEventListener('message', function(event) {
         break;
     case 'tab_closed':
         nodeId = event.data.BTNodeId;
-        if (!AllNodes[nodeId]) return;
+        if (!AllNodes[nodeId]) {
+            errorRestoreNodes();
+            break;
+        }
         AllNodes[nodeId].isOpen = false;
         parentId = AllNodes[nodeId].parentId;
 
@@ -426,9 +439,7 @@ window.addEventListener('message', function(event) {
     case 'error_restore_nodes':
         // sent from background when it thinks node arrays are out of sync
         // send the core data needed in BTNode, not full AppNode
-        var nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
-        window.postMessage({ type: 'nodes_updated', text: nodes});
-        console.count('BT-OUT:nodes_updated');
+        errorRestoreNodes();
         break;
     }
 });
