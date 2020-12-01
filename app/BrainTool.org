@@ -189,7 +189,7 @@ Long tutorial on tools and techniques
 podcast interview
 
 
-* Reference
+* Resource
 Reference Material. Create sub tags under here - eg Reference:Machine Learning
 ** Machine Learning
 *** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
