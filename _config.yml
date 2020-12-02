@@ -9,3 +9,5 @@ tagline: A unique take on Bookmarks, Tags and Notes
 description: BrainTool is a Chrome extension that can be used as a unique bookmarks tabs manager but which also synchronizes with a plain text emacs org-mode style file on your Google Drive to become a more all encompassing personal knowledge management tool.
 url: https://braintool.org
 logo: /site/logo.png
+# Google Analytics
+google_analytics: UA-184551494-1
