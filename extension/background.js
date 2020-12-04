@@ -290,7 +290,7 @@ function moveTabToTag(tabId, tag) {
                              });
         }
     } else {                                                        // need to create new window
-        const arg = url ? {'url': url} : {'tabId': tabId};
+        const arg = url ? {'url': url, 'left': 500} : {'tabId': tabId, 'left': 500};
         if (TabAction != 'pop') arg.focused = false;
         chrome.windows.create(arg, function(window) {
             newTabId = newTabId ? newTabId : window.tabs[0].id;
@@ -576,7 +576,7 @@ function handlePotentialBTNode(url, tab) {
                                                    });
                          });
     } else {
-        chrome.windows.create({"tabId": tabId},
+        chrome.windows.create({"tabId": tabId, 'left': 500},
                               function(window) {
                                   node.windowId = window.id;
                                   parentNode.windowId = window.id;

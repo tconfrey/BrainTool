@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "BrainTool",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "description": "A unique take on Bookmarks, Tags and Notes.",
     "permissions": ["tabs", "storage"],
     "background": {
