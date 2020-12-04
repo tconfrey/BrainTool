@@ -1,3 +1,7 @@
+title: BrainTool Philosophy
+tagline: The Personal Information Manager for your Online Life
+description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
+
 # BrainTool Philosophy
 
 BrainTool is a knowledge/notes/links/browser manager. While browsing you 'tag' web pages via the BrainTool Chrome plugin to store them in your personal braintool file. Tags provide a grouping for sets of web pages, they are nested in a hierarchy and have attached notes. Each tag is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window with tabs for tagged links. The side-panel indicates which links are currently open in a tab and allows fast access to open or access the page.

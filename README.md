@@ -1,8 +1,10 @@
-# A unique take on Bookmarks, Tags and Notes
+# The Personal Information Manager for your Online Life
 
 ##  Install from the [Chrome Web Store!](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 
-BrainTool is a Chrome extension that can be used as a unique bookmarks/tabs manager but which also synchronizes with a plain text file on your Google Drive to become a more all encompassing personal knowledge management tool. More details below.
+Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
+
+With BrainTool you can save, tag and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 
 
 <table style="border:none;">
 <tr>
