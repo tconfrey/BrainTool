@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "BrainTool",
-    "version": "0.5.2",
+    "version": "0.5.4",
     "description": "The Information Manager for your online life.",
     "permissions": ["tabs", "storage"],
     "background": {
