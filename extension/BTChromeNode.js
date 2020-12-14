@@ -69,45 +69,21 @@ class BTChromeNode extends BTNode {
 }
 
 /* Centralized Mappings from MessageType to handler. Array of handler functions */
-const Handlers =
-      [
-          {
-              "msg": "get_bookmarks",
-              "handler": getBookmarks
-          }, 
-          {
-              "msg": "window_ready",
-              "handler": initializeExtension
-          },
-          {
-              "msg": "nodes_ready",
-              "handler": loadNodes
-          },
-          {
-              "msg": "link_click",
-              "handler": openLink
-          },
-          {
-              "msg": "tag_open",
-              "handler": openTag
-          },
-          {
-              "msg": "show_node",
-              "handler": showNode
-          },
-          {
-              "msg": "node_deleted",
-              "handler": deleteNode
-          }
-      ];
+const Handlers = {
+    "get_bookmarks": getBookmarks,
+    "window_ready": initializeExtension,
+    "nodes_ready": loadNodes,
+    "link_click": openLink,
+    "tag_open": openTag,
+    "show_node": showNode,
+    "node_deleted": deleteNode
+};
 
 // Set handler for extension messaging
 chrome.runtime.onMessage.addListener((msg, sender) => {
     console.count(`\nChrome Runtime, Message Manager received: [${msg.msg}]`);
-    Handlers.forEach(handler => {
-        if (handler["msg"] == msg.msg) {
-            console.log("Message Manager dispatching to ", handler["handler"].name);
-            handler["handler"](msg, sender);
-        }
-    });
+    if (Handlers[msg.msg]) {
+        console.log("Message Manager dispatching to ", Handlers[msg.msg].name);
+        Handlers[msg.msg](msg, sender);
+    }
 });
