@@ -16,39 +16,12 @@ var TabAction = 'pop';          // default operation on tagged tab (pop, hide, c
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
+    // NB legacy - generic messaging to the extension is now handled in BTChromeNode
     console.count("\n\n\nBackground.js-IN:" + msg.msg);
     switch (msg.from) {
     case 'btwindow':
-        if (msg.msg == 'window_ready') {
-            initializeExtension(sender);
-        }
-        if (msg.msg == 'nodes_ready') {
-            // maybe give original window focus here?
-            loadNodes();
-        }
-        if (msg.msg == 'link_click') {
-            openLink(msg.nodeId, msg.url);
-        }
-        if (msg.msg == 'tag_open') {
-            openTag(msg.parent, msg.data);
-        }
-        if (msg.msg == 'close_node') {
-            closeNode(msg.nodeId);
-        }
-        if (msg.msg == 'node_deleted') {
-            // First remove from list of managed tabs
-            let mtabs = AllNodes[msg.nodeId].managedTabs();
-            mtabs.forEach(tabId => {
-                const index = ManagedTabs.indexOf(tabId);
-                if (index !== -1) ManagedTabs.splice(index, 1);
-            });
-            BTNode.deleteNode(msg.nodeId);
-        }
         if (msg.msg == 'node_reparented') {
             AllNodes[msg.nodeId].reparentNode(msg.parentId, msg.index);
-        }
-        if (msg.msg == 'show_node') {
-            showNode(msg.nodeId);
         }
         if (msg.msg == 'LOCALTEST') {
             // Running under test so there is no external BT top level window
@@ -96,7 +69,17 @@ function indexInParent(nodeId) {
     return index;
 }
 
-function loadNodes() {
+function deleteNode(msg, sender) {
+    // First remove from list of managed tabs
+    let mtabs = AllNodes[msg.nodeId].managedTabs();
+    mtabs.forEach(tabId => {
+        const index = ManagedTabs.indexOf(tabId);
+        if (index !== -1) ManagedTabs.splice(index, 1);
+    });
+    BTNode.deleteNode(msg.nodeId);
+}
+    
+function loadNodes(msg, sender) {
     // Called on startup or refresh
     // (and as a last resort when link msgs are received but nodes are somehow out of sync)
     chrome.storage.local.get('nodes', function(data) {
@@ -113,9 +96,11 @@ function loadNodes() {
         });
     });
 }
-
-function openLink(nodeId, url, tries=0) {
+function openLink(msg, sender, tries=0) {
     // handle click on a link - open in appropriate window
+    // TODO Refactor to just take nodeId and use nodes url, why would they be different?
+    const nodeId = msg.nodeId;
+    const url = msg.url;
     try {
         var node = AllNodes[nodeId];
         if (node && node.tabId && node.windowId) {
@@ -174,9 +159,11 @@ function openLink(nodeId, url, tries=0) {
     }
 }
 
-function openTag(parentId, ary) {
+function openTag(msg, sender) {
     // passed an array of {nodeId, url} to open in top window
 
+    const parentId = msg.parent;
+    const ary = msg.data;
     const parentNode = AllNodes[parentId];
     if (!parentNode) return;                                    // shrug
     if (parentNode.windowId) {
@@ -217,10 +204,10 @@ function openTag(parentId, ary) {
     }
 }
 
-function showNode(id) {
+function showNode(msg, sender) {
     // Surface the window/tab associated with this node
 
-    const node = AllNodes[id];
+    const node = AllNodes[msg.nodeId];
     
     if (node && node.tabId) {
         // nb convert from tabId to offset index
@@ -241,11 +228,10 @@ function showNode(id) {
         showNode(node.childIds[0]);
 }
 
-function closeNode(id) {
+function closeNode(msg, sender) {
     // Close this nodes window or tabid. NB tabs have a tab id and window id, windows only have win id
 
-    const node = AllNodes[id];
-    console.log("closing id=", id);
+    const node = AllNodes[msg.nodeId];
     if (node && node.tabId){
         chrome.tabs.remove(node.tabId);
         // and remove from list of managed tabs
@@ -316,7 +302,7 @@ function moveTabToTag(tabId, tag) {
                     });
 }
 
-function initializeExtension(sender) {
+function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
     // Since we're restarting close windows and clear out the cache of opened nodes
 
@@ -594,3 +580,17 @@ function handlePotentialBTNode(url, tab) {
     console.count('tab_opened');
 }
 
+function getBookmarks() {
+    // User has requested bookmakr import from browser
+
+    chrome.bookmarks.getTree(function(itemTree){
+        console.log(JSON.stringify(itemTree[0], ['id', 'parentId', 'title', 'url', 'children'], 2));
+    });
+}
+
+function createBookmark() {
+    chrome.bookmarks.create({title: 'Top Level Folder', url: null, parentId: '0'},
+                            function(rsp) {
+                                console.log(`Completed w return = [${JSON.stringify(rsp)}]`);
+                            });
+}

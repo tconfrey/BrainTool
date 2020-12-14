@@ -25,44 +25,6 @@ window.addEventListener('message', function(event) {
         });
         console.count('Content-OUT:ready');
         break;
-    case 'link_click':
-        // propogate to background page to handle
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            msg: 'link_click',
-            nodeId: event.data.nodeId,
-            url: event.data.url
-        });
-        console.count('Content-OUT:link_click');
-        break;
-    case 'tag_open':
-        // pass on to background
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            msg: 'tag_open',
-            parent: event.data.parent,
-            data: event.data.data
-        });
-        console.count('Content-OUT:tag_open');
-        break;
-    case 'close_node':
-        // pass on to background
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            msg: 'close_node',
-            nodeId: event.data.nodeId
-        });
-        console.count('Content-OUT:close_node');
-        break;
-    case 'node_deleted':
-        // pass on
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            msg: 'node_deleted',
-            nodeId: event.data.nodeId
-        });
-        console.count('Content-OUT:node_deleted');
-        break;
     case 'node_reparented':
         // pass on
         chrome.runtime.sendMessage({
@@ -74,21 +36,17 @@ window.addEventListener('message', function(event) {
         });
         console.count('Content-OUT:node_reparented');
         break;
-    case 'show_node':
-        // pass on
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            msg: 'show_node',
-            nodeId: event.data.nodeId
-        });
-        console.count('Content-OUT:show_node');
-        break;
     case 'LOCALTEST':
         // pass on
         chrome.runtime.sendMessage({
             from: 'btwindow',
             msg: 'LOCALTEST',
         });
+        break;
+    default:
+        // handle all other default type messages
+        event.data["from"] = "btwindow";
+        chrome.runtime.sendMessage(event.data);
     }
 });
 

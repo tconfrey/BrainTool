@@ -12,10 +12,10 @@
 
 dialog {
     border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
-  border-radius: 6px;
-  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  position: fixed;
+    border-radius: 6px;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    position: fixed;
 }
 
 dialog textarea {
@@ -27,12 +27,67 @@ dialog textarea {
     margin-left: 10px;
 }
 
+#authDiv {
+    width: 75%;
+    margin: auto;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: space-around;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 5px;
+    background-color: #7bb07b66;
+}
+.important {
+    border-color: crimson;
+}
+.notImportant {
+    border-color: grey;
+}
+
 .buttonDiv {
     width: 80%;
     margin: auto;
     padding-top: 10px;
     display: flex;
     justify-content: space-around;
+}
+
+#options {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  
+    border: solid;
+    border-color: grey;
+    border-width: 3px;
+    border-radius: 5px;
+    background-color: #dcdfd3ed;
+    width: 80%;
+  /*  position: absolute;
+    top: 60px;
+    left: 50px;*/
+    z-index: 3;
+}
+.option_table {
+    margin-left: auto;
+    margin-right: auto;
+}
+.option_td {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+#optionsClose {
+    position: absolute;
+    cursor: pointer;
+    right: 3px;
+    top: 3px;
+    z-index: 4;
 }
 
 #inner {

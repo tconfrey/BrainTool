@@ -70,7 +70,7 @@ function initClient() {
             
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;
-            signoutButton.onclick = handleSignoutClick;
+//            signoutButton.onclick = handleSignoutClick;
 	    }, function(error) {
             initClientReturned = true;
             alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);

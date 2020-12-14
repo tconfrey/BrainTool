@@ -6,7 +6,7 @@
  ***/
 
 const authorizeButton = document.getElementById('authorize_button');
-const signoutButton = document.getElementById('signout_button');
+//const signoutButton = document.getElementById('signout_button');
 
 const tipsArray = [
     "Add ':' at the end of a tag to create a new subtag.",
@@ -36,7 +36,9 @@ function updateSigninStatus(isSignedIn, error=false) {
     }
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
-        signoutButton.style.display = 'block';
+        //signoutButton.style.display = 'block';
+        $("#options_button").show();
+        $("#authDiv").addClass("notImportant");
         if (firstUse) {
             $("#intro_text").slideUp(750);
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000)
@@ -50,8 +52,11 @@ function updateSigninStatus(isSignedIn, error=false) {
     } else {
         $("#auth_screen").show();
         $("#loading").hide();
+        $("#options_button").hide();
+        $("#options").hide();
+        $("#authDiv").addClass("important");
         authorizeButton.style.display = 'block';
-        signoutButton.style.display = 'none';
+        //signoutButton.style.display = 'none';
     }
 }
 
@@ -75,6 +80,15 @@ function toggleMenu() {
         $("#auth_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
+    }
+}
+
+function toggleOptions() {
+    // Toggle visibility of option div
+    if ($("#options").is(":visible")) {
+        $("#options").hide();
+    } else {
+        $("#options").show();
     }
 }
 
@@ -818,3 +832,24 @@ function generateOrgFile() {
     return orgText.slice(0, -1);                                      // take off final \n
 }
 
+function importBookmarks() {
+    // pull in Chrome bookmarks and insert into All Nodes for subsequent save
+    window.postMessage({ msg: 'get_bookmarks'});
+}
+                            
+        /*
+        itemTree.forEach(function(item){
+            processNode(item);
+        });
+    });
+
+    function processNode(node) {
+        // recursively process child nodes
+        if(node.children) {
+            node.children.forEach(function(child) { processNode(child); });
+        }
+
+        // print leaf nodes URLs to console
+        if(node.url) { console.log(node.url); }
+    }
+*/
