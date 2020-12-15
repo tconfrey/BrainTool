@@ -76,14 +76,15 @@ const Handlers = {
     "link_click": openLink,
     "tag_open": openTag,
     "show_node": showNode,
-    "node_deleted": deleteNode
+    "node_deleted": deleteNode,
+    "close_node": closeNode
 };
 
 // Set handler for extension messaging
 chrome.runtime.onMessage.addListener((msg, sender) => {
-    console.count(`\nChrome Runtime, Message Manager received: [${msg.msg}]`);
+    console.count(`BTChromeNode received: [${msg.msg}]`);
     if (Handlers[msg.msg]) {
-        console.log("Message Manager dispatching to ", Handlers[msg.msg].name);
+        console.log("BTChromeNode dispatching to ", Handlers[msg.msg].name);
         Handlers[msg.msg](msg, sender);
     }
 });

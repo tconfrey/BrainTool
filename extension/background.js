@@ -155,7 +155,7 @@ function openLink(msg, sender, tries=0) {
             console.count('error_restore_nodes');
         }
         loadNodes();
-        setTimeout(function(){openLink(nodeId, url, ++tries);}, 100);
+        setTimeout(function(){openLink({nodeId: nodeId, url: url}, null, ++tries);}, 100);
     }
 }
 
@@ -581,10 +581,13 @@ function handlePotentialBTNode(url, tab) {
 }
 
 function getBookmarks() {
-    // User has requested bookmakr import from browser
+    // User has requested bookmark import from browser
 
     chrome.bookmarks.getTree(function(itemTree){
-        console.log(JSON.stringify(itemTree[0], ['id', 'parentId', 'title', 'url', 'children'], 2));
+        itemTree[0].title = "Imported Bookmarks";
+        chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
+            chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported'});
+        });
     });
 }
 

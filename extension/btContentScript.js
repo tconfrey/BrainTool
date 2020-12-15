@@ -46,6 +46,7 @@ window.addEventListener('message', function(event) {
     default:
         // handle all other default type messages
         event.data["from"] = "btwindow";
+        event.data["msg"] = event.data.type;
         chrome.runtime.sendMessage(event.data);
     }
 });
@@ -82,6 +83,15 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         window.postMessage({type: 'error_restore_nodes'});
         console.count('Content-OUT:error_restore_nodes');
         break;
+    case 'bookmarks_imported':
+        chrome.storage.local.get('bookmarks', data => {
+            msg.data = data;
+            window.postMessage(msg);
+        });
+        break;
+    default:
+        // handle all other default type messages
+        window.postMessage(msg);
     }
 });
 

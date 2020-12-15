@@ -86,9 +86,9 @@ function toggleMenu() {
 function toggleOptions() {
     // Toggle visibility of option div
     if ($("#options").is(":visible")) {
-        $("#options").hide();
+        $("#options").hide({duration: 500, easing: 'swing'});
     } else {
-        $("#options").show();
+        $("#options").show({duration: 500, easing: 'swing'});
     }
 }
 
@@ -834,22 +834,63 @@ function generateOrgFile() {
 
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
-    window.postMessage({ msg: 'get_bookmarks'});
+    window.postMessage({ type: 'get_bookmarks'});
+    toggleOptions();
 }
-                            
-        /*
-        itemTree.forEach(function(item){
-            processNode(item);
-        });
+
+function loadBookmarks(msg) {
+    // handler for bookmarks_imported received when Chrome bookmarks are push to local.storage
+    // nested {title: , url: , children: []}
+
+    const importName = "Imported Bookmarks-" + Date.now();
+    const importNode = new BTAppNode(importName, null, "", 1);
+
+    $("table.treetable").treetable("loadBranch", null, importNode.HTML());     // and insert new row
+    animateNewBookmark(importNode.id, 0);
+    msg.data.bookmarks.children.forEach(node => {
+        loadBookmarkNode(node, importNode);
     });
 
-    function processNode(node) {
-        // recursively process child nodes
-        if(node.children) {
-            node.children.forEach(function(child) { processNode(child); });
-        }
+    // Let everyone know about the updates. 
+    writeBTFile();
+    BTAppNode.generateTags();
+    window.postMessage({ type: 'tags_updated', text: Tags});
+    // only send the core data needed in BTNode, not full AppNode
+    const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
+    window.postMessage({ type: 'nodes_updated', text: nodes});
+    initializeUI();
+}
 
-        // print leaf nodes URLs to console
-        if(node.url) { console.log(node.url); }
-    }
-*/
+function loadBookmarkNode(node, parent) {
+    // load a new node from bookmark export format as child of parent BTNode and recurse on children
+
+    const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
+    const btn = new BTAppNode(title, parent.id, "", parent.level + 1);
+    const treeParent = $("table.treetable").treetable("node", parent.id);
+    $("table.treetable").treetable("loadBranch", treeParent, btn.HTML());     // and insert new row
+    
+    if (!node.children) return;
+    // Draw attention
+    animateNewBookmark(btn.id, btn.level * 250);
+    // recurse
+    node.children.forEach(node => {
+        loadBookmarkNode(node, btn);
+    });
+}
+
+function animateNewBookmark(nodeId, delay) {
+    // Helper for bookmark import, shows whats happening in the tree
+    
+    const element = $(`tr[data-tt-id='${nodeId}']`)[0];
+    $('html, body').animate({
+        scrollTop: $(element).offset().top
+    }, 1000);
+    //element.scrollIntoView({behavior: "smooth", block: "center"});
+    setTimeout(function() {
+        $(element).addClass("hovered",
+                            {duration: 1000,
+                             complete: function() {
+                                 $(element).removeClass("hovered", 1000);
+                             }})}, delay);
+}
+    

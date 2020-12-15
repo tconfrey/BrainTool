@@ -66,11 +66,8 @@ dialog textarea {
     border-color: grey;
     border-width: 3px;
     border-radius: 5px;
-    background-color: #dcdfd3ed;
+    background-color: #dcdfd3f0;
     width: 80%;
-  /*  position: absolute;
-    top: 60px;
-    left: 50px;*/
     z-index: 3;
 }
 .option_table {
