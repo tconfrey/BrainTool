@@ -82,9 +82,9 @@ const Handlers = {
 
 // Set handler for extension messaging
 chrome.runtime.onMessage.addListener((msg, sender) => {
-    console.count(`BTChromeNode received: [${msg.msg}]`);
-    if (Handlers[msg.msg]) {
-        console.log("BTChromeNode dispatching to ", Handlers[msg.msg].name);
-        Handlers[msg.msg](msg, sender);
+    console.count(`BTChromeNode received: [${msg.type}]`);
+    if (Handlers[msg.type]) {
+        console.log("BTChromeNode dispatching to ", Handlers[msg.type].name);
+        Handlers[msg.type](msg, sender);
     }
 });

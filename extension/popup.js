@@ -66,8 +66,8 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     var wargs = {
-        //'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
-        'url' : "https://BrainTool.org/app", 
+        'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
+        //'url' : "https://BrainTool.org/app", 
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100
@@ -81,15 +81,14 @@ function windowOpen() {
 
 function getCurrentTab (callback =  null) {
     // fill a storage variable w the tab to be stored
-    chrome.tabs.query({active: true, currentWindow: true}, function(list) {
-        // NB only one tab should be active and in the current window 
-        chrome.storage.local.set({tabsList: list}, function() {
-            CurrentTab = list[0];
-            if(callback) {
-                callback(list[0]);
-            }
-        });
-    });
+    chrome.tabs.query({active: true, currentWindow: true},
+                      function(list) {
+                          // NB only one tab should be active and in the current window 
+                          CurrentTab = list[0];
+                          if(callback) {
+                              callback(CurrentTab);
+                          }
+                      });
 }
 
 
@@ -220,48 +219,43 @@ function tabAdded() {
     const bgPage = chrome.extension.getBackgroundPage();
     const BTTabId = bgPage.BTTab;                 // extension global for bttab
     const tabAction = bgPage.TabAction;           // pop|close|hide from radio btn in popup
-    const message = {'type': 'new_tab', 'tag': nt, 'note': noteText};
+    const message = {'type': 'new_tab', 'tag': nt, 'note': noteText,
+                     'url': CurrentTab.url, 'title': CurrentTab.title};
 
     // Remember this tab is a BT managed tab
     let mTabs = bgPage.ManagedTabs;
     mTabs.push(CurrentTab.id);
     bgPage.ManagedTabs = mTabs;
     
-    // Send msg to BT app for processing w text and tag info, then update bg
-    chrome.tabs.sendMessage(
-        BTTabId,
-        message, 
-        function (rsp) {
-            if (tabAction == 'close')
-                chrome.tabs.remove(CurrentTab.id);
-            if (rsp) {
-                // Send msg to background to perform appropriate add node or add & move action.
-                // Move may pop or not. (NB this script ends when looses focus.)
-                const msgType = (tabAction == 'close') ? 'add_tab' : 'add_move_tab';
-                chrome.runtime.sendMessage({
-                    from: 'popup',
-                    msg: msgType,
-                    tabId: CurrentTab.id,
-                    tag: nt,
-                    title: `[[${CurrentTab.url}][${CurrentTab.title}]]`
-                });
-            }
-            else // Shouldn't get here
-                alert("Error in tabAdded!");
-            window.close();
-        });
+    // Send msg to BT app for processing w text and tag info
+    chrome.tabs.sendMessage(BTTabId, message);
+    
+    // Send msg to background to perform appropriate add node or add & move action.
+    // NB this script ends when looses focus.
+    if (tabAction == 'close')
+        chrome.tabs.remove(CurrentTab.id);
+    
+    chrome.runtime.sendMessage({
+        from: 'popup',
+        type: (tabAction == 'close') ? 'add_tab' : 'add_move_tab',
+        tabId: CurrentTab.id,
+        tag: nt,
+        title: `[[${CurrentTab.url}][${CurrentTab.title}]]`
+    });
+    
+    window.close();
 }
 
 // Listen for messages from other components. Currently just to know to close BT popup.
 chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
-        if (msg.msg == 'window_ready') {
+        if (msg.type == 'window_ready') {
             console.log("BT window is ready");
             window.close();
         }
         break;
     }
-    console.count("IN:"+msg.msg);
+    console.count("IN:"+msg.type);
 });
     

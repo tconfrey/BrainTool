@@ -409,23 +409,11 @@ window.addEventListener('message', function(event) {
                             }});
         propogateClosed(AllNodes[parentId].parentId);
     };
-    function errorRestoreNodes() {
-        // got an unknown node id from background so iniatiate a refresh
-        const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
-        window.postMessage({ type: 'nodes_updated', text: nodes});
-        console.count('BT-OUT:nodes_updated');
-    }
     let nodeId, parentId;
     if (event.source != window)
         return;
     console.log(`bt.js got ${event.data.type} message:`, event);
     switch (event.data.type) {
-    case 'keys':
-        processKeys(event.data.client_id, event.data.api_key);
-        break;
-    case 'new_tab':
-        storeTab(event.data.tag, event.data.tab, event.data.note);
-        break;
     case 'tab_opened':
         nodeId = event.data.BTNodeId;
         parentId = event.data.BTParentId;
@@ -452,11 +440,6 @@ window.addEventListener('message', function(event) {
         $("tr[data-tt-id='"+nodeId+"']").removeClass("opened", 1000);
         propogateClosed(parentId);
         break;
-    case 'error_restore_nodes':
-        // sent from background when it thinks node arrays are out of sync
-        // send the core data needed in BTNode, not full AppNode
-        errorRestoreNodes();
-        break;
     }
 });
 
@@ -465,13 +448,25 @@ function cleanTitle(text) {
     return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
 }
 
-function storeTab(tg, tab, note) {
+function errorRestoreNodes() {
+    // got an unknown node id from background so iniatiate a refresh
+    const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
+    window.postMessage({ type: 'nodes_updated', text: nodes});
+    console.count('BT-OUT:nodes_updated');
+}
+
+function storeTab(data) {
     // put this tab under storage w given tag
     
     // NB tg may be tag, parent:tag, tag:keyword, parent:tag:keyword
     // where tag may be new, new under parent, or existing but under parent to disambiguate
 
     // process tag and add new if doesn't exist
+    const tg = data.tag;
+    const note = data.note;
+    const url = data.url;
+    const title = cleanTitle(data.title);
+    
     let [tag, parent, keyword, tagPath] = BTNode.processTagString(tg);
     const existingTag = Tags.some(atag => atag.name == tagPath);
     let parentNode;
@@ -484,8 +479,6 @@ function storeTab(tg, tab, note) {
         parentNode = AllNodes[parentNodeId];
     }
     
-    const url = tab.url;
-    const title = cleanTitle(tab.title);
     const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
                                   note || "", parentNode.level + 1);
     if (keyword) newNode.keyword = keyword;

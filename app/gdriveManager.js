@@ -21,8 +21,11 @@ window.addEventListener('load', function() {
 });
 
 
-function processKeys(clientId, APIKey) {
+function processKeys(data) {
     // Client ID and API key from the Developer Console, values storted offline in config.js
+    const clientId = data.client_id;
+    const APIKey = data.api_key;
+    
     if (window.LOCALTEST) return;                          // running inside test harness
     console.log('Loading Google API...');
     CLIENT_ID = clientId;

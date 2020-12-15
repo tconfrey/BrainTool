@@ -17,13 +17,13 @@ var TabAction = 'pop';          // default operation on tagged tab (pop, hide, c
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
     // NB legacy - generic messaging to the extension is now handled in BTChromeNode
-    console.count("\n\n\nBackground.js-IN:" + msg.msg);
+    console.count("\n\nBackground.js-IN:" + msg.type);
     switch (msg.from) {
     case 'btwindow':
-        if (msg.msg == 'node_reparented') {
+        if (msg.type == 'node_reparented') {
             AllNodes[msg.nodeId].reparentNode(msg.parentId, msg.index);
         }
-        if (msg.msg == 'LOCALTEST') {
+        if (msg.type == 'LOCALTEST') {
             // Running under test so there is no external BT top level window
             chrome.tabs.query({'url' : '*://localhost/test*'},
                               function(tabs) {
@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         break;
     case 'popup':
         let [tag, parent, keyword, tagPath] = BTNode.processTagString(msg.tag);
-        if (msg.msg == 'add_move_tab') {
+        if (msg.type == 'add_move_tab') {
             const tabNode = BTChromeNode.findFromTab(msg.tabId);       // Already a BTNode?
             if (tabNode) {                                             // if so duplicate
                 chrome.tabs.duplicate(msg.tabId, function(newTab) {
@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                 moveTabToTag(msg.tabId, tagPath);
             }
         }
-        if (msg.msg == 'add_tab') {
+        if (msg.type == 'add_tab') {
             // create parent tag node if needed and then the node itself
             const tagNodeId = BTNode.findFromTagPath(tagPath);
             const tagNode = AllNodes[tagNodeId] ? AllNodes[tagNodeId] : new BTChromeNode(tag);
@@ -310,11 +310,7 @@ function initializeExtension(msg, sender) {
     BTWin = sender.tab.windowId;
     chrome.tabs.sendMessage(                        // send over gdrive app info
         BTTab,
-        {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY},
-        {} , 
-        function (rsp) {
-            console.log("sent keys, rsp: " + rsp);
-        });
+        {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
     console.count('keys');
     
     const tabIds = Object.values(OpenLinks);       // OpenLinks maps open link urls to tabIds
