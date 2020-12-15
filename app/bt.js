@@ -83,12 +83,12 @@ function toggleMenu() {
     }
 }
 
-function toggleOptions() {
+function toggleOptions(dur = 500) {
     // Toggle visibility of option div
     if ($("#options").is(":visible")) {
-        $("#options").hide({duration: 500, easing: 'swing'});
+        $("#options").hide({duration: dur, easing: 'swing'});
     } else {
-        $("#options").show({duration: 500, easing: 'swing'});
+        $("#options").show({duration: dur, easing: 'swing'});
     }
 }
 
@@ -130,6 +130,7 @@ function generateTable() {
 }
 
 
+var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
     BTFileText = fileText;      // store for future editing
@@ -172,6 +173,7 @@ function processBTFile(fileText) {
 
     initializeUI();
     refreshRefresh();
+    if (RefreshCB) RefreshCB();                      // may be a callback registered
 }
 
 function refreshRefresh() {
@@ -835,30 +837,22 @@ function generateOrgFile() {
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
     window.postMessage({ type: 'get_bookmarks'});
-    toggleOptions();
+    toggleOptions(1500);
 }
 
 function loadBookmarks(msg) {
     // handler for bookmarks_imported received when Chrome bookmarks are push to local.storage
     // nested {title: , url: , children: []}
 
-    const importName = "Imported Bookmarks-" + Date.now();
+    const importName = "Imported Bookmarks (" + getDateString() + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
-    $("table.treetable").treetable("loadBranch", null, importNode.HTML());     // and insert new row
-    animateNewBookmark(importNode.id, 0);
-    msg.data.bookmarks.children.forEach(node => {
+    msg.data.bookmarks.children.reverse().forEach(node => {
         loadBookmarkNode(node, importNode);
     });
 
-    // Let everyone know about the updates. 
-    writeBTFile();
-    BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags});
-    // only send the core data needed in BTNode, not full AppNode
-    const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
-    window.postMessage({ type: 'nodes_updated', text: nodes});
-    initializeUI();
+    RefreshCB = function() {animateNewBookmark(importName);};
+    writeBTFile(refreshTable);
 }
 
 function loadBookmarkNode(node, parent) {
@@ -866,31 +860,33 @@ function loadBookmarkNode(node, parent) {
 
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
     const btn = new BTAppNode(title, parent.id, "", parent.level + 1);
-    const treeParent = $("table.treetable").treetable("node", parent.id);
-    $("table.treetable").treetable("loadBranch", treeParent, btn.HTML());     // and insert new row
-    
     if (!node.children) return;
-    // Draw attention
-    animateNewBookmark(btn.id, btn.level * 250);
+
     // recurse
-    node.children.forEach(node => {
+    node.children.reverse().forEach(node => {
         loadBookmarkNode(node, btn);
     });
 }
 
-function animateNewBookmark(nodeId, delay) {
-    // Helper for bookmark import, shows whats happening in the tree
-    
+function animateNewBookmark(name) {
+    // Helper for bookmark import, draw attention
+    const nodeId = BTNode.findFromTitle(name);
+    if (!nodeId) return;
     const element = $(`tr[data-tt-id='${nodeId}']`)[0];
     $('html, body').animate({
         scrollTop: $(element).offset().top
-    }, 1000);
-    //element.scrollIntoView({behavior: "smooth", block: "center"});
-    setTimeout(function() {
-        $(element).addClass("hovered",
-                            {duration: 1000,
-                             complete: function() {
-                                 $(element).removeClass("hovered", 1000);
-                             }})}, delay);
+    }, 750);
+    $(element).addClass("dropTarget",
+                        {duration: 2000,
+                         complete: function() {
+                             $(element).removeClass("dropTarget", 2000);
+                         }});
+    RefreshCB = null;
 }
     
+function getDateString() {
+    // return minimal date representation to append to bookmark tag
+    const d = new Date();
+    const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
+    return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
+}

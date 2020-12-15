@@ -247,7 +247,7 @@ function reAuth(callback) {
 }
 
 window.LOCALTEST = false; // overwritten in test harness
-function writeBTFile() {
+function writeBTFile(cb) {
     // Write file contents into BT.org file on GDrive
     
     BTFileText = generateOrgFile();
@@ -289,6 +289,7 @@ function writeBTFile() {
                   return res.json();
               }).then(function(val) {
                   console.log(val);
+                  if (cb) cb();
               });
     }
     catch(err) {
