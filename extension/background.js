@@ -571,9 +571,36 @@ function getBookmarks() {
     });
 }
 
-function createBookmark() {
-    chrome.bookmarks.create({title: 'Top Level Folder', url: null, parentId: '0'},
-                            function(rsp) {
-                                console.log(`Completed w return = [${JSON.stringify(rsp)}]`);
+
+function getDateString() {
+    // return minimal date representation to append to bookmark tag
+    const d = new Date();
+    const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
+    return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
+}
+
+
+function exportBookmarks() {
+    // Top level bookmark exporter
+    
+    chrome.bookmarks.create({title: 'BrainTool Export ' + getDateString()}, bmNode => {
+        // Iterate thru top level nodes exporting them
+        AllNodes.forEach(n => {
+            if (n && !n.parentId)
+                exportNodeAsBookmark(n, bmNode.id);
+        });
+        chrome.windows.create({'url': 'chrome://bookmarks/?id='+bmNode.id});
+    });
+}
+
+function exportNodeAsBookmark(btNode, parentBookmarkId) {
+    // export this node and recurse thru its children
+
+    chrome.bookmarks.create({title: btNode.displayTag, url: btNode.URL,
+                             parentId: parentBookmarkId},
+                            function(bmNode) {
+                                btNode.childIds.forEach(i => {
+                                    exportNodeAsBookmark(AllNodes[i], bmNode.id);
+                                });
                             });
 }

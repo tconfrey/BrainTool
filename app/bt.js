@@ -907,3 +907,8 @@ function getDateString() {
     const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
     return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
 }
+
+function exportBookmarks() {
+    // background handles the whole job
+    window.postMessage({ type: 'export_bookmarks'});
+}

@@ -70,14 +70,15 @@ class BTChromeNode extends BTNode {
 
 /* Centralized Mappings from MessageType to handler. Array of handler functions */
 const Handlers = {
-    "get_bookmarks": getBookmarks,
     "window_ready": initializeExtension,
     "nodes_ready": loadNodes,
     "link_click": openLink,
     "tag_open": openTag,
     "show_node": showNode,
     "node_deleted": deleteNode,
-    "close_node": closeNode
+    "close_node": closeNode,
+    "get_bookmarks": getBookmarks,
+    "export_bookmarks": exportBookmarks
 };
 
 // Set handler for extension messaging
