@@ -279,8 +279,7 @@ function dragStart(event, ui) {
     // collapse open subtree if any
     const nodeId = $(this).attr('data-tt-id');
     if (AllNodes[nodeId].childIds.length) {
-        const treeTable = $("#content");
-        treeTable.treetable("collapseNode", nodeId);
+        $("#content").treetable("collapseNode", nodeId);
     }
 }
 function dropNode(event, ui) {
@@ -471,9 +470,8 @@ function storeTab(data) {
     const existingTag = Tags.some(atag => atag.name == tagPath);
     let parentNode;
     if (!existingTag)
-    {   // add new node for tag 
+    {   // add new node for tag if needed
         parentNode = addNewTag(tag, parent);
-        BTAppNode.generateTags();
     } else {
         let parentNodeId = BTNode.findFromTagPath(tagPath);
         parentNode = AllNodes[parentNodeId];
@@ -501,11 +499,9 @@ function storeTab(data) {
                                        return (compare(ary.indexOf(aid), ary.indexOf(bid)));
                                    });
     initializeUI();
-        
     writeBTFile();                                                       // write out updated file
-
-    // update and let extension know about updated tags list as needed
-    if (!existingTag) {
+    if (!existingTag)
+    {   // update if there are new tags
         BTAppNode.generateTags();
         window.postMessage({ type: 'tags_updated', text: Tags });
     }
@@ -514,7 +510,13 @@ function storeTab(data) {
 function addNewTag(tag, parent) {
     // New tag - create node and add to tree
 
-    const parentTagId = parent ? BTAppNode.findFromTagPath(parent) : null;
+    // First handle case where parent is passed in but doesn't yet exist (ie top:bottom)
+    if (parent && !BTNode.findFromTagPath(parent)) {
+        let newParent = new BTAppNode(parent, null, "", 1);
+        $("table.treetable").treetable("loadBranch", null, newParent.HTML());      // insert into tree
+    }
+    
+    const parentTagId = parent ? BTNode.findFromTagPath(parent) : null;
     const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
     const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
 
@@ -812,6 +814,28 @@ function toDo() {
     $(tr).find("span.btTitle").html(appNode.displayTitle());
     initializeUI();
     writeBTFile();
+}
+
+function promote() {
+    // move node up a level in tree hierarchy
+    
+    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    const node = selectedNode();
+    if (!node || !node.parentId) return;                  // can't promote
+    
+    // collapse open subtree if any
+    if (node.childIds.length)
+        $("#content").treetable("collapseNode", node.id);
+
+    // Do the move
+    const newParentId = AllNodes[node.parentId].parentId;
+    node.reparentNode(newParentId);
+    $("table.treetable").treetable("promote", node.id);
+
+    // save to file, update Tags etc
+    writeBTFile();
+    BTAppNode.generateTags();
+    window.postMessage({ type: 'tags_updated', text: Tags });
 }
 
 

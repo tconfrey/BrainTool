@@ -374,6 +374,33 @@
       return this;
     };
 
+    // Tony Addition
+    Tree.prototype.promote = function(node) {
+        // Move node up the hierarchy and position it before its current parent
+        var nodeParent = node.parentNode();
+        if (!nodeParent) return;
+        var nodeGrandparent = nodeParent.parentNode();
+        if (nodeGrandparent) {
+            node.setParent(nodeGrandparent);
+        } else {
+            node.parentId = null;
+            node.row.removeData(node.settings.parentIdAttr);
+            // TODO figure out why above line doesn't work so I don't need this one
+            node.row.removeAttr('data-tt-parent-id'); 
+        }
+        
+        node.row.insertBefore(nodeParent.row);
+        node.render();
+        
+        // Loop backwards through children to order correctly in UI
+        var children = node.children, i;
+        for (i = children.length - 1; i >= 0; i--) {
+            this._moveRows(children[i], node);
+        }
+        nodeParent.updateBranchLeafClass();
+        return this;
+    }
+
     Tree.prototype.removeNode = function(node) {
       // Recursively remove all descendants of +node+
       this.unloadBranch(node);
@@ -583,6 +610,14 @@
       this.data("treetable").move(node, destination);
 
       return this;
+    },
+
+    // Tony Addition
+    promote: function(nodeId) {
+        var node;
+        node = this.data("treetable").tree[nodeId];
+        this.data("treetable").promote(node);
+        return this;
     },
 
     node: function(id) {

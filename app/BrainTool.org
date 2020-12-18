@@ -73,7 +73,7 @@ Project document
  JS parser for org mode
 
 **** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
-Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White and Done by Praveen.
+Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by b farias and Done by Praveen.
 
 **** [[http://jackconfrey.com/work][jconfrey Art]]
  Graphic design and project artwork by Jack Confrey

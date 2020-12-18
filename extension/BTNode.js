@@ -95,7 +95,7 @@ class BTNode {
 
     isTag() {
         // Is this node used as a tag => has webLinked children
-        return this.childIds.some(id => AllNodes[id].hasWebLinks);
+        return (this.level == 1) || this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
 
     toBTNode() {
@@ -115,7 +115,8 @@ class BTNode {
         if (oldP)
             AllNodes[oldP].removeChild(this.id);
         this.parentId = newP;
-        AllNodes[newP].addChild(this.id, index);
+        if (newP)
+            AllNodes[newP].addChild(this.id, index);
     }
     
     static URLFromTitle(title) {

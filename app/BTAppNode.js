@@ -224,7 +224,7 @@ class BTAppNode extends BTNode {
         super.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
-        const newLevel = AllNodes[newP].level + 1;
+        const newLevel = newP ? AllNodes[newP].level + 1 : 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
 
