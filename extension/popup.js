@@ -65,9 +65,15 @@ function windowOpen() {
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
 
     // Create window, remember it and highlight it
+    const version = chrome.runtime.getManifest().version;
     var wargs = {
+<<<<<<< HEAD
         //'url' : "http://localhost:8000/app", // "https://tconfrey.github.io/BrainTool/app",
         'url' : "https://BrainTool.org/app", 
+=======
+        'url' : "http://localhost:8000/app/versions/"+version,
+        //'url' : "https://BrainTool.org/app/versions/"+version, 
+>>>>>>> 890763c... new versioning scheme. creating a versions/0.6.0 sub directory so extension can ask for code specific to its version.
         'type' : "panel",
         'top' : 10, 'left' : 10,
         'width' : 500, 'height' : 1100
