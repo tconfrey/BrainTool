@@ -212,6 +212,7 @@ function initializeUI() {
         helper: function() {
             buttonHide();
             const clone = $(this).clone();
+            $(clone).removeClass("hovered");               // green highlight is confusing
             return clone;
         },     
         start: dragStart,       // call fn below on start
@@ -233,23 +234,10 @@ function initializeUI() {
         over: function(event, ui) {
             // highlight node a drop would drop into and underline the potential position
             $(this).children('td').first().addClass("dropOver");
-            if ($(this).hasClass('branch'))
-                $(this).addClass("dropTarget");
-            else {
-                // nb at top level parent is null so dropping onto $this
-                const parentId = $(this).attr('data-tt-parent-id') || $(this).attr('data-tt-id');
-                $("tr[data-tt-id='"+parentId+"']").addClass("dropTarget");
-            }
         },
         out: function(event, ui) {
             // undo the above
             $(this).children('td').first().removeClass("dropOver");
-            if ($(this).hasClass('branch'))
-                $(this).removeClass("dropTarget");
-            else {
-                const parentId = $(this).attr('data-tt-parent-id') || $(this).attr('data-tt-id');
-                $("tr[data-tt-id='"+parentId+"']").removeClass("dropTarget");
-            }
         }
     });
     
@@ -282,43 +270,56 @@ function dragStart(event, ui) {
         $("#content").treetable("collapseNode", nodeId);
     }
 }
-function dropNode(event, ui) {
-    // Drop node w class=dragTarget onto node w class=dropTarget in position below class=dropOver
-    console.log("dropping");
-    const dragNode = $(".dragTarget")[0];
-    const dropParent = $(".dropTarget")[0];
-    const dropBelow = $($(".dropOver")[0]).parent();
 
+function dropNode(event, ui) {
+    // Drop node w class=dragTarget below node w class=dropOver
+    // NB if dropOver is expanded target becomes first child, if collapsed next sibling
+    
+    const dragNode = $(".dragTarget")[0];
     const dragNodeId = $(dragNode).attr('data-tt-id');
-    const dropParentId = $(dropParent).attr('data-tt-id');
+    const dropNode = $($(".dropOver")[0]).parent();
+    const dropNodeId = $(dropNode).attr('data-tt-id');
     const treeTable = $("#content");
 
-    if (dropParentId) {
-        // First set the correct parentage, model then tree
-        const nodeIndex = $(dropBelow).index();
-        const parentIndex = $(dropParent).index();
-        AllNodes[dragNodeId].reparentNode(dropParentId, nodeIndex - parentIndex);
-        treeTable.treetable("move", dragNodeId, dropParentId);
+    if (dropNodeId) {
+        const oldParentId = AllNodes[dragNodeId].parentId;
+        if ($(dropNode).hasClass("collapsed") || $(dropNode).hasClass("leaf")) {
+            // drop below dropNode w same parent
+            const parentId = AllNodes[dropNodeId].parentId;
+            const parent = AllNodes[parentId];
+            //const treeParent = treeTable.treetable("node", parentId);
+            AllNodes[dragNodeId].reparentNode(parentId,
+                                              parent ? parent.childIds.indexOf(dropNodeId) + 1 : -1);
+            treeTable.treetable("move", dragNodeId, parentId);
+            positionNode(dragNode, parentId, dropNode);          // sort into position
+        } else {
+            // drop into dropNode as first child
+            AllNodes[dragNodeId].reparentNode(dropNodeId, 0);
+            treeTable.treetable("move", dragNodeId, dropNodeId);
+        }
         
-        // Then move to correct position under parent, update file and update extension for tags
-        positionNode(dragNode, dropParent, dropBelow);
         writeBTFile();
         BTAppNode.generateTags();
         window.postMessage({ type: 'tags_updated', text: Tags });
+        
+        // update tree row if oldParent is now childless
+        if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
+            const ttNode = $("#content").treetable("node", oldParentId);
+            $("#content").treetable("unloadBranch", ttNode);
+        }
     }
     
     // Clean up
     $(dragNode).removeClass("dragTarget").removeClass("hovered", 750);
-    $(dropParent).removeClass("dropTarget");
     $("td").removeClass("dropOver");
 }
 
-function positionNode(dragNode, dropParent, dropBelow) {
+function positionNode(dragNode, dropParentId, dropBelow) {
     // Position dragged node below the dropbelow element under the parent
     // NB treetable does not support this so we need to use this sort method
     console.log("positioning");
     const newPos = $("tr").index(dropBelow);
-    const dropParentId = $(dropParent).attr('data-tt-id');
+    //const dropParentId = $(dropParent).attr('data-tt-id');
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
     const db = dropBelow[0];
@@ -758,6 +759,11 @@ function deleteNode(id) {
         const openKids = $("tr[data-tt-parent-id='"+parent.id+"']").hasClass("opened");
         if (!openKids)
             $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
+        // update tree row if now is childless
+        if (parent.childIds.length == 0) {
+            const ttNode = $("#content").treetable("node", parent.id);
+            $("#content").treetable("unloadBranch", ttNode);
+        }
     }
     
     // message to update BT background model
@@ -893,10 +899,10 @@ function animateNewBookmark(name) {
     $('html, body').animate({
         scrollTop: $(element).offset().top
     }, 750);
-    $(element).addClass("dropTarget",
+    $(element).addClass("attention",
                         {duration: 2000,
                          complete: function() {
-                             $(element).removeClass("dropTarget", 2000);
+                             $(element).removeClass("attention", 2000);
                          }});
     RefreshCB = null;
 }

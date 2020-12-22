@@ -133,11 +133,11 @@ table.treetable tr.hovered {
     background-color: #7bb07b; /* #aca; */
 }
 
-table.treetable tr.dropTarget {
+table.treetable tr.attention {
     background-color: #191;
 }
 table.treetable td.dropOver {
     border-bottom-style: solid;
-    border-bottom-color: grey;
-    border-bottom-width: 3px;
+    border-bottom-color: #191; /*grey;*/
+    border-bottom-width: 5px;
 }

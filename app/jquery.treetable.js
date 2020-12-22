@@ -187,11 +187,14 @@
         });
       }
         
-        // Tony Edit: shift siblings of parents left so all a parents children are equal
+        // Tony Edit: shift siblings of parents left so all a parents children are equal,
+        // also, remove indenter if no longer applicible
         if (this.isBranchNode())
             this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
-        else            
+        else {          
             this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
+            $(this.indenter[0]).empty();
+        }
 
       return this;
     };
@@ -344,7 +347,10 @@
       return this;
     };
 
-    Tree.prototype.move = function(node, destination) {
+      Tree.prototype.move = function(node, destination) {
+          // Tony update - removed condition #2 this allowing a node to be dropped
+          // top be its parent first child
+          
       // Conditions:
       // 1: +node+ should not be inserted as a child of +node+ itself.
       // 2: +destination+ should not be the same as +node+'s current parent (this
@@ -353,7 +359,10 @@
       // 3: +node+ should not be inserted in a location in a branch if this would
       //    result in +node+ being an ancestor of itself.
       var nodeParent = node.parentNode();
-      if (node !== destination && destination.id !== node.parentId && $.inArray(node, destination.ancestors()) === -1) {
+
+      // if (node !== destination && destination.id !== node.parentId && $.inArray(node, destination.ancestors()) === -1) {
+    
+      if (node !== destination && $.inArray(node, destination.ancestors()) === -1) {
         node.setParent(destination);
         this._moveRows(node, destination);
 
@@ -457,7 +466,9 @@
       // Reset node's collection of children
       node.children = [];
 
-      node.updateBranchLeafClass();
+        node.updateBranchLeafClass();
+        // Tony Add - re render since will now not need an expander
+        node.render();
 
       return this;
     };
