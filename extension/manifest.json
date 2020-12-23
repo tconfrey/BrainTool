@@ -10,8 +10,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["http://localhost:8000/app/"],
-//            "matches": ["https://BrainTool.org/app/"],
+            "matches": ["https://BrainTool.org/versions/0.6.0/app/"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }
