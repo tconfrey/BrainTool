@@ -169,7 +169,7 @@ function getBTFile() {
     }
     catch(err) {
         alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+        console.log("Error in getBTFile: ", JSON.stringify(err));
     }
 }
 
@@ -292,6 +292,9 @@ function writeBTFile(cb) {
                   return res.json();
               }).then(function(val) {
                   console.log(val);
+                  if (cb) cb();
+              }).catch((error) => {
+                  console.error('Error writing BT file:', error);
                   if (cb) cb();
               });
     }
