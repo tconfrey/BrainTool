@@ -348,8 +348,8 @@
     };
 
       Tree.prototype.move = function(node, destination) {
-          // Tony update - removed condition #2 this allowing a node to be dropped
-          // top be its parent first child
+          // Tony update - removed condition #2 thus allowing a node to be dropped
+          // to be its parent first child
           
       // Conditions:
       // 1: +node+ should not be inserted as a child of +node+ itself.
@@ -408,7 +408,32 @@
         }
         nodeParent.updateBranchLeafClass();
         return this;
-    }
+    };
+
+      // Tony Addition
+      Tree.prototype.insertAtTop = function(node, beforeNode) {
+          // insert node after beforeNode in tree at top level. Needed to insert at top level
+
+          node.parentId = null;
+          node.row.removeData(node.settings.parentIdAttr);
+          // TODO figure out why above line doesn't work so I don't need this one
+          node.row.removeAttr('data-tt-parent-id');
+          
+          node.row.insertAfter(beforeNode.row);
+          node.render();
+
+          // Loop backwards through children to order correctly in UI
+          var children = node.children, i;
+          for (i = children.length - 1; i >= 0; i--) {
+              this._moveRows(children[i], node);
+          }
+          children = beforeNode.children;
+          for (i = children.length - 1; i >= 0; i--) {
+              this._moveRows(children[i], beforeNode);
+          }
+          
+          return this;
+      }
 
     Tree.prototype.removeNode = function(node) {
       // Recursively remove all descendants of +node+
@@ -427,7 +452,7 @@
       this.nodes.splice($.inArray(node, this.nodes), 1);
 
       return this;
-    }
+    };
 
     Tree.prototype.render = function() {
       var root, _i, _len, _ref;
@@ -623,14 +648,20 @@
       return this;
     },
 
-    // Tony Addition
-    promote: function(nodeId) {
-        var node;
-        node = this.data("treetable").tree[nodeId];
-        this.data("treetable").promote(node);
-        return this;
-    },
+      // Tony Additions
+      promote: function(nodeId) {
+          var node;
+          node = this.data("treetable").tree[nodeId];
+          this.data("treetable").promote(node);
+          return this;
+      },
+      insertAtTop: function(nodeId, beforeId) {
+          var node = this.data("treetable").tree[nodeId];
+          var before = this.data("treetable").tree[beforeId];
+          return this.data("treetable").insertAtTop(node, before);
+      },
 
+      
     node: function(id) {
       return this.data("treetable").tree[id];
     },

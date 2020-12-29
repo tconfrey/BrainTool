@@ -212,7 +212,9 @@ function initializeUI() {
         helper: function() {
             buttonHide();
             const clone = $(this).clone();
-            $(clone).removeClass("hovered");               // green highlight is confusing
+            $(clone).addClass("dragClone");                // green highlight is confusing
+            $("table.treetable tr").off('mouseenter');     // turn off hover behavior during drag
+            $("table.treetable tr").off('mouseleave');
             return clone;
         },     
         start: dragStart,       // call fn below on start
@@ -221,8 +223,14 @@ function initializeUI() {
         scrollSpeed: 10,
         containment: "#content",
         cursor: "move",
-        cursorAt: {left: 390},
-        opacity: .5,
+        opacity: .20,
+        stop: function( event, ui ) {
+            // turn hover bahavior back on
+            $("table.treetable tr").on('mouseenter', null, buttonShow);
+            $("table.treetable tr").on('mouseleave', null, buttonHide);
+            $("tr").removeClass("hovered");
+            $("tr").removeClass("dropOver");
+        },
         revert: "invalid"       // revert when drag ends but not over droppable
     });
 
@@ -287,11 +295,14 @@ function dropNode(event, ui) {
             // drop below dropNode w same parent
             const parentId = AllNodes[dropNodeId].parentId;
             const parent = AllNodes[parentId];
-            //const treeParent = treeTable.treetable("node", parentId);
             AllNodes[dragNodeId].reparentNode(parentId,
                                               parent ? parent.childIds.indexOf(dropNodeId) + 1 : -1);
-            treeTable.treetable("move", dragNodeId, parentId);
-            positionNode(dragNode, parentId, dropNode);          // sort into position
+            if (parentId) {
+                treeTable.treetable("move", dragNodeId, parentId);
+                positionNode(dragNode, parentId, dropNode);          // sort into position
+            } else {
+                treeTable.treetable("insertAtTop", dragNodeId, dropNodeId);
+            }
         } else {
             // drop into dropNode as first child
             AllNodes[dragNodeId].reparentNode(dropNodeId, 0);
@@ -309,7 +320,7 @@ function dropNode(event, ui) {
         }
     }
     
-    // Clean up
+    // Clean up 
     $(dragNode).removeClass("dragTarget").removeClass("hovered", 750);
     $("td").removeClass("dropOver");
 }
@@ -319,7 +330,6 @@ function positionNode(dragNode, dropParentId, dropBelow) {
     // NB treetable does not support this so we need to use this sort method
     console.log("positioning");
     const newPos = $("tr").index(dropBelow);
-    //const dropParentId = $(dropParent).attr('data-tt-id');
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
     const db = dropBelow[0];

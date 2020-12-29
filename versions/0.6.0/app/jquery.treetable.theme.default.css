@@ -121,6 +121,9 @@ tr.opened td.left {
 td.left {
     vertical-align: middle;
 }
+tr.dragClone {
+    color: #eee;
+}
 
 table.treetable span.btText {
     padding-left: 0px;
