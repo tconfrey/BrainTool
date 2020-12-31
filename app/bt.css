@@ -172,3 +172,7 @@ img.close-icon {
     opacity: 0.2;
     z-index: -1;
 }
+
+body.waiting * {
+    cursor: progress !important;
+}

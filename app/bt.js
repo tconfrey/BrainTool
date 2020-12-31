@@ -869,6 +869,7 @@ function generateOrgFile() {
 
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
+    $('body').addClass('waiting');
     window.postMessage({ type: 'get_bookmarks'});
     toggleOptions(1500);
 }
@@ -880,24 +881,32 @@ function loadBookmarks(msg) {
     const importName = "Imported Bookmarks (" + getDateString() + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
-    msg.data.bookmarks.children.reverse().forEach(node => {
+    msg.data.bookmarks.children.forEach(node => {
         loadBookmarkNode(node, importNode);
     });
 
     RefreshCB = function() {animateNewBookmark(importName);};
     writeBTFile(refreshTable);
+    $('body').removeClass('waiting');
 }
 
 function loadBookmarkNode(node, parent) {
     // load a new node from bookmark export format as child of parent BTNode and recurse on children
 
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
-    const btn = new BTAppNode(title, parent.id, "", parent.level + 1);
-    if (!node.children) return;
+    const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
 
-    // recurse
+    // handle link children, reverse cos new links go on top
     node.children.reverse().forEach(node => {
-        loadBookmarkNode(node, btn);
+        if (node.childen) return;
+        const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
+        new BTAppNode(title, btNode.id, "", btNode.level + 1);
+    });
+    
+    // recurse on non-link nodes, nb above reverse was destructive, reverse again to preserve order
+    node.children.reverse().forEach(node => {
+        if (!node.children) return;
+        loadBookmarkNode(node, btNode);
     });
 }
 
