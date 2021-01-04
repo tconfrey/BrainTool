@@ -169,7 +169,7 @@ function getBTFile() {
     }
     catch(err) {
         alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in getBTFile: ", JSON.stringify(err));
+        console.log("Error in writeBTFile: ", JSON.stringify(err));
     }
 }
 
@@ -250,57 +250,72 @@ function reAuth(callback) {
 }
 
 window.LOCALTEST = false; // overwritten in test harness
+var lastWriteTime = new Date();
+var unwrittenChanges = null;
 function writeBTFile(cb) {
-    // Write file contents into BT.org file on GDrive
-    
-    BTFileText = generateOrgFile();
-    if (window.LOCALTEST) return;
-    if (typeof gapi === "undefined") {           // Should not happen
-	    alert("BT - Error in writeBTFile. Google API not available.");
-	    return;
-    }
-    const metadata = {
-        'name': 'BrainTool.org',                 // Filename at Google Drive
-        'mimeType': 'text/plain'                 // mimeType at Google Drive
-    };
-    try {
-        // get accessToken, pass retry cb for if not available
-        const accessToken = getAccessToken(writeBTFile);
-        if (!accessToken) 
-            return;
+    // Notification of change that needs to be written
 
-        let form = new FormData();
-        console.log("writing BT file. accessToken = ", accessToken);
+    // if its been 15 secs, just write out,
+    if (new Date().getTime() > (15000 + lastWriteTime.getTime()))
+        _writeBTFile(cb);
+    else
+        // else set a timer, if one hasn't already been set
+        if (!unwrittenChanges)
+            unwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
+    console.log("Holding");
 
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+    function _writeBTFile(cb) {
+        // Write file contents into BT.org file on GDrive
+        console.log("Writing");
+        lastWriteTime = new Date();
+        unwrittenChanges = null;
+        
+        BTFileText = generateOrgFile();
+        if (window.LOCALTEST) return;
+        if (typeof gapi === "undefined") {           // Should not happen
+	        alert("BT - Error in writeBTFile. Google API not available.");
+	        return;
+        }
+        const metadata = {
+            'name': 'BrainTool.org',                 // Filename at Google Drive
+            'mimeType': 'text/plain'                 // mimeType at Google Drive
+        };
+        try {
+            // get accessToken, pass retry cb for if not available
+            const accessToken = getAccessToken(writeBTFile);
+            if (!accessToken) 
+                return;
 
-        fetch('https://www.googleapis.com/upload/drive/v3/files/'
-              + encodeURIComponent(BTFileID)
-              + '?uploadType=multipart',
-              {
-                  method: 'PATCH', 
-                  headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                  body: form
-              }).then((res) => {
-	              if (!res.ok) {
-		              alert("BT - error writing to GDrive, reauthenticating...");
-		              console.log("GAPI response:\n", JSON.stringify(res));
-                      reAuth(writeBTFile);
-		              return('GAPI error');
-	              }
-                  return res.json();
-              }).then(function(val) {
-                  console.log(val);
-                  if (cb) cb();
-              }).catch((error) => {
-                  console.error('Error writing BT file:', error);
-                  if (cb) cb();
-              });
-    }
-    catch(err) {
-        alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+            let form = new FormData();
+            console.log("writing BT file. accessToken = ", accessToken);
+
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+
+            fetch('https://www.googleapis.com/upload/drive/v3/files/'
+                  + encodeURIComponent(BTFileID)
+                  + '?uploadType=multipart',
+                  {
+                      method: 'PATCH', 
+                      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                      body: form
+                  }).then((res) => {
+	                  if (!res.ok) {
+		                  alert("BT - error writing to GDrive, reauthenticating...");
+		                  console.log("GAPI response:\n", JSON.stringify(res));
+                          reAuth(writeBTFile);
+		                  return('GAPI error');
+	                  }
+                      return res.json();
+                  }).then(function(val) {
+                      console.log(val);
+                      if (cb) cb();
+                  });
+        }
+        catch(err) {
+            alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
+            console.log("Error in writeBTFile: ", JSON.stringify(err));
+        }
     }
 }
 

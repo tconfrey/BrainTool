@@ -101,6 +101,8 @@ function refreshTable() {
     // refresh from file, first clear current state
     $("#refresh").prop("disabled", true);
     $("#refresh").text('...');
+    $('body').addClass('waiting');
+    
     BTFileText = "";
     BTNode.topIndex = 1;
 
@@ -180,6 +182,7 @@ function refreshRefresh() {
     // set refresh button back on
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
+    $('body').removeClass('waiting');
 }
     
 
@@ -254,7 +257,8 @@ function initializeUI() {
     $("#refresh").show();
 
     // Copy buttonRow's html for potential later recreation (see below)
-    ButtonRowHTML = $("#buttonRow")[0].outerHTML;
+    if ($("#buttonRow")[0])
+        ButtonRowHTML = $("#buttonRow")[0].outerHTML;
 }
 
 function reCreateButtonRow() {
@@ -296,7 +300,9 @@ function dropNode(event, ui) {
             const parentId = AllNodes[dropNodeId].parentId;
             const parent = AllNodes[parentId];
             AllNodes[dragNodeId].reparentNode(parentId,
-                                              parent ? parent.childIds.indexOf(dropNodeId) + 1 : -1);
+                                              parent ?
+                                              parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
+                                              -1);
             if (parentId) {
                 treeTable.treetable("move", dragNodeId, parentId);
                 positionNode(dragNode, parentId, dropNode);          // sort into position
@@ -854,13 +860,22 @@ function promote() {
     window.postMessage({ type: 'tags_updated', text: Tags });
 }
 
-
 function generateOrgFile() {
     // iterate thru nodes to do the work
     let orgText = metaPropertiesToString(AllNodes.metaProperties);
     
-    AllNodes.forEach(function (node) {
-        // start at top level nodes and recurse, cos child nodes don't necessarily follow parent nodes in array
+    // find and order the top level nodes according to table position
+    const topNodes = AllNodes.filter(node => !node.parentId);
+    topNodes.sort(function(a,b) {
+        const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
+        const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
+        const posA = eltA ? eltA.rowIndex : Number.MAX_SAFE_INTEGER;
+        const posB = eltB ? eltB.rowIndex : Number.MAX_SAFE_INTEGER;
+        return (posA - posB);
+    });
+    
+    // iterate on top level nodes, generate text and recurse
+    topNodes.forEach(function (node) {
         if (node && (node.level == 1))
             orgText += node.orgTextwChildren() + "\n";
     });
@@ -869,6 +884,7 @@ function generateOrgFile() {
 
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
+    $('body').addClass('waiting');
     window.postMessage({ type: 'get_bookmarks'});
     toggleOptions(1500);
 }
@@ -880,7 +896,7 @@ function loadBookmarks(msg) {
     const importName = "Imported Bookmarks (" + getDateString() + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
-    msg.data.bookmarks.children.reverse().forEach(node => {
+    msg.data.bookmarks.children.forEach(node => {
         loadBookmarkNode(node, importNode);
     });
 
@@ -892,12 +908,21 @@ function loadBookmarkNode(node, parent) {
     // load a new node from bookmark export format as child of parent BTNode and recurse on children
 
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
-    const btn = new BTAppNode(title, parent.id, "", parent.level + 1);
-    if (!node.children) return;
+    const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
+    if (btNode.level > 3)                 // keep things tidy
+        btNode.folded = true;
 
-    // recurse
+    // handle link children, reverse cos new links go on top
     node.children.reverse().forEach(node => {
-        loadBookmarkNode(node, btn);
+        if (node.childen) return;
+        const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
+        new BTAppNode(title, btNode.id, "", btNode.level + 1);
+    });
+    
+    // recurse on non-link nodes, nb above reverse was destructive, reverse again to preserve order
+    node.children.reverse().forEach(node => {
+        if (!node.children) return;
+        loadBookmarkNode(node, btNode);
     });
 }
 
