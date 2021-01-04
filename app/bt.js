@@ -101,6 +101,8 @@ function refreshTable() {
     // refresh from file, first clear current state
     $("#refresh").prop("disabled", true);
     $("#refresh").text('...');
+    $('body').addClass('waiting');
+    
     BTFileText = "";
     BTNode.topIndex = 1;
 
@@ -180,6 +182,7 @@ function refreshRefresh() {
     // set refresh button back on
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
+    $('body').removeClass('waiting');
 }
     
 
@@ -254,7 +257,8 @@ function initializeUI() {
     $("#refresh").show();
 
     // Copy buttonRow's html for potential later recreation (see below)
-    ButtonRowHTML = $("#buttonRow")[0].outerHTML;
+    if ($("#buttonRow")[0])
+        ButtonRowHTML = $("#buttonRow")[0].outerHTML;
 }
 
 function reCreateButtonRow() {
@@ -898,7 +902,6 @@ function loadBookmarks(msg) {
 
     RefreshCB = function() {animateNewBookmark(importName);};
     writeBTFile(refreshTable);
-    $('body').removeClass('waiting');
 }
 
 function loadBookmarkNode(node, parent) {
