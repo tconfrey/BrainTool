@@ -296,7 +296,9 @@ function dropNode(event, ui) {
             const parentId = AllNodes[dropNodeId].parentId;
             const parent = AllNodes[parentId];
             AllNodes[dragNodeId].reparentNode(parentId,
-                                              parent ? parent.childIds.indexOf(dropNodeId) + 1 : -1);
+                                              parent ?
+                                              parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
+                                              -1);
             if (parentId) {
                 treeTable.treetable("move", dragNodeId, parentId);
                 positionNode(dragNode, parentId, dropNode);          // sort into position
@@ -854,13 +856,22 @@ function promote() {
     window.postMessage({ type: 'tags_updated', text: Tags });
 }
 
-
 function generateOrgFile() {
     // iterate thru nodes to do the work
     let orgText = metaPropertiesToString(AllNodes.metaProperties);
     
-    AllNodes.forEach(function (node) {
-        // start at top level nodes and recurse, cos child nodes don't necessarily follow parent nodes in array
+    // find and order the top level nodes according to table position
+    const topNodes = AllNodes.filter(node => !node.parentId);
+    topNodes.sort(function(a,b) {
+        const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
+        const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
+        const posA = eltA ? eltA.rowIndex : Number.MAX_SAFE_INTEGER;
+        const posB = eltB ? eltB.rowIndex : Number.MAX_SAFE_INTEGER;
+        return (posA - posB);
+    });
+    
+    // iterate on top level nodes, generate text and recurse
+    topNodes.forEach(function (node) {
         if (node && (node.level == 1))
             orgText += node.orgTextwChildren() + "\n";
     });
@@ -895,6 +906,8 @@ function loadBookmarkNode(node, parent) {
 
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
     const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
+    if (btNode.level > 3)                 // keep things tidy
+        btNode.folded = true;
 
     // handle link children, reverse cos new links go on top
     node.children.reverse().forEach(node => {
