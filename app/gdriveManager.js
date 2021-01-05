@@ -76,8 +76,8 @@ function initClient() {
 //            signoutButton.onclick = handleSignoutClick;
 	    }, function(error) {
             initClientReturned = true;
-            alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
             updateSigninStatus(false, error);
+            alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
 	    });
     }
     catch (err) {
@@ -260,9 +260,10 @@ function writeBTFile(cb) {
         _writeBTFile(cb);
     else
         // else set a timer, if one hasn't already been set
-        if (!unwrittenChanges)
+        if (!unwrittenChanges) {
             unwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
-    console.log("Holding");
+            console.log("Holding");
+        }
 
     function _writeBTFile(cb) {
         // Write file contents into BT.org file on GDrive

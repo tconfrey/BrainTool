@@ -30,8 +30,9 @@ function updateSigninStatus(isSignedIn, error=false) {
         let msg = "Error Authenticating with Google. Google says:<br/><i>'";
         msg += (error.details) ? error.details : JSON.stringify(error);
         msg += "'</i><br/>If this is a cookie issue be aware that Google uses cookies for authentication.";
-        msg += "<br/>Go to chrome://settings/content/cookies and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
+        msg += "<br/>Go to 'chrome://settings/content/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
         $("#loadingMessage").html(msg);
+        closeMenu();
         return;
     }
     if (isSignedIn) {
@@ -42,11 +43,11 @@ function updateSigninStatus(isSignedIn, error=false) {
         if (firstUse) {
             $("#intro_text").slideUp(750);
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000)
-            setTimeout(toggleMenu, 16000);
+            setTimeout(closeMenu, 30000);
         } else {
             $("#intro_text").hide();
             addTip();
-            setTimeout(toggleMenu, 6000);
+            setTimeout(closeMenu, 10000);
         }
         findOrCreateBTFile();
     } else {
@@ -67,7 +68,7 @@ function addTip() {
 }
 
 function toggleMenu() {
-    // Toggle the visibility of the intro page, auth/de-auth button and open/close icon
+    // Toggle the visibility of the intro page, auth button and open/close icon
     if ($("#auth_screen").is(":visible")) {
         $("#auth_screen").slideUp(750);
         $("#close").show();
@@ -81,6 +82,11 @@ function toggleMenu() {
         $("#close").hide();
         $("#open").show();
     }
+}
+function closeMenu() {
+    // close the intro page if its visible
+    if ($("#auth_screen").is(":visible"))
+        toggleMenu();
 }
 
 function toggleOptions(dur = 500) {
@@ -278,7 +284,9 @@ function dragStart(event, ui) {
 
     // collapse open subtree if any
     const nodeId = $(this).attr('data-tt-id');
-    if (AllNodes[nodeId].childIds.length) {
+    const node = AllNodes[nodeId];
+    node.dragging = true;
+    if (node.childIds.length && !node.folded) {
         $("#content").treetable("collapseNode", nodeId);
     }
 }
@@ -287,31 +295,32 @@ function dropNode(event, ui) {
     // Drop node w class=dragTarget below node w class=dropOver
     // NB if dropOver is expanded target becomes first child, if collapsed next sibling
     
-    const dragNode = $(".dragTarget")[0];
-    const dragNodeId = $(dragNode).attr('data-tt-id');
+    const dragTarget = $(".dragTarget")[0];
+    const dragNodeId = $(dragTarget).attr('data-tt-id');
+    const dragNode = AllNodes[dragNodeId];
     const dropNode = $($(".dropOver")[0]).parent();
     const dropNodeId = $(dropNode).attr('data-tt-id');
     const treeTable = $("#content");
 
     if (dropNodeId) {
-        const oldParentId = AllNodes[dragNodeId].parentId;
+        const oldParentId = dragNode.parentId;
         if ($(dropNode).hasClass("collapsed") || $(dropNode).hasClass("leaf")) {
             // drop below dropNode w same parent
             const parentId = AllNodes[dropNodeId].parentId;
             const parent = AllNodes[parentId];
-            AllNodes[dragNodeId].reparentNode(parentId,
-                                              parent ?
-                                              parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
-                                              -1);
+            dragNode.reparentNode(parentId,
+                                  parent ?
+                                  parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
+                                  -1);
             if (parentId) {
                 treeTable.treetable("move", dragNodeId, parentId);
-                positionNode(dragNode, parentId, dropNode);          // sort into position
+                positionNode(dragTarget, parentId, dropNode);          // sort into position
             } else {
                 treeTable.treetable("insertAtTop", dragNodeId, dropNodeId);
             }
         } else {
             // drop into dropNode as first child
-            AllNodes[dragNodeId].reparentNode(dropNodeId, 0);
+            dragNode.reparentNode(dropNodeId, 0);
             treeTable.treetable("move", dragNodeId, dropNodeId);
         }
         
@@ -326,8 +335,9 @@ function dropNode(event, ui) {
         }
     }
     
-    // Clean up 
-    $(dragNode).removeClass("dragTarget").removeClass("hovered", 750);
+    // Clean up
+    dragNode.dragging = false;
+    $(dragTarget).removeClass("dragTarget").removeClass("hovered", 750);
     $("td").removeClass("dropOver");
 }
 
@@ -380,15 +390,16 @@ function nodeExpand() {
 }
 function nodeCollapse() {
     console.log('Collapsing ', this.id);
-    let update = !AllNodes[this.id].folded;
-    AllNodes[this.id].folded = true;
+    const node = AllNodes[this.id];
+    const update = !node.folded;
+    node.folded = true;
 
     // if any highlighted descendants highlight node on collapse
-    if (AllNodes[this.id].hasOpenDescendants())
+    if (node.hasOpenDescendants())
         $(this.row).addClass('opened');
     
-    // Update File 
-    if (update) writeBTFile();
+    // Update File, if collapse is not a result of a drag start
+    if (update && !node.dragging) writeBTFile();
 }
    
 
