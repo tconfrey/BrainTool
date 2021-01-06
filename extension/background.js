@@ -31,6 +31,25 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                                   console.log("Setting test mode w BTTab = " + BTTab);
                               });
         }
+        if (msg.type == 'get_bookmarks') {
+            // request bookmark permission prior to bookmark operations
+            // NB not using the dispatch cos that looses that its user triggered and Chrome prevents
+            chrome.permissions.request(
+                {permissions: ['bookmarks']},
+                function(granted) {
+                    if (granted) {
+                        chrome.permissions.getAll(
+                            rsp => {chrome.storage.local.set(
+                                {'permissions' : rsp.permissions});}
+                        );
+                        getBookmarks();
+                    } else {
+                        // send back denial 
+                        chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported',
+                                                        'result': 'denied'});
+                    }
+                });
+        }
         break;
     case 'popup':
         // two cases add_tab and add_move_tab. Common stuff is here
@@ -289,6 +308,10 @@ function moveTabToTag(tabId, tabNode, tagNode) {
 function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
     // Since we're restarting close windows and clear out the cache of opened nodes
+
+    // make set of granted permissions available to content script
+    chrome.permissions.getAll(
+        rsp => {chrome.storage.local.set({'permissions' : rsp.permissions});});
 
     BTTab = sender.tab.id;
     BTWin = sender.tab.windowId;
@@ -566,7 +589,8 @@ function getBookmarks() {
     chrome.bookmarks.getTree(function(itemTree){
         itemTree[0].title = "Imported Bookmarks";
         chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported'});
+            chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported',
+                                            'result': 'success'});
         });
     });
 }

@@ -141,6 +141,7 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
+    console.log('Processing BT file');
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
@@ -186,6 +187,7 @@ function processBTFile(fileText) {
 
 function refreshRefresh() {
     // set refresh button back on
+    console.log('Refreshing Refresh');
     $("#refresh").prop("disabled", false); // activate refresh button
     $("#refresh").text("Refresh");
     $('body').removeClass('waiting');
@@ -194,6 +196,7 @@ function refreshRefresh() {
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
+    console.log('Initializing UI');
     
     $("table.treetable tr").off('mouseenter');            // remove any previous handlers
     $("table.treetable tr").off('mouseleave');
@@ -904,6 +907,12 @@ function loadBookmarks(msg) {
     // handler for bookmarks_imported received when Chrome bookmarks are push to local.storage
     // nested {title: , url: , children: []}
 
+    if (msg.result != 'success') {
+        alert('Bookmark permissions denied');
+        $('body').removeClass('waiting');
+        return;
+    }
+
     const importName = "Imported Bookmarks (" + getDateString() + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
@@ -913,6 +922,8 @@ function loadBookmarks(msg) {
 
     RefreshCB = function() {animateNewBookmark(importName);};
     writeBTFile(refreshTable);
+
+    $("#export_button").prop('disabled', false);           // allow export after import 
 }
 
 function loadBookmarkNode(node, parent) {

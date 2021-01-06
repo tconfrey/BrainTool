@@ -77,7 +77,7 @@ const Handlers = {
     "show_node": showNode,
     "node_deleted": deleteNode,
     "close_node": closeNode,
-    "get_bookmarks": getBookmarks,
+//    "get_bookmarks": getBookmarks,  // moved into background specific handling cos optional perms
     "export_bookmarks": exportBookmarks
 };
 

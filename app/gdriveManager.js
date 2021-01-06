@@ -153,6 +153,7 @@ function findOrCreateBTFile() {
 }
 
 function getBTFile() {
+    console.log('Retrieving BT file');
     try {
 	    gapi.client.drive.files.get({
             fileId: BTFileID,
@@ -169,7 +170,7 @@ function getBTFile() {
     }
     catch(err) {
         alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+        console.log("Error in getBTFile: ", JSON.stringify(err));
     }
 }
 
@@ -262,12 +263,12 @@ function writeBTFile(cb) {
         // else set a timer, if one hasn't already been set
         if (!unwrittenChanges) {
             unwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
-            console.log("Holding");
+            console.log("Holding BT file write");
         }
 
     function _writeBTFile(cb) {
         // Write file contents into BT.org file on GDrive
-        console.log("Writing");
+        console.log("Writing BT file");
         lastWriteTime = new Date();
         unwrittenChanges = null;
         

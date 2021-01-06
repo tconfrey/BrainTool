@@ -49,6 +49,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         break;
     case 'keys':                // note that keys were received and fall thru to pass on
         WaitingForKeys = false;
+        chrome.storage.local.get('permissions', perms => {
+            // If we have bookmark permission enable export button, (import triggers request)
+            let btn = document.getElementById("export_button");
+            if (perms.permissions.includes('bookmarks'))               
+                btn.disabled = false;
+        });
     default:
         // handle all other default type messages
         window.postMessage(msg);
