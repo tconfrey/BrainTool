@@ -46,6 +46,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             msg.data = data;
             window.postMessage(msg);
         });
+        chrome.storage.local.remove('bookmarks');             // clean up space
         break;
     case 'keys':                // note that keys were received and fall thru to pass on
         WaitingForKeys = false;
