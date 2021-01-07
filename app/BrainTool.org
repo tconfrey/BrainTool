@@ -1,5 +1,5 @@
-#+PROPERTY: BTCohort 0-100
-#+PROPERTY: BTVersion 1
+#+PROPERTY: BTCohort 2000-5000
+#+PROPERTY: BTVersion 0.6.1
 
 * Project
 Keep all your links and notes for each project in one place.
@@ -28,7 +28,7 @@ Project document
    :PROPERTIES:
    :VISIBILITY: folded
    :END:
- As another example in a recursive kind of way this tag and its children capture notes about BrainTool.
+ As another example in a recursive kind of way. This tag and its children capture notes about BrainTool.
 
 *** Complementary Tools
     :PROPERTIES:
@@ -73,7 +73,7 @@ Project document
  JS parser for org mode
 
 **** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
-Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by b farias and Done by Praveen.
+Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by by farias and Done by Praveen.
 
 **** [[http://jackconfrey.com/work][jconfrey Art]]
  Graphic design and project artwork by Jack Confrey

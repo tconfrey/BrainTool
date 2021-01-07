@@ -67,9 +67,9 @@ function windowOpen() {
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
     const url = "https://BrainTool.org/versions/"+version+'/app/';
+//    const url = "http://localhost:8000/app/";
     console.log('loading from ', url);
     var wargs = {
-        //'url' : "http://localhost:8000/app/versions/"+version,
         'url' : url,
         'type' : "panel",
         'top' : 10, 'left' : 10,
