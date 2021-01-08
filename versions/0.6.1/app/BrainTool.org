@@ -1,5 +1,5 @@
 #+PROPERTY: BTCohort 2000-5000
-#+PROPERTY: BTVersion 0.6.1
+#+PROPERTY: BTVersion 1
 
 * Project
 Keep all your links and notes for each project in one place.
