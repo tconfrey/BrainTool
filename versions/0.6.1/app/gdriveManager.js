@@ -92,21 +92,34 @@ function checkInitClientReturned() {
     initClient();
 }
 
+var authClickReturned = false;
 function handleAuthClick(event) {
     // Sign in the user upon button click.
     console.log("Signing in user");
+    setTimeout(checkAuthClickReturned, 10000);
     try {
         gapi.auth2.getAuthInstance().signIn().then(
             function() {
+                authClickReturned = true;
                 console.log('User signed in');
             }, function(err) {
+                authClickReturned = true;
                 alert(`Error signing in: [${JSON.stringify(err.error)}]`);
             });
     }
     catch (err) {
+        authClickReturned = true;
         alert(`Error signing in: \n[${JSON.stringify(err)}]`);
     }
 }
+function checkAuthClickReturned() {
+    // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger
+    if (authClickReturned) return;
+    alert("Google Authentication failed to complete! Retrying\nThis can happen with extensions such as Privacy Badger or if 3rd party cookies are disallowed. If it continues see braintool.org/support");
+    handleAuthClick(null);
+}
+
+
 function handleSignoutClick(event) {
     // Sign out the user upon button click.
     console.log("Signing out user");
