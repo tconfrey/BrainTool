@@ -122,7 +122,7 @@ function checkAuthClickReturned() {
     if (authClickReturned) return;
     
     $('body').removeClass('waiting');
-    alert("Google Authentication failed to complete!\nThis can happen with extensions such as Privacy Badger or if 3rd party cookies are disallowed. If it continues see braintool.org/support");
+    alert("Google Authentication failed to complete!\nThis can be due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. If it continues see \nbraintool.org/support");
 }
 
 
