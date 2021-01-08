@@ -92,10 +92,11 @@ function checkInitClientReturned() {
     initClient();
 }
 
-var authClickReturned = false;
+var authClickReturned;
 function handleAuthClick(event) {
     // Sign in the user upon button click.
     console.log("Signing in user");
+    authClickReturned = false;
     setTimeout(checkAuthClickReturned, 10000);
     try {
         gapi.auth2.getAuthInstance().signIn().then(
