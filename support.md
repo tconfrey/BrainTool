@@ -23,12 +23,12 @@ As noted above your braintool file is stored on Google Drive in a file associate
 
 
 # Current Roadmap items
-This list is my current near-term roadmap items. Feel free to email braintool-extension@gmail.com with your thoughts, feedback and requests; or post to the [Google Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
+This list is my current near-term roadmap items. Feel free to email braintool-extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
 
 ## Browser Window Control options
 BrainTool's model is that each url you have added is associated with a specific browser tab, and each tag you have created is associated with a specific browser window. When you click a link in a BT controlled tab the application will open that link in a new tab rather than navigating the BT controlled tab. 
 
-Relatedly when in the course of regular browsing you open BT controlled url the application will open that url in the browser window associated with the url's tag, creating the window if its not already in use.
+Relatedly when in the course of regular browsing you open a BT controlled url, the application will open that url in the browser window associated with the url's tag, creating the window if its not already in use.
 
 Both of the behaviors described above have caused confusion for some users, as well as perhaps infringing on the default browser behavior in a way that some users dislike. Control over this behavior is on top of the roadmap list to be addressed in a next release. I encourage your input on how windowing should work in the [discussion group](https://groups.google.com/u/2/g/braintool-discussion).
 
@@ -39,7 +39,7 @@ As noted in the Problems section above, Drive authentication adds an extra step 
 Default window position and size should be configureable.
 
 ## New item insertion
-Currently new links are added at the top of their tags list of children while new tags are added at the bottom of their parent tags list. This should also be configureable.
+Currently new links are added at the top of their tags list of children while new tags are added at the bottom of their parent tags list. That ordering makes sense to me personally but it should be configureable.
 
 ## Tag all tabs at once
 
@@ -48,13 +48,13 @@ Currently new links are added at the top of their tags list of children while ne
 ## Font sizes
 
 ## Tree expand/collapse control
-Some users have requested that their be short cuts to expand or collapse the tree en mass, eg collapse everything to show only top level nodes, or only top and second level nodes etc.
+Some users have requested that there be short cuts to expand or collapse the tree en mass, eg collapse everything to show only top level nodes, or only top and second level nodes etc.
 
 ## Keyboard shortcuts
 It would be nice to have keyboard shortcuts to navigate within the BT tree, to open or close windows/tabs tags/links etc.
 
 ## Org-mode support
-The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains metadata, headlines, basic TODO states and tags with the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
+The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states and tags with the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
 
 ## Multiple Files
 Most peoples org-mode workflow involves using more than a single file. The ability to combine the contents of multiple files in the tree would be good.
