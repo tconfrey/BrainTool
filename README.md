@@ -1,8 +1,8 @@
 # The Information Manager for your Online Life
 
-## Now with Bookmark Exchange and improved Tree editing!
+### Now with Bookmark Exchange and improved Tree editing!
 
-### Praise from users and the press:
+**Praise from users and the press:**
 - "Bring your bookmarks into the 21st century"
 - "Every Google Chrome user should try this"
     - [Kingsley-Hughes @ZDNet](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/)
@@ -10,8 +10,8 @@
 - "I've used Session Buddy and OneTab. This is far superior."
 - "Behind the simplicity is a lot of power."
 - "Gave bookmarks the performance and usability boost that I'd been waiting for all these years"
-
-
+  
+  
 Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
 
 With BrainTool you can save, tag and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 
