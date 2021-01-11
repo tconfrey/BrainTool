@@ -2,6 +2,18 @@
 
 ##  Install from the [Chrome Web Store!](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 
+## Check out the new Release with Bookmark Exchange and improved Tree editing!
+
+## Positive Reviews from users and the press:
+"Bring your bookmarks into the 21st century"
+"Every Google Chrome user should try this"
+- [Kingsley-Hughes @ ZDNet](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/)
+ "As a current Tabs Outliner user, my first reaction is that BrainTool, even in its pre-1.0 release, is far more polished."
+ "I've used Session Buddy and OneTab. This is far superior."
+ "behind that simplicity is a lot of power."
+ "gave bookmarks the performance and usability boost that I'd been waiting for all these years"
+
+
 Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
 
 With BrainTool you can save, tag and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 
