@@ -1,11 +1,8 @@
-# The Personal Information Manager for your Online Life
+# The Information Manager for your Online Life
 
-##  Install from the [Chrome Web Store!](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
+## Now with Bookmark Exchange and improved Tree editing!
 
-## New Release
-Now with Bookmark Exchange and improved Tree editing!
-
-### Positive Reviews from users and the press:
+### Praise from users and the press:
 - "Bring your bookmarks into the 21st century"
 - "Every Google Chrome user should try this"
     - [Kingsley-Hughes @ZDNet](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/)
@@ -66,6 +63,8 @@ All your data is stored on your Google Drive in a plain text file that can be se
 <br/>
 <img src="/site/AppStoreCollatoral/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
 
+
+##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 
 Check it out on the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) or ping me at braintool.extension@gmail.com .
 
