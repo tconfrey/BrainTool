@@ -54,7 +54,7 @@ Some users have requested that there be short cuts to expand or collapse the tre
 It would be nice to have keyboard shortcuts to navigate within the BT tree, to open or close windows/tabs tags/links etc.
 
 ## Org-mode support
-The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states and tags with the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
+The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states, and tags, within the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
 
 ## Multiple Files
 Most peoples org-mode workflow involves using more than a single file. The ability to combine the contents of multiple files in the tree would be good.
