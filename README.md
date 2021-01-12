@@ -19,7 +19,7 @@ With BrainTool you can save, tag and link all your online information sources (w
 <table style="border:none;">
 <tr>
 <td style="border:none; vertical-align:top; padding-left:0px; padding-top: 50px;">
-The BrainTool side panel shows your nested tags hierarchy. A tag is a topic or category that groups web pages you want to organize and remember. Each tag is mapped to a dedicated Chrome window where the tabs on that window contain a tagged web page. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>.
+The BrainTool side panel shows your nested tags hierarchy. A tag is a topic or category that groups web pages you want to organize and remember. Each tag is mapped to a dedicated Chrome window where the tabs on that window contain a tagged web page. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>. In this example I have an open Chrome window showing items tagged 'Kitchen Project', it has the Crown Point Cabinetry site open. I also have Personal TODO to try a meditation practice thats linked but not open in a window anywhere.
 </td>
 <td style="border:none; padding-left:0px; width:50%"><img src="/site/sidePanel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
