@@ -23,7 +23,7 @@ As noted above your braintool file is stored on Google Drive in a file associate
 
 
 # Current Roadmap items
-This list is my current near-term roadmap items. Feel free to email braintool-extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
+This list is my current near-term roadmap items. Feel free to email braintool.extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
 
 ## Browser Window Control options
 BrainTool's model is that each url you have added is associated with a specific browser tab, and each tag you have created is associated with a specific browser window. When you click a link in a BT controlled tab the application will open that link in a new tab rather than navigating the BT controlled tab. 
