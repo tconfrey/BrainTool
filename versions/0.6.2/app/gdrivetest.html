@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BrainTool Chrome Extension</title>
+    <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <link href="bt.css" rel="stylesheet" type="text/css" />
+    <script src="jquery.treetable.js"></script>
+  </head>
+  <body>
+    <div id="loading">
+      <p id="loadingMessage" style="text-align: center; margin-top:50px">
+        Testing Loading Google APIs</p>
+      <p>Sign in Status: <span id='sstatus'>Unknown</span></p>
+    </div>
+
+    <div id="inputForm" style="font-family:monospace">
+      
+      <span>API Key_________:</span><input type="text" id="apikey" size="75"></input><br/>
+      <span>Client ID_______:</span><input type="text" id="clientId" size="75"></input><br/>
+      
+    </div>
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <div class="buttonDiv" style="padding-bottom: 5px; padding-top: 0px;">
+      <button id="loadButton" style="display: block;" onclick="loadAPI()">Load GDrive API</button>
+      <button id="initializeButton" style="display: none;" onclick="authApp()">Init GDrive Client</button>
+      <button id="signinButton" style="display: none;" onclick="signin()">Authorize GDrive Access</button>
+      <button id="signoutButton" style="display: none;" onclick="signout()">Remove GDrive Authorization</button>
+    </div>
+    <br/><div id="console" style="border:solid; border-width: 1px"/>
+
+    <script src="gdriveManager.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js">
+    </script>
+    <script>
+      
+function loadAPI() {
+    console("Loading api...");
+    gapi.load('client:auth2',
+        function(){console("\nSuccess");},
+        function(){console("\nError");});
+    $("#loadButton").attr('style', 'display:none');
+    $("#initializeButton").attr('style', 'display:block');
+}
+
+function setStatus() {
+    const sstatus = gapi.auth2.getAuthInstance().isSignedIn.get();
+    $('#sstatus').text(sstatus)
+    
+    $("#initializeButton").attr('style', 'display:none');
+    if (sstatus) {
+        console('Signed in');
+        $("#signoutButton").attr('style', 'display:block');
+        $("#signinButton").attr('style', 'display:none');
+    }
+    else {
+        console('Not Signed in');
+        $("#signinButton").attr('style', 'display:block');
+        $("#signoutButton").attr('style', 'display:none');
+    }
+}
+
+function console(text) {
+    $("#console").append('<p>'+text+'</p>');
+}
+
+
+var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+var CLIENT_ID, API_KEY;
+var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly';
+
+var initClientReturned = false;
+function authApp() {
+    CLIENT_ID = $("#clientId").val();
+    API_KEY = $("#apikey").val();
+    console(`\nInitializing client with:<br/>APIKey: ${API_KEY}, CID: ${CLIENT_ID}`);
+    setTimeout(checkInitClientReturned, 10000);
+    try {
+        gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES
+	    }).then(function () {
+        console("\nclient.init returned");
+        initClientReturned = true;  
+        if (gapi.auth2 && gapi.auth2.getAuthInstance())
+            setStatus();
+        else
+            console("\nAuthInstance not set up :-(");
+        }, function(error) {
+            initClientReturned = true;
+            console(`\nError initializing GDrive API: <br/>[${JSON.stringify(error, undefined, 2)}]`);
+        });
+    }
+    catch (err) {
+        initClientReturned = true;
+        console(`\nError in authApp: [${JSON.stringify(err)}]`);
+    }        
+}
+function checkInitClientReturned() {
+    // The gapi.client.init promise sometimes just never completes
+    if (initClientReturned) return;
+    alert("GDrive API initialization never returned. Trying again");
+    authApp();
+}
+
+function signin(event) {
+    // Sign in the user upon button click.
+    console("Signing in user");
+    try {
+        gapi.auth2.getAuthInstance().signIn().then(
+            function() {
+                console('\nUser signed in');
+                setStatus();
+            }, function(err) {
+                console(`\nError signing in: <br/>[${JSON.stringify(err.error)}]`);
+            });
+    }
+    catch (err) {
+        console(`Error signing in: <br/>[${JSON.stringify(err)}]`);
+    }
+}
+
+function signout(event) {
+    // Sign out the user upon button click.
+    console("Signing out user");
+    try {
+        gapi.auth2.getAuthInstance().signOut().then(
+            function() {
+                console('User signed out');
+                setStatus();
+            }, function(err) {
+                console(`Error signing out: <br/>[${JSON.stringify(err.error)}]`);
+            });
+    }
+    catch (err) {
+        console(`Error signing out: <br/>[${JSON.stringify(err)}]`);
+    }
+}
+
+      </script>
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BrainTool Chrome Extension</title>
+    <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <link href="bt.css" rel="stylesheet" type="text/css" />
+    <script src="jquery.treetable.js"></script>
+  </head>
+  <body>
+    
+    <div id="auth_menu">
+      <div id="menu_button" style="height:14px; cursor: pointer;" onClick="toggleMenu()">
+        <img id="open" class="open-icon">
+        <img id="close" class="close-icon" style="display: none;">
+      </div>
+      <div id="auth_screen" style="display: block;">
+        <img id="background_image" src="resources/marquee.png"/>
+        <img id="logo_image" src="resources/logo.png"/>
+        <p style="text-align: center;"><b>Now with Bookmark Exchange!</b></p>
+        <p id='intro_text' style="margin: 10px; text-align: justify;">
+          BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. You need to grant it permission to read and write this file. There are no BT servers and nothing is stored anywhere except within the file, named BrainTool.org, which is fully under your control. For details see the <a href="https://braintool.org/BrainToolPrivacyPolicy.pdf" target="_blank">privacy policy</a>
+          </p>
+        <!--Add buttons to initiate auth sequence and sign out-->
+        <div id="authDiv" class= "important">
+          <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
+          <button id="options_button" onClick="toggleOptions()">Options</button>
+        </div>
+        <p style="margin: 10px; text-align: justify;">Look here for quick tips or see <a href="https://braintool.org/overview" target="_blank">our website</a> for more information.
+        </p>
+        <p id="tip" style="margin: 10px; text-align: justify;">
+          NB The initial tree shows some examples of how to use tags. Feel free to build on it or delete anything you don't want by hovering over the row and hitting the trash button.<br/>
+          <p style="margin: 10px; font-style: italic; font-size: 13px">*BrainTool is still new and evolving. Please leave a positive review or send constructive criticism to braintool.extension@gmail.com. Thank You!</p>
+        </p>
+        
+        <div id="options" style="display: none">
+          <img id="optionsClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
+          <table class="option_table">
+            <tr><td class="option_td" colspan="2">
+                <b>Options</b>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <button id="import_button" onClick="importBookmarks()">Import from Bookmarks</button>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <button id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <hr/>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <b>Other options coming soon</b>
+            </td></tr>
+            <tr><td class="option_td">
+                Font Size:
+            </td><td/></tr>
+            <tr><td class="option_td">
+                Window size/position:
+            </td><td/></tr>
+            <tr><td class="option_td">
+                New items: </td><td>On Top | On Bottom
+            </td></tr>
+            <tr><td class="option_td">
+                Navigation away: </td><td>New Tab | Same Tab
+            </td></tr>
+            <tr><td class="option_td" style="text-align: left" colspan="2">
+                <i><small>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</small></i>
+            </td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+      
+    <div id="loading">
+      <p id="loadingMessage" style="text-align: center; margin-top:50px">
+        Authenticating with Google <br/>and loading your BrainTool file<br/>...</p>
+    </div>
+    <div id="buttonRow" style="display: none;">
+      <img id="move" type="image" alt="Move" title="Move"
+             src="resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
+      <img id="outdent" type="image" alt="Outdent" title="Outdent"
+             src="resources/outdent.png" onClick="promote()" height="16" width="16" style="opacity: 0.75;">
+      <img id="todo" alt="ToDo" onClick="toDo()" title="ToDo"
+             src="resources/done.png"  height="16" width="16">
+      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
+             src="resources/edit.png"  height="16" width="16">
+      <img id="expand" alt="Open" onClick="openRow()" title="Open" style="opacity: 0.75;"
+             src="resources/expand.png" height="16" width="16">
+      <img id="collapse" alt="Close" onClick="closeRow()" title="Close" style="opacity: 0.75;"
+             src="resources/collapse.png" height="16" width="16">
+      <img id="delete" alt="Delete"  onClick="deleteRow()" title="Delete" style="opacity: 0.75;"
+             src="resources/delete.png" height="16" width="16">
+    </div>
+    
+    <table id="content" >
+    </table>
+    <div style="width: 100%;">
+      <div id="inner">
+        <button id="refresh" onclick="refreshTable()" style="display: none;">Refresh</button>
+      </div>
+    </div>
+
+    <div id="popup" style="padding: 0">
+      <dialog id="dialog">
+        <table style="width:100%">
+          <tr> 
+            <td><textarea id="title-text" class="editNode" ></textarea></td>
+            <td><textarea id="text-text" class="editNode" ></textarea></td>
+          </tr> 
+        </table>
+        <div class="buttonDiv">
+          <button id="update" onClick="updateRow()">Update</button>
+          <button id="cancel" onClick="dialogClose()">Cancel</button>
+        </div>
+      </dialog>
+    </div>
+    
+    <script src="orga-bundle.js"></script>
+    <script src="../extension/BTNode.js"></script>
+    <script src="bt.js"></script>
+    <script src="gdriveManager.js"></script>
+    <script src="BTAppNode.js"></script>
+    <script src="parser.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+            onload="this.onload=function(){};"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>
