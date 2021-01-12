@@ -128,7 +128,7 @@ function openLink(msg, sender, tries=0) {
     // NB also called from openTag
     const nodeId = msg.nodeId;
     const url = msg.url;
-    if (!url || !node) return;                         // nothing to be done
+    if (!url || !nodeId) return;                         // nothing to be done
     try {
         var node = AllNodes[nodeId];
         if (node && node.tabId && node.windowId) {
