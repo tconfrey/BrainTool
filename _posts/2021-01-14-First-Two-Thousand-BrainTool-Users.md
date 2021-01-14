@@ -1,3 +1,10 @@
+---
+layout: post
+title:  "First Two Thousand BrainTool Users"
+description: "Backstory and Observations on the first 2000 BrainTool users."
+author: "Tony"
+---
+
 BrainTool 0.6.3 just hit the Chrome Store so it seems like a good time to give the backstory and record some observations. 
 
 I started building BrainTool in the Summer of 2019 and worked on it whenever I had time for a year or so before deciding it was worth cleaning up and making public. My whole life I've been looking for, and thinking of building, the perfect note-taking, memory-jogging, personal information management tool. Revisiting my personal process with a clean slate and some time to invest in early '19 I realized that an MVP-for-me tool would unify my online links and resources (accessed via browser) with my text- and tags-based note taking process performed in a text editor; and that such a tool was within my ability to prototype over a Summer sabbatical while rebuilding my coding muscles.
@@ -10,7 +17,7 @@ Then over the weekend of 12/5 I got lucky, and confused. I started getting email
 
 After a while I figured out the complainers were all Chromebook/Linux users which was very positive in that it implied I was getting a lot of users (Store still said '8'). It was frustrating until Todd Wilson pointed out I had a bug in my package where my manifest specified BrainTool128.png and my package contained Braintool128.png (lower t). Not clear why the Google package upload did not catch this, nor why only Linux cared. But easy to fix!
 
-After I got that fixed things settled down. Eventually the download numbers on the Store started to change. Someone pointed me to (ZDNet article by Adrian Kingsley-Hughes)[https://www.zdnet.com/article/every-google-chrome-user-should-try-this/] that caused all the excitement. Over the next few days my download numbers went up by hundreds every day, getting bumps as the article was published in French and then Hungarian, until '1000+', then topping out after a week at its current '2000+'.
+After I got that fixed things settled down. Eventually the download numbers on the Store started to change. Someone pointed me to [https://www.zdnet.com/article/every-google-chrome-user-should-try-this/](ZDNet article by Adrian Kingsley-Hughes) that caused all the excitement. Over the next few days my download numbers went up by hundreds every day, getting bumps as the article was published in French and then Hungarian, until '1000+', then topping out after a week at its current '2000+'.
 
 Some observations:
 - Store users data is two days behind. It seems like it's updated once or twice a day with data that is two days old. Reviews seem to arrive online randomly relative to associated email notifications.
@@ -23,6 +30,6 @@ Some observations:
 
 My update maxes out the visibility of the "Authorize" button, adds bookmark import and export and gives more ways to create and organize tags. It also fixes a couple of bugs reported on issues with the Drive connection and solicits for input on the other feature requests I've heard about.
 
-If you've tried BrainTool, or even just have thoughts no what the ideal personal information management tool looks like, join the conversation on the (BrainTool discussion group)[https://groups.google.com/u/2/g/braintool-discussion]
+If you've tried BrainTool, or even just have thoughts no what the ideal personal information management tool looks like, join the conversation on the [https://groups.google.com/u/2/g/braintool-discussion](BrainTool discussion group)
 
 Tony
