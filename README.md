@@ -1,4 +1,3 @@
-o
 # The Information Manager for your Online Life
 
 ### Now with Bookmark Exchange and improved Tree editing!
