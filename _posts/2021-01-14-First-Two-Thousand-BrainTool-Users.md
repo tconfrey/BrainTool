@@ -25,6 +25,7 @@ After a while someone pointed me to the [ZDNet article by Adrian Kingsley-Hughes
 
 After that things settled down. Eventually the download numbers on the Store started to change. Over the next few days my download numbers went up by hundreds every day, getting bumps as the article was published in French and then Hungarian, until '1000+', then topping out after a week at '2000+'.
 
+### Beyond
 Now at 2800 weekly users I'm concluding that there is a user-base for BrainTool beyond just me. Of whatever number of people were exposed to Adrian's article more than two thousand were moved to install, the significant majority of those still have BT running, and there are many vocal enthusiasts. I'm mapping a path to a more full featured 1.0 version and beyond.
 
 The latest update maxes out the visibility of the "Authorize" button, adds bookmark import and export and gives more ways to create and organize tags. It also fixes a couple of bugs reported with the GDrive connection and solicits for input on the other feature requests I've heard about. See the [Support page]({% link support.md %}) for my current backlog.
