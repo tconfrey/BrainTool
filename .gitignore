@@ -7,3 +7,6 @@ site/.DS_Store
 extension/archivedVersions
 extension.*
 _site
+*.zip
+media/
+.sass-cache
