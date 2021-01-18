@@ -21,4 +21,5 @@ After recently upgrading BrainTool on the [Chrome Store](https://chrome.google.c
 - Enthusiastically following up every possible interaction with an end user has paid great dividends. I got a lot of thoughtful input, help prioritizing this first point release, and even a bunch of great folks willing to manually install an early build of 0.6 and give me bug reports.
 
 See the [Support page]({% link support.md %}) for my current backlog or join the conversation on the [BrainTool discussion group](https://groups.google.com/u/2/g/braintool-discussion).
+
 Tony
