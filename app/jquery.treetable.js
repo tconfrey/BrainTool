@@ -187,11 +187,14 @@
         });
       }
         
-        // Tony Edit: shift siblings of parents left so all a parents children are equal
+        // Tony Edit: shift siblings of parents left so all a parents children are equal,
+        // also, remove indenter if no longer applicible
         if (this.isBranchNode())
             this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
-        else            
+        else {          
             this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
+            $(this.indenter[0]).empty();
+        }
 
       return this;
     };
@@ -344,7 +347,10 @@
       return this;
     };
 
-    Tree.prototype.move = function(node, destination) {
+      Tree.prototype.move = function(node, destination) {
+          // Tony update - removed condition #2 thus allowing a node to be dropped
+          // to be its parent first child
+          
       // Conditions:
       // 1: +node+ should not be inserted as a child of +node+ itself.
       // 2: +destination+ should not be the same as +node+'s current parent (this
@@ -353,7 +359,10 @@
       // 3: +node+ should not be inserted in a location in a branch if this would
       //    result in +node+ being an ancestor of itself.
       var nodeParent = node.parentNode();
-      if (node !== destination && destination.id !== node.parentId && $.inArray(node, destination.ancestors()) === -1) {
+
+      // if (node !== destination && destination.id !== node.parentId && $.inArray(node, destination.ancestors()) === -1) {
+    
+      if (node !== destination && $.inArray(node, destination.ancestors()) === -1) {
         node.setParent(destination);
         this._moveRows(node, destination);
 
@@ -374,6 +383,58 @@
       return this;
     };
 
+    // Tony Addition
+    Tree.prototype.promote = function(node) {
+        // Move node up the hierarchy and position it before its current parent
+        var nodeParent = node.parentNode();
+        if (!nodeParent) return;
+        var nodeGrandparent = nodeParent.parentNode();
+        if (nodeGrandparent) {
+            node.setParent(nodeGrandparent);
+        } else {
+            node.parentId = null;
+            node.row.removeData(node.settings.parentIdAttr);
+            // TODO figure out why above line doesn't work so I don't need this one
+            node.row.removeAttr('data-tt-parent-id'); 
+        }
+        
+        node.row.insertBefore(nodeParent.row);
+        node.render();
+        
+        // Loop backwards through children to order correctly in UI
+        var children = node.children, i;
+        for (i = children.length - 1; i >= 0; i--) {
+            this._moveRows(children[i], node);
+        }
+        nodeParent.updateBranchLeafClass();
+        return this;
+    };
+
+      // Tony Addition
+      Tree.prototype.insertAtTop = function(node, beforeNode) {
+          // insert node after beforeNode in tree at top level. Needed to insert at top level
+
+          node.parentId = null;
+          node.row.removeData(node.settings.parentIdAttr);
+          // TODO figure out why above line doesn't work so I don't need this one
+          node.row.removeAttr('data-tt-parent-id');
+          
+          node.row.insertAfter(beforeNode.row);
+          node.render();
+
+          // Loop backwards through children to order correctly in UI
+          var children = node.children, i;
+          for (i = children.length - 1; i >= 0; i--) {
+              this._moveRows(children[i], node);
+          }
+          children = beforeNode.children;
+          for (i = children.length - 1; i >= 0; i--) {
+              this._moveRows(children[i], beforeNode);
+          }
+          
+          return this;
+      }
+
     Tree.prototype.removeNode = function(node) {
       // Recursively remove all descendants of +node+
       this.unloadBranch(node);
@@ -391,7 +452,7 @@
       this.nodes.splice($.inArray(node, this.nodes), 1);
 
       return this;
-    }
+    };
 
     Tree.prototype.render = function() {
       var root, _i, _len, _ref;
@@ -430,7 +491,9 @@
       // Reset node's collection of children
       node.children = [];
 
-      node.updateBranchLeafClass();
+        node.updateBranchLeafClass();
+        // Tony Add - re render since will now not need an expander
+        node.render();
 
       return this;
     };
@@ -585,6 +648,20 @@
       return this;
     },
 
+      // Tony Additions
+      promote: function(nodeId) {
+          var node;
+          node = this.data("treetable").tree[nodeId];
+          this.data("treetable").promote(node);
+          return this;
+      },
+      insertAtTop: function(nodeId, beforeId) {
+          var node = this.data("treetable").tree[nodeId];
+          var before = this.data("treetable").tree[beforeId];
+          return this.data("treetable").insertAtTop(node, before);
+      },
+
+      
     node: function(id) {
       return this.data("treetable").tree[id];
     },

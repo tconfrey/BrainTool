@@ -1,3 +1,8 @@
+/* 
+   Base capabilities and model for a BrainTool node common across app and extension.
+   Base Messaging and coordination capabilities will go here as they are refactored out.
+*/
+
 class BTNode {
     constructor(title, parentId = null) {
         this._id = BTNode.topIndex++;
@@ -90,7 +95,7 @@ class BTNode {
 
     isTag() {
         // Is this node used as a tag => has webLinked children
-        return this.childIds.some(id => AllNodes[id].hasWebLinks);
+        return (this.level == 1) || this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
 
     toBTNode() {
@@ -110,7 +115,8 @@ class BTNode {
         if (oldP)
             AllNodes[oldP].removeChild(this.id);
         this.parentId = newP;
-        AllNodes[newP].addChild(this.id, index);
+        if (newP)
+            AllNodes[newP].addChild(this.id, index);
     }
     
     static URLFromTitle(title) {
@@ -214,73 +220,4 @@ class BTNode {
 
 
             
-}
-
-class BTChromeNode extends BTNode {
-    // Node as seen by the extension. Knows about tabs and window ids
-
-    constructor(title = '', parentId = null, btobj = null) {
-	    // Trivial ctor and 'assign' allow us to clone the base node created on the app side
-        // while adding new ChromeNode behavior.
-	    super(title, parentId);
-        if (btobj)
-            Object.assign(this, btobj);
-        this._tabId = null;
-        this._windowId = null;
-        AllNodes[this._id] = this;
-    }
-
-    get tabId() {
-	    return this._tabId;
-    }
-    set tabId(id) {
-	    this._tabId = id;
-    }
-
-    get windowId() {
-	    return this._windowId;
-    }
-    set windowId(id) {
-	    this._windowId = id;
-    }
-    
-    managedTabs(){
-        // return an array of open tab ids for this node and its descendants
-        let nids = this.allDescendents();
-        nids = nids.filter(nid => AllNodes[nid].tabId).map(nid => AllNodes[nid].tabId);
-        return nids;
-    }
-    
-    static findFromTab(tabId) {
-        // Return node associated w display tab
-        var n = AllNodes.length ?
-            AllNodes.find(function(node) {
-                return (node && (node.tabId == tabId));})
-            :
-            null;
-        return n;
-    }
-    
-    static findFromWin(winId) {
-        // Return node associated w display tab
-        var n = AllNodes.length ?
-            AllNodes.find(function(node) {
-                return (node && (node.windowId == winId));})
-            :
-            null;
-        // Both leaves and parent node have the windowId set, we want the parent if both exist
-        if (n && n.parentId && AllNodes[n.parentId] && (AllNodes[n.parentId].windowId == winId))
-            return AllNodes[n.parentId];
-        return n;
-    }
-
-    static findFromURL(url) {
-        // Does url belong to an existing BTChromeNode?
-        var n = AllNodes.length ?
-            AllNodes.find(function(node) {
-                return (node && compareURLs(node.URL, url));})
-            :
-            null;
-        return n;
-    }
 }

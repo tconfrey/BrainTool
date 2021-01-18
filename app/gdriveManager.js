@@ -21,8 +21,11 @@ window.addEventListener('load', function() {
 });
 
 
-function processKeys(clientId, APIKey) {
+function processKeys(data) {
     // Client ID and API key from the Developer Console, values storted offline in config.js
+    const clientId = data.client_id;
+    const APIKey = data.api_key;
+    
     if (window.LOCALTEST) return;                          // running inside test harness
     console.log('Loading Google API...');
     CLIENT_ID = clientId;
@@ -70,11 +73,11 @@ function initClient() {
             
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;
-            signoutButton.onclick = handleSignoutClick;
+//            signoutButton.onclick = handleSignoutClick;
 	    }, function(error) {
             initClientReturned = true;
-            alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
             updateSigninStatus(false, error);
+            alert (`Error initializing GDrive API: \n[${JSON.stringify(error, undefined, 2)}]`);
 	    });
     }
     catch (err) {
@@ -89,21 +92,40 @@ function checkInitClientReturned() {
     initClient();
 }
 
+var authClickReturned;
 function handleAuthClick(event) {
     // Sign in the user upon button click.
     console.log("Signing in user");
+    authClickReturned = false;
+    $('body').addClass('waiting');
+    setTimeout(checkAuthClickReturned, 25000);
     try {
         gapi.auth2.getAuthInstance().signIn().then(
             function() {
+                authClickReturned = true;
+                $('body').removeClass('waiting');
                 console.log('User signed in');
             }, function(err) {
+                authClickReturned = true;
+                $('body').removeClass('waiting');
                 alert(`Error signing in: [${JSON.stringify(err.error)}]`);
             });
     }
     catch (err) {
+        authClickReturned = true;
+        $('body').removeClass('waiting');
         alert(`Error signing in: \n[${JSON.stringify(err)}]`);
     }
 }
+function checkAuthClickReturned() {
+    // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger
+    if (authClickReturned) return;
+    
+    $('body').removeClass('waiting');
+    alert("Google Authentication failed to complete!\nThis can be due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. If it continues see \nbraintool.org/support");
+}
+
+
 function handleSignoutClick(event) {
     // Sign out the user upon button click.
     console.log("Signing out user");
@@ -150,6 +172,7 @@ function findOrCreateBTFile() {
 }
 
 function getBTFile() {
+    console.log('Retrieving BT file');
     try {
 	    gapi.client.drive.files.get({
             fileId: BTFileID,
@@ -166,7 +189,7 @@ function getBTFile() {
     }
     catch(err) {
         alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+        console.log("Error in getBTFile: ", JSON.stringify(err));
     }
 }
 
@@ -247,53 +270,73 @@ function reAuth(callback) {
 }
 
 window.LOCALTEST = false; // overwritten in test harness
-function writeBTFile() {
-    // Write file contents into BT.org file on GDrive
-    
-    BTFileText = generateOrgFile();
-    if (window.LOCALTEST) return;
-    if (typeof gapi === "undefined") {           // Should not happen
-	    alert("BT - Error in writeBTFile. Google API not available.");
-	    return;
-    }
-    const metadata = {
-        'name': 'BrainTool.org',                 // Filename at Google Drive
-        'mimeType': 'text/plain'                 // mimeType at Google Drive
-    };
-    try {
-        // get accessToken, pass retry cb for if not available
-        const accessToken = getAccessToken(writeBTFile);
-        if (!accessToken) 
-            return;
+var lastWriteTime = new Date();
+var unwrittenChanges = null;
+function writeBTFile(cb) {
+    // Notification of change that needs to be written
 
-        let form = new FormData();
-        console.log("writing BT file. accessToken = ", accessToken);
+    // if its been 15 secs, just write out,
+    if (new Date().getTime() > (15000 + lastWriteTime.getTime()))
+        _writeBTFile(cb);
+    else
+        // else set a timer, if one hasn't already been set
+        if (!unwrittenChanges) {
+            unwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
+            console.log("Holding BT file write");
+        }
 
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+    function _writeBTFile(cb) {
+        // Write file contents into BT.org file on GDrive
+        console.log("Writing BT file");
+        lastWriteTime = new Date();
+        unwrittenChanges = null;
+        
+        BTFileText = generateOrgFile();
+        if (window.LOCALTEST) return;
+        if (typeof gapi === "undefined") {           // Should not happen
+	        alert("BT - Error in writeBTFile. Google API not available.");
+	        return;
+        }
+        const metadata = {
+            'name': 'BrainTool.org',                 // Filename at Google Drive
+            'mimeType': 'text/plain'                 // mimeType at Google Drive
+        };
+        try {
+            // get accessToken, pass retry cb for if not available
+            const accessToken = getAccessToken(writeBTFile);
+            if (!accessToken) 
+                return;
 
-        fetch('https://www.googleapis.com/upload/drive/v3/files/'
-              + encodeURIComponent(BTFileID)
-              + '?uploadType=multipart',
-              {
-                  method: 'PATCH', 
-                  headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                  body: form
-              }).then((res) => {
-	              if (!res.ok) {
-		              alert("BT - error writing to GDrive, reauthenticating...");
-		              console.log("GAPI response:\n", JSON.stringify(res));
-                      reAuth(writeBTFile);
-		              return('GAPI error');
-	              }
-                  return res.json();
-              }).then(function(val) {
-                  console.log(val);
-              });
-    }
-    catch(err) {
-        alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
-        console.log("Error in writeBTFile: ", JSON.stringify(err));
+            let form = new FormData();
+            console.log("writing BT file. accessToken = ", accessToken);
+
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+
+            fetch('https://www.googleapis.com/upload/drive/v3/files/'
+                  + encodeURIComponent(BTFileID)
+                  + '?uploadType=multipart',
+                  {
+                      method: 'PATCH', 
+                      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                      body: form
+                  }).then((res) => {
+	                  if (!res.ok) {
+		                  alert("BT - error writing to GDrive, reauthenticating...");
+		                  console.log("GAPI response:\n", JSON.stringify(res));
+                          reAuth(writeBTFile);
+		                  return('GAPI error');
+	                  }
+                      return res.json();
+                  }).then(function(val) {
+                      console.log(val);
+                      if (cb) cb();
+                  });
+        }
+        catch(err) {
+            alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
+            console.log("Error in writeBTFile: ", JSON.stringify(err));
+        }
     }
 }
 

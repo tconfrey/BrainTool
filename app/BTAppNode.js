@@ -224,7 +224,7 @@ class BTAppNode extends BTNode {
         super.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
-        const newLevel = AllNodes[newP].level + 1;
+        const newLevel = newP ? AllNodes[newP].level + 1 : 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
 
@@ -293,3 +293,22 @@ class BTLinkNode extends BTAppNode {
     }
 }
 
+
+/* Centralized Mappings from MessageType to handler. Array of handler functions */
+const Handlers = {
+    "bookmarks_imported": loadBookmarks,
+    "new_tab": storeTab,
+    "keys": processKeys,
+    "error_restore_nodes": errorRestoreNodes
+};
+
+// Set handler for extension messaging
+window.addEventListener('message', event => {
+    console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
+    if (event.source != window)
+        return;
+    if (Handlers[event.data.type]) {
+        console.log("BTAppNode dispatching to ", Handlers[event.data.type].name);
+        Handlers[event.data.type](event.data);
+    }
+});
