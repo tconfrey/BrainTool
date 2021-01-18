@@ -23,11 +23,29 @@
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <style>
+      /* header is responsive (style.css) so link div needs to be also to keep links on top */
+      @media screen and (min-width: 64em) {
+      .header-links {
+      margin-top: -4.75rem; } }
+      @media screen and (min-width: 42em) and (max-width: 64em) {
+      .header-links {
+      margin-top: -2.75rem; } }
+      @media screen and (max-width: 42em) {
+      .header-links {
+      margin-top: -1.75rem; } }
+    </style>
   </head>
   <body>
     <header class="page-header" role="banner"
             style="background-image: url('/site/AppStoreCollatoral/BraintoolMarqueeLarge.png');
                    background-repeat: round; height: 40vh">
+      <div class="header-links" style="text-align:center;"><b>
+        <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left; background-color:rgba(165,199,73,0.8); border-radius:4px">Discuss</a>
+        <a href="{{ site.url  }}/posts.html" style="float:right; background-color:rgba(165,199,73,0.1); border-radius:4px">Blog</a>
+        <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block; background-color:rgba(165,199,73,0.6); border-radius:4px;">Home</a></b>
+      </div>    
+      
       <!--
           <h1 class="project-name" style="opacity:0.0;">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
           <h2 class="project-tagline" style="opacity:0.0;">{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
@@ -48,7 +66,7 @@
         {% endif %}
         <div class="hvp-footer" style="text-align:center">
           <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left">Discuss</a>
-          <a href="{{ site.url  }}/posts.html" style="float:right">Posts</a>
+          <a href="{{ site.url  }}/posts.html" style="float:right">Blog</a>
           <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block">Home</a>
         </div>
         <!--

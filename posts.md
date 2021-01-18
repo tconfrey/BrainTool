@@ -3,11 +3,8 @@ layout: default
 title: Posts and Case Studies
 ---
 <ul>
-  {% for post in site.posts %}
-    <li>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-      {{ post.excerpt }}
-      <br/><a href="{{ post.url }}"><b>...</b></a>
-    </li>
-  {% endfor %}
+    {% for post in site.posts %}
+        <a href="{{ post.url }}">{{ post.excerpt }}</a>
+        <a href="{{ post.url }}"><b>...</b></a><br/><br/>
+    {% endfor %}
 </ul>
