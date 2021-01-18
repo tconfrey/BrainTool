@@ -15,7 +15,7 @@ My whole life I've been looking for, and thinking of building, the perfect note-
 Over the next year, in fits and starts, the prototype evolved into its current form, with hierarchical tags and notes, text-file syncing, and tab control. Recently I got some positive feedback that it was MVP for more than just me and decided to send it out into the world.
 
 ### Launch
-I publicly posted a 0.5 version to the Chrome App store around Thanksgiving. Then I waited for all the users to find it, anxious to see if others shared my mental model of how to keep track of things.
+I publicly posted a 0.5 version to the Chrome App store around Thanksgiving. Then I waited for all the users to find it, eager to see if others shared my mental model for how to keep track of things.
 
 And I waited, and waited. No surprise in retrospect, but I had assumed I'd at least get to double digit installs without resorting to bribing family members! Turns out if you build it, and 'it' is one of 200,000 Chrome extensions, they will not come! So I put some energy into 'growth hacking' ... and edged toward double digits.
 
@@ -25,12 +25,12 @@ After a while someone pointed me to the [ZDNet article by Adrian Kingsley-Hughes
 
 After that things settled down. Eventually the download numbers on the Store started to change. Over the next few days my download numbers went up by hundreds every day, getting bumps as the article was published in French and then Hungarian, until '1000+', then topping out after a week at '2000+'.
 
-Now at 2800 weekly users I'm concluding that there's a user-base for BrainTool beyond just me. Of whatever number of people were exposed to Adrian's article more than two thousand were moved to install, the significant majority of those still have BT installed, and there are many vocal enthusiasts. I'm mapping a path to a more full featured 1.0 version and maybe beyond.
+Now at 2800 weekly users I'm concluding that there is a user-base for BrainTool beyond just me. Of whatever number of people were exposed to Adrian's article more than two thousand were moved to install, the significant majority of those still have BT running, and there are many vocal enthusiasts. I'm mapping a path to a more full featured 1.0 version and beyond.
 
-This new update maxes out the visibility of the "Authorize" button, adds bookmark import and export and gives more ways to create and organize tags. It also fixes a couple of bugs reported with the GDrive connection and solicits for input on the other feature requests I've heard about. See the [Support page]({% link support.md %}) for my current backlog.
+The latest update maxes out the visibility of the "Authorize" button, adds bookmark import and export and gives more ways to create and organize tags. It also fixes a couple of bugs reported with the GDrive connection and solicits for input on the other feature requests I've heard about. See the [Support page]({% link support.md %}) for my current backlog.
 
 If you've tried BrainTool, or even just have thoughts on what the ideal personal information management tool looks like, join the conversation on the [BrainTool discussion group](https://groups.google.com/u/2/g/braintool-discussion).
 
 Tony
 
-PS I've added more detailed observations on the launch [here]({% post_url 2021-01-18-Observations-on-Chrome-Store-Launch %}).
+PS I've added some more detailed observations on the launch [here]({% post_url 2021-01-18-Observations-on-Chrome-Store-Launch %}).
