@@ -417,7 +417,17 @@ function handleLinkClick(e) {
     e.preventDefault();
 }
 
-//  Handle relayed messages from Content script
+
+
+/***
+ * 
+ * Handle relayed messages from Content script.
+ * NB Messages are mostly routed from BTAppNode, only those requiring some 
+ *   pre-processing are caught in this listener.
+ * 
+ ***/
+
+
 window.addEventListener('message', function(event) {
     // Handle message from Window
     function propogateOpened(parentId) {
@@ -447,11 +457,11 @@ window.addEventListener('message', function(event) {
     switch (event.data.type) {
     case 'tab_opened':
         nodeId = event.data.BTNodeId;
-        parentId = event.data.BTParentId;
         if (!AllNodes[nodeId]) {
             errorRestoreNodes();
             break;
         }
+        parentId = AllNodes[nodeId].parentId;
         AllNodes[nodeId].isOpen = true;
         $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
         $("tr[data-tt-id='"+parentId+"']").addClass("opened");
@@ -480,7 +490,7 @@ function cleanTitle(text) {
 }
 
 function errorRestoreNodes() {
-    // got an unknown node id from background so iniatiate a refresh
+    // background can't open link, maybe out of sync, so iniatiate a refresh
     const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
     window.postMessage({ type: 'nodes_updated', text: nodes});
     console.count('BT-OUT:nodes_updated');
@@ -896,6 +906,13 @@ function generateOrgFile() {
     });
     return orgText.slice(0, -1);                                      // take off final \n
 }
+
+/***
+ * 
+ * Option Processing
+ * RN just Bookmarks
+ * 
+ ***/
 
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save

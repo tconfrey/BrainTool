@@ -71,7 +71,7 @@ class BTChromeNode extends BTNode {
 /* Centralized Mappings from MessageType to handler. Array of handler functions */
 const Handlers = {
     "window_ready": initializeExtension,
-    "nodes_ready": loadNodes,
+    "nodes_updated": loadNodes,
     "link_click": openLink,
     "tag_open": openTag,
     "show_node": showNode,
@@ -83,7 +83,7 @@ const Handlers = {
 
 // Set handler for extension messaging
 chrome.runtime.onMessage.addListener((msg, sender) => {
-    console.count(`BTChromeNode received: [${msg.type}]`);
+    console.log(`BTChromeNode received: [${msg.type}]`);
     if (Handlers[msg.type]) {
         console.log("BTChromeNode dispatching to ", Handlers[msg.type].name);
         Handlers[msg.type](msg, sender);

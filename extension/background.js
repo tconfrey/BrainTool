@@ -13,6 +13,7 @@ var AllNodes = [];              // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
 var OpenNodes = new Object();   // hash of node name to window id
 var TabAction = 'pop';          // default operation on tagged tab (pop, hide, close, set by popup)
+var LocalTest = false;          // control code path during unit testing
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
@@ -29,7 +30,12 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                               function(tabs) {
                                   BTTab = tabs[0].id;
                                   console.log("Setting test mode w BTTab = " + BTTab);
+                                  LocalTest = true;
                               });
+        }
+        if (LocalTest && msg.type == 'get_bookmarks') {      // don't check permissions under test
+            getBookmarks();
+            break;
         }
         if (msg.type == 'get_bookmarks') {
             // request bookmark permission prior to bookmark operations
@@ -167,7 +173,7 @@ function openLink(msg, sender, tries=0) {
         // Send back message that the bt and parent nodes are opened in browser
         chrome.tabs.sendMessage(
             BTTab,
-            {'type': 'tab_opened', 'BTNodeId': node.id, 'BTParentId': parentNode.id});
+            {'type': 'tab_opened', 'BTNodeId': node.id});
         console.count('tab_opened');
     }
     catch (err) {
@@ -225,7 +231,7 @@ function openTag(msg, sender) {
                 ManagedTabs.push(node.tabId);
                 chrome.tabs.sendMessage(
                     BTTab,
-                    {'type': 'tab_opened', 'BTNodeId': id, 'BTParentId': parentId});
+                    {'type': 'tab_opened', 'BTNodeId': id});
                 console.count('tab_opened'); 
             }
         });
@@ -303,7 +309,7 @@ function moveTabToTag(tabId, tabNode, tagNode) {
     // Send back message that the link and tag nodes are opened in browser
     chrome.tabs.sendMessage(
         BTTab,
-        {'type': 'tab_opened', 'BTNodeId': tabNode.id, 'BTParentId': tagNode.id});
+        {'type': 'tab_opened', 'BTNodeId': tabNode.id});
     console.count('tab_opened');
 }
 
@@ -581,7 +587,7 @@ function handlePotentialBTNode(url, tab) {
     // Send back message that the bt and parent nodes are opened in browser
     chrome.tabs.sendMessage(
         BTTab,
-        {'type': 'tab_opened', 'BTNodeId': node.id, 'BTParentId': parentNode.id});
+        {'type': 'tab_opened', 'BTNodeId': node.id});
     console.count('tab_opened');
 }
 
