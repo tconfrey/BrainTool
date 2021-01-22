@@ -18,36 +18,83 @@
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
 
-     <div id="auth_menu">
-      <div id="menu_button" style="height:11px;" onClick="toggleMenu()">
+
+    <div id="auth_menu">
+      <div id="menu_button" style="height:14px; cursor: pointer;" onClick="toggleMenu()">
         <img id="open" class="open-icon">
         <img id="close" class="close-icon" style="display: none;">
       </div>
       <div id="auth_screen" style="display: block;">
-        <img src="../site/logo.png" style="width: 80%; display: block; margin-left: auto; margin-right: auto;"/>
-        <p style="text-align: center;">Welcome to BrainTool!</p>
-        <p style="margin: 10px; text-align: justify;">
-          BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. In order to operate BT needs you to grant it permission to read and write this file, and to read filenames so that it can find the file in the future. Data is exchanged only between the BT app running in Chrome and your GDrive, and only in encrypted format. There are no BT servers and nothing is ever stored anywhere but within the BrainTool.org file that is fully under your control. See <a href="https://braintool.org/overview" target="_blank">our website</a> for more details.
+        <img id="background_image" src="../app/resources/marquee.png"/>
+        <img id="logo_image" src="../app/resources/logo.png"/>
+        <p style="text-align: center;"><b>Now with Bookmark Exchange!</b></p>
+        <p id='intro_text' style="margin: 10px; text-align: justify;">
+          BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. You need to grant it permission to read and write this file. There are no BT servers and nothing is stored anywhere except within the file, named BrainTool.org, which is fully under your control. For details see the <a href="https://braintool.org/BrainToolPrivacyPolicy.pdf" target="_blank">privacy policy</a>
+          </p>
+        <!--Add buttons to initiate auth sequence and sign out-->
+        <div id="authDiv" class= "important">
+          <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
+          <button id="options_button" onClick="toggleOptions()">Options</button>
+        </div>
+        <p style="margin: 10px; text-align: justify;">Look here for quick tips or see <a href="https://braintool.org/overview" target="_blank">our website</a> for more information.
         </p>
         <p id="tip" style="margin: 10px; text-align: justify;">
-          Note that the initial tree shows some useful information on BT and gives some examples of how to use tags. Feel free to delete anything you don't want.
+          NB The initial tree shows some examples of how to use tags. Feel free to build on it or delete anything you don't want by hovering over the row and hitting the trash button.<br/>
+          <p style="margin: 10px; font-style: italic; font-size: 13px">*BrainTool is still new and evolving. Please leave a positive review or send constructive criticism to braintool.extension@gmail.com. Thank You!</p>
         </p>
-        <!--Add buttons to initiate auth sequence and sign out-->
-        <div class="buttonDiv" style="padding-bottom: 5px; padding-top: 0px;">
-          <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
-          <button id="signout_button" style="display: none;">Remove GDrive Authorization</button>
+        
+        <div id="options" style="display: none">
+          <img id="optionsClose" type="image" alt="Close" title="Close"
+               src="../app/resources/close.png"  height="17" width="20" onClick="toggleOptions()">
+          <table class="option_table">
+            <tr><td class="option_td" colspan="2">
+                <b>Options</b>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <button id="import_button" onClick="importBookmarks()">Import from Bookmarks</button>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <button id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <hr/>
+            </td></tr>
+            <tr><td class="option_td" colspan="2">
+                <b>Other options coming soon</b>
+            </td></tr>
+            <tr><td class="option_td">
+                Font Size:
+            </td><td/></tr>
+            <tr><td class="option_td">
+                Window size/position:
+            </td><td/></tr>
+            <tr><td class="option_td">
+                New items: </td><td>On Top | On Bottom
+            </td></tr>
+            <tr><td class="option_td">
+                Navigation away: </td><td>New Tab | Same Tab
+            </td></tr>
+            <tr><td class="option_td" style="text-align: left" colspan="2">
+                <i><small>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</small></i>
+            </td></tr>
+          </table>
         </div>
+
       </div>
     </div>
 
     <div id="loading">
       <p id="loadingMessage" style="text-align: center; margin-top:50px">
-        Authenticating with Google <br/>and loading your BrainTool file...</p>
+        Authenticating with Google <br/>and loading your BrainTool file<br/>...</p>
     </div>
     <div id="buttonRow" style="display: none;">
       <img id="move" type="image" alt="Move" title="Move"
              src="../app/resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
-      <img id="edit" alt="Edit" title="Edit" style="opacity: 0.75;"
+      <img id="outdent" type="image" alt="Outdent" title="Outdent"
+             src="../app/resources/outdent.png" onClick="promote()" height="16" width="16" style="opacity: 0.75;">
+      <img id="todo" alt="ToDo" onClick="toDo()" title="ToDo"
+             src="../app/resources/done.png"  height="16" width="16">
+      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
              src="../app/resources/edit.png"  height="16" width="16">
       <img id="expand" alt="Open" onClick="openRow()" title="Open" style="opacity: 0.75;"
              src="../app/resources/expand.png" height="16" width="16">
@@ -83,9 +130,9 @@
     <script src="https://code.jquery.com/qunit/qunit-2.10.1.js"></script>
     <script src="../app/orga-bundle.js"></script>
     <script src="../extension/BTNode.js"></script>
-    <script src="../app/BTAppNode.js"></script>
     <script src="../app/bt.js"></script>
     <script src="../app/gdriveManager.js"></script>
+    <script src="../app/BTAppNode.js"></script>
     <script src="../app/parser.js"></script>
     <script src="test.js"></script>
     <script async defer src="https://apis.google.com/js/api.js"
