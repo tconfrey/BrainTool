@@ -45,7 +45,7 @@ class BTChromeNode extends BTNode {
     }
     
     static findFromWin(winId) {
-        // Return node associated w display tab
+        // Return node associated w display window
         var n = AllNodes.length ?
             AllNodes.find(function(node) {
                 return (node && (node.windowId == winId));})
