@@ -6,9 +6,9 @@
 'use strict';
 
 chrome.runtime.onInstalled.addListener(function() {});
-var BTTab;
+var BTTab = 0;
 var BTWin;
-var ManagedTabs = [];           // global, used by popup to recognize BT tabs
+// var ManagedTabs = [];           // global, used by popup to recognize BT tabs
 var AllNodes = [];              // array of BTNodes
 var OpenLinks = new Object();   // hash of node name to tab id
 var OpenNodes = new Object();   // hash of node name to window id
@@ -18,266 +18,231 @@ var LocalTest = false;          // control code path during unit testing
 chrome.runtime.onMessage.addListener((msg, sender) => {
     // Handle messages from bt win content script and popup
     // NB legacy - generic messaging to the extension is now handled in BTChromeNode
-    console.count("\n\nBackground.js-IN:" + msg.type);
-    switch (msg.from) {
-    case 'btwindow':
-        if (msg.type == 'node_reparented') {
-            AllNodes[msg.nodeId].reparentNode(msg.parentId, msg.index);
-        }
-        if (msg.type == 'LOCALTEST') {
-            // Running under test so there is no external BT top level window
-            chrome.tabs.query({'url' : '*://localhost/test*'},
-                              function(tabs) {
-                                  BTTab = tabs[0].id;
-                                  console.log("Setting test mode w BTTab = " + BTTab);
-                                  LocalTest = true;
-                              });
-        }
-        if (LocalTest && msg.type == 'get_bookmarks') {      // don't check permissions under test
-            getBookmarks();
-            break;
-        }
-        if (msg.type == 'get_bookmarks') {
-            // request bookmark permission prior to bookmark operations
-            // NB not using the dispatch cos that looses that its user triggered and Chrome prevents
-            chrome.permissions.request(
-                {permissions: ['bookmarks']},
-                function(granted) {
-                    if (granted) {
-                        chrome.permissions.getAll(
-                            rsp => {chrome.storage.local.set(
-                                {'permissions' : rsp.permissions});}
-                        );
-                        getBookmarks();
-                    } else {
-                        // send back denial 
-                        chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported',
-                                                        'result': 'denied'});
-                    }
-                });
-        }
-        break;
-    case 'popup':
-        // two cases add_tab and add_move_tab. Common stuff is here
-        let [tag, parent, keyword, tagPath] = BTNode.processTagString(msg.tag);
 
-        // Create top level parent if needed
-        let parentId = null;
-        if (parent && !BTNode.findFromTagPath(parent))
-        {
-            let parentNode = new BTChromeNode(parent);
-            parentId = parentNode.id;
-        }
-        // create tag node if needed and then the node itself
-        const tagNodeId = BTNode.findFromTagPath(tagPath);
-        const tagNode = tagNodeId ? AllNodes[tagNodeId] : new BTChromeNode(tag, parentId);
-        const tabNode = new BTChromeNode(msg.title, tagNode.id);
-            
-        if (msg.type == 'add_move_tab') {
-            if (BTChromeNode.findFromTab(msg.tabId)) {                // if already owned duplicate
-                chrome.tabs.duplicate(msg.tabId, function(newTab) {
-                    moveTabToTag(newTab.id, tabNode, tagNode);
-                });
-            } else {
-                moveTabToTag(msg.tabId, tabNode, tagNode);
-            }
-        }
-        break;
+    if (msg.from != 'btwindow') return;
+    
+    if (msg.type == 'LOCALTEST') {
+        // Running under test so there is no external BT top level window
+        chrome.tabs.query({'url' : '*://localhost/test*'},
+                          function(tabs) {
+                              BTTab = tabs[0].id;
+                              console.log("Setting test mode w BTTab = " + BTTab);
+                              LocalTest = true;
+                          });
+    }
+    if (LocalTest && msg.type == 'get_bookmarks') {      // don't check permissions under test
+        getBookmarks();
+    }
+    if (msg.type == 'get_bookmarks') {
+        // request bookmark permission prior to bookmark operations
+        // NB not using the dispatch cos that looses that its user triggered and Chrome prevents
+        chrome.permissions.request(
+            {permissions: ['bookmarks']},
+            function(granted) {
+                if (granted) {
+                    chrome.permissions.getAll(
+                        rsp => {chrome.storage.local.set(
+                            {'permissions' : rsp.permissions});}
+                    );
+                    getBookmarks();
+                } else {
+                    // send back denial 
+                    chrome.tabs.sendMessage(BTTab, {'function': 'loadBookmarks',
+                                                    'result': 'denied'});
+                }
+            });
     }
 });
 
-function indexInParent(nodeId) {
-    // for tab ordering
-    let id = parseInt(nodeId);
-    let kid = AllNodes[id];
-    let parent = kid ? AllNodes[kid.parentId] : null;
-    if (!kid || !parent) return 0;
-    let index = (parent.tabId) ? 1 : 0;         // if parent has a tab it's at index 0
-    parent.childIds.some(function(id) {
-        if (id == nodeId) return true;          // exit when we get to this node
-        let n = AllNodes[id];
-        if (n && n.tabId) index++;
-    });
-    return index;
-}
-
-function deleteNode(msg, sender) {
-    // First remove from list of managed tabs
-    let mtabs = AllNodes[msg.nodeId].managedTabs();
-    mtabs.forEach(tabId => {
-        const index = ManagedTabs.indexOf(tabId);
-        if (index !== -1) ManagedTabs.splice(index, 1);
-    });
-    BTNode.deleteNode(msg.nodeId);
-}
-    
-function loadNodes(msg, sender) {
-    // Called on startup or refresh
-    // (and as a last resort when link msgs are received but nodes are somehow out of sync)
-    chrome.storage.local.get('nodes', function(data) {
-        const nodes = JSON.parse(data.nodes);
-        BTNode.reset();
-        nodes.forEach(function(node) {
-            if (!node) return;                                        // nodes array can be sparse
-            const chromeNode = new BTChromeNode('', null, node);
-            
-            // restore open state w tab and window ids. preserves state across refreshes
-            // These are object structures indexed by _title
-            chromeNode.tabId = OpenLinks[node._title] ? OpenLinks[node._title] : null; 
-            chromeNode.windowId = OpenNodes[node._title] ? OpenNodes[node._title] : null;
-        });
-    });
-}
-function openLink(msg, sender, tries=0) {
-    // handle click on a link - open in appropriate window
-    // TODO Refactor to just take nodeId and use nodes url, why would they be different?
-    // NB also called from openTag
+function openTab(msg, sender, tries=0) {
+    // open url in default window
     const nodeId = msg.nodeId;
-    const url = msg.url;
+    const url = msg.URL;
+    const index = msg.index;
+    const windowId = msg.windowId;
     if (!url || !nodeId) return;                         // nothing to be done
     try {
-        var node = AllNodes[nodeId];
-        if (node && node.tabId && node.windowId) {
-            // tab exists just highlight it
-            showNode(nodeId);
-            return;
-        }
-
-        // if this node *is* a parentNode or if no parent (ie top level) open as its own window
-        var parentNode = AllNodes[node.parentId];
-        if (node.isTag() || !parentNode) parentNode = node;
-
-        var index = (parentNode === node) ? 0 : indexInParent(nodeId);
-        if (parentNode.windowId)
-            // open tab in this window
-            chrome.tabs.create({'windowId': parentNode.windowId,
-                                'index': index, 'url': url},
-                               function(tab) {
-                                   node.tabId = tab.id;
-                                   ManagedTabs.push(node.tabId);
-                                   node.windowId = parentNode.windowId;
-                                   OpenLinks[node.title] = node.tabId;
-                                   showNode(nodeId);
-                               });
-        else
-            // open new window and assign windowId
-            chrome.windows.create({'url': url, 'left': 500},
-                                  function(window) {
-                                      parentNode.windowId = window.id;
-                                      OpenNodes[parentNode.title] = window.id;
-                                      node.tabId = window.tabs[0].id;
-                                      ManagedTabs.push(node.tabId);
-                                      node.windowId = window.id;
-                                      OpenLinks[node.title] = node.tabId;
-                                  });
-        // Send back message that the bt and parent nodes are opened in browser
-        chrome.tabs.sendMessage(
-            BTTab,
-            {'type': 'tab_opened', 'BTNodeId': node.id});
-        console.count('tab_opened');
+        chrome.tabs.create({'url': url}, tab => {
+            chrome.tabs.sendMessage(
+                BTTab, {'function': 'tabOpened', 'nodeId': nodeId,
+                        'tabId': tab.id, 'windowId': tab.windowId});
+        });
+        console.log('Tab Opened:', url);
     }
     catch (err) {
-        // try refreshing data structures from storage and try again
+        // try try again
         if (tries > 3) {
             chrome.windows.create({'url': url, 'left': 500}); // open anyway to be helpful
             alert("Error in BrainTool\nTry closing main BT window and restarting:[", err, "]");
             return;
         }
-        if (tries) {
-            // send msg to bt to reload nodes into local storage
-            chrome.tabs.sendMessage(BTTab, {'type': 'error_restore_nodes'});
-            console.count('error_restore_nodes');
-        }
-        loadNodes();
-        setTimeout(function(){openLink({nodeId: nodeId, url: url}, null, ++tries);}, 100);
+        setTimeout(function(){openTab(msg, null, ++tries);}, 100);
     }
 }
 
-function openTag(msg, sender) {
-    // passed an array of {nodeId, url} to open in top window
+function positionTab(msg, sender) {
+    // move tab to appropriate index in window
 
-    const parentId = msg.parent;
-    const ary = msg.data;
-    const parentNode = AllNodes[parentId];
-    if (!parentNode) return;                                    // shrug
-    if (parentNode.windowId) {
-        // open one by one in parent. NB reverse is a bit hooky to address indexInParent when tabs are about to be opened async
-        for (const elt of ary.reverse())
-            openLink(elt, sender);
-    } else {
-        // Create array of urls to open
-        const urls = ary.map(elt => elt.url);
+    const tabId = msg.tabId;
+    const index = msg.index;
+    chrome.tabs.move(tabId, {'index': index});
+}
+    
+function openInWindow(msg, sender) {
+    // open url(s) in specific window, msg.tabs is [{url, nodeId},..]
+
+    // Create array of urls to open
+    const windowId = msg.windowId;
+    const tabs = msg.tabs;
+
+    if (windowId)
+        tabs.forEach(tabData => {
+            chrome.tabs.create({'url': tabData.URL, 'windowId': windowId}, tab => {
+                chrome.tabs.sendMessage(
+                    BTTab,
+                    {'function': 'tabOpened', 'nodeId': tabData.nodeId,
+                     'tabId': tab.id, 'windowId': tab.windowId, 'tabIndex': tab.index});
+            });
+        });
+    else {
+        const urls = tabs.map(elt => elt.URL);
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
-            // When done record in local node store and send back message per tab
-            let id, tab, node;
-            console.log("openTag->windows.create cb, tabs:" + JSON.stringify(win.tabs));
-            parentNode.windowId = win.id;
-            OpenNodes[parentNode.title] = win.id;
-            for (const elt of ary) {
+            // Send back message per tab
+            let id, url, tab;
+            for (const elt of tabs) {
                 id = elt.nodeId;
-                node = AllNodes[id];
-                node.windowId = win.id;
-
-                // NB tabs might not be loaded at this point, handlePotentialBTNode will catch it later
+                url = elt.URL;
                 tab = win.tabs.find(function(element) {
                     return (element &&
                             element.pendingUrl &&
-                            compareURLs(element.pendingUrl, AllNodes[id].URL));
+                            compareURLs(element.pendingUrl, url));
                 });
                 if (!tab) continue;
-                
-                node.tabId = tab.id;
-                OpenLinks[node.title] = node.tabId;
-                ManagedTabs.push(node.tabId);
                 chrome.tabs.sendMessage(
                     BTTab,
-                    {'type': 'tab_opened', 'BTNodeId': id});
-                console.count('tab_opened'); 
+                    {'function': 'tabOpened', 'nodeId': id, 'tabId': tab.id,
+                     'windowId': win.id, 'tabIndex': tab.index});
             }
         });
     }
 }
 
+function openInTabGroup(msg, sender) {
+    // open url(s) in specific tabGroup, msg.tabs is [{URL, nodeId},..]
+
+    // Create array of urls to open
+    const windowId = msg.windowId;
+    const tabGroupId = msg.tabGroupId;
+    const tabs = msg.tabs;
+    const firstOpenTab = msg.firstOpenTab || 0;
+
+    if (windowId && tabGroupId)                           // should always be both or none
+        // iterate thru tabs, create, add to tabgroup and send back msg
+        chrome.tabs.get(firstOpenTab, firstGroupTab => {
+            const tgIndex = firstGroupTab ? firstGroupTab.index : 0;        // index into tabGroup
+            tabs.forEach((tabData, i) => {
+                const finalIndex = tabData.index + tgIndex + i;
+                console.log('Creating tab (url, index):', tabData.URL, finalIndex);
+                chrome.tabs.create(
+                    {'url': tabData.URL, 'windowId': windowId, 'index': finalIndex},
+                    tab => {
+                        console.log('Created tab (url, index):', tab.pendingUrl, tab.index);
+                        chrome.tabs.group(
+                            {'groupId': tabGroupId, 'tabIds': tab.id}, () => {
+                                console.log('grouped tab (url, index):', tab.pendingUrl, tab.index);
+                                chrome.tabs.sendMessage(
+                                    BTTab,
+                                    {'function': 'tabOpened', 'nodeId': tabData.nodeId,
+                                     'tabId': tab.id,
+                                     'windowId': tab.windowId, 'tabGroupId': tabGroupId})});
+                    });
+            });
+        });
+    else {
+        // need to first create tabGroup, so create first tab and nest creation of the rest
+        const firstTab = tabs[0];
+        chrome.tabs.create({'url': firstTab.URL}, newtab => {
+            chrome.tabs.group({createProperties: {'windowId': newtab.windowId},
+                               'tabIds': newtab.id}, groupId => {
+                chrome.tabs.sendMessage(
+                    BTTab,
+                    {'function': 'tabOpened', 'nodeId': firstTab.nodeId, 'tabId': newtab.id,
+                     'tabGroupId': groupId, 'windowId': newtab.windowId});
+                tabs.forEach((t, i) => {
+                    if (i == 0) return;                 // already created first one
+                    chrome.tabs.create({'url': t.URL}, newnewtab => {
+                        chrome.tabs.group({'groupId': groupId, 'tabIds': newnewtab.id}, () => {
+                            chrome.tabs.sendMessage(
+                                BTTab,
+                                {'function': 'tabOpened', 'nodeId': t.nodeId, 'tabId': newnewtab.id,
+                                 'tabGroupId': groupId, 'windowId': newnewtab.windowId});
+                        });
+                    });
+                });
+            });
+        });
+    }
+}
+
+function moveToWindow(msg, sender) {
+    // move specified tab to window at position
+    const windowId = msg.windowId;
+    const tabId = msg.tabId;
+    const index = msg.index;
+    const nodeId = msg.nodeId;
+    if (windowId)
+        chrome.tabs.move(tabId, {'windowId': windowId, 'index': index}, tab =>
+                         chrome.tabs.sendMessage(
+                             BTTab,
+                             {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
+                              'windowId': windowId}));
+    else
+        chrome.windows.create({'tabId': tabId, 'left': 500}, win =>
+                              chrome.tabs.sendMessage(
+                                  BTTab,
+                                  {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
+                                   'windowId': win.id}));
+}
+
+function moveToTabGroup(msg, sender) {
+    // move tab to position in tabgroup
+    // TODO group does not take position, need to add seperate move?
+    const tabId = msg.tabId;
+    const nodeId = msg.nodeId;
+    const position = msg.position;
+    const tabGroupId = msg.tabGroupId;
+    const firstOpenTab = msg.firstOpenTab;
+    const windowId = msg.windowId;
+    const args = tabGroupId ? {'groupId': tabGroupId, 'tabIds': tabId} : {'tabIds': tabId};
+    chrome.tabs.group(args, groupId =>
+                      chrome.tabs.sendMessage(
+                          BTTab, {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
+                                  'windowId': windowId, 'tabGroupId': groupId}));
+}
+
 function showNode(msg, sender) {
     // Surface the window/tab associated with this node
 
-    const node = AllNodes[msg.nodeId];
-    
-    if (node && node.tabId) {
-        // nb convert from tabId to offset index
-        // nb,nb tabs.highlight should do the job
-        //       but sometimes the window does not get focus so do that explicitly
-        chrome.tabs.get(node.tabId, function(tab) {
+    if (msg.tabId) {
+        chrome.tabs.get(msg.tabId, function(tab) {
             chrome.windows.update(tab.windowId, {'focused' : true});
             chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index});
         });
-        return;
     }
-    if (node && node.windowId) {
-        chrome.windows.update(node.windowId, {'focused' : true});
-        return;
-    }
-    if (node && node.childIds.length)
-        // no window/tab, but children => open first child
-        showNode(node.childIds[0]);
-}
-
-function closeNode(msg, sender) {
-    // Close this nodes window or tabid. NB tabs have a tab id and window id, windows only have win id
-
-    const node = AllNodes[msg.nodeId];
-    if (node && node.tabId){
-        chrome.tabs.remove(node.tabId);
-        // and remove from list of managed tabs
-        var index = ManagedTabs.indexOf(node.tabId);
-        if (index !== -1) ManagedTabs.splice(index, 1);
-        return;
-    }
-    if (node && node.windowId) {
-        chrome.windows.remove(node.windowId);
+    if (msg.windowId) {
+        chrome.windows.update(msg.windowId, {'focused' : true});
     }
 }
 
+function closeTab(msg, sender) {
+    // Close a tab, NB tab listener will catch close and alert app
+
+    const tabId = msg.tabId;
+    chrome.tabs.remove(tabId, ()=>void chrome.runtime.lastError); // ignore error
+}
+
+/*
+// TODO remove
 function moveTabToTag(tabId, tabNode, tagNode) {
     // Find BTNode associated w tag, move tab to its window if exists, else create it
 
@@ -312,6 +277,7 @@ function moveTabToTag(tabId, tabNode, tagNode) {
         {'type': 'tab_opened', 'BTNodeId': tabNode.id});
     console.count('tab_opened');
 }
+*/
 
 function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
@@ -325,20 +291,21 @@ function initializeExtension(msg, sender) {
     BTWin = sender.tab.windowId;
     chrome.tabs.sendMessage(                        // send over gdrive app info
         BTTab,
-        {'type': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
-    
+        {'function': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
+
+    // TODO not needed?
     const tabIds = Object.values(OpenLinks);       // OpenLinks maps open link urls to tabIds
     if (tabIds.length) {
         alert("Closing BrainTool controlled windows!");
         console.log("Restarting Extension");
         chrome.tabs.remove(tabIds);
-    }
-    
+    }    
     OpenLinks = new Object();
     OpenNodes = new Object();
 }
 
 
+/* TODO collapse w version in 'btNode */
 function compareURLs(first, second) {
     // sometimes I get trailing /'s other times not, also treat http and https as the same,
     // also for some reason google docs immediately redirect to the exact same url but w /u/1/d instead of /d
@@ -357,61 +324,24 @@ function compareURLs(first, second) {
     }
 }
 
-function parentUpdate(nodeId) {
-    // If as a result of a close/nav this tabs/nodes parent is now empty of BT nodes update app
-    const parent = AllNodes[nodeId];
-    // if no parent or parent is open, doesn't matter if kids are not
-    if (!parent || parent.tabId) return;  
-    
-    let numKids = 0;
-    parent.childIds.forEach(function(childId) {
-        if (AllNodes[childId].tabId)
-            numKids++;
-    });
-    if (!numKids) {
-        parent.windowId = null;         // no tabs => no longer a BT window
-        delete OpenNodes[parent.title];
-        chrome.tabs.sendMessage(
-            BTTab,
-            {'type': 'tab_closed', 'BTNodeId': parent.id});
-    }
-    // NB Design choice - not leaving the parents windowId set
-    // which would have any new tabs opened from this parent in this window
-    // I think it makes more sense to reset the window state
-}
-
-
 chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     // listen for tabs being closed, if its a managed tab let BT know
-    if (tabId == BTTab) {
-        console.log("BT closed!");
-        BTTab = null;
-        AllNodes = [];
-        // Reset open nodes and links
-        OpenLinks = new Object();
-        OpenNodes = new Object();
-        return;
-    }
-
-    const node = BTChromeNode.findFromTab(tabId);
-    if (!node) return;
-
-    delete OpenLinks[node.title];
-    node.tabId = null; node.windowId = null;
-    // and remove from list of managed tabs
-    var index = ManagedTabs.indexOf(tabId);
-    if (index !== -1) ManagedTabs.splice(index, 1);
     
-    chrome.tabs.sendMessage(
-        BTTab,
-        {'type': 'tab_closed', 'BTNodeId': node.id});
-
-    if (node.isTag())          // if this is a parent node w link then its its own window
-        parentUpdate(node.id);
-    else
-        parentUpdate(node.parentId);
+    chrome.tabs.sendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
+    if (tabId == BTTab) BTTab = null;
 });
 
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // listen for tabs navigating to and from BT URLs
+
+    console.log(`tabs.onUpdated:[id:${tabId}, url:${tab.url}, changeinfo:${JSON.stringify(changeInfo)}]`);
+    if (changeInfo.status == 'complete')
+        chrome.tabs.sendMessage(
+            BTTab, {'function': 'tabUpdated', 'tabId': tabId,
+                    'tabURL': tab.url, 'windowId': tab.windowId});
+});
+/*
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Two cases
     // - BT tabs navigating away
@@ -472,7 +402,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         console.log("Failed to go back from url: " + url + ", to: " + node.URL);
     }
 });
-
+*/
 
 chrome.tabs.onActivated.addListener((info) => {
     // Update badge and hover text if a BT window has opened or surfaced 
@@ -539,7 +469,7 @@ function setBadgeWin(windowId) {
     chrome.storage.local.set({currentTag: displayName});
 
 }
-
+/*
 function handlePotentialBTNode(url, tab) {
     // Check to see if this url belongs to a btnode and if so:
     // if its already open, just highlight, else open as such, even if not opened from BT App
@@ -590,6 +520,7 @@ function handlePotentialBTNode(url, tab) {
         {'type': 'tab_opened', 'BTNodeId': node.id});
     console.count('tab_opened');
 }
+*/
 
 function getBookmarks() {
     // User has requested bookmark import from browser
@@ -597,12 +528,11 @@ function getBookmarks() {
     chrome.bookmarks.getTree(function(itemTree){
         itemTree[0].title = "Imported Bookmarks";
         chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            chrome.tabs.sendMessage(BTTab, {'type': 'bookmarks_imported',
+            chrome.tabs.sendMessage(BTTab, {'function': 'loadBookmarks',
                                             'result': 'success'});
         });
     });
 }
-
 
 function getDateString() {
     // return minimal date representation to append to bookmark tag
@@ -610,7 +540,6 @@ function getDateString() {
     const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
     return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
 }
-
 
 function exportBookmarks() {
     // Top level bookmark exporter

@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "BrainTool",
-    "version": "0.6.3",
+    "version": "0.7.0",
     "description": "A Bookmarks and Information Manager for your online life.",
     "permissions": ["tabs", "storage"],
     "optional_permissions": ["bookmarks"],
@@ -11,7 +11,8 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://BrainTool.org/versions/*"],
+//            "matches": ["https://BrainTool.org/versions/*"],
+            "matches": ["http://localhost:8000/*"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }

@@ -136,15 +136,36 @@ class BTNode {
     }
 
 
+    static compareURLs(first, second) {
+        // sometimes I get trailing /'s other times not, also treat http and https as the same,
+        // also google docs immediately redirect to the exact same url but w /u/1/d instead of /d
+        // also navigation within window via # anchors is ok
+        // also maybe ?var= arguments are ok? Not on many sites (eg hn) where there's a ?page=123.
+        //              => .replace(/\?.*$/, "")
+        // also if its a gmail url need to match exactly
+
+        if (first.indexOf("mail.google.com/mail") >= 0) {
+            return (first == second);
+        } else {        
+            first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
+            second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
+            return (first == second);
+        }
+    }
+
     static findFromTitle(title) {
-        var n = AllNodes.length ? AllNodes.find(function(node) {
-            return (node && (node.title == title));}) : null;
-        return n ? n.id : null;
+        return AllNodes.find(node => (node && (node.title == title)));
     }
 
     static findFromTagPath(tagPath) {
-        var n = AllNodes.find(node => (node && (node.tagPath == tagPath)));
-        return n ? n.id : null;
+        // NB currently only handles parent:child, not more levels, will return first found match
+        const components = BTNode.processTagString(tagPath);
+        const tag = components[0];
+        const parent = components[1];
+        if (!parent)
+            return AllNodes.find(node => node && node.displayTag == tag);
+        const potentialMatches = AllNodes.filter(node => node.displayTag == tag);
+        return potentialMatches.find(node => node.parentId && AllNodes[node.parentId].displayTag == parent);
     }
 
     static reset() {

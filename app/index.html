@@ -53,6 +53,19 @@
             <tr><td class="option_td" colspan="2">
                 <button id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
             </td></tr>
+            <tr><td>BT Tags map to:</td></tr>
+            <tr><td class="option_td" colspan="2">
+                <div class="toggle-radio">
+                  <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
+                  <label for="default_Option1">Windows</label>
+
+                  <input type="radio" name="grouping" id="default_Option2" value="TABGROUP">
+                  <label for="default_Option2">Tab Groups</label>
+
+                  <input type="radio" name="grouping" id="default_Option3" value="NONE">
+                  <label for="default_Option3">Nothing</label>
+                </div>
+            </td></tr>
             <tr><td class="option_td" colspan="2">
                 <hr/>
             </td></tr>
@@ -67,9 +80,6 @@
             </td><td/></tr>
             <tr><td class="option_td">
                 New items: </td><td>On Top | On Bottom
-            </td></tr>
-            <tr><td class="option_td">
-                Navigation away: </td><td>New Tab | Same Tab
             </td></tr>
             <tr><td class="option_td" style="text-align: left" colspan="2">
                 <i><small>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</small></i>

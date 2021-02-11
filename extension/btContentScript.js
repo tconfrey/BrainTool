@@ -6,27 +6,17 @@
 // Listen for messages from the App
 window.addEventListener('message', function(event) {
     // Handle message from Window
-    if (event.source != window)
+    if (event.source != window || event.data.from == "btextension")
         return;
-    console.log(`Content-IN ${event.data.type} from bt.js:`, event);
+    console.log(`Content-IN ${event.data.function} from bt.js:`, event);
     switch (event.data.type) {
     case 'tags_updated':
         // pull tags info from message and post to local storage. Popup reads from there.
-        chrome.storage.local.set({'tags': event.data.text}, function() {
-            console.log("tags set to " + event.data.text);
-        });
+        chrome.storage.local.set({'tags': event.data.text});
         break;
-    case 'nodes_updated':
-        // pull node info from message and post to local storage
-        chrome.storage.local.set({'nodes': event.data.text}, function() {
-            console.log("nodes set");
-        });
-        // and let extension know bt window is set
-        chrome.runtime.sendMessage({
-            from: 'btwindow',
-            type: 'nodes_updated',
-        });
-        console.count('Content-OUT:ready');
+    case 'grouping_mode_updated':
+        // default grouping mode changed, save to storage
+        chrome.storage.local.set({'GroupingMode': event.data.mode});
         break;
     default:
         // handle all other default type messages
@@ -39,9 +29,9 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
-    console.log(`Content-IN ${msg.type} from background.js:`, msg);
-    switch (msg.type) {
-    case 'bookmarks_imported':
+    console.log(`Content-IN ${msg.function} from background.js:`, msg);
+    switch (msg.function) {
+    case 'loadBookmarks':
         chrome.storage.local.get('bookmarks', data => {
             msg.data = data;
             window.postMessage(msg);
@@ -58,6 +48,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         });
     default:
         // handle all other default type messages
+        msg["from"] = "btextension";
         window.postMessage(msg);
     }
 });
@@ -69,11 +60,11 @@ var WaitingForKeys = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({
         from: 'btwindow',
-        type: 'window_ready',
+        function: 'initializeExtension',
     });
     NotLoaded = false;
     setTimeout(waitForKeys, 500);
-    console.count('Content-OUT:window_ready');
+    console.count('Content-OUT:initializeExtension');
 }
 
 function waitForKeys() {
@@ -82,8 +73,8 @@ function waitForKeys() {
     
     chrome.runtime.sendMessage({
         from: 'btwindow',
-        type: 'window_ready',
+        function: 'initializeExtension',
     });
-    console.count('Content-OUT:window_ready');
+    console.count('Content-OUT:initializeExtension');
     setTimeout(waitForKeys, 1000);
 }
