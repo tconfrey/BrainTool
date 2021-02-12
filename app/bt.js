@@ -136,7 +136,8 @@ function generateTable() {
     // Generate table from BT Nodes
     var outputHTML = "<table>";
     AllNodes.forEach(function(node) {
-        if (!node || !node.hasWebLinks) return;
+//        if (!node || !node.hasWebLinks) return;
+        if (!node) return;
         outputHTML += node.HTML();
     });
     outputHTML += "</table>";

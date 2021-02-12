@@ -95,7 +95,7 @@ class BTNode {
 
     isTag() {
         // Is this node used as a tag => has webLinked children
-        return (this.level == 1) || this.childIds.some(id => AllNodes[id].hasWebLinks);
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id].hasWebLinks);
     }
 
     toBTNode() {
