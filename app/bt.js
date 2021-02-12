@@ -103,18 +103,6 @@ function toggleOptions(dur = 500) {
     }
 }
 
-// Register listener for grouping mode change
-$(document).ready(function () {
-    $(':radio').click(function () {
-        const val = $(this).val();
-        GroupingMode = GroupOptions[val];
-        setMetaProp('BTGroupingMode', GroupingMode);
-        // Let extension know
-        window.postMessage({ type: 'grouping_mode_updated', mode: GroupingMode});
-        console.log('Set grouping options to: ', val);
-    });
-});
-
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
@@ -990,4 +978,29 @@ function updatePrefs() {
         GroupingMode = groupMode;
         window.postMessage({ type: 'grouping_mode_updated', mode: GroupingMode});
 	}		       
+}
+
+// Register listener for grouping mode change
+$(document).ready(function () {
+    $(':radio').click(function () {
+        const oldVal = GroupingMode;
+        const newVal = $(this).val();
+        GroupingMode = GroupOptions[newVal];
+        setMetaProp('BTGroupingMode', GroupingMode);
+        // Let extension know
+        window.postMessage({ type: 'grouping_mode_updated', mode: GroupingMode});
+        console.log(`Changed grouping options from ${oldVal} to ${newVal}`);
+        groupingUpdate(oldVal, newVal);
+    });
+});
+
+function groupingUpdate(from, to) {
+    // grouping has been changed, potentially update open tabs (WINDOW->NONE is ignored)
+
+    if (from == 'TABGROUP' && to == 'NONE')
+        BTAppNode.ungroupAll();
+    if ((from == 'NONE' || from == 'WINDOW') && to == 'TABGROUP')
+        BTAppNode.groupAll();
+    if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW')
+        BTAppNode.windowAll();
 }

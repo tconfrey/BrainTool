@@ -66,6 +66,9 @@ const Handlers = {
     "showNode": showNode,
     "positionTab": positionTab,
     "closeTab": closeTab,
+    "ungroupAll": ungroupAll,
+    "groupAll": groupAll,
+    "windowAll": windowAll,
     "exportBookmarks": exportBookmarks
 };
 

@@ -154,10 +154,10 @@ class BTAppNode extends BTNode {
         // highlight this nodes associated tab or window
         if (this.tabId)
             window.postMessage(
-                {'nodeId' : this.id, 'function' : 'showNode', 'tabId': this.tabId});
+                {'function' : 'showNode', 'tabId': this.tabId});
         else if (this.windowId)
             window.postMessage(
-                {'nodeId' : this.id, 'function' : 'showNode', 'windowId': this.windowId});
+                {'function' : 'showNode', 'windowId': this.windowId});
     }
 
     openTab() {
@@ -272,6 +272,40 @@ class BTAppNode extends BTNode {
             node.closeTab();
         });
     }
+    
+    static ungroupAll() {
+        // user has changed from TABGROUP to NONE, tell background to ungroup all BT tabs
+        const tabIds = AllNodes.flatMap(n => n.tabId ? [n.tabId] : []);
+        if (tabIds.length)
+            if (confirm('Also ungroup open tabs?'))
+                window.postMessage({'function': 'ungroupAll', 'tabIds': tabIds});
+    }
+
+    static groupAll() {
+        // user has changed grouping to TabGroups so group open tabs up
+
+        AllNodes.forEach(n => {
+            if (n.hasOpenChildren()) {
+                const openTabIds = n.childIds.flatMap(
+                    c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
+                window.postMessage({'function': 'groupAll', 'tabIds': openTabIds,
+                                    'windowId': n.windowId});
+            }
+        });
+    }
+
+    static windowAll() {
+        // grouping change to Window mode, so organize tags into individual windows
+
+        AllNodes.forEach(n => {
+            if (n.hasOpenChildren()) {
+                const openTabIds = n.childIds.flatMap(
+                    c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
+                window.postMessage({'function': 'windowAll', 'tabIds': openTabIds});
+            }
+        });
+    }
+
   
 /***
  *
@@ -284,7 +318,7 @@ class BTAppNode extends BTNode {
         let drawerText = "";
         if (this.drawers) {
             const drawers = Object.keys(this.drawers);
-            const reg = /:(\w*):\s*(\w*)/g;                          // regex to iterate thru props and values
+            const reg = /:(\w*):\s*(\w*)/g;              // regex to iterate thru props and values
             let hits, ptext;
             for (const drawer of drawers) {
                 drawerText += "  :" + drawer + ":\n";
@@ -460,7 +494,6 @@ class BTAppNode extends BTNode {
         // Return node associated w url, if any
         return AllNodes.find(node => node && BTNode.compareURLs(node.URL, url));
     }
-
 }
 
 

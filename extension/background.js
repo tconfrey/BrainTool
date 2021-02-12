@@ -220,6 +220,26 @@ function moveToTabGroup(msg, sender) {
                                   'windowId': windowId, 'tabGroupId': groupId}));
 }
 
+function ungroupAll(msg, sender) {
+    // we're not using tabgroups any more, so ungroup
+    chrome.tabs.ungroup(msg.tabIds);
+}
+
+function groupAll(msg, sender) {
+    // user changed to tag:TabGrouping so group
+    chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds});
+}
+
+function windowAll(msg, sender) {
+    // user changed to tag:window mode so move tabs to individual window
+
+    // Need to first create the window, using the first tab and then move any others
+    chrome.windows.create({tabId: msg.tabIds[0]}, win => {
+        if (msg.tabIds.length > 1)
+            chrome.tabs.move(msg.tabIds.slice(1), {"windowId": win.id, "index": 1});
+    });
+}
+
 function showNode(msg, sender) {
     // Surface the window/tab associated with this node
 
