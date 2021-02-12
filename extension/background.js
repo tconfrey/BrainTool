@@ -8,11 +8,7 @@
 chrome.runtime.onInstalled.addListener(function() {});
 var BTTab = 0;
 var BTWin;
-// var ManagedTabs = [];           // global, used by popup to recognize BT tabs
 var AllNodes = [];              // array of BTNodes
-var OpenLinks = new Object();   // hash of node name to tab id
-var OpenNodes = new Object();   // hash of node name to window id
-var TabAction = 'pop';          // default operation on tagged tab (pop, hide, close, set by popup)
 var LocalTest = false;          // control code path during unit testing
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
@@ -95,7 +91,8 @@ function openInWindow(msg, sender) {
     const windowId = msg.windowId;
     const tabs = msg.tabs;
 
-    if (windowId)
+    if (windowId) {
+        chrome.windows.update(windowId, {'focused' : true});
         tabs.forEach(tabData => {
             chrome.tabs.create({'url': tabData.URL, 'windowId': windowId}, tab => {
                 chrome.tabs.sendMessage(
@@ -104,6 +101,7 @@ function openInWindow(msg, sender) {
                      'tabId': tab.id, 'windowId': tab.windowId, 'tabIndex': tab.index});
             });
         });
+    }
     else {
         const urls = tabs.map(elt => elt.URL);
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
@@ -135,6 +133,7 @@ function openInTabGroup(msg, sender) {
     const tabGroupId = msg.tabGroupId;
     const tabs = msg.tabs;
     const firstOpenTab = msg.firstOpenTab || 0;
+    let firstTab = true;
 
     if (windowId && tabGroupId)                           // should always be both or none
         // iterate thru tabs, create, add to tabgroup and send back msg
@@ -146,10 +145,13 @@ function openInTabGroup(msg, sender) {
                 chrome.tabs.create(
                     {'url': tabData.URL, 'windowId': windowId, 'index': finalIndex},
                     tab => {
-                        console.log('Created tab (url, index):', tab.pendingUrl, tab.index);
                         chrome.tabs.group(
                             {'groupId': tabGroupId, 'tabIds': tab.id}, () => {
-                                console.log('grouped tab (url, index):', tab.pendingUrl, tab.index);
+                                if (firstTab) {
+                                    // highlight one tab in case TG window is buried
+                                    firstTab = false;
+                                    chrome.windows.update(windowId, {'focused' : true});
+                                }
                                 chrome.tabs.sendMessage(
                                     BTTab,
                                     {'function': 'tabOpened', 'nodeId': tabData.nodeId,
@@ -191,11 +193,13 @@ function moveToWindow(msg, sender) {
     const index = msg.index;
     const nodeId = msg.nodeId;
     if (windowId)
-        chrome.tabs.move(tabId, {'windowId': windowId, 'index': index}, tab =>
-                         chrome.tabs.sendMessage(
-                             BTTab,
-                             {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
-                              'windowId': windowId}));
+        chrome.tabs.move(tabId, {'windowId': windowId, 'index': index},
+                         tab => {
+                             chrome.tabs.sendMessage(
+                                 BTTab,
+                                 {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
+                                  'windowId': windowId})
+                         });
     else
         chrome.windows.create({'tabId': tabId, 'left': 500}, win =>
                               chrome.tabs.sendMessage(
@@ -227,7 +231,9 @@ function ungroupAll(msg, sender) {
 
 function groupAll(msg, sender) {
     // user changed to tag:TabGrouping so group
-    chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds});
+    chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds},
+                      tg => chrome.tabs.sendMessage(
+                          BTTab, {'function': 'tabsGrouped', 'tgId': tg, 'tabIds': msg.tabIds}));
 }
 
 function windowAll(msg, sender) {
@@ -237,6 +243,8 @@ function windowAll(msg, sender) {
     chrome.windows.create({tabId: msg.tabIds[0]}, win => {
         if (msg.tabIds.length > 1)
             chrome.tabs.move(msg.tabIds.slice(1), {"windowId": win.id, "index": 1});
+        chrome.tabs.sendMessage(BTTab, {'function': 'tabsWindowed', 'windowId': win.id,
+                                        'tabIds': msg.tabIds});
     });
 }
 
@@ -261,44 +269,6 @@ function closeTab(msg, sender) {
     chrome.tabs.remove(tabId, ()=>void chrome.runtime.lastError); // ignore error
 }
 
-/*
-// TODO remove
-function moveTabToTag(tabId, tabNode, tagNode) {
-    // Find BTNode associated w tag, move tab to its window if exists, else create it
-
-    if (tagNode.windowId) {
-        // window exists => move tab. New tabs go on the left (and top in the tree)
-        chrome.tabs.move(tabId, {'windowId': tagNode.windowId, 'index': 0},
-                         function(deets) {
-                             if (TabAction == 'pop') {
-                                 // If default pop action, pop BT tab and then new tab to top
-                                 chrome.windows.update(BTWin, {'focused': true});
-                                 chrome.tabs.highlight(
-                                     {'windowId': tagNode.windowId, 'tabs': deets.index}
-                                 );
-                                 chrome.windows.update(tagNode.windowId, {'focused': true});
-                             }
-                         });
-    } else {
-        // need to create new window
-        const args = {'tabId': tabId, 'left': 500}; 
-        if (TabAction != 'pop') args.focused = false;
-        chrome.windows.create(args, window => {
-            tagNode.windowId = window.id;
-            OpenNodes[tagNode.title] = window.id;      // remember this node is open
-        });
-    }
-    tabNode.tabId = tabId;
-    OpenLinks[tabNode.title] = tabId;                  // remember this link is open
-    
-    // Send back message that the link and tag nodes are opened in browser
-    chrome.tabs.sendMessage(
-        BTTab,
-        {'type': 'tab_opened', 'BTNodeId': tabNode.id});
-    console.count('tab_opened');
-}
-*/
-
 function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
     // Since we're restarting close windows and clear out the cache of opened nodes
@@ -312,16 +282,6 @@ function initializeExtension(msg, sender) {
     chrome.tabs.sendMessage(                        // send over gdrive app info
         BTTab,
         {'function': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
-
-    // TODO not needed?
-    const tabIds = Object.values(OpenLinks);       // OpenLinks maps open link urls to tabIds
-    if (tabIds.length) {
-        alert("Closing BrainTool controlled windows!");
-        console.log("Restarting Extension");
-        chrome.tabs.remove(tabIds);
-    }    
-    OpenLinks = new Object();
-    OpenNodes = new Object();
 }
 
 
@@ -361,7 +321,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             BTTab, {'function': 'tabUpdated', 'tabId': tabId,
                     'tabURL': tab.url, 'windowId': tab.windowId});
 });
-/*
+
+/*  TODO KEEP UNTIL TAB LOCK figureed out
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Two cases
     // - BT tabs navigating away

@@ -461,7 +461,6 @@ function tabOpened(data, highlight = false) {
     $("tr[data-tt-id='"+parentId+"']").addClass("opened");
     propogateOpened(parentId);
     initializeUI();
-    /* TODO Why? node.showNode(); */
     
     if (highlight)
         row.addClass("hovered",
@@ -598,7 +597,30 @@ function tabUpdated(data) {
         /* TODO why? urlNode.showNode(); */
     }
 }
-    
+
+function tabsWindowed(data) {
+    // due to grouping change tabids are now in windowId
+    const windowId = data.windowId;
+    const tabIds = data.tabIds;
+    tabIds.forEach(tid => {
+        const node = BTAppNode.findFromTab(tid);
+        if (node) node.windowId = windowId;
+        if (node && node.parentId)
+            AllNodes[node.parentId].windowId = windowId;
+    });
+}
+
+function tabsGrouped(data) {
+    // due to grouping change tabids are now in groupId
+    const tgId = data.tgId;
+    const tabIds = data.tabIds;
+    tabIds.forEach(tid => {
+        const node = BTAppNode.findFromTab(tid);
+        if (node) node.tabGroupId = tgId;
+        if (node && node.parentId)
+            AllNodes[node.parentId].tabGroupId = tgId;
+    });
+}
 
 
 /*** 

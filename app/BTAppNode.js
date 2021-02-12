@@ -539,6 +539,8 @@ const Handlers = {
     "tabOpened" : tabOpened,
     "tabClosed" : tabClosed,
     "tabUpdated": tabUpdated,
+    "tabsWindowed": tabsWindowed,
+    "tabsGrouped": tabsGrouped,
     "storeTab": storeTab,
     "keys": processKeys
 };
