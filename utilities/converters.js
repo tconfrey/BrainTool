@@ -18,15 +18,17 @@ function tabsToBT(tabsStr) {
     const lastIndex = tabsJson.length - 1;
     let node, title, BTText = "";
     tabsJson.forEach((elt, ind) => {
-        if (!ind || ind == lastIndex) return;
+        if (!ind || ind == lastIndex) return;   // ignore first and last elements, TO seems to use them for some special purpose 
         const info = elt[1];
         const nesting = elt[2];
+        // Handle window/container type elements
         if (info.type && (info.type == 'win' || info.type == 'savedwin')) {
             node = '*'.repeat(nesting.length);
             title = (info.marks && info.marks.customTitle) ? info.marks.customTitle : 'Window';
             node += ` ${title}\n`;
             BTText += node;
         }
+        // Handle tab/link type elements
         if (info.data && info.data.url) {
             node = '*'.repeat(nesting.length);
             title = (info.marks && info.marks.customTitle) ? info.marks.customTitle : info.data.title;
