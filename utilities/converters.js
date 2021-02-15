@@ -8,7 +8,7 @@
 // 1) Paste the code below as a Code Snippet in Chrome Dev Tools
 // 2) Copy the Tabs Outliner exported file contents between the `backticks` in the TabsOutlinerExport variable
 // 3) Run the snippet
-// 4) Copy the output into your BrainTool.org file and save it
+// 4) Copy the output into your BrainTool.org file and save it (either replacing everything or appending the new nodes)
 // 5) Refresh, or rerun, BrainTool
 
 const TabsOutlinerExport = ``;
