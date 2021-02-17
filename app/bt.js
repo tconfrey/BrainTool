@@ -552,6 +552,11 @@ function storeTab(data) {
         newNode.closeTab();
     else {
         // Move tab to group or win
+        if (GroupingMode == GroupOptions.NONE) {
+            data.nodeId = newNode.id;
+            tabOpened(data);
+            return;
+        }
         newNode.group();
     }        
 }
@@ -598,6 +603,22 @@ function tabUpdated(data) {
         /* TODO why? urlNode.showNode(); */
     }
 }
+
+function tabActivated(data) {
+    // user switched to a new tab or win, fill in storage for popup's use
+
+    const tabId = data['tabId'];
+    const node = BTAppNode.findFromTab(tabId);
+    let message = {};
+    if (node) 
+        message = {'type': 'tab_data_updated', 'currentTag': node.tagPath, 'currentTabId': node.tabId, 'currentText': node.text};
+    else
+        message = {'type': 'tab_data_updated', 'currentTag': '..', 'currentTabId': 0, 'currentText': '...'};
+    console.log('activated:', tabId, message);
+    window.postMessage(message);
+    // TODO highlight this node in tree
+}
+
 
 function tabsWindowed(data) {
     // due to grouping change tabids are now in windowId

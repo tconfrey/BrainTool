@@ -10,6 +10,7 @@ window.addEventListener('message', function(event) {
         return;
     console.log(`Content-IN ${event.data.function} from bt.js:`, event);
     switch (event.data.type) {
+        //TODO collapse these into a single update_localstoreage message
     case 'tags_updated':
         // pull tags info from message and post to local storage. Popup reads from there.
         chrome.storage.local.set({'tags': event.data.text});
@@ -18,6 +19,8 @@ window.addEventListener('message', function(event) {
         // default grouping mode changed, save to storage
         chrome.storage.local.set({'GroupingMode': event.data.mode});
         break;
+    case 'tab_data_updated':
+        chrome.storage.local.set(event.data);
     default:
         // handle all other default type messages
         event.data["from"] = "btwindow";

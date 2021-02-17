@@ -213,6 +213,9 @@ class BTAppNode extends BTNode {
                  'tabId' : tabId, 'tabGroupId': tabGroupId, 'windowId' : windowId,
                  'position' : index, 'nodeId' : this.id});
         }
+        if (GroupingMode == GroupOptions.NONE) {
+            // no grouping implemented for this case, 
+        }
     }
         
 
@@ -525,6 +528,11 @@ class BTLinkNode extends BTAppNode {
             return super.HTML();
         return "";
     }
+
+    isTag() {
+        // Link nodes are never tags
+        return false;
+    }
     
     get displayTag() {
         // No display tag for linknodes cos they should never be a tag
@@ -539,6 +547,7 @@ const Handlers = {
     "tabOpened" : tabOpened,
     "tabClosed" : tabClosed,
     "tabUpdated": tabUpdated,
+    "tabActivated": tabActivated,
     "tabsWindowed": tabsWindowed,
     "tabsGrouped": tabsGrouped,
     "storeTab": storeTab,
@@ -556,3 +565,4 @@ window.addEventListener('message', event => {
         Handlers[event.data.function](event.data);
     }
 });
+    

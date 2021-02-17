@@ -306,7 +306,8 @@ function compareURLs(first, second) {
 
 chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     // listen for tabs being closed, if its a managed tab let BT know
-    
+
+    if (!tabId) return;         // 
     chrome.tabs.sendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
     if (tabId == BTTab) BTTab = null;
 });
@@ -315,7 +316,6 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
 
-    console.log(`tabs.onUpdated:[id:${tabId}, url:${tab.url}, changeinfo:${JSON.stringify(changeInfo)}]`);
     if (changeInfo.status == 'complete')
         chrome.tabs.sendMessage(
             BTTab, {'function': 'tabUpdated', 'tabId': tabId,
@@ -386,18 +386,26 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 */
 
 chrome.tabs.onActivated.addListener((info) => {
-    // Update badge and hover text if a BT window has opened or surfaced 
+    // Let app know there's a new top tab, TODO fix update badge
+    chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated',
+                                    'tabId': info.tabId});
     setTimeout(function() {setBadgeTab(info.windowId, info.tabId);}, 150);
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
-    // Update badge
+    // Let app know there's a new top tab, TODO fix update badge
+    chrome.tabs.query({'active': true, 'windowId': windowId}, tabs => {
+        if (!tabs.length) return;
+        chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated',
+                                        'tabId': tabs[0].id});
+    });                      
     setTimeout(function() {setBadgeWin(windowId);}, 50);
 });
 
 
 function setBadgeTab(windowId, tabId) {
     // Badge text should reflect BT tag, color indicates if this tab is in BT, hover text has more info
+    return;
     const node = BTChromeNode.findFromWin(windowId);
 
     if (!node) {
@@ -432,6 +440,7 @@ function setBadgeTab(windowId, tabId) {
 
 function setBadgeWin(windowId) {
     // Badge hover text shows for active window
+    return;
     const node = BTChromeNode.findFromWin(windowId);
     
     if (!node) {

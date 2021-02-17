@@ -60,46 +60,53 @@ function popupOpen(tab) {
     const tagDiv = document.getElementById('tag');
     const newTag = document.getElementById('newtag');
     const tagsArea = document.getElementById('currentTags');
+    const heading = document.getElementById('heading');
+    const tabAction = document.getElementById('tabAction');
     messageDiv.style.display = 'none';
     tagDiv.style.display = 'block';
-    if (BackgroundPage.ManagedTabs && BackgroundPage.ManagedTabs.includes(CurrentTab.id)) {
-        ReadOnly = true;
-    }
-    
+
     chrome.storage.local.get('tags', function(data) {
         // array of [{name: , level:}]
         const tagsArray = data.tags;
         const tags = tagsArray.map(tag => tag.name);
         tagsArea.innerHTML = generateTagsDisplay(tagsArray);
-        newTag.value = "";
+        //newTag.value = "";
         AwesomeWidget = new Awesomplete(newTag, {
 	        list: tags, autoFirst: true
         });
     });
     
     // set radio button to saved value if set, otherwise default based on grouping mode
-    chrome.storage.local.get({'TabAction': 'unset'}, function(action) {
-        TabAction = action['TabAction'];
-        if (TabAction != 'unset')            
-            document.getElementById(TabAction).checked = true;
-        else 
-            chrome.storage.local.get({'GroupingMode': 'TABGROUP'}, function(mode) {
-                if (mode['GroupingMode'] == 'NONE')
+    chrome.storage.local.get({'GroupingMode': 'TABGROUP'}, function(mode) {       
+        chrome.storage.local.get({'TabAction': 'unset'}, function(action) {
+            TabAction = action['TabAction'];
+            let groupingMode = mode['GroupingMode'];
+            if (TabAction != 'unset') {
+                if (groupingMode == 'NONE' && TabAction == 'GROUP')
+                    // Don't allow Group w groupingMode == NONE, default to Stick
+                    TabAction = 'STICK';
+            } else {
+                if (groupingMode == 'NONE')
                     TabAction = 'STICK';
                 else
                     TabAction = 'GROUP';
-                document.getElementById(TabAction).checked = true;
-            });
+            }
+            document.getElementById(TabAction).checked = true;
+        });
     });
     
     // Pull currentTag from local storage and prepopulate widget
-    chrome.storage.local.get('currentTag', function(data) {
-        newTag.value = data.currentTag;
-        Defaulted = true;
-        if (ReadOnly) {
-            Note.value = "This tab is already under BT control";
+    chrome.storage.local.get(['currentTabId', 'currentTag', 'currentText'], function(data) {
+        if (data.currentTabId && data.currentTabId == tab.id) {
+            newTag.value = data.currentTag;
+            Defaulted = true;
+            ReadOnly = true;
+            Note.value = data.currentText;
             Note.disabled = true;
             newTag.disabled = true;
+            tagsArea.disabled = true;
+            tabAction.style.display = 'none';
+            heading.innerText = "Tag Info:";
         }
     });
 }
@@ -136,6 +143,7 @@ function generateTagsDisplay(tagsArray) {
 
 // NB don't know why but doesn't work w event directly on Note
 document.onclick = function(e) {
+    if (ReadOnly) return;
     if (e.target == Note)
         newTagEntered();
     if (e.target.tagName == 'SPAN') {

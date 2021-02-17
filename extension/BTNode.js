@@ -214,9 +214,16 @@ class BTNode {
 
     generateUniqueTagPath() {
         // same tag can be under multiple parents, generate a unique tagPath
-        
-        if (this.displayTag == "" || (!this.isTag())) {
-            // eg linkNode or non tag
+
+        if (!this.isTag()) {
+            if (this.parentId && AllNodes[this.parentId])
+                this._tagPath = AllNodes[this.parentId].tagPath;
+            else
+                this._tagPath = this._displayTag;
+            return;
+        }
+                
+        if (this.displayTag == "") {
             this._tagPath = this._displayTag;
             return;
         }
