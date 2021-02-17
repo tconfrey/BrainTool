@@ -15,6 +15,7 @@ dialog {
     border-radius: 6px;
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     width: 80%;
+    margin-top: 0px;
     position: fixed;
 }
 

@@ -556,11 +556,11 @@ function storeTab(data) {
     }        
 }
 
-function addNewTag(tag, parentTag = null) {
-    // New tag - create node and add to tree
+function addNewTag(tag, parentTag = null, parentNode = null) {
+    // New tag - create node and add to tree, parentNode might be known (if local creation)
 
     // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
-    let parentTagNode = parentTag ? BTNode.findFromTagPath(parentTag) : null;
+    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
     if (parentTag && !parentTagNode) {
         parentTagNode = new BTAppNode(parentTag, null, "", 1);
         $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
@@ -649,7 +649,8 @@ function buttonShow() {
         $("#collapse").show();
     }
     else {
-        $("#expand").show();
+        if ($(this).find('a').length)
+            $("#expand").show();
         $("#collapse").hide();
     }
     // show expand/collapse if some kids of branch are not open/closed
@@ -662,7 +663,12 @@ function buttonShow() {
         if (openKids)
             $("#collapse").show();
     }
-    $("#buttonRow").show();
+    // allow adding children on branches or unpopulated branches (ie no links)
+    if ($(this).hasClass("branch") || !$(this).find('a').length)
+        $("#addChild").show();
+    else
+        $("#addChild").hide();
+    $("#buttonRow").show();        
 }
 
 function buttonHide() {
@@ -862,7 +868,6 @@ function toDo() {
 function promote() {
     // move node up a level in tree hierarchy
     
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
     const node = selectedNode();
     if (!node || !node.parentId) return;                  // can't promote
     
@@ -879,6 +884,25 @@ function promote() {
     writeBTFile();
     BTAppNode.generateTags();
     window.postMessage({ type: 'tags_updated', text: Tags });
+}
+
+function addChild() {
+    // add new child to this node
+
+    // create child element
+    const node = selectedNode();
+    const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
+    const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
+    const newNode = addNewTag(newName, node.tagPath, node);
+    initializeUI();
+
+    // and highlight it for editing
+    const tr = $(`tr[data-tt-id='${newNode.id}`);
+    const clientY = tr[0].getBoundingClientRect().top + 25;
+    const dummyEvent = {'clientY': clientY, 'target': tr[0]};
+    editRow(dummyEvent);
+    
+    writeBTFile();
 }
 
 function generateOrgFile() {
