@@ -1039,8 +1039,17 @@ function getDateString() {
 }
 
 function exportBookmarks() {
-    // background handles the whole job
-    window.postMessage({'function': 'exportBookmarks'});
+    // generate minimal AllNodes for background to operate on
+    const nodeList = AllNodes.map(n => {
+        if (!n) return null;
+        return {'displayTag': n.displayTag, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
+    });
+    window.postMessage({'function': 'localStore',
+                        'data': {'AllNodes': nodeList,
+                                 title: 'BrainTool Export ' + getDateString()}});
+
+    // wait briefly to allow local storage too be written before background tries to access
+    setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);
 }
 
 

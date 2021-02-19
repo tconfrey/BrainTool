@@ -480,27 +480,28 @@ function getDateString() {
 
 function exportBookmarks() {
     // Top level bookmark exporter
-    
-    chrome.bookmarks.create({title: 'BrainTool Export ' + getDateString()}, bmNode => {
-        // Iterate thru top level nodes exporting them
-        AllNodes.forEach(n => {
-            if (n && !n.parentId)
-                exportNodeAsBookmark(n, bmNode.id);
+    let AllNodes;
+
+    function exportNodeAsBookmark(btNode, parentBookmarkId) {
+        // export this node and recurse thru its children
+        chrome.bookmarks.create(
+            {title: btNode.displayTag, url: btNode.URL, parentId: parentBookmarkId},
+            (bmNode) => {
+                btNode.childIds.forEach(i => {exportNodeAsBookmark(AllNodes[i], bmNode.id); });
+            });
+    }
+
+    chrome.storage.local.get(['title', 'AllNodes'], data => {
+        AllNodes = data.AllNodes;
+        chrome.bookmarks.create({title: data.title}, bmNode => {
+            // Iterate thru top level nodes exporting them
+            AllNodes.forEach(n => {
+                if (n && !n.parentId)
+                    exportNodeAsBookmark(n, bmNode.id);
+            });
+            chrome.windows.create({'url': 'chrome://bookmarks/?id='+bmNode.id});
         });
-        chrome.windows.create({'url': 'chrome://bookmarks/?id='+bmNode.id});
     });
-}
-
-function exportNodeAsBookmark(btNode, parentBookmarkId) {
-    // export this node and recurse thru its children
-
-    chrome.bookmarks.create({title: btNode.displayTag, url: btNode.URL,
-                             parentId: parentBookmarkId},
-                            function(bmNode) {
-                                btNode.childIds.forEach(i => {
-                                    exportNodeAsBookmark(AllNodes[i], bmNode.id);
-                                });
-                            });
 }
 
 
