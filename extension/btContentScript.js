@@ -5,23 +5,14 @@
 
 // Listen for messages from the App
 window.addEventListener('message', function(event) {
-    // Handle message from Window
+    // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
         return;
     console.log(`Content-IN ${event.data.function} from bt.js:`, event);
-    switch (event.data.type) {
-        //TODO collapse these into a single update_localstoreage message
-    case 'tags_updated':
-        // pull tags info from message and post to local storage. Popup reads from there.
-        chrome.storage.local.set({'tags': event.data.text});
-        break;
-    case 'grouping_mode_updated':
-        // default grouping mode changed, save to storage
-        chrome.storage.local.set({'GroupingMode': event.data.mode});
-        break;
-    case 'tab_data_updated':
-        chrome.storage.local.set(event.data);
-    default:
+    if (event.data.function == 'localStore')
+        // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
+        chrome.storage.local.set(event.data.data);
+    else {
         // handle all other default type messages
         event.data["from"] = "btwindow";
         chrome.runtime.sendMessage(event.data);

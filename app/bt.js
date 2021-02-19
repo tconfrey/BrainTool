@@ -17,7 +17,6 @@ const tipsArray = [
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
-    "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page.",
     "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs",
     "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
@@ -47,7 +46,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         $("#authDiv").addClass("notImportant");
         if (FirstUse) {
             $("#intro_text").slideUp(750);
-            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000)
+            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
             $("#intro_text").hide();
@@ -166,7 +165,7 @@ function processBTFile(fileText) {
     BTAppNode.generateTags();
 
     // Let extension know about model
-    window.postMessage({ type: 'tags_updated', text: Tags});
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
     console.count('BT-OUT:tags_updated');
     
     // initialize ui from any pre-refresh opened state
@@ -331,8 +330,8 @@ function dropNode(event, ui) {
         }
         
         writeBTFile();
-        BTAppNode.generateTags();
-        window.postMessage({ type: 'tags_updated', text: Tags });
+        BTAppNode.generateTags();        
+        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
         
         // update tree row if oldParent is now childless
         if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
@@ -462,6 +461,7 @@ function tabOpened(data, highlight = false) {
     $("tr[data-tt-id='"+parentId+"']").addClass("opened");
     propogateOpened(parentId);
     initializeUI();
+    tabActivated(data);                             // also perform activation stuff
     
     if (highlight)
         row.addClass("hovered",
@@ -504,6 +504,7 @@ function tabClosed(data) {
     node.tabId = 0;
     node.tabGroupId = 0;
     node.windowId = 0;
+    tabActivated(data);
 
     // update ui and animate parent to indicate change
     $("tr[data-tt-id='"+node.id+"']").removeClass("opened", 1000);
@@ -576,7 +577,7 @@ function addNewTag(tag, parentTag = null, parentNode = null) {
     const parentTagId = parentTagNode ? parentTagNode.id : null;
     const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
     BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags });
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 
     // 3) Update tree
     const n = $("table.treetable").treetable("node", parentTagId);
@@ -611,17 +612,16 @@ function tabActivated(data) {
     const node = BTAppNode.findFromTab(tabId);
     let message = {};
     if (node) 
-        message = {'type': 'tab_data_updated', 'currentTag': node.tagPath, 'currentTabId': node.tabId, 'currentText': node.text};
+        message = {'currentTag': node.tagPath, 'currentTabId': node.tabId, 'currentText': node.text};
     else
-        message = {'type': 'tab_data_updated', 'currentTag': '..', 'currentTabId': 0, 'currentText': '...'};
-    console.log('activated:', tabId, message);
-    window.postMessage(message);
+        message = {'currentTag': '', 'currentTabId': tabId, 'currentText': ''};
+    window.postMessage({'function': 'localStore', 'data': message});
     // TODO highlight this node in tree
 }
 
 
 function tabsWindowed(data) {
-    // due to grouping change tabids are now in windowId
+    // due to grouping change tabids are now in a window w windowId
     const windowId = data.windowId;
     const tabIds = data.tabIds;
     tabIds.forEach(tid => {
@@ -633,7 +633,7 @@ function tabsWindowed(data) {
 }
 
 function tabsGrouped(data) {
-    // due to grouping change tabids are now in groupId
+    // due to grouping change tabids are now in a group w groupId
     const tgId = data.tgId;
     const tabIds = data.tabIds;
     tabIds.forEach(tid => {
@@ -773,11 +773,16 @@ function openRow() {
     if (!appNode) return;
 
     // Warn if opening lots of stuff
-    const numWins = appNode.countOpenableWindows();
     const numTabs = appNode.countOpenableTabs();
-    if ((numWins > 2) || (numTabs > 10))
-        if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
-            return;
+    if (GroupingMode == GroupOptions.WINDOW) {
+        const numWins = appNode.countOpenableWindows();
+        if ((numWins > 2) || (numTabs > 10))
+            if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
+                return;
+    } else
+        if (numTabs > 10)
+            if (!confirm(`Open ${numTabs} tabs?`))
+                return;
 
     appNode.openAll();
     $("tr.selected").removeClass('selected');
@@ -812,10 +817,16 @@ function deleteRow() {
 
 function deleteNode(id) {
     //delete node and clean up
-    id = parseInt(id);           // could be string value
+    id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
-    BTNode.deleteNode(id);       // delete from model. NB handles recusion to children
+    const wasTag = node.isTag();
+    
+    // Highlight this node if it's open.
+    // (good user experience and side effect is to update the tabs badge info
+    if (node.tabId)
+        node.showNode();         
+    BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
     
     // Update parent display
     const parent = AllNodes[node.parentId];
@@ -830,14 +841,11 @@ function deleteNode(id) {
         }
     }
     
-    // message to update BT background model
-    window.postMessage({ type: 'node_deleted', nodeId: id });
-    console.count('BT-OUT:node_deleted');
-
-    // Remove from Tags and update extension
-    BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags});
-    console.count('BT-OUT:tags_updated');
+    // if wasTag remove from Tags and update extension
+    if (wasTag) {
+        BTAppNode.generateTags();
+        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    }
     
     // Update File 
     writeBTFile();
@@ -862,8 +870,8 @@ function updateRow() {
     writeBTFile();
 
     // Update extension
-    BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags});
+    BTAppNode.generateTags();    
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
     console.count('BT-OUT:tags_updated');
 
     // reset ui
@@ -904,7 +912,7 @@ function promote() {
     // save to file, update Tags etc
     writeBTFile();
     BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags });
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
 
 function addChild() {
@@ -958,7 +966,7 @@ function generateOrgFile() {
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
     $('body').addClass('waiting');
-    window.postMessage({'to' : 'btextension', type: 'get_bookmarks'});
+    window.postMessage({'function': 'getBookmarks'});
     toggleOptions(1500);
 }
 
@@ -1032,7 +1040,7 @@ function getDateString() {
 
 function exportBookmarks() {
     // background handles the whole job
-    window.postMessage({'to' : 'btextension', 'function': 'exportBookmarks'});
+    window.postMessage({'function': 'exportBookmarks'});
 }
 
 
@@ -1044,7 +1052,7 @@ function updatePrefs() {
     if (groupMode) {
         $radio.filter(`[value=${groupMode}]`).prop('checked', true);
         GroupingMode = groupMode;
-        window.postMessage({ type: 'grouping_mode_updated', mode: GroupingMode});
+        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
 	}		       
 }
 
@@ -1056,7 +1064,7 @@ $(document).ready(function () {
         GroupingMode = GroupOptions[newVal];
         setMetaProp('BTGroupingMode', GroupingMode);
         // Let extension know
-        window.postMessage({ type: 'grouping_mode_updated', mode: GroupingMode});
+        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
         console.log(`Changed grouping options from ${oldVal} to ${newVal}`);
         groupingUpdate(oldVal, newVal);
     });

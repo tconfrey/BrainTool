@@ -97,7 +97,7 @@ function popupOpen(tab) {
     
     // Pull currentTag from local storage and prepopulate widget
     chrome.storage.local.get(['currentTabId', 'currentTag', 'currentText'], function(data) {
-        if (data.currentTabId && data.currentTabId == tab.id) {
+        if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
             newTag.value = data.currentTag;
             Defaulted = true;
             ReadOnly = true;
@@ -223,7 +223,7 @@ function tabAdded() {
     // where tag may be new, new under parent, or existing but under parent to disambiguate
     const newTag = document.getElementById('newtag').value;          
     if (newTag == "") return;
-    const noteText = Note.value;
+    const noteText = Note.value.replace(/\s+$/g, '');     // remove trailing newlines if any
     const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
     const message = {'function': 'storeTab', 'tag': newTag, 'note': noteText,
                      'url': CurrentTab.url, 'title': CurrentTab.title,
@@ -231,6 +231,7 @@ function tabAdded() {
                      'tabAction': TabAction};
     // Send msg to BT app for processing w text and tag info
     chrome.tabs.sendMessage(BTTabId, message);
+    chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
     window.close();
 }
 

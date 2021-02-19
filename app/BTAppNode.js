@@ -35,6 +35,7 @@ class BTAppNode extends BTNode {
     }
     set tabId(id) {
         this._tabId = id;
+        this._opening = false;
     }
     get tabId() {
         return this._tabId;
@@ -162,13 +163,14 @@ class BTAppNode extends BTNode {
 
     openTab() {
         // open this nodes url
-        if (!this.URL) return;
+        if (!this.URL || this._opening) return;
 
         // if already open, tell bg to show it
         if (this.tabId) {
             this.showNode();
             return;
         }
+        this._opening = true;   // avoid opening twice w double clicks. unset in tabid setter
 
         // if we don't care about windowing send openTab msg
         if (GroupingMode == GroupOptions.NONE) {
@@ -443,7 +445,6 @@ class BTAppNode extends BTNode {
         // message to update BT background model
         window.postMessage(
             { type: 'node_reparented', nodeId: this.id, parentId: newP, index: index });
-        console.count('BT-OUT:node_deleted');
     }
     
     indexInParent() {
@@ -544,12 +545,12 @@ class BTLinkNode extends BTAppNode {
 /* Centralized Mappings from MessageType to handler. Array of handler functions */
 const Handlers = {
     "loadBookmarks": loadBookmarks,
-    "tabOpened" : tabOpened,
-    "tabClosed" : tabClosed,
-    "tabUpdated": tabUpdated,
     "tabActivated": tabActivated,
     "tabsWindowed": tabsWindowed,
     "tabsGrouped": tabsGrouped,
+    "tabUpdated": tabUpdated,
+    "tabOpened" : tabOpened,
+    "tabClosed" : tabClosed,
     "storeTab": storeTab,
     "keys": processKeys
 };
