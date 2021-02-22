@@ -129,6 +129,16 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
 });
 
 
+// listen for connect and immediate disconnect => open BT panel
+chrome.runtime.onConnect.addListener((port) => {
+    const connectTime = Date.now();
+    port.onDisconnect.addListener(() => {
+        const disconnectTime = Date.now();
+        if ((disconnectTime - connectTime) < 500)
+            chrome.windows.update(BTWin, {'focused': true});
+    });
+});
+
 
 
 /***

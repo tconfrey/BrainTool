@@ -21,7 +21,8 @@ const tipsArray = [
     "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
-    "Check out the new Bookmark import/export functions under Options!"
+    "Check out the new Bookmark import/export functions under Options!",
+    "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
 var FirstUse = true;

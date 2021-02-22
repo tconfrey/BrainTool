@@ -16,6 +16,7 @@ var ReadOnly = false;                   // capture whether tab is already stored
 var TabAction;                          // current GROUP|CLOSE|STICK action
 
 popupAction();
+chrome.runtime.connect();       // tell background popup is open
 
 function popupAction () {
     // Activate popup -> populate form is app is open, otherwise open app
