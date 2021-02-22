@@ -17,7 +17,7 @@ var LocalTest = false;          // control code path during unit testing
 function check() {
     // check for error
     if (chrome.runtime.lastError) {
-        console.warn("!!!!!!!!!!!!!!Whoops.. " + chrome.runtime.lastError.message);
+        console.warn("!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
     }
 }
 
@@ -428,17 +428,17 @@ function setBadge(tabId) {
 
     function marquee(badgeText, index) {
         if (badgeText.length < 6 || index >= badgeText.length - 2) {
-            chrome.browserAction.setBadgeText({'text' : badgeText, 'tabId': tabId});
+            chrome.browserAction.setBadgeText({'text' : badgeText, 'tabId': tabId}, () => check());
         } else {            
             chrome.browserAction.setBadgeText({'text' : badgeText.slice(index) + "   ",
-                                               'tabId': tabId});
+                                               'tabId': tabId}, () => check());
             marqueeEvent = setTimeout(function() {marquee(badgeText, ++index)}, 150);
         }
     }
     if (marqueeEvent) clearTimeout(marqueeEvent);
     chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
         if (!data.currentTag) {
-            chrome.browserAction.setBadgeText({'tabId': tabId, 'text' : ""});
+            chrome.browserAction.setBadgeText({'tabId': tabId, 'text' : ""}, () => check());
             chrome.browserAction.setTitle({'title' : 'BrainTool'});
         } else {
             marquee(data.currentTag, 0);
