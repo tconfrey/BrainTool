@@ -409,7 +409,7 @@ class BTAppNode extends BTNode {
         // used to warn of opening too many tabs
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableTabs());
 
-        const me = (this.URL && !this.isOpen) ? 1 : 0;
+        const me = (this.URL && !this.tabId) ? 1 : 0;
 
         let n = 0;
         if (childCounts.length)

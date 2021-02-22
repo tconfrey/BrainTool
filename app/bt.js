@@ -148,7 +148,6 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    console.log('Processing BT file');
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
@@ -167,7 +166,6 @@ function processBTFile(fileText) {
 
     // Let extension know about model
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
-    console.count('BT-OUT:tags_updated');
     
     // initialize ui from any pre-refresh opened state
     OpenedNodes.forEach(function(nodeTitle) {
