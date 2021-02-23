@@ -121,4 +121,6 @@ function setMetaProp(prop, val) {
     const index = AllNodes.metaProperties.findIndex(propStr => propStr.match(reg));
     if (index > -1)
         AllNodes.metaProperties[index] = `${prop} ${val}`;
+    else
+        AllNodes.metaProperties.push(`${prop} ${val}`);
 }
