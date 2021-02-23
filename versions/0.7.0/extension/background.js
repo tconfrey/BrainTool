@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
 chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     // listen for tabs being closed, if its a managed tab let BT know
-    if (!tabId) return;         // 
+    if (!tabId || !BTTab) return;         // 
     chrome.tabs.sendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
     if (tabId == BTTab) BTTab = null;
 });
@@ -101,6 +101,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
+    if (!tabId || !BTTab) return;         // 
     if (changeInfo.status == 'complete') {
         chrome.tabs.sendMessage(
             BTTab, {'function': 'tabUpdated', 'tabId': tabId,
@@ -111,6 +112,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.tabs.onActivated.addListener((info) => {
     // Let app know there's a new top tab
+    if (!info.tabId || !BTTab) return;         // 
     chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId});
     setTimeout(function() {setBadge(info.tabId);}, 200);
 });
@@ -119,7 +121,7 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
     // Let app know there's a new top tab
 
     // don't care about special windows like dev tools or the BT win
-    if (windowId <= 0 || windowId == BTWin) return;              
+    if (!BTTab || windowId <= 0 || windowId == BTWin) return;              
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
         if (!tabs.length) return;
