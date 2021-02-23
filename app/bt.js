@@ -6,7 +6,6 @@
  ***/
 
 const authorizeButton = document.getElementById('authorize_button');
-//const signoutButton = document.getElementById('signout_button');
 
 const tipsArray = [
     "Add ':' at the end of a tag to create a new subtag.",
@@ -17,11 +16,11 @@ const tipsArray = [
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
-    "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs",
+    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
     "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
-    "Check out the new Bookmark import/export functions under Options!",
+    "Check out the Bookmark import/export functions under Options!",
     "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
@@ -42,7 +41,6 @@ function updateSigninStatus(isSignedIn, error=false) {
     }
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
-        //signoutButton.style.display = 'block';
         $("#options_button").show();
         $("#authDiv").addClass("notImportant");
         if (FirstUse) {
