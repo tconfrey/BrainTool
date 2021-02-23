@@ -15,6 +15,7 @@ dialog {
     border-radius: 6px;
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     width: 80%;
+    margin-top: 0px;
     position: fixed;
 }
 
@@ -55,13 +56,13 @@ dialog textarea {
 }
 
 #options {
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    
     border: solid;
     border-color: grey;
     border-width: 3px;
@@ -176,3 +177,42 @@ img.close-icon {
 body.waiting * {
     cursor: progress !important;
 }
+
+
+/* 3-way chooser for window mapping */
+.toggle-radio > input + label {
+    background:#efefef;
+    border:2px solid grey;
+    border-width:2px 0 2px 0;
+}
+.toggle-radio > input:first-of-type + label {
+    border-right-width: 1px;
+    border-left-width: 2px;
+    margin-right: -4px;
+}
+.toggle-radio > input:last-of-type + label {
+    border-left-width:1px;
+    border-right-width:2px;
+    margin-left: -4px
+}
+.toggle-radio > input:checked + label {background: #7bb07b;}
+
+/* Rounded corners */
+.toggle-radio input:first-of-type + label {border-radius:4px 0 0 4px;}
+.toggle-radio input:last-of-type + label {border-radius:0 4px 4px 0;}
+
+/* CORE STYLES */
+.toggle-radio {
+    display:inline-block;
+    vertical-align:middle;
+}
+.toggle-radio > input[type='radio'] {display:none;}
+.toggle-radio > input + label {
+    display:inline-block;
+    margin-bottom:0;
+    padding:1px 10px;
+    cursor:pointer;
+    align-items:center;}
+
+/* Transitions */
+.toggle-radio > input:checked + label {transition:background 300ms linear;}

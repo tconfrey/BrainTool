@@ -6,7 +6,6 @@
  ***/
 
 const authorizeButton = document.getElementById('authorize_button');
-//const signoutButton = document.getElementById('signout_button');
 
 const tipsArray = [
     "Add ':' at the end of a tag to create a new subtag.",
@@ -17,14 +16,18 @@ const tipsArray = [
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
     "BT uses org format for links: [[URL][Link Text]], both can be edited",
-    "Note that clicking a link in a BT managed tab will open in a new tab because the BT tab is clamped to that specific web page.",
-    "'Pop', 'Hide' and 'Close' support different workflows when filing your tabs",
+    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
     "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
-    "Check out the new Bookmark import/export functions under Options!"
+    "See BrainTool.org for the BrainTool blog and other info",
+    "Check out the Bookmark import/export functions under Options!",
+    "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
-var firstUse = true;
+var FirstUse = true;
+const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
+var GroupingMode = GroupOptions.WINDOW;
+
 function updateSigninStatus(isSignedIn, error=false) {
     // CallBack on GDrive signin state change
     if (error) {
@@ -38,12 +41,11 @@ function updateSigninStatus(isSignedIn, error=false) {
     }
     if (isSignedIn) {
         authorizeButton.style.display = 'none';
-        //signoutButton.style.display = 'block';
         $("#options_button").show();
         $("#authDiv").addClass("notImportant");
-        if (firstUse) {
+        if (FirstUse) {
             $("#intro_text").slideUp(750);
-            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000)
+            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
             $("#intro_text").hide();
@@ -75,8 +77,8 @@ function toggleMenu() {
         $("#close").show();
         $("#open").hide();
     } else {
-        if (firstUse)
-            firstUse = false;
+        if (FirstUse)
+            FirstUse = false;
         else
             addTip();               // display tip text on subsequent views
         $("#auth_screen").slideDown(750);
@@ -103,6 +105,7 @@ var ButtonRowHTML;
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
+
 
 function refreshTable() {
     // refresh from file, first clear current state
@@ -131,7 +134,8 @@ function generateTable() {
     // Generate table from BT Nodes
     var outputHTML = "<table>";
     AllNodes.forEach(function(node) {
-        if (!node || !node.hasWebLinks) return;
+//        if (!node || !node.hasWebLinks) return;
+        if (!node) return;
         outputHTML += node.HTML();
     });
     outputHTML += "</table>";
@@ -142,7 +146,6 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    console.log('Processing BT file');
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
@@ -160,19 +163,13 @@ function processBTFile(fileText) {
     BTAppNode.generateTags();
 
     // Let extension know about model
-    window.postMessage({ type: 'tags_updated', text: Tags});
-    console.count('BT-OUT:tags_updated');
-    // only send the core data needed in BTNode, not full AppNode
-    var nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
-    window.postMessage({ type: 'nodes_updated', text: nodes});
-    console.count('BT-OUT:nodes_updated');
-
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
+    
     // initialize ui from any pre-refresh opened state
-    var nodeId;
     OpenedNodes.forEach(function(nodeTitle) {
-        nodeId = BTNode.findFromTitle(nodeTitle);
-        if (!nodeId) return;
-        $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
+        const node = BTNode.findFromTitle(nodeTitle);
+        if (!node) return;
+        $("tr[data-tt-id='"+node.id+"']").addClass("opened");
     });
 
     // set collapsed state as per org data
@@ -182,6 +179,7 @@ function processBTFile(fileText) {
     });
 
     initializeUI();
+    updatePrefs();
     refreshRefresh();
     if (RefreshCB) RefreshCB();                      // may be a callback registered
 }
@@ -217,7 +215,7 @@ function initializeUI() {
     $("table.treetable tr").off("dblclick");              // remove any previous handler
     $("table.treetable tr").on("dblclick", function () {
         const nodeId = this.getAttribute("data-tt-id");
-        window.postMessage({ 'type' : 'show_node', 'nodeId' : nodeId});
+        AllNodes[nodeId].showNode();
     });
         
     // make rows draggable    
@@ -329,8 +327,8 @@ function dropNode(event, ui) {
         }
         
         writeBTFile();
-        BTAppNode.generateTags();
-        window.postMessage({ type: 'tags_updated', text: Tags });
+        BTAppNode.generateTags();        
+        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
         
         // update tree row if oldParent is now childless
         if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
@@ -409,11 +407,7 @@ function nodeCollapse() {
 
 function handleLinkClick(e) {
     var nodeId = $(this).closest("tr").attr('data-tt-id');
-    var url = $(this).attr('href');
-    console.log("click on :" + $(this).text() + ", nodeId: " + nodeId);
-    
-    window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
-    console.count('BT-OUT:link_click');
+    AllNodes[nodeId].openTab();
     e.preventDefault();
 }
 
@@ -421,15 +415,20 @@ function handleLinkClick(e) {
 
 /***
  * 
- * Handle relayed messages from Content script.
- * NB Messages are mostly routed from BTAppNode, only those requiring some 
- *   pre-processing are caught in this listener.
+ * Handle relayed messages from Content script. Notifications that background has done
+ * something on our behalf.
  * 
  ***/
 
 
-window.addEventListener('message', function(event) {
-    // Handle message from Window
+function cleanTitle(text) {
+    // clean page title text of things that can screw up BT. Currently []
+    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
+}
+
+function tabOpened(data, highlight = false) {
+    // handle tab open message
+
     function propogateOpened(parentId) {
         // recursively pass upwards adding opened class if appropriate
         if (!parentId) return;               // terminate recursion
@@ -437,10 +436,53 @@ window.addEventListener('message', function(event) {
             $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         propogateOpened(AllNodes[parentId].parentId);
     };
+    
+    const nodeId = data.nodeId;
+    const node = AllNodes[nodeId];
+    const tabId = data.tabId;
+    const tabGroupId = data.tabGroupId;
+    const tabIndex = data.tabIndex;
+    const windowId = data.windowId;
+    const parentId = AllNodes[nodeId].parentId || nodeId;
+    const indexInParent = node.indexInParent();
+
+    node.tabId = tabId;
+    node.windowId = windowId;
+    AllNodes[parentId].windowId = windowId;
+    if (tabGroupId) {
+        AllNodes[parentId].tabGroupId = tabGroupId;
+        node.tabGroupId = tabGroupId;
+    }
+    let row = $("tr[data-tt-id='"+nodeId+"']");
+    row.addClass("opened");
+    $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+    propogateOpened(parentId);
+    initializeUI();
+    tabActivated(data);                             // also perform activation stuff
+    
+    if (highlight)
+        row.addClass("hovered",
+                     {duration: 1000,
+                      complete: function() {
+                          row.removeClass("hovered", 1000);
+                      }});
+    
+    // Cos of async nature can't guarantee correct position on creation, reorder if we care
+    if (GroupingMode != GroupOptions.WINDOW) return;
+    const expectedIndex = AllNodes[nodeId].indexInParent();
+    if (tabIndex != expectedIndex)
+        AllNodes[parentId].repositionTabs();
+}
+
+function tabClosed(data) {
+    // handle tab closed message
+
     function propogateClosed(parentId) {
-        // note not open and recurse to parent
+        // node not open and recurse to parent
         if (!parentId || AllNodes[parentId].hasOpenDescendants())
             return;                          // terminate recursion
+        AllNodes[parentId].windowId = 0;
+        AllNodes[parentId].tabGroupId = 0;
         let parentElt = $("tr[data-tt-id='"+parentId+"']");
         parentElt.removeClass("opened");
         parentElt.addClass("hovered",
@@ -448,125 +490,156 @@ window.addEventListener('message', function(event) {
                             complete: function() {
                                 parentElt.removeClass("hovered", 1000);
                             }});
-        propogateClosed(AllNodes[parentId].parentId);
+        if (parentElt.hasClass('collapsed'))
+            // propogate up to a node which will be seen
+            propogateClosed(AllNodes[parentId].parentId);
     };
-    let nodeId, parentId;
-    if (event.source != window)
-        return;
-    console.log(`bt.js got ${event.data.type} message:`, event);
-    switch (event.data.type) {
-    case 'tab_opened':
-        nodeId = event.data.BTNodeId;
-        if (!AllNodes[nodeId]) {
-            errorRestoreNodes();
-            break;
-        }
-        parentId = AllNodes[nodeId].parentId;
-        AllNodes[nodeId].isOpen = true;
-        $("tr[data-tt-id='"+nodeId+"']").addClass("opened");
-        $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-        propogateOpened(parentId);
-        initializeUI();
-        break;
-    case 'tab_closed':
-        nodeId = event.data.BTNodeId;
-        if (!AllNodes[nodeId]) {
-            errorRestoreNodes();
-            break;
-        }
-        AllNodes[nodeId].isOpen = false;
-        parentId = AllNodes[nodeId].parentId;
 
-        // update ui and animate parent to indicate change
-        $("tr[data-tt-id='"+nodeId+"']").removeClass("opened", 1000);
-        propogateClosed(parentId);
-        break;
-    }
-});
+    const tabId = data.tabId;
+    const node = BTAppNode.findFromTab(tabId);
+    if (!node) return;
+    node.tabId = 0;
+    node.tabGroupId = 0;
+    node.windowId = 0;
+    tabActivated(data);
 
-function cleanTitle(text) {
-    // clean page title text of things that can screw up BT. Currently []
-    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
-}
-
-function errorRestoreNodes() {
-    // background can't open link, maybe out of sync, so iniatiate a refresh
-    const nodes = JSON.stringify(AllNodes.map(appNode => appNode.toBTNode()));    
-    window.postMessage({ type: 'nodes_updated', text: nodes});
-    console.count('BT-OUT:nodes_updated');
+    // update ui and animate parent to indicate change
+    $("tr[data-tt-id='"+node.id+"']").removeClass("opened", 1000);
+    propogateClosed(node.parentId);
 }
 
 function storeTab(data) {
     // put this tab under storage w given tag
-    
-    // NB tg may be tag, parent:tag, tag:keyword, parent:tag:keyword
+    // NB tagString may be tag, parent:tag, tag:keyword, parent:tag:keyword
     // where tag may be new, new under parent, or existing but under parent to disambiguate
-
-    // process tag and add new if doesn't exist
-    const tg = data.tag;
+    const tagString = data.tag;
     const note = data.note;
     const url = data.url;
     const title = cleanTitle(data.title);
-    
-    let [tag, parent, keyword, tagPath] = BTNode.processTagString(tg);
-    const existingTag = Tags.some(atag => atag.name == tagPath);
-    let parentNode;
-    if (!existingTag)
-    {   // add new node for tag if needed
-        parentNode = addNewTag(tag, parent);
-    } else {
-        let parentNodeId = BTNode.findFromTagPath(tagPath);
-        parentNode = AllNodes[parentNodeId];
-    }
+    const tabId = data.tabId;
+    const windowId = data.windowId;
+
+    // process tag and add new if doesn't exist    
+    const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString);
+    const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
     
     const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
                                   note || "", parentNode.level + 1);
     if (keyword) newNode.keyword = keyword;
+    newNode.tabId = tabId;
 
     const n = $("table.treetable").treetable("node", parentNode.id);     // find parent treetable node
     $("table.treetable").treetable("loadBranch", n, newNode.HTML());     // and insert new row
 
-    function compare(a,b) {
-        if (a<b) return -1;
-        if (b<a) return 1;
-        return 0;
-    }
-    $("table.treetable").treetable("sortBranch", n,
-                                   function(a, b) {
-                                       // sort based on position in parents child array
-                                       const aid = a.id;
-                                       const bid = b.id;
-                                       const pid = AllNodes[aid].parentId;
-                                       const ary = AllNodes[pid].childIds;
-                                       return (compare(ary.indexOf(aid), ary.indexOf(bid)));
-                                   });
+    // sort tree based on position in parents child array
+    const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
+    const childIds = parentNode.childIds;
+    $("table.treetable").treetable(
+        "sortBranch", n, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
+    
     initializeUI();
-    writeBTFile();                                                       // write out updated file
-    if (!existingTag)
-    {   // update if there are new tags
-        BTAppNode.generateTags();
-        window.postMessage({ type: 'tags_updated', text: Tags });
+    writeBTFile();
+
+    // Execute tab action (close, stick, group)
+    if (data.tabAction == 'STICK') {
+        data.nodeId = newNode.id;
+        tabOpened(data);
+        return;
     }
+    if (data.tabAction == 'CLOSE')
+        newNode.closeTab();
+    else {
+        // Move tab to group or win
+        if (GroupingMode == GroupOptions.NONE) {
+            data.nodeId = newNode.id;
+            tabOpened(data);
+            return;
+        }
+        newNode.group();
+    }        
 }
 
-function addNewTag(tag, parent) {
-    // New tag - create node and add to tree
+function addNewTag(tag, parentTag = null, parentNode = null) {
+    // New tag - create node and add to tree, parentNode might be known (if local creation)
 
-    // First handle case where parent is passed in but doesn't yet exist (ie top:bottom)
-    if (parent && !BTNode.findFromTagPath(parent)) {
-        let newParent = new BTAppNode(parent, null, "", 1);
-        $("table.treetable").treetable("loadBranch", null, newParent.HTML());      // insert into tree
+    // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
+    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
+    if (parentTag && !parentTagNode) {
+        parentTagNode = new BTAppNode(parentTag, null, "", 1);
+        $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
     }
-    
-    const parentTagId = parent ? BTNode.findFromTagPath(parent) : null;
-    const parentTagLevel = parentTagId ? AllNodes[parentTagId].level : 0;
-    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
 
-    const n = $("table.treetable").treetable("node", parentTagId);                // find parent treetable node
-    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());      // insert into tree
+    // 2) Create new tag and update extension
+    const parentTagLevel = parentTagNode ? parentTagNode.level : 0;
+    const parentTagId = parentTagNode ? parentTagNode.id : null;
+    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
+    BTAppNode.generateTags();
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+
+    // 3) Update tree
+    const n = $("table.treetable").treetable("node", parentTagId);
+    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
     return newNode;
 }
 
+function tabUpdated(data) {
+    // tab updated event, could be nav away or to a BT node
+
+    const tabId = data.tabId;
+    const tabUrl = data.tabURL;
+
+    const tabNode = BTAppNode.findFromTab(tabId);
+    if (tabNode && !BTNode.compareURLs(tabNode.URL, tabUrl))
+        // existing BT node navigated away
+        tabClosed(data);
+
+    const urlNode = BTAppNode.findFromURL(tabUrl);
+    if (urlNode) {
+        // nav into a bt node
+        data['nodeId'] = urlNode.id;
+        tabOpened(data, true);
+        /* TODO why? urlNode.showNode(); */
+    }
+}
+
+function tabActivated(data) {
+    // user switched to a new tab or win, fill in storage for popup's use
+
+    const tabId = data['tabId'];
+    const node = BTAppNode.findFromTab(tabId);
+    let message = {};
+    if (node) 
+        message = {'currentTag': node.tagPath, 'currentTabId': node.tabId, 'currentText': node.text};
+    else
+        message = {'currentTag': '', 'currentTabId': tabId, 'currentText': ''};
+    window.postMessage({'function': 'localStore', 'data': message});
+    // TODO highlight this node in tree
+}
+
+
+function tabsWindowed(data) {
+    // due to grouping change tabids are now in a window w windowId
+    const windowId = data.windowId;
+    const tabIds = data.tabIds;
+    tabIds.forEach(tid => {
+        const node = BTAppNode.findFromTab(tid);
+        if (node) node.windowId = windowId;
+        if (node && node.parentId)
+            AllNodes[node.parentId].windowId = windowId;
+    });
+}
+
+function tabsGrouped(data) {
+    // due to grouping change tabids are now in a group w groupId
+    const tgId = data.tgId;
+    const tabIds = data.tabIds;
+    tabIds.forEach(tid => {
+        const node = BTAppNode.findFromTab(tid);
+        if (node) node.tabGroupId = tgId;
+        if (node && node.parentId)
+            AllNodes[node.parentId].tabGroupId = tgId;
+    });
+}
 
 
 /*** 
@@ -594,7 +667,8 @@ function buttonShow() {
         $("#collapse").show();
     }
     else {
-        $("#expand").show();
+        if ($(this).find('a').length)
+            $("#expand").show();
         $("#collapse").hide();
     }
     // show expand/collapse if some kids of branch are not open/closed
@@ -607,7 +681,12 @@ function buttonShow() {
         if (openKids)
             $("#collapse").show();
     }
-    $("#buttonRow").show();
+    // allow adding children on branches or unpopulated branches (ie no links)
+    if ($(this).hasClass("branch") || !$(this).find('a').length)
+        $("#addChild").show();
+    else
+        $("#addChild").hide();
+    $("#buttonRow").show();        
 }
 
 function buttonHide() {
@@ -690,81 +769,27 @@ function openRow() {
     const appNode = selectedNode();
     if (!appNode) return;
 
-    const numWins = appNode.countOpenableWindows();
-    const numTabs = appNode.countOpenableTabs();
-
     // Warn if opening lots of stuff
-    if ((numWins > 2) || (numTabs > 10))
-        if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
-            return;
-    
-    const num_kids = appNode.childIds.length;
-    if (num_kids) {
-        // container node, handle as such
-        openEachWindow(appNode);
-    }
-    else {
-        // individual link, open if not already
-        if (!appNode.open) {
-            const url = appNode.URL;
-            window.postMessage({ 'type': 'link_click', 'nodeId': appNode.id, 'url': url });
-            console.count('BT-OUT:link_click');
-        }
-    }
+    const numTabs = appNode.countOpenableTabs();
+    if (GroupingMode == GroupOptions.WINDOW) {
+        const numWins = appNode.countOpenableWindows();
+        if ((numWins > 2) || (numTabs > 10))
+            if (!confirm(`Open ${numWins} windows and ${numTabs} tabs?`))
+                return;
+    } else
+        if (numTabs > 10)
+            if (!confirm(`Open ${numTabs} tabs?`))
+                return;
 
-    // close the dialog
-    $("#dialog")[0].close();
+    appNode.openAll();
     $("tr.selected").removeClass('selected');
-}
-
-function openEachWindow(node) {
-    // Open all links under this node
-    const rowIds = node.childIds.concat(node.id);
-    const tabsToOpen = [];
-    
-    // iterate thru rows and find all links and send msg to extension to open them
-    rowIds.forEach(function(id) {
-        $("tr[data-tt-id='"+id+"']").find("a").each(function() {
-            const url = $(this).attr('href');
-            if (url == "#") return;                             // ignore the '...' hover link
-            if (AllNodes[id] && !AllNodes[id].isOpen)           // only open if not already
-                tabsToOpen.push({'nodeId': id, 'url': url });
-        });
-    });
-    
-    if (tabsToOpen.length) {
-        window.postMessage({ 'type': 'tag_open', 'parent': node.id, 'data': tabsToOpen});
-        console.count('BT-OUT:tag_open');
-    }
-
-    // iterate again and recurse for container nodes to each open their windows
-    if (node.childIds.length)    
-        node.childIds.forEach(function(childId) {
-            const child = AllNodes[childId];
-            if (child.childIds.length)
-                openEachWindow(child);
-        });
 }
 
 function closeRow() {
     // close this node's tab or window
     const appNode = selectedNode();  
     if (!appNode) return;
-
-    function closeNode(appNode){
-        window.postMessage({ 'type': 'close_node', 'nodeId': appNode.id});
-        console.count('BT-OUT:close_node');
-
-        // iterate again and recurse for container nodes to each close their windows
-        if (appNode.childIds.length)   
-            appNode.childIds.forEach(function(childId) {
-                const child = AllNodes[childId];
-                if (child.childIds.length)
-                    closeNode(child);
-        });
-        
-    }
-    closeNode(appNode);
+    appNode.closeTab();
 }
 
 function escapeRegExp(string) {
@@ -789,10 +814,16 @@ function deleteRow() {
 
 function deleteNode(id) {
     //delete node and clean up
-    id = parseInt(id);           // could be string value
+    id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
-    BTNode.deleteNode(id);       // delete from model. NB handles recusion to children
+    const wasTag = node.isTag();
+    
+    // Highlight this node if it's open.
+    // (good user experience and side effect is to update the tabs badge info
+    if (node.tabId)
+        node.showNode();         
+    BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
     
     // Update parent display
     const parent = AllNodes[node.parentId];
@@ -807,14 +838,11 @@ function deleteNode(id) {
         }
     }
     
-    // message to update BT background model
-    window.postMessage({ type: 'node_deleted', nodeId: id });
-    console.count('BT-OUT:node_deleted');
-
-    // Remove from Tags and update extension
-    BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags});
-    console.count('BT-OUT:tags_updated');
+    // if wasTag remove from Tags and update extension
+    if (wasTag) {
+        BTAppNode.generateTags();
+        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    }
     
     // Update File 
     writeBTFile();
@@ -839,8 +867,8 @@ function updateRow() {
     writeBTFile();
 
     // Update extension
-    BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags});
+    BTAppNode.generateTags();    
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
     console.count('BT-OUT:tags_updated');
 
     // reset ui
@@ -866,7 +894,6 @@ function toDo() {
 function promote() {
     // move node up a level in tree hierarchy
     
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
     const node = selectedNode();
     if (!node || !node.parentId) return;                  // can't promote
     
@@ -882,7 +909,26 @@ function promote() {
     // save to file, update Tags etc
     writeBTFile();
     BTAppNode.generateTags();
-    window.postMessage({ type: 'tags_updated', text: Tags });
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+}
+
+function addChild() {
+    // add new child to this node
+
+    // create child element
+    const node = selectedNode();
+    const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
+    const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
+    const newNode = addNewTag(newName, node.tagPath, node);
+    initializeUI();
+
+    // and highlight it for editing
+    const tr = $(`tr[data-tt-id='${newNode.id}`);
+    const clientY = tr[0].getBoundingClientRect().top + 25;
+    const dummyEvent = {'clientY': clientY, 'target': tr[0]};
+    editRow(dummyEvent);
+    
+    writeBTFile();
 }
 
 function generateOrgFile() {
@@ -917,7 +963,7 @@ function generateOrgFile() {
 function importBookmarks() {
     // pull in Chrome bookmarks and insert into All Nodes for subsequent save
     $('body').addClass('waiting');
-    window.postMessage({ type: 'get_bookmarks'});
+    window.postMessage({'function': 'getBookmarks'});
     toggleOptions(1500);
 }
 
@@ -968,9 +1014,9 @@ function loadBookmarkNode(node, parent) {
 
 function animateNewBookmark(name) {
     // Helper for bookmark import, draw attention
-    const nodeId = BTNode.findFromTitle(name);
-    if (!nodeId) return;
-    const element = $(`tr[data-tt-id='${nodeId}']`)[0];
+    const node = BTNode.findFromTitle(name);
+    if (!node) return;
+    const element = $(`tr[data-tt-id='${node.id}']`)[0];
     $('html, body').animate({
         scrollTop: $(element).offset().top
     }, 750);
@@ -990,6 +1036,53 @@ function getDateString() {
 }
 
 function exportBookmarks() {
-    // background handles the whole job
-    window.postMessage({ type: 'export_bookmarks'});
+    // generate minimal AllNodes for background to operate on
+    const nodeList = AllNodes.map(n => {
+        if (!n) return null;
+        return {'displayTag': n.displayTag, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
+    });
+    window.postMessage({'function': 'localStore',
+                        'data': {'AllNodes': nodeList,
+                                 title: 'BrainTool Export ' + getDateString()}});
+
+    // wait briefly to allow local storage too be written before background tries to access
+    setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);
+}
+
+
+function updatePrefs() {
+    // update prefrences based on data read into AllNodes.metaProperties
+
+    const groupMode = getMetaProp('BTGroupingMode');
+    const $radio = $('input:radio[name=grouping]');
+    if (groupMode) {
+        $radio.filter(`[value=${groupMode}]`).prop('checked', true);
+        GroupingMode = groupMode;
+        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
+	}		       
+}
+
+// Register listener for grouping mode change
+$(document).ready(function () {
+    $(':radio').click(function () {
+        const oldVal = GroupingMode;
+        const newVal = $(this).val();
+        GroupingMode = GroupOptions[newVal];
+        setMetaProp('BTGroupingMode', GroupingMode);
+        // Let extension know
+        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
+        console.log(`Changed grouping options from ${oldVal} to ${newVal}`);
+        groupingUpdate(oldVal, newVal);
+    });
+});
+
+function groupingUpdate(from, to) {
+    // grouping has been changed, potentially update open tabs (WINDOW->NONE is ignored)
+
+    if (from == 'TABGROUP' && to == 'NONE')
+        BTAppNode.ungroupAll();
+    if ((from == 'NONE' || from == 'WINDOW') && to == 'TABGROUP')
+        BTAppNode.groupAll();
+    if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW')
+        BTAppNode.windowAll();
 }

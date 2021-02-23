@@ -1,6 +1,6 @@
 window.LOCALTEST = true;
 QUnit.config.reorder = false;
-//QUnit.config.testTimeout = 45000;
+QUnit.config.testTimeout = 45000;
 
 QUnit.module("BTNode tests", function() {
 
@@ -8,6 +8,7 @@ QUnit.module("BTNode tests", function() {
         if (details.name != "BTNode tests") return;
         console.log("BTNode tests. Set up goes here");
         AllNodes = [];
+        GroupingMode = GroupOptions.NONE;
     });
 
     QUnit.test("Basic BTNode Tests", function(assert) {
@@ -51,20 +52,8 @@ QUnit.module("BTNode tests", function() {
         an2.resetLevel(1);
         assert.equal (an3.level, 2, "Level reset ok");
         assert.notOk (an1.hasOpenChildren(), "initial open captured correctly");
-        an4.isOpen = true;
-        assert.ok (an4.isOpen, "child open ok");
+        an4.tabId = 999;
         assert.ok (an2.hasOpenChildren(), "parent openChildren updated ok");
-        const baseAn1 = {
-            "_URL": an1.URL,
-            "_childIds": an1.childIds,
-            "_displayTag": "Top Level",
-            "_id": an1.id,
-            "_isOpen": false,
-            "_parentId": null,
-            "_tagPath": "Top Level",
-            "_title": "Top Level"
-        }
-        assert.propEqual(an1.toBTNode(), baseAn1, "base class generation");
     });
 });
 
@@ -74,6 +63,7 @@ QUnit.module("App tests", function() {
     QUnit.moduleStart(function(details) {
         if (details.name != "App tests") return;
         console.log("here first?");
+        GroupingMode = GroupOptions.NONE;
         window.FileText = "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n";
     });
 
@@ -95,13 +85,13 @@ QUnit.module("App tests", function() {
                                  "top line text looks good");
                 var tgs = [
                     {"name":"BrainTool","level":1},
+                    {"name":"Category-Tag","level":2},
                     {"name":"Link","level":2},
                     {"name":"Top Level 2","level":1}
                 ];
                 assert.deepEqual(Tags, tgs, "Tags look good");
                 var table = generateTable();
-                assert.equal(table,
-                             `<table>
+                var t2 = `<table>
 <tr data-tt-id='1'>
 <td class='left'><span class='btTitle'><b>TODO: </b>BrainTool</span></td>
 <td class='right'><span class='btText'>BrainTool is a tool</span></td>
@@ -109,6 +99,7 @@ QUnit.module("App tests", function() {
 <tr data-tt-id='2' data-tt-parent-id='1'>
 <td class='left'><span class='btTitle'>Category-Tag</span></td>
 <td class='right'><span class='btText'>They are the same</span></td>
+</tr>
 <tr data-tt-id='3' data-tt-parent-id='1'>
 <td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td>
 <td class='right'><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td>
@@ -117,11 +108,13 @@ QUnit.module("App tests", function() {
 <td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td>
 <td class='right'><span class='btText'></span></td>
 </tr>
-</table>`,
-                             "Table generated correctly");
+<tr data-tt-id='5'><td class='left'><span class='btTitle'>Top Level 2</span></td><td class='right'><span class='btText'></span></td></tr>
+</table>`;
+                t2 = t2.replace(/[\t\n]+/g, "");
+                assert.equal(table, t2, "Table generated correctly");
                 assert.equal(generateOrgFile(), window.FileText, "Regenerated file text ok");
 
-                assert.equal(BTNode.findFromTitle("Category-Tag"), 2, "findFromTitle ok");
+                assert.equal(BTNode.findFromTitle("Category-Tag"), AllNodes[2], "findFromTitle ok");
 
                 assert.equal("                                             :braintool:orgmode:",
                              AllNodes[5].orgTags("* Top Level 2"),
@@ -167,14 +160,14 @@ QUnit.module("App tests", function() {
         var node = AllNodes[6]; // newly created parent node
         assert.equal(node.childIds.length, 1, "parent knows about child");
         
-        assert.deepEqual(generateOrgFile(), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* tag1\n\n** [[http://google.com][The Goog]]\n\n* Top Level 2                                             :braintool:orgmode:\n", "file regen ok");
+        assert.deepEqual(generateOrgFile(), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://google.com][The Goog]]\n", "file regen ok");
         node = AllNodes[7]; // newly created node
         assert.deepEqual("<tr data-tt-id='7' data-tt-parent-id='6'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='right'><span class='btText'></span></td></tr>", node.HTML(), "HTML gen looks good");
         storeTab({tag: "tag2", url: "http://yahoo.com", title: "Yahoodlers"});
         assert.equal(10, AllNodes.length, "second tag and tab added ok");
         storeTab({tag: "tag1", url: "http://gdrive.com", title: "The Cloud"});
         assert.equal(11, AllNodes.length, "tab added to first tag ok");
-        assert.deepEqual(generateOrgFile(),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n\n* Top Level 2                                             :braintool:orgmode:\n", "file regen ok");
+        assert.deepEqual(generateOrgFile(),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n", "file regen ok");
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
@@ -199,7 +192,7 @@ QUnit.module("App tests", function() {
             // a good visual inspection that windows are still being opened.
             // Don't need to run every time:
             
-            //openEachWindow(node);
+            node.openAll();
             done();}
                    , 4000);
     });
@@ -257,11 +250,11 @@ QUnit.module("App tests", function() {
 
 QUnit.module("Extension tests", function() {
 
-    let readyForTests = false;
+    let readyForTests = true; //false;
     QUnit.moduleStart(function(details) {
         if (details.name != "Extension tests") return;
         console.log("Extension messages");
-        window.FileText2 = "* BrainTool Project\nTech and pointers for building BT.\n** Chrome\nThe main part of the app is a Chrome extension. So some resources...\n\n*** [[https://developer.chrome.com/extensions/devguide][Develop Extensions - Google Chrome]]\nOverview of the processs\n\n*** [[https://developers.chrome.com/extensions/tabs#method-create][chrome.tabs - Google Chrome]]\nTab manger functions.\n\n*** [[https://developer.chrome.com/extensions/windows][chrome.windows - Google Chrome]]\nWindow manager functions\n\n*** [[https://developer.chrome.com/extensions/runtime#method-sendMessage][chrome.runtime - Google Chrome]]\nOther useful api components.\n\n*** [[https://developer.chrome.com/webstore/publish][Publish in the Chrome Web Store]]\noverall publishing process\n\n*** [[https://www.freecodecamp.org/news/how-to-publish-your-chrome-extension-dd8400a3d53/][How To Publish Your Chrome Extension]]\n\n*** [[https://github.com/GoogleChrome/chrome-extensions-samples][chrome-app-samples/samples/gdrive at master  GoogleChrome/chrome-app-samples]]";
+        window.FileText2 = "* BrainTool Project\nTech and pointers for building BT.\n** Chrome\nThe main part of the app is a Chrome extension. So some resources...\n\n*** [[https://developer.chrome.com/extensions/mv2/devguide][Develop Extensions - Google Chrome]]\nOverview of the processs\n\n*** [[https://developers.chrome.com/extensions/tabs#method-create][chrome.tabs - Google Chrome]]\nTab manger functions.\n\n*** [[https://developer.chrome.com/extensions/windows][chrome.windows - Google Chrome]]\nWindow manager functions\n\n*** [[https://developer.chrome.com/extensions/runtime#method-sendMessage][chrome.runtime - Google Chrome]]\nOther useful api components.\n\n*** [[https://developer.chrome.com/webstore/publish][Publish in the Chrome Web Store]]\noverall publishing process\n\n*** [[https://www.freecodecamp.org/news/how-to-publish-your-chrome-extension-dd8400a3d53/][How To Publish Your Chrome Extension]]\n\n*** [[https://github.com/GoogleChrome/chrome-extensions-samples][chrome-app-samples/samples/gdrive at master  GoogleChrome/chrome-app-samples]]";
         
         window.postMessage({ 'type': 'LOCALTEST' });        // let extension know we're running tests
         // And update node list, nb will send nodes_updated msg, catch here as well as BTContent
@@ -284,18 +277,18 @@ QUnit.module("Extension tests", function() {
     let openNodeFinished = false;
     QUnit.test("Open Node", function(assert) {
         let done = assert.async();
-        const nodeId = 3, url = "https://developer.chrome.com/extensions/devguide";
 
         const handler = function(event) {
             // Handle message from Window
             if (event.source != window)
                 return;
-            switch (event.data.type) {
-            case 'tab_opened':
-                const node = event.data.BTNodeId;
-                assert.equal(nodeId, node, "link click round trip");
+            switch (event.data.function) {
+            case 'tabOpened':
+                const node = event.data.nodeId;
+                assert.equal(node, 3, "link click round trip");
                 done();
                 openNodeFinished = true;
+                AllNodes[3].tabId = 0;
                 window.removeEventListener('message', handler); // clean up
                 break;
             }
@@ -303,7 +296,7 @@ QUnit.module("Extension tests", function() {
         window.addEventListener('message', handler);
         const doer = function() {
             if (readyForTests) {
-                window.postMessage({ 'type': 'link_click', 'nodeId': nodeId, 'url': url });
+                AllNodes[3].openTab();
             }
             else {
                 setTimeout(doer, 250);
@@ -320,9 +313,9 @@ QUnit.module("Extension tests", function() {
             // Handle message from Window
             if (event.source != window)
                 return;
-            switch (event.data.type) {
-            case 'tab_opened':
-                let openCount = AllNodes.reduce(((count, node) => node.isOpen ? count+1 : count), 0);
+            switch (event.data.function) {
+            case 'tabOpened':
+                let openCount = AllNodes.reduce(((count, node) => node.tabId ? count+1 : count), 0);
                 console.log(openCount, event.data);
                 if (openCount == 7) {
                     assert.equal(7, openCount, "Tag open round trip");
@@ -337,7 +330,7 @@ QUnit.module("Extension tests", function() {
         const doer = function() {
             if (openNodeFinished) {   
                 alert('starting openTag');
-                openEachWindow(AllNodes[2]);
+                AllNodes[2].openAll();
             }
             else {
                 setTimeout(doer, 250);
@@ -373,8 +366,8 @@ QUnit.module("Extension tests", function() {
         const doer = function() {
             if (deleteRowFinished) {
                 alert("Showing Publish tab");
-                window.postMessage({ 'type' : 'show_node', 'nodeId' : 7});
-                assert.ok(true, 'node deletion via ui');
+                AllNodes[7].showNode();
+                assert.ok(true, 'show node');
                 showNodeFinished = true;
                 done();
             }
@@ -390,7 +383,7 @@ QUnit.module("Extension tests", function() {
         const doer = function() {
             if (showNodeFinished) {
                 alert("Closing Chrome runtime tab");
-                window.postMessage({ 'type': 'close_node', 'nodeId': 5});
+                AllNodes[5].closeTab();
                 // then assert what you can
                 assert.ok(true, 'closed?');
                 closeNodeFinished = true; // allow the next test to start
@@ -410,8 +403,8 @@ QUnit.module("Extension tests", function() {
             // Handle message from Window
             if (event.source != window)
                 return;
-            switch (event.data.type) {
-            case 'bookmarks_imported':
+            switch (event.data.function) {
+            case 'loadBookmarks':
                 if (event.data.result != 'success') {
                     alert('Bookmark permissions denied');
                     break;
@@ -428,7 +421,7 @@ QUnit.module("Extension tests", function() {
         const doer = function() {
             if (closeNodeFinished) {   
                 alert('starting Get Bookmarks');
-                window.postMessage({ type: 'get_bookmarks'});
+                window.postMessage({ function: 'getBookmarks'});
             }
             else {
                 setTimeout(doer, 250);
@@ -493,4 +486,5 @@ QUnit.module("Inbound Message tests", function() {
     });
     
 })
+
 

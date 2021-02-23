@@ -69,7 +69,7 @@ function initClient() {
 
             // Handle the initial sign-in state.
             if (gapi.auth2.getAuthInstance().isSignedIn.get())
-                firstUse = false;
+                FirstUse = false;
             
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;

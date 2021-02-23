@@ -102,3 +102,23 @@ function metaPropertiesToString(obj) {
     AllNodes.metaProperties = metaprops;        // update AllNodes for next time around
     return str;
 }
+
+function getMetaProp(prop) {
+    // return the value of the meta property if it exists
+    const reg = new RegExp(`${prop} (\\w+)`);
+    let val = '';
+    if (!AllNodes.metaProperties) return val;
+    AllNodes.metaProperties.forEach(propStr => {
+	    let match = propStr.match(reg);
+	    if (match) val = match[1];
+    });
+    return val;
+}
+
+function setMetaProp(prop, val) {
+    // set or change the value of the meta property
+    const reg = new RegExp(`${prop} (\\w+)`);
+    const index = AllNodes.metaProperties.findIndex(propStr => propStr.match(reg));
+    if (index > -1)
+        AllNodes.metaProperties[index] = `${prop} ${val}`;
+}
