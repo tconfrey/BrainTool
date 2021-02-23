@@ -20,7 +20,6 @@ class BTNode {
         // NB Entries could be overwritten by derived class ctor:
         if (typeof AllNodes !== 'undefined') AllNodes[this._id] = this;    
     }
-    static baseNode = new BTNode('');
 
     get id() {
         return this._id;
@@ -87,16 +86,6 @@ class BTNode {
     isTag() {
         // Is this node used as a tag => has webLinked children
         return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id].hasWebLinks);
-    }
-
-    toBTNode() {
-        // Generic fn to return this objects properties
-        let props = {};
-        let keys = Object.keys(BTNode.baseNode);
-        for (let i =0; i< keys.length; i++){
-            props[keys[i]] = this[keys[i]];
-        }
-        return props;
     }
     
     reparentNode(newP, index = -1) {
