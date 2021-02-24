@@ -17,7 +17,7 @@ var LocalTest = false;          // control code path during unit testing
 function check() {
     // check for error
     if (chrome.runtime.lastError) {
-        console.warn("!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
+        console.log("!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
     }
 }
 
@@ -434,7 +434,7 @@ function setBadge(tabId) {
         } else {            
             chrome.browserAction.setBadgeText({'text' : badgeText.slice(index) + "   ",
                                                'tabId': tabId}, () => check());
-            marqueeEvent = setTimeout(function() {marquee(badgeText, ++index)}, 150);
+            marqueeEvent = setTimeout(function() {marquee(badgeText, ++index);}, 150);
         }
     }
     if (marqueeEvent) clearTimeout(marqueeEvent);
@@ -467,8 +467,13 @@ function brainZoom(msg, sender, iteration = 0) {
         setTimeout(function() {setBadge(msg.tabId);}, 150);
         return;
     }
-    chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId});
-    setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 150);
+    chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId}, () => {
+        // if action was Close tab might be clsoed by now
+        if (chrome.runtime.lastError)
+            console.log("!!Whoops, runtime error in Zoom.. " + chrome.runtime.lastError.message);
+        else
+            setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 150);
+    });
 }
 
 function getBookmarks() {

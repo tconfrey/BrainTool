@@ -6,7 +6,11 @@
     padding-left: 10px;
     padding-right: 3px;
     right: 13px;
-    border-radius: 10px;
+    border-radius: 5px;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-width: 2px;
+    border-color: dimgrey;
     cursor: pointer;
 }
 

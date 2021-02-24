@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "BrainTool",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "A Bookmarks and Information Manager for your online life.",
     "permissions": ["tabs", "storage"],
     "optional_permissions": ["bookmarks"],
