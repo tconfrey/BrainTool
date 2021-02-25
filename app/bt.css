@@ -1,3 +1,45 @@
+    
+#controls_header {
+    background-color: #7bb07b;
+    border-width: 1px;
+    border-color: #AAA;
+}
+
+#controls {
+    position: fixed;
+    right: 8px;
+    left: 8px;
+    top: 0px;
+    border-top: 3px solid white;
+    border-bottom: 3px solid white;
+    border-left: none;
+    border-right: none;
+}                    
+
+#controls_screen {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)),
+                      url("resources/marquee.png");
+    background-size: cover;
+}
+#logo_image {
+    width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+    z-index: -2;
+}
+#background_image {   
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 150%;
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
+    /*opacity: 0.2;*/
+    z-index: -1;
+}
 
 #buttonRow {
     background-color: #7bb07b; /* #cec; #aca */
@@ -6,10 +48,10 @@
     padding-left: 10px;
     padding-right: 3px;
     right: 13px;
-    border-radius: 5px;
+    border-radius: 3px;
     border-left-style: solid;
     border-right-style: solid;
-    border-width: 2px;
+    border-width: 1px;
     border-color: dimgrey;
     cursor: pointer;
 }
@@ -140,42 +182,6 @@ img.close-icon {
   width: 17px;  
   height: 14px;
   vertical-align: 10px;
-}
-    
-#menu_button {
-    background-color: #7bb07b; /* #ACA; */
-}
-
-#auth_menu {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #AAA;
-    border-radius: 4px;
-}                    
-
-.file-link {
-    padding-left: .2em;
-    background-color: #cec;
-}
-
-#auth_screen {
-    position: relative;
-    overflow: hidden;
-}
-#logo_image {
-    width: 80%;
-    display: block;
-    margin-left: auto;
-    margin-right:auto;
-    z-index: -2;
-}
-#background_image {   
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 150%;
-    opacity: 0.2;
-    z-index: -1;
 }
 
 body.waiting * {

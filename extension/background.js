@@ -470,7 +470,7 @@ function brainZoom(msg, sender, iteration = 0) {
     chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId}, () => {
         // if action was Close tab might be clsoed by now
         if (chrome.runtime.lastError)
-            console.log("!!Whoops, runtime error in Zoom.. " + chrome.runtime.lastError.message);
+            console.log("!!Whoops, tab closed before Zoom.. " + chrome.runtime.lastError.message);
         else
             setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 150);
     });

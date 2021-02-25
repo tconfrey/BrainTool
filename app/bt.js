@@ -54,7 +54,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         }
         findOrCreateBTFile();
     } else {
-        $("#auth_screen").show();
+        $("#controls_screen").show();
         $("#loading").hide();
         $("#options_button").hide();
         $("#options").hide();
@@ -72,8 +72,8 @@ function addTip() {
 
 function toggleMenu() {
     // Toggle the visibility of the intro page, auth button and open/close icon
-    if ($("#auth_screen").is(":visible")) {
-        $("#auth_screen").slideUp(750);
+    if ($("#controls_screen").is(":visible")) {
+        $("#controls_screen").slideUp(750);
         $("#close").show();
         $("#open").hide();
     } else {
@@ -81,14 +81,14 @@ function toggleMenu() {
             FirstUse = false;
         else
             addTip();               // display tip text on subsequent views
-        $("#auth_screen").slideDown(750);
+        $("#controls_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
     }
 }
 function closeMenu() {
     // close the intro page if its visible
-    if ($("#auth_screen").is(":visible"))
+    if ($("#controls_screen").is(":visible"))
         toggleMenu();
 }
 
@@ -134,7 +134,6 @@ function generateTable() {
     // Generate table from BT Nodes
     var outputHTML = "<table>";
     AllNodes.forEach(function(node) {
-//        if (!node || !node.hasWebLinks) return;
         if (!node) return;
         outputHTML += node.HTML();
     });

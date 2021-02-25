@@ -232,7 +232,9 @@ function tabAdded() {
                      'tabAction': TabAction};
     // Send msg to BT app for processing w text and tag info
     chrome.tabs.sendMessage(BTTabId, message);
-    chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
+    if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
+        chrome.runtime.sendMessage(
+            {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
     window.close();
 }
 

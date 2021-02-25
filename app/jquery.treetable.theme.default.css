@@ -1,12 +1,10 @@
 table.treetable {
-  border: 1px solid #DDD;
-/*  border-collapse: collapse; */
-  font-size: .7em;
-  font-family: tahoma;
-  line-height: 1;
-  margin: .6em 0 0.6em 0;
-  padding-bottom: 1.2em;
-  width: 100%;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: 1px solid #DDD;
+    font-size: .7em;
+    font-family: tahoma;
+    line-height: 1;
 }
 
 
@@ -132,8 +130,9 @@ table.treetable span.btText {
 table.treetable span.btTitle {
     padding-left: 0px;
 }
+
 table.treetable tr.hovered {
-    background-color: #7bb07b; /* #aca; */
+    background-color: #cec; /*#7bb07b; / #aca; */
 }
 
 table.treetable tr.attention {
