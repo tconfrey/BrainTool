@@ -216,7 +216,14 @@ function initializeUI() {
         const nodeId = this.getAttribute("data-tt-id");
         AllNodes[nodeId].showNode();
     });
-        
+    
+    // single click - select row
+    $("table.treetable tr").off("click");              // remove any previous handler
+    $("table.treetable tr").on("click", function () {
+        $("tr.selected").removeClass('selected');
+        $(this).addClass("selected");
+    });
+    
     // make rows draggable    
     $("tr").draggable({
         helper: function() {
@@ -405,7 +412,7 @@ function nodeCollapse() {
    
 
 function handleLinkClick(e) {
-    var nodeId = $(this).closest("tr").attr('data-tt-id');
+    const nodeId = $(this).closest("tr").attr('data-tt-id');
     AllNodes[nodeId].openTab();
     e.preventDefault();
 }
@@ -697,29 +704,27 @@ function buttonHide() {
 
 function editRow(e) {
     // position and populate the dialog and open it
-    const top = e.clientY;
-    $(e.target).closest("tr").addClass('selected');
+    const node = activeNode(e);
+    if (!node) return;
+    const row = $(`tr[data-tt-id='${node.id}']`)[0];
+    const top = $(row).position().top;
     const dialog = $("#dialog")[0];
 
     if ((top + $(dialog).height() + 50) < $(window).height())
-        $(dialog).css("top", top+10);
+        $(dialog).css("top", top+50);
     else
         // position above row to avoid going off bottom of screen
         $(dialog).css("top", top - $(dialog).height() - 50);
-    
-    if (populateDialog()) {
-        dialog.showModal();
-    } else {
-        $(this).closest("tr").removeClass('selected');
-        alert("Error editing here, please update the org file directly and Refresh");
-    }
+
+    // populate dialog
+    $("#title-text").val(node.title);
+    $("#text-text").val(node.text);
+    $("#update").prop("disabled", true);
+    dialog.showModal();
 }
 
-$("textarea").change(function() {
-    $("#update").prop("disabled", true);
-});
-
-$(".editNode").on('change keyup paste', function() {
+$(".editNode").on('input', function() {
+    // enable update button if one of the texts is edited
     $("#update").prop('disabled', false);
 });
 
@@ -728,14 +733,12 @@ $("#popup").click(function(e) {
     if (e.target.tagName === 'DIALOG')
     {
         $("#dialog")[0].close();
-        $("tr.selected").removeClass('selected');
         $("#buttonRow").show(100);
     }
 });
 
 function dialogClose() {
     $('#dialog')[0].close();
-    $("tr.selected").removeClass('selected');
 }
     
 
@@ -746,26 +749,20 @@ function selectedNode() {
     return AllNodes[nodeId];
 }
 
-function populateDialog() {
-    // set up the dialog for use
-    const appNode = selectedNode();
-    if (!appNode) return false;
-    
-    const titletxt = appNode.title;
-    const txttxt = appNode.text;
-    
-    $("#title-text").val(titletxt);
-    $("#text-text").val(txttxt);
-    $("#update").prop("disabled", true);
-    return true;
+function activeNode(e) {
+    // Return the active node for the event, either hovered (button click) or selected (keyboard)
+    const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
+    if (!tr) return null;
+    const nodeId = $(tr).attr('data-tt-id') || 0;
+    return AllNodes[nodeId];
 }
     
 
-function openRow() {
+function openRow(e) {
     // Open all links under this row in windows per tag
 
     // First find all AppNodes involved - selected plus children
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return;
 
     // Warn if opening lots of stuff
@@ -781,12 +778,11 @@ function openRow() {
                 return;
 
     appNode.openAll();
-    $("tr.selected").removeClass('selected');
 }
 
-function closeRow() {
+function closeRow(e) {
     // close this node's tab or window
-    const appNode = selectedNode();  
+    const appNode = activeNode(e);  
     if (!appNode) return;
     appNode.closeTab();
 }
@@ -796,10 +792,10 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-function deleteRow() {
+function deleteRow(e) {
     // Delete selected node/row.
     buttonHide();
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
@@ -876,24 +872,24 @@ function updateRow() {
     initializeUI();
 }
 
-function toDo() {
+function toDo(e) {
     // iterate todo state of selected node/row (TODO -> DONE -> '').
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return false;
 
-    appNode.iterateKeyword()    // ask node to update
+    appNode.iterateKeyword()                // ask node to update
 
     // Update ui and file
+    const tr = $(`tr[data-tt-id='${appNode.id}']`);
     $(tr).find("span.btTitle").html(appNode.displayTitle());
     initializeUI();
     writeBTFile();
 }
 
-function promote() {
+function promote(e) {
     // move node up a level in tree hierarchy
     
-    const node = selectedNode();
+    const node = activeNode(e);
     if (!node || !node.parentId) return;                  // can't promote
     
     // collapse open subtree if any
@@ -911,18 +907,20 @@ function promote() {
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
 
-function addChild() {
+function addChild(e) {
     // add new child to this node
 
     // create child element
-    const node = selectedNode();
+    const node = activeNode(e);
     const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
     const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
     const newNode = addNewTag(newName, node.tagPath, node);
     initializeUI();
 
     // and highlight it for editing
-    const tr = $(`tr[data-tt-id='${newNode.id}`);
+    const tr = $(`tr[data-tt-id='${newNode.id}']`);
+    $("tr.selected").removeClass('selected');
+    $(tr).addClass("selected");
     const clientY = tr[0].getBoundingClientRect().top + 25;
     const dummyEvent = {'clientY': clientY, 'target': tr[0]};
     editRow(dummyEvent);
@@ -935,7 +933,7 @@ function generateOrgFile() {
     let orgText = metaPropertiesToString(AllNodes.metaProperties);
     
     // find and order the top level nodes according to table position
-    const topNodes = AllNodes.filter(node => !node.parentId);
+    const topNodes = AllNodes.filter(node => node && !node.parentId);
     topNodes.sort(function(a,b) {
         const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
         const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
@@ -1084,4 +1082,132 @@ function groupingUpdate(from, to) {
         BTAppNode.groupAll();
     if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW')
         BTAppNode.windowAll();
+}
+
+
+
+/***
+ * 
+ * Keyboard event handlers
+ * 
+ ***/
+
+$(document).keydown(function(e) {
+
+    // only one that doesn't need a row selected
+    if (e.altKey && e.which === 90) {
+        undo();
+        e.preventDefault();
+        return;
+    }
+        
+    const currentSelection = $("tr.selected")[0];
+    const dialog = $("#dialog")[0];
+    // ignore keys if no selection or if edit dialog is open
+    if (!currentSelection || $(dialog).is(':visible')) return;
+
+    // opt-n or down
+    if ((e.altKey && e.which === 78) || e.which == 40) {
+        $(currentSelection).removeClass('selected');
+        $(currentSelection).nextAll(":visible").first().addClass('selected');
+        e.preventDefault();
+        return;
+    }
+    
+    // opt-p or up
+    if ((e.altKey && e.which === 80) || e.which == 38) {
+        $(currentSelection).removeClass('selected');
+        $(currentSelection).prevAll(":visible").first().addClass('selected');
+        e.preventDefault();
+        return;
+    }
+    const nodeId = $(currentSelection).attr('data-tt-id');
+    const node = AllNodes[nodeId];
+    if (!node) return;
+    
+    // enter == open or close.
+    if (e.which === 13) {
+        if (node.childIds.length) {
+            openRow(e);
+        } else {
+            if (node.URL && !node.tabId)
+                openRow(e);
+            if (node.tabId)
+                closeRow(e);
+        }
+        e.preventDefault();
+        return;
+    }
+    
+    // tab == expand or collapse
+    if (e.which === 9) {
+        if (AllNodes[nodeId].folded)
+            $("table.treetable").treetable("expandNode", nodeId);
+        else
+            $("table.treetable").treetable("collapseNode", nodeId);
+        e.preventDefault();
+        return;
+    }
+
+    // t = cycle TODO state
+    if (e.which === 84) {
+        toDo(e);
+        e.preventDefault();
+        return;
+    }
+
+    // e = edit
+    if (e.which === 69) {
+        e.preventDefault();
+        editRow(e);
+    }
+
+    // delete = delete
+    if (e.which === 8) {
+        e.preventDefault();
+        deleteRow(e);
+    }
+
+    // n = new child
+    if (e.which === 78 && node.isTag()) {
+        e.preventDefault();
+        addChild(e);
+    }
+
+    // <- = promote
+    if (e.which === 37) {
+        e.preventDefault();
+        promote(e);
+    }
+
+    // alt-z undo
+    
+
+    console.log(e.which);
+
+});
+
+function undo() {
+    // undo last delete
+    const node = BTNode.undoDelete();
+    const parent = AllNodes[node.parentId];
+    function updateTree(ttn, btn) {
+        // recurse as needed on tree update
+        $("table.treetable").treetable("loadBranch", ttn || null, btn.HTML());
+        if (btn.childIds.length) {
+            const n = $("table.treetable").treetable("node", btn.id);
+            btn.childIds.forEach(
+                (id) => updateTree(n, AllNodes[id]));
+        }
+    }
+
+    // Update tree
+    let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
+    updateTree(n, node);
+
+    initializeUI();
+    writeBTFile();
+    BTAppNode.generateTags();        
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+
 }

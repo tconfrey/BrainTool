@@ -70,12 +70,6 @@ table.treetable tr.branch {
   background-color: #f9f9f9;
 }
 
-table.treetable tr.selected {
-    background-color: #9d9; /* #cd72ae #4b9643;  #cfc;*/
-/*  background-color: #3875d7;
-  color: #fff; */
-}
-
 table.treetable tr span.indenter a {
   outline: none; /* Expander shows outline after upgrading to 3.0 (#141) */
 }
@@ -133,6 +127,10 @@ table.treetable span.btTitle {
 
 table.treetable tr.hovered {
     background-color: #cec; /*#7bb07b; / #aca; */
+}
+
+table.treetable tr.selected {
+    background-color: #7bb07b;
 }
 
 table.treetable tr.attention {

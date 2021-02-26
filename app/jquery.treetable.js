@@ -392,6 +392,7 @@
         if (nodeGrandparent) {
             node.setParent(nodeGrandparent);
         } else {
+            nodeParent.removeChild(node);
             node.parentId = null;
             node.row.removeData(node.settings.parentIdAttr);
             // TODO figure out why above line doesn't work so I don't need this one

@@ -79,7 +79,6 @@ class BTAppNode extends BTNode {
             break;
         }
     }
-                
 
     set folded(f) {
         this._folded = f;
