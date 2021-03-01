@@ -305,8 +305,9 @@ function dropNode(event, ui) {
     const treeTable = $("#content");
 
     if (dropNodeId) {
+        const dropBTNode = AllNodes[dropNodeId];
         const oldParentId = dragNode.parentId;
-        if ($(dropNode).hasClass("collapsed") || $(dropNode).hasClass("leaf")) {
+        if ($(dropNode).hasClass("collapsed") || !dropBTNode.isTag()) {
             // drop below dropNode w same parent
             const parentId = AllNodes[dropNodeId].parentId;
             const parent = AllNodes[parentId];
@@ -743,7 +744,9 @@ function dialogClose() {
 function selectedNode() {
     // Return the node currently highlighted or selected
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    if (!tr) return null;
     const nodeId = $(tr).attr('data-tt-id');
+    if (!nodeId) return null;
     return AllNodes[nodeId];
 }
 
@@ -917,6 +920,7 @@ function addChild() {
 
     // create child element
     const node = selectedNode();
+    if (!node) return;
     const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
     const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
     const newNode = addNewTag(newName, node.tagPath, node);
