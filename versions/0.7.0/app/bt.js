@@ -598,7 +598,7 @@ function tabUpdated(data) {
         // nav into a bt node
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
-        /* TODO why? urlNode.showNode(); */
+        /* TODO if there's already a window or tabgroup, move appropriately? or that too intrusive? */
     }
 }
 
@@ -1071,14 +1071,14 @@ $(document).ready(function () {
         setMetaProp('BTGroupingMode', GroupingMode);
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
-        console.log(`Changed grouping options from ${oldVal} to ${newVal}`);
-        groupingUpdate(oldVal, newVal);
+        writeBTFile(groupingUpdate(oldVal, newVal));
     });
 });
 
 function groupingUpdate(from, to) {
     // grouping has been changed, potentially update open tabs (WINDOW->NONE is ignored)
 
+    console.log(`Changing grouping options from ${from} to ${to}`);
     if (from == 'TABGROUP' && to == 'NONE')
         BTAppNode.ungroupAll();
     if ((from == 'NONE' || from == 'WINDOW') && to == 'TABGROUP')

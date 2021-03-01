@@ -14,8 +14,14 @@ function parseBTFile(fileText) {
             orgaSection(orgaNode, null);
     }
 
-    // save top level properties if any
-    AllNodes.metaProperties = parseTree.meta.property;
+    // save top level properties if any. parser returns a str or array of strs
+    if (parseTree.meta.property) {
+        if ($.isArray(parseTree.meta.property))
+            AllNodes.metaProperties = parseTree.meta.property;
+        else
+            AllNodes.metaProperties = parseTree.meta.property.split();
+    } else
+        AllNodes.metaProperties = [];
 }
 
 function orgaSection(section, parentAppNode) {
@@ -84,17 +90,17 @@ function orgaText(orgnode, containingNode) {
     return btString;
 }
 
-function metaPropertiesToString(obj) {
+function metaPropertiesToString(ary) {
     // return the string to be used to output meta properties to .org file
-    // obj is as captured in original parse, either a string or array of strings
-    if (!obj) return "";
-    if (!$.isArray(obj))
-        obj = obj.split();      // now it is!
+    if (!ary || !ary.length) return "";
     let str = "";
     let metaprops = [];
-    obj.forEach(function(st) {
+
+    if (!getMetaProp('BTVersion'))
+        ary.push('BTVersion 0');                // push initial version # is not already there
+    ary.forEach(function(st) {
         const version = st.match(/BTVersion (\d+)/);
-        if (version)            // increment version
+        if (version)                            // increment version
             st = "BTVersion " + (parseInt(version[1]) + 1);
         str += "#+PROPERTY: " + st + "\n";
         metaprops.push(st);
@@ -107,7 +113,7 @@ function getMetaProp(prop) {
     // return the value of the meta property if it exists
     const reg = new RegExp(`${prop} (\\w+)`);
     let val = '';
-    if (!AllNodes.metaProperties) return val;
+    if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
     AllNodes.metaProperties.forEach(propStr => {
 	    let match = propStr.match(reg);
 	    if (match) val = match[1];
