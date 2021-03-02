@@ -784,7 +784,10 @@ function openRow() {
             if (!confirm(`Open ${numTabs} tabs?`))
                 return;
 
-    appNode.openAll();
+    if (appNode.isTag())
+        appNode.openAll();
+    else
+        appNode.openTab();
     $("tr.selected").removeClass('selected');
 }
 
