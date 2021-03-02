@@ -780,7 +780,10 @@ function openRow(e) {
             if (!confirm(`Open ${numTabs} tabs?`))
                 return;
 
-    appNode.openAll();
+    if (appNode.isTag())
+        appNode.openAll();
+    else
+        appNode.openTab();
 }
 
 function closeRow(e) {

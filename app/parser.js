@@ -114,7 +114,7 @@ function getMetaProp(prop) {
     // return the value of the meta property if it exists
     const reg = new RegExp(`${prop} (\\w+)`);
     let val = '';
-    if (!AllNodes.metaProperties || !AllNodes.metaproperties.length) return val;
+    if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
     AllNodes.metaProperties.forEach(propStr => {
 	    let match = propStr.match(reg);
 	    if (match) val = match[1];
