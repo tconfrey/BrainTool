@@ -219,7 +219,7 @@ function initializeUI() {
     
     // single click - select row
     $("table.treetable tr").off("click");              // remove any previous handler
-    $("table.treetable tr").on("click", function () {
+    $("table.treetable tr").on("click", function (e) {
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
     });
@@ -311,27 +311,10 @@ function dropNode(event, ui) {
     const treeTable = $("#content");
 
     if (dropNodeId) {
+
         const dropBTNode = AllNodes[dropNodeId];
         const oldParentId = dragNode.parentId;
-        if ($(dropNode).hasClass("collapsed") || !dropBTNode.isTag()) {
-            // drop below dropNode w same parent
-            const parentId = AllNodes[dropNodeId].parentId;
-            const parent = AllNodes[parentId];
-            dragNode.reparentNode(parentId,
-                                  parent ?
-                                  parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
-                                  -1);
-            if (parentId) {
-                treeTable.treetable("move", dragNodeId, parentId);
-                positionNode(dragTarget, parentId, dropNode);          // sort into position
-            } else {
-                treeTable.treetable("insertAtTop", dragNodeId, dropNodeId);
-            }
-        } else {
-            // drop into dropNode as first child
-            dragNode.reparentNode(dropNodeId, 0);
-            treeTable.treetable("move", dragNodeId, dropNodeId);
-        }
+        moveNode(dragNode, dropBTNode);
         
         writeBTFile();
         BTAppNode.generateTags();        
@@ -350,10 +333,36 @@ function dropNode(event, ui) {
     $("td").removeClass("dropOver");
 }
 
+function moveNode(dragNode, dropNode) {
+    // perform move for DnD - drop Drag over Drop
+    
+    const treeTable = $("#content");
+    if (dropNode.isTag() && !dropNode.folded) {
+        // drop into dropNode as first child
+        dragNode.reparentNode(dropNode.id, 0);
+        treeTable.treetable("move", dragNode.id, dropNode.id);
+    } else {
+        // drop below dropNode w same parent
+        const parentId = dropNode.parentId;
+        const parent = parentId ? AllNodes[parentId] : null;
+        dragNode.reparentNode(parentId,
+                              parent ?
+                              parent.childIds.indexOf(parseInt(dropNode.id)) + 1 :
+                              -1);
+        if (parentId) {
+            const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
+            const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
+            treeTable.treetable("move", dragNode.id, parentId);
+            positionNode(dragTr, parentId, dropTr);          // sort into position
+        } else {
+            treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
+        }
+    }
+}
+
 function positionNode(dragNode, dropParentId, dropBelow) {
     // Position dragged node below the dropbelow element under the parent
     // NB treetable does not support this so we need to use this sort method
-    console.log("positioning");
     const newPos = $("tr").index(dropBelow);
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
@@ -708,7 +717,7 @@ function editRow(e) {
     const node = activeNode(e);
     if (!node) return;
     const row = $(`tr[data-tt-id='${node.id}']`)[0];
-    const top = $(row).position().top;
+    const top = $(row).position().top - $(document).scrollTop();
     const dialog = $("#dialog")[0];
 
     if ((top + $(dialog).height() + 50) < $(window).height())
@@ -919,10 +928,9 @@ function addChild(e) {
     // create child element
     const node = activeNode(e);
     if (!node) return;
-    const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
+    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Tag'));
     const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
     const newNode = addNewTag(newName, node.tagPath, node);
-    initializeUI();
 
     // and highlight it for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
@@ -931,7 +939,10 @@ function addChild(e) {
     const clientY = tr[0].getBoundingClientRect().top + 25;
     const dummyEvent = {'clientY': clientY, 'target': tr[0]};
     editRow(dummyEvent);
-    
+
+    // Stop the event from selecting the row and line up a save
+    e.stopPropagation();
+    initializeUI();
     writeBTFile();
 }
 
@@ -1101,98 +1112,105 @@ function groupingUpdate(from, to) {
 
 $(document).keydown(function(e) {
 
-    // only one that doesn't need a row selected
-    if (e.altKey && e.which === 90) {
+    const key = e.which;
+    const alt = e.altKey;
+    const shift = e.shiftKey;
+    // This one doesn't need a row selected, alt-z for undo last delete
+    if (alt && key === 90) {
         undo();
-        e.preventDefault();
-        return;
-    }
-        
-    const currentSelection = $("tr.selected")[0];
-    const dialog = $("#dialog")[0];
-    // ignore keys if no selection or if edit dialog is open
-    if (!currentSelection || $(dialog).is(':visible')) return;
-
-    // opt-n or down
-    if ((e.altKey && e.which === 78) || e.which == 40) {
-        $(currentSelection).removeClass('selected');
-        $(currentSelection).nextAll(":visible").first().addClass('selected');
-        e.preventDefault();
-        return;
     }
     
-    // opt-p or up
-    if ((e.altKey && e.which === 80) || e.which == 38) {
-        $(currentSelection).removeClass('selected');
-        $(currentSelection).prevAll(":visible").first().addClass('selected');
-        e.preventDefault();
-        return;
-    }
+    // ignore keys if no selection or if edit dialog is open
+    const currentSelection = $("tr.selected")[0];
+    const dialog = $("#dialog")[0];
+    if (!currentSelection || $(dialog).is(':visible')) return;
+
     const nodeId = $(currentSelection).attr('data-tt-id');
     const node = AllNodes[nodeId];
     if (!node) return;
-    
+
+    // up(38) and down(40) arrows move
+    if (shift && (key === 38 || key === 40)) {
+        if (node.childIds.length && !node.folded) {
+            $("#content").treetable("collapseNode", nodeId);
+        }
+        // its already below prev so we drop below prev.prev moving up
+        const dropTr = (key === 38) ?
+              $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
+              $(currentSelection).nextAll(":visible").first();
+        const dropId = $(dropTr).attr('data-tt-id');
+        moveNode(node, AllNodes[dropId]);
+        return;
+    }
+
+    // n or down arrow, p or up arrow for up/down moves (w/o shift)
+    if ([78, 80, 38, 40].includes(key)) {
+        const next = (key == 78 || key == 40) ?
+              $(currentSelection).nextAll(":visible").first()[0] :          // down
+              $(currentSelection).prevAll(":visible").first()[0];           // up
+        if (!next) return;
+        $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
+        e.preventDefault();
+    }
+
     // enter == open or close.
-    if (e.which === 13) {
+    if (!alt && key === 13) {
         if (node.childIds.length) {
-            openRow(e);
+            if (node.hasUnopenDescendants())
+                openRow(e);
+            else
+                closeRow(e);
         } else {
             if (node.URL && !node.tabId)
                 openRow(e);
             if (node.tabId)
                 closeRow(e);
         }
-        e.preventDefault();
-        return;
     }
     
     // tab == expand or collapse
-    if (e.which === 9) {
+    if (key === 9) {
         if (AllNodes[nodeId].folded)
             $("table.treetable").treetable("expandNode", nodeId);
         else
             $("table.treetable").treetable("collapseNode", nodeId);
-        e.preventDefault();
-        return;
     }
 
     // t = cycle TODO state
-    if (e.which === 84) {
+    if (key === 84) {
         toDo(e);
-        e.preventDefault();
-        return;
     }
 
     // e = edit
-    if (e.which === 69) {
-        e.preventDefault();
+    if (key === 69) {
         editRow(e);
+        e.preventDefault();
     }
 
     // delete = delete
-    if (e.which === 8) {
-        e.preventDefault();
+    if (key === 8) {
         deleteRow(e);
     }
 
-    // n = new child
-    if (e.which === 78 && node.isTag()) {
-        e.preventDefault();
+    // opt enter = new child
+    if (alt && key === 13 && node.isTag()) {
         addChild(e);
     }
 
     // <- = promote
-    if (e.which === 37) {
-        e.preventDefault();
+    if (key === 37) {
         promote(e);
     }
 
-    // alt-z undo
-    
-
-    console.log(e.which);
+    // space = open tab/window
+    if (key === 32) {
+        node.showNode();
+    }    
 
 });
+
 
 function undo() {
     // undo last delete
@@ -1211,6 +1229,7 @@ function undo() {
     // Update tree
     let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
     updateTree(n, node);
+    $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
 
     initializeUI();
     writeBTFile();

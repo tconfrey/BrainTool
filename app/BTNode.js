@@ -193,7 +193,7 @@ class BTNode {
                 parent.removeChild(nodeId);
 
             BTNode.undoStack.push(node);
-            AllNodes[nodeId] = null;
+            delete(AllNodes[nodeId]);
         }
         _deleteNode(nodeId);
     }
