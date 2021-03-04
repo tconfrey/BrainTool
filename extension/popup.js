@@ -14,6 +14,7 @@ var Defaulted = false;                  // capture whether the tag value was def
 var KeyCount = 0;
 var ReadOnly = false;                   // capture whether tab is already stored in BT
 var TabAction;                          // current GROUP|CLOSE|STICK action
+var Tabs;                               // tabs in current window
 
 popupAction();
 chrome.runtime.connect();       // tell background popup is open
@@ -23,8 +24,12 @@ function popupAction () {
 
     if (BackgroundPage.BTTab)
         chrome.tabs.query(              // find active tab to open popup from
-            {active: true, currentWindow: true},
-            list => popupOpen(list[0]));                   
+            {currentWindow: true}, list => {
+                Tabs = list;
+                const activeTab = list.find(t => t.active);
+                document.getElementById('allLabel').textContent = "All " + Tabs.length + " tabs";
+                popupOpen(activeTab);
+            });
     else
         windowOpen();
 }
@@ -226,12 +231,17 @@ function tabAdded() {
     if (newTag == "") return;
     const noteText = Note.value.replace(/\s+$/g, '');     // remove trailing newlines if any
     const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
-    const message = {'function': 'storeTab', 'tag': newTag, 'note': noteText,
-                     'url': CurrentTab.url, 'title': CurrentTab.title,
-                     'tabId': CurrentTab.id, 'windowId': CurrentTab.windowId,
-                     'tabAction': TabAction};
-    // Send msg to BT app for processing w text and tag info
-    chrome.tabs.sendMessage(BTTabId, message);
+    const cb = document.getElementById('all');
+    const allTabs = cb.checked;                           // is the All Tabs checked
+    const tabsToOpen = allTabs ? Tabs : new Array(CurrentTab);
+
+    tabsToOpen.forEach(tab => {
+        // Send msg per tab to BT app for processing w text and tag info
+        const message = {'function': 'storeTab', 'tag': newTag, 'note': noteText,
+                         'url': tab.url, 'title': tab.title, 'tabId': tab.id,
+                         'windowId': tab.windowId, 'tabAction': TabAction};
+        chrome.tabs.sendMessage(BTTabId, message);
+    });
     if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
         chrome.runtime.sendMessage(
             {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});

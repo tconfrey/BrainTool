@@ -4,58 +4,74 @@
     <link rel="stylesheet" href="awesomplete.css" />
     <script src="awesomplete.js" async></script>
     <style>
-      body {
+    body {
         background-color: #7bb07bb3;
-      }
-      h2 {
+    }
+    h2 {
         color: #225222;
         margin-top: 5px;
         margin-bottom: 5px;
         text-align:center;
-      }
-      h3 {
+    }
+    h3 {
         color: #225222;
-        font-style: italic;
         margin-top: 10px;
         margin-bottom: 0px;
-      }
-      textarea {
+    }
+    textarea {
         font-size: x-small;
         margin-top: 5px;
         margin-right: 1px;
         background-color: #e6f3e7;
-      }
-      form {
+    }
+    #forms {
         font-style: italic;
         font-size: x-small;
         opacity: 60%;
-      }
-      input[type="radio"] {
+    }
+    #forms .horizontal {
+        display: inline-block;
+    }
+    #forms input {
         vertical-align: bottom;
-      }
-      ul {
+    }
+    #tabAction {
+        padding-right: 20px;
+    }
+    #chk {
+        padding-left: 20px;
+    }
+    hr {
+        margin: 0px;
+    }
+    ul {
         padding-left: 10px;
-      margin-top: 3px;
-      margin-bottom: 3px;
+        margin-top: 3px;
+        margin-bottom: 3px;
         list-style-type: none;
-      }
-      #newtag {
+    }
+    #newtag {
         background-color: #e6f3e7;
         border-color: #686;
         border-width: 1px;
         border-style: solid;
-      }
-      #currentTags {
+    }
+    #currentTags {
         font-size:x-small;
         margin-left:-10px;
-      }
-      .highlight {
-		background: #cec;
-      }
-      span:hover {
+    }
+    .highlight {
+        background: #cec;
+    }
+    span:hover {
         cursor: pointer;
-		background: #cec;
-      }
+        background: #cec;
+    }
+    html {
+        border-style: solid;
+        border-width: 2px;
+        border-color: #518651;
+    }
      </style>
   </head>
   <body>
@@ -63,19 +79,26 @@
     <div id="tag" style="display:none">
       <div align="center">
         <h2 id="heading">Choose Tag</h2>
-        <input type="text" id="newtag" size="30" autofocus></input>
-        <textarea id="note" rows="2" cols="33" disabled>Note (or hit Return):</textarea>
-        <form id="tabAction">
-          <label class="radio-inline">
-            <input type="radio" name="bta" value="GROUP" id="GROUP" checked>Group
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="bta" value="STICK" id="STICK">Stick
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="bta" value="CLOSE" id="CLOSE">Close
-          </label>
-        </form>
+        <input type="text" id="newtag" size="40" autofocus></input>
+        <textarea id="note" rows="3" cols="45" disabled>Note (or hit Return):</textarea>
+        <div id="forms" >
+          <form id="tabAction" class="horizontal">
+            <label class="radio-inline">
+              <input type="radio" name="bta" value="GROUP" id="GROUP" checked><span>Group</span>
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="bta" value="STICK" id="STICK"><span>Stick</span>
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="bta" value="CLOSE" id="CLOSE"><span>Close</span>
+            </label>
+          </form>
+          <hr class="horizontal" width="1" size="15" style="vertical-align: sub">
+          <div class="horizontal" id="chk">
+            <input type="checkbox" style="vertical-align: sub" id="all" name="all" value="All">
+            <label for="all" id="allLabel">All Tabs</label>
+          </div>
+        </div>
       </div>
       <h3>Existing Tags:</h3>
       <div id="currentTags"></div>
