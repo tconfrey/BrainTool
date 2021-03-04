@@ -45,7 +45,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         $("#options_button").show();
         $("#authDiv").addClass("notImportant");
         if (FirstUse) {
-            $("#intro_text").slideUp(750);
+            $("#intro_text").slideDown(750);
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
@@ -1079,6 +1079,10 @@ function updatePrefs() {
 
 // Register listener for grouping mode change
 $(document).ready(function () {
+    if (typeof WaitingForKeys !== 'undefined') {
+        // Defined in btContentScript so undefined => some issue
+        alert("Something went wrong. The BrainTool app is not connected to its Chrome Extension!");
+    }
     $(':radio').click(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
