@@ -21,6 +21,7 @@ const tipsArray = [
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
     "Check out the Bookmark import/export functions under Options!",
+    "You can click on the tags shown in the BT popup instead of typing out the name",
     "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
@@ -817,7 +818,6 @@ function deleteRow(e) {
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete all?')) {
         $("table.treetable").treetable("removeNode", appNode.id);    // Remove from UI and treetable
-        $("#dialog")[0].close();
         deleteNode(appNode.id);
     }   
 }
@@ -1207,6 +1207,7 @@ $(document).keydown(function(e) {
     // space = open tab/window
     if (key === 32) {
         node.showNode();
+        e.preventDefault();
     }    
 
 });

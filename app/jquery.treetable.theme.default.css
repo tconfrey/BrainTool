@@ -105,7 +105,7 @@ table.treetable tr span.elipse {
 
 
 table.treetable tr.opened {
-    background-color: #cec;
+    background-color: #BED8BE
 }
 tr.opened td.left {
     font-weight: bold;
@@ -126,7 +126,7 @@ table.treetable span.btTitle {
 }
 
 table.treetable tr.hovered {
-    background-color: #cec; /*#7bb07b; / #aca; */
+    background-color: #BED8BE;
 }
 
 table.treetable tr.selected {
@@ -134,10 +134,10 @@ table.treetable tr.selected {
 }
 
 table.treetable tr.attention {
-    background-color: #191;
+    background-color: #518651;
 }
 table.treetable td.dropOver {
     border-bottom-style: solid;
-    border-bottom-color: #191; /*grey;*/
+    border-bottom-color: #518651;
     border-bottom-width: 5px;
 }
