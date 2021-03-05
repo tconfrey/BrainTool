@@ -16,12 +16,28 @@ var ReadOnly = false;                   // capture whether tab is already stored
 var TabAction;                          // current GROUP|CLOSE|STICK action
 var Tabs;                               // tabs in current window
 
-popupAction();
-chrome.runtime.connect();       // tell background popup is open
+chrome.storage.local.get({'newVersion': false}, val => {
+    if (!val['newVersion']) {           //carry on
+        popupAction();
+        chrome.runtime.connect();       // tell background popup is open
+    } else {
+        // Background has received updateAvailable, so inform user and upgrade
+        const msg = document.getElementById('message');
+        msg.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
+        chrome.storage.local.remove('newVersion');
+        setTimeout(() => {            
+            chrome.tabs.query({title: "BrainTool Chrome Extension"},
+                              (tabs => {
+                                  if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
+                                  chrome.runtime.reload();
+                              }));
+        }, 2000);
+    }
+});
 
 function popupAction () {
     // Activate popup -> populate form is app is open, otherwise open app
-
+    
     if (BackgroundPage.BTTab)
         chrome.tabs.query(              // find active tab to open popup from
             {currentWindow: true}, list => {

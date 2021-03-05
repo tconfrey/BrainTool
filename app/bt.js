@@ -49,7 +49,6 @@ function updateSigninStatus(isSignedIn, error=false) {
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
-            $("#intro_text").hide();
             addTip();
             setTimeout(closeMenu, 10000);
         }
