@@ -7,7 +7,7 @@ description: Reverse chronological notes on recent BrainTool versions.
 This is a brief overview of the changes in this release.
 
 ## Support for Release Notes!
-Hopefully you are seeing this page as a result of being upgraded to the new version of BrainTool. I also added a [Welcome](welcome.md) page for new installs.
+Hopefully you are seeing this page as a result of being upgraded to the new version of BrainTool. I also added a [Welcome](support/welcome.md) page for new installs, feel free to check it out. See also the general [Support](support.md) page.
 
 ## Keyboard shortcuts
 To support keyboard commands I've added the notion of having an explicitly selected row. Clicking a row selects it. The selected row is shown in <span style="color:#7bb07b">dark green</span> and the element-specific shortcuts operate on it. 
@@ -15,7 +15,7 @@ To support keyboard commands I've added the notion of having an explicitly selec
 Key bindings were influenced by emacs/org-mode but given that the browser absorbs lots of control characters (C-N, P, S etc) and that only a small subset of BrainTool users are emacs/org natives, I defaulted to skipping the modifier key or using Option. Commands operating on the selection are as follows:
   - n,p or arrow keys select the 'n'ext or 'p'revious row.
   - Left arrow out outdent the selection.
-  - Tab expands or collapses the subrtree for a Topic row.
+  - Tab expands or collapses the subtree for a Topic row.
   - Enter toggles open/close the selections link, or all of its occurrences if its a topic.
   - t cycles the TODO state.
   - Shift up/down arrows move the selection up/down.
