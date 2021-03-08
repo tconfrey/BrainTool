@@ -1153,11 +1153,31 @@ $(document).keydown(function(e) {
         undo();
     }
     
-    // ignore keys if no selection or if edit dialog is open
-    const currentSelection = $("tr.selected")[0];
-    const dialog = $("#dialog")[0];
-    if (!currentSelection || $(dialog).is(':visible')) return;
+    // ignore keys if edit dialog is open
+    if ($($("#dialog")[0]).is(':visible')) return;
 
+    // n or down arrow, p or up arrow for up/down moves (w/o shift)
+    let next, currentSelection = $("tr.selected")[0];
+    if (!shift && [78, 80, 38, 40].includes(key)) {
+        if (currentSelection)
+            next = (key == 78 || key == 40) ?
+                  $(currentSelection).nextAll(":visible").first()[0] :          // down
+                  $(currentSelection).prevAll(":visible").first()[0];           // up
+        else
+            // no selection => nav in from top or bottom
+            next = (key == 78 || key == 40) ?
+                $('#content').find('tr:visible:first')[0] :
+            $('#content').find('tr:visible:last')[0];
+        
+        if (!next) return;
+        if (currentSelection) $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
+        e.preventDefault();
+        return;
+    }
+    
+    if (!currentSelection) return;
     const nodeId = $(currentSelection).attr('data-tt-id');
     const node = AllNodes[nodeId];
     if (!node) return;
@@ -1167,25 +1187,13 @@ $(document).keydown(function(e) {
         if (node.childIds.length && !node.folded) {
             $("#content").treetable("collapseNode", nodeId);
         }
-        // its already below prev so we drop below prev.prev moving up
+        // its already below prev so we drop below prev.prev when moving up
         const dropTr = (key === 38) ?
               $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
         moveNode(node, AllNodes[dropId]);
         return;
-    }
-
-    // n or down arrow, p or up arrow for up/down moves (w/o shift)
-    if ([78, 80, 38, 40].includes(key)) {
-        const next = (key == 78 || key == 40) ?
-              $(currentSelection).nextAll(":visible").first()[0] :          // down
-              $(currentSelection).prevAll(":visible").first()[0];           // up
-        if (!next) return;
-        $(currentSelection).removeClass('selected');
-        $(next).addClass('selected');
-        next.scrollIntoView({block: 'nearest'});
-        e.preventDefault();
     }
 
     // enter == open or close.
