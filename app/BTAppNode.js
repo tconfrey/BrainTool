@@ -18,6 +18,7 @@ class BTAppNode extends BTNode {
         this.drawers = {};
         this.tags = [];
         AllNodes[this._id] = this;
+        brainZoom();
     }
 
     set text(txt) {

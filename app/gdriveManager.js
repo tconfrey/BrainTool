@@ -292,6 +292,7 @@ function writeBTFile(cb) {
         unwrittenChanges = null;
         
         BTFileText = generateOrgFile();
+        updateStatsRow();                            // show updated stats
         if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
 	        alert("BT - Error in writeBTFile. Google API not available.");

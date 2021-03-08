@@ -181,6 +181,7 @@ function initializeExtension(msg, sender) {
               'https://braintool.org/support/welcome' :
               'https://braintool.org/support/releaseNotes';
         chrome.tabs.create({'url': welcomePage});
+        InitialInstall = null; Update = null;
     }
 }
 

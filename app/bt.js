@@ -101,6 +101,33 @@ function toggleOptions(dur = 500) {
     }
 }
 
+function updateStatsRow() {
+    // update #tags, urls, saves
+
+    const numTags = AllNodes.filter(n => n && n.isTag()).length;
+    const numOpenTags = AllNodes.filter(n => n && n.isTag() && n.hasOpenChildren()).length;
+    const numLinks = AllNodes.filter(n => n && n.URL).length;
+    const numOpenLinks = AllNodes.filter(n => n && n.URL && n.tabId).length;
+    const numSaves = getMetaProp('BTVersion');
+    $('#num_tags').text(numOpenTags ? `:${numTags} (${numOpenTags})` : `:${numTags}`);
+    $('#num_links').text(numOpenLinks ? `:${numLinks} (${numOpenLinks})` : `${numLinks}`);
+    $('#num_saves').text(':'+numSaves);
+}
+
+function brainZoom(iteration = 0) {
+    // iterate thru icons to swell the brain
+    const iterationArray = [0,1,2,3,4,3,2,1,0];
+    const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
+    
+    if (iteration == iterationArray.length) {
+        $("#brain").attr("src", "../extension/images/BrainTool48.png");
+        return;
+    }
+    $("#brain").attr("src", path);
+    const interval = iteration == 4 ? 400 : 200;
+    setTimeout(function() {brainZoom(++iteration);}, interval);
+}
+
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
@@ -273,6 +300,8 @@ function initializeUI() {
     // Copy buttonRow's html for potential later recreation (see below)
     if ($("#buttonRow")[0])
         ButtonRowHTML = $("#buttonRow")[0].outerHTML;
+
+    updateStatsRow();                            // show updated stats
 }
 
 function reCreateButtonRow() {
@@ -522,6 +551,7 @@ function tabClosed(data) {
     // update ui and animate parent to indicate change
     $("tr[data-tt-id='"+node.id+"']").removeClass("opened", 1000);
     propogateClosed(node.parentId);
+    updateStatsRow();
 }
 
 function storeTab(data) {

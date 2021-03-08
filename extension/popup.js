@@ -66,7 +66,7 @@ function windowOpen() {
     var wargs = {
         'url' : url,
         'type' : "panel",
-        'top' : 10, 'left' : 10,
+        'top' : 10, 'left' : 5,
         'width' : 500, 'height' : 1100
     };
     chrome.windows.create(wargs, function(window) {
