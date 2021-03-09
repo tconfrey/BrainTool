@@ -18,6 +18,7 @@ class BTAppNode extends BTNode {
         this.drawers = {};
         this.tags = [];
         AllNodes[this._id] = this;
+        brainZoom();
     }
 
     set text(txt) {
@@ -79,7 +80,6 @@ class BTAppNode extends BTNode {
             break;
         }
     }
-                
 
     set folded(f) {
         this._folded = f;
@@ -93,6 +93,10 @@ class BTAppNode extends BTNode {
     }
     hasOpenDescendants() {
         return (this.tabId || this.childIds.some(id => AllNodes[id].hasOpenDescendants()));
+    }
+    hasUnopenDescendants() {
+        return ((this.URL && !this.tabId) ||
+                this.childIds.some(id => AllNodes[id].hasUnopenDescendants()));
     }
 
 /***
@@ -441,10 +445,6 @@ class BTAppNode extends BTNode {
         const newLevel = newP ? AllNodes[newP].level + 1 : 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
-
-        // message to update BT background model
-        window.postMessage(
-            { type: 'node_reparented', nodeId: this.id, parentId: newP, index: index });
     }
     
     indexInParent() {

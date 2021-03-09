@@ -174,23 +174,43 @@ class BTNode {
         return [tag, null, null, tag];
     }
 
+    static undoStack = [];
     static deleteNode(nodeId) {
         // Cleanly delete this node
+        BTNode.undoStack = [];                     // only one level of undo for now
 
-        const node = AllNodes[nodeId];
-        if (!node) return;
+        function _deleteNode(nodeId) {
+            const node = AllNodes[nodeId];
+            if (!node) return;
 
-        // recurse to delete children if any
-        const children = [...node.childIds];
-        children.forEach(BTNode.deleteNode);
-        
-        // Remove from parent
-        const parent = AllNodes[node.parentId];
-        if (parent)
-            parent.removeChild(nodeId);
+            // recurse to delete children if any
+            const children = [...node.childIds];
+            children.forEach(_deleteNode);
+            
+            // Remove from parent
+            const parent = AllNodes[node.parentId];
+            if (parent)
+                parent.removeChild(nodeId);
 
-        delete(AllNodes[nodeId]);
+            BTNode.undoStack.push(node);
+            delete(AllNodes[nodeId]);
+        }
+        _deleteNode(nodeId);
     }
+
+    static undoDelete() {
+        // read back in the undo list
+        if (!BTNode.undoStack.length) return;
+        let node, topNode = BTNode.undoStack[BTNode.undoStack.length -1];
+        while (BTNode.undoStack.length) {
+            node = BTNode.undoStack.pop();
+            AllNodes[node.id] = node;
+            if (node.parentId)
+                AllNodes[node.parentId].addChild(node.id);
+        }
+        return topNode;
+    }
+            
 
     generateUniqueTagPath() {
         // same tag can be under multiple parents, generate a unique tagPath
@@ -207,7 +227,7 @@ class BTNode {
             this._tagPath = this._displayTag;
             return;
         }
-        const sameTag = AllNodes.filter(nn => nn.isTag() && nn.displayTag == this.displayTag);
+        const sameTag = AllNodes.filter(nn => nn && nn.isTag() && nn.displayTag == this.displayTag);
         if (sameTag.length == 1) {
             // unique
             this._tagPath = this._displayTag;
@@ -222,6 +242,7 @@ class BTNode {
     static generateUniqueTagPaths() {
         // same tag can be under multiple parents, generate a unique tagPath for each node
         AllNodes.forEach(function(n) {
+            if (!n) return;
             n.generateUniqueTagPath();
         });
     }

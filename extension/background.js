@@ -8,11 +8,11 @@
 
 'use strict';
 
-chrome.runtime.onInstalled.addListener(function() {});
 var BTTab = 0;
 var BTWin = 0;
-var AllNodes = [];              // array of BTNodes
-var LocalTest = false;          // control code path during unit testing
+var LocalTest = false;                 // control code path during unit testing
+var InitialInstall = false;            // should we serve up the welcome page
+var Update = false;                   // or the release notes page
 
 function check() {
     // check for error
@@ -20,6 +20,18 @@ function check() {
         console.log("!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
     }
 }
+
+chrome.runtime.onUpdateAvailable.addListener(deets => {
+    // Store so popup can inform and then upgrade
+    chrome.storage.local.set({'newVersion' : deets.version});
+});
+chrome.runtime.onInstalled.addListener(deets => {
+    // special handling for first install or new version
+    if (deets.reason == 'install')
+        InitialInstall = true;
+    else if (deets.reason == 'update' && deets.version != chrome.runtime.getManifest().version)
+        Update = true;
+});
 
 /***
  *
@@ -162,6 +174,15 @@ function initializeExtension(msg, sender) {
     chrome.tabs.sendMessage(                        
         BTTab,
         {'function': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
+
+    // check to see if a welcome is called for
+    if (InitialInstall || Update) {
+        const welcomePage = InitialInstall ?
+              'https://braintool.org/support/welcome' :
+              'https://braintool.org/support/releaseNotes';
+        chrome.tabs.create({'url': welcomePage});
+        InitialInstall = null; Update = null;
+    }
 }
 
 function openTab(msg, sender, tries=0) {
@@ -424,7 +445,7 @@ function compareURLs(first, second) {
     }
 }
 
-var marqueeEvent;                            // ptr to timeout event to allow cancellation
+var MarqueeEvent;                            // ptr to timeout event to allow cancellation
 function setBadge(tabId) {
     // tab/window activated, set badge appropriately
 
@@ -434,13 +455,13 @@ function setBadge(tabId) {
         } else {            
             chrome.browserAction.setBadgeText({'text' : badgeText.slice(index) + "   ",
                                                'tabId': tabId}, () => check());
-            marqueeEvent = setTimeout(function() {marquee(badgeText, ++index);}, 150);
+            MarqueeEvent = setTimeout(function() {marquee(badgeText, ++index);}, 150);
         }
     }
-    if (marqueeEvent) clearTimeout(marqueeEvent);
+    if (MarqueeEvent) clearTimeout(MarqueeEvent);
     chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
         if (!data.currentTag) {
-            chrome.browserAction.setBadgeText({'tabId': tabId, 'text' : ""}, () => check());
+            chrome.browserAction.setBadgeText({'text' : ""});
             chrome.browserAction.setTitle({'title' : 'BrainTool'});
         } else {
             marquee(data.currentTag, 0);
@@ -470,7 +491,7 @@ function brainZoom(msg, sender, iteration = 0) {
     chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId}, () => {
         // if action was Close tab might be clsoed by now
         if (chrome.runtime.lastError)
-            console.log("!!Whoops, runtime error in Zoom.. " + chrome.runtime.lastError.message);
+            console.log("!!Whoops, tab closed before Zoom.. " + chrome.runtime.lastError.message);
         else
             setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 150);
     });

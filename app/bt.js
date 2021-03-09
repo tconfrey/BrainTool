@@ -21,6 +21,7 @@ const tipsArray = [
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
     "Check out the Bookmark import/export functions under Options!",
+    "You can click on the tags shown in the BT popup instead of typing out the name",
     "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
@@ -44,17 +45,16 @@ function updateSigninStatus(isSignedIn, error=false) {
         $("#options_button").show();
         $("#authDiv").addClass("notImportant");
         if (FirstUse) {
-            $("#intro_text").slideUp(750);
+            $("#intro_text").slideDown(750);
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
-            $("#intro_text").hide();
             addTip();
             setTimeout(closeMenu, 10000);
         }
         findOrCreateBTFile();
     } else {
-        $("#auth_screen").show();
+        $("#controls_screen").show();
         $("#loading").hide();
         $("#options_button").hide();
         $("#options").hide();
@@ -72,8 +72,8 @@ function addTip() {
 
 function toggleMenu() {
     // Toggle the visibility of the intro page, auth button and open/close icon
-    if ($("#auth_screen").is(":visible")) {
-        $("#auth_screen").slideUp(750);
+    if ($("#controls_screen").is(":visible")) {
+        $("#controls_screen").slideUp(750);
         $("#close").show();
         $("#open").hide();
     } else {
@@ -81,14 +81,14 @@ function toggleMenu() {
             FirstUse = false;
         else
             addTip();               // display tip text on subsequent views
-        $("#auth_screen").slideDown(750);
+        $("#controls_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
     }
 }
 function closeMenu() {
     // close the intro page if its visible
-    if ($("#auth_screen").is(":visible"))
+    if ($("#controls_screen").is(":visible"))
         toggleMenu();
 }
 
@@ -99,6 +99,33 @@ function toggleOptions(dur = 500) {
     } else {
         $("#options").show({duration: dur, easing: 'swing'});
     }
+}
+
+function updateStatsRow() {
+    // update #tags, urls, saves
+
+    const numTags = AllNodes.filter(n => n && n.isTag()).length;
+    const numOpenTags = AllNodes.filter(n => n && n.isTag() && n.hasOpenChildren()).length;
+    const numLinks = AllNodes.filter(n => n && n.URL).length;
+    const numOpenLinks = AllNodes.filter(n => n && n.URL && n.tabId).length;
+    const numSaves = getMetaProp('BTVersion');
+    $('#num_tags').text(numOpenTags ? `:${numTags} (${numOpenTags})` : `:${numTags}`);
+    $('#num_links').text(numOpenLinks ? `:${numLinks} (${numOpenLinks})` : `${numLinks}`);
+    $('#num_saves').text(':'+numSaves);
+}
+
+function brainZoom(iteration = 0) {
+    // iterate thru icons to swell the brain
+    const iterationArray = [0,1,2,3,4,3,2,1,0];
+    const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
+    
+    if (iteration == iterationArray.length) {
+        $("#brain").attr("src", "../extension/images/BrainTool48.png");
+        return;
+    }
+    $("#brain").attr("src", path);
+    const interval = iteration == 4 ? 400 : 200;
+    setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
 var ButtonRowHTML; 
@@ -134,7 +161,6 @@ function generateTable() {
     // Generate table from BT Nodes
     var outputHTML = "<table>";
     AllNodes.forEach(function(node) {
-//        if (!node || !node.hasWebLinks) return;
         if (!node) return;
         outputHTML += node.HTML();
     });
@@ -217,7 +243,14 @@ function initializeUI() {
         const nodeId = this.getAttribute("data-tt-id");
         AllNodes[nodeId].showNode();
     });
-        
+    
+    // single click - select row
+    $("table.treetable tr").off("click");              // remove any previous handler
+    $("table.treetable tr").on("click", function (e) {
+        $("tr.selected").removeClass('selected');
+        $(this).addClass("selected");
+    });
+    
     // make rows draggable    
     $("tr").draggable({
         helper: function() {
@@ -267,6 +300,8 @@ function initializeUI() {
     // Copy buttonRow's html for potential later recreation (see below)
     if ($("#buttonRow")[0])
         ButtonRowHTML = $("#buttonRow")[0].outerHTML;
+
+    updateStatsRow();                            // show updated stats
 }
 
 function reCreateButtonRow() {
@@ -305,26 +340,10 @@ function dropNode(event, ui) {
     const treeTable = $("#content");
 
     if (dropNodeId) {
+
+        const dropBTNode = AllNodes[dropNodeId];
         const oldParentId = dragNode.parentId;
-        if ($(dropNode).hasClass("collapsed") || $(dropNode).hasClass("leaf")) {
-            // drop below dropNode w same parent
-            const parentId = AllNodes[dropNodeId].parentId;
-            const parent = AllNodes[parentId];
-            dragNode.reparentNode(parentId,
-                                  parent ?
-                                  parent.childIds.indexOf(parseInt(dropNodeId)) + 1 :
-                                  -1);
-            if (parentId) {
-                treeTable.treetable("move", dragNodeId, parentId);
-                positionNode(dragTarget, parentId, dropNode);          // sort into position
-            } else {
-                treeTable.treetable("insertAtTop", dragNodeId, dropNodeId);
-            }
-        } else {
-            // drop into dropNode as first child
-            dragNode.reparentNode(dropNodeId, 0);
-            treeTable.treetable("move", dragNodeId, dropNodeId);
-        }
+        moveNode(dragNode, dropBTNode);
         
         writeBTFile();
         BTAppNode.generateTags();        
@@ -343,10 +362,36 @@ function dropNode(event, ui) {
     $("td").removeClass("dropOver");
 }
 
+function moveNode(dragNode, dropNode) {
+    // perform move for DnD - drop Drag over Drop
+    
+    const treeTable = $("#content");
+    if (dropNode.isTag() && !dropNode.folded) {
+        // drop into dropNode as first child
+        dragNode.reparentNode(dropNode.id, 0);
+        treeTable.treetable("move", dragNode.id, dropNode.id);
+    } else {
+        // drop below dropNode w same parent
+        const parentId = dropNode.parentId;
+        const parent = parentId ? AllNodes[parentId] : null;
+        dragNode.reparentNode(parentId,
+                              parent ?
+                              parent.childIds.indexOf(parseInt(dropNode.id)) + 1 :
+                              -1);
+        if (parentId) {
+            const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
+            const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
+            treeTable.treetable("move", dragNode.id, parentId);
+            positionNode(dragTr, parentId, dropTr);          // sort into position
+        } else {
+            treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
+        }
+    }
+}
+
 function positionNode(dragNode, dropParentId, dropBelow) {
     // Position dragged node below the dropbelow element under the parent
     // NB treetable does not support this so we need to use this sort method
-    console.log("positioning");
     const newPos = $("tr").index(dropBelow);
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
@@ -406,7 +451,7 @@ function nodeCollapse() {
    
 
 function handleLinkClick(e) {
-    var nodeId = $(this).closest("tr").attr('data-tt-id');
+    const nodeId = $(this).closest("tr").attr('data-tt-id');
     AllNodes[nodeId].openTab();
     e.preventDefault();
 }
@@ -506,6 +551,7 @@ function tabClosed(data) {
     // update ui and animate parent to indicate change
     $("tr[data-tt-id='"+node.id+"']").removeClass("opened", 1000);
     propogateClosed(node.parentId);
+    updateStatsRow();
 }
 
 function storeTab(data) {
@@ -698,29 +744,27 @@ function buttonHide() {
 
 function editRow(e) {
     // position and populate the dialog and open it
-    const top = e.clientY;
-    $(e.target).closest("tr").addClass('selected');
+    const node = activeNode(e);
+    if (!node) return;
+    const row = $(`tr[data-tt-id='${node.id}']`)[0];
+    const top = $(row).position().top - $(document).scrollTop();
     const dialog = $("#dialog")[0];
 
     if ((top + $(dialog).height() + 50) < $(window).height())
-        $(dialog).css("top", top+10);
+        $(dialog).css("top", top+50);
     else
         // position above row to avoid going off bottom of screen
         $(dialog).css("top", top - $(dialog).height() - 50);
-    
-    if (populateDialog()) {
-        dialog.showModal();
-    } else {
-        $(this).closest("tr").removeClass('selected');
-        alert("Error editing here, please update the org file directly and Refresh");
-    }
+
+    // populate dialog
+    $("#title-text").val(node.title);
+    $("#text-text").val(node.text);
+    $("#update").prop("disabled", true);
+    dialog.showModal();
 }
 
-$("textarea").change(function() {
-    $("#update").prop("disabled", true);
-});
-
-$(".editNode").on('change keyup paste', function() {
+$(".editNode").on('input', function() {
+    // enable update button if one of the texts is edited
     $("#update").prop('disabled', false);
 });
 
@@ -729,44 +773,38 @@ $("#popup").click(function(e) {
     if (e.target.tagName === 'DIALOG')
     {
         $("#dialog")[0].close();
-        $("tr.selected").removeClass('selected');
         $("#buttonRow").show(100);
     }
 });
 
 function dialogClose() {
     $('#dialog')[0].close();
-    $("tr.selected").removeClass('selected');
 }
     
 
 function selectedNode() {
     // Return the node currently highlighted or selected
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
+    if (!tr) return null;
     const nodeId = $(tr).attr('data-tt-id');
+    if (!nodeId) return null;
     return AllNodes[nodeId];
 }
 
-function populateDialog() {
-    // set up the dialog for use
-    const appNode = selectedNode();
-    if (!appNode) return false;
-    
-    const titletxt = appNode.title;
-    const txttxt = appNode.text;
-    
-    $("#title-text").val(titletxt);
-    $("#text-text").val(txttxt);
-    $("#update").prop("disabled", true);
-    return true;
+function activeNode(e) {
+    // Return the active node for the event, either hovered (button click) or selected (keyboard)
+    const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
+    if (!tr) return null;
+    const nodeId = $(tr).attr('data-tt-id') || 0;
+    return AllNodes[nodeId];
 }
     
 
-function openRow() {
+function openRow(e) {
     // Open all links under this row in windows per tag
 
     // First find all AppNodes involved - selected plus children
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return;
 
     // Warn if opening lots of stuff
@@ -781,13 +819,15 @@ function openRow() {
             if (!confirm(`Open ${numTabs} tabs?`))
                 return;
 
-    appNode.openAll();
-    $("tr.selected").removeClass('selected');
+    if (appNode.isTag())
+        appNode.openAll();
+    else
+        appNode.openTab();
 }
 
-function closeRow() {
+function closeRow(e) {
     // close this node's tab or window
-    const appNode = selectedNode();  
+    const appNode = activeNode(e);  
     if (!appNode) return;
     appNode.closeTab();
 }
@@ -797,17 +837,16 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-function deleteRow() {
+function deleteRow(e) {
     // Delete selected node/row.
     buttonHide();
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete all?')) {
         $("table.treetable").treetable("removeNode", appNode.id);    // Remove from UI and treetable
-        $("#dialog")[0].close();
         deleteNode(appNode.id);
     }   
 }
@@ -877,24 +916,24 @@ function updateRow() {
     initializeUI();
 }
 
-function toDo() {
+function toDo(e) {
     // iterate todo state of selected node/row (TODO -> DONE -> '').
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const appNode = selectedNode();
+    const appNode = activeNode(e);
     if (!appNode) return false;
 
-    appNode.iterateKeyword()    // ask node to update
+    appNode.iterateKeyword()                // ask node to update
 
     // Update ui and file
+    const tr = $(`tr[data-tt-id='${appNode.id}']`);
     $(tr).find("span.btTitle").html(appNode.displayTitle());
     initializeUI();
     writeBTFile();
 }
 
-function promote() {
+function promote(e) {
     // move node up a level in tree hierarchy
     
-    const node = selectedNode();
+    const node = activeNode(e);
     if (!node || !node.parentId) return;                  // can't promote
     
     // collapse open subtree if any
@@ -912,22 +951,27 @@ function promote() {
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
 
-function addChild() {
+function addChild(e) {
     // add new child to this node
 
     // create child element
-    const node = selectedNode();
-    const newnodes = AllNodes.filter(n => n.title.startsWith('New Tag'));
+    const node = activeNode(e);
+    if (!node) return;
+    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Tag'));
     const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
     const newNode = addNewTag(newName, node.tagPath, node);
-    initializeUI();
 
     // and highlight it for editing
-    const tr = $(`tr[data-tt-id='${newNode.id}`);
+    const tr = $(`tr[data-tt-id='${newNode.id}']`);
+    $("tr.selected").removeClass('selected');
+    $(tr).addClass("selected");
     const clientY = tr[0].getBoundingClientRect().top + 25;
     const dummyEvent = {'clientY': clientY, 'target': tr[0]};
     editRow(dummyEvent);
-    
+
+    // Stop the event from selecting the row and line up a save
+    e.stopPropagation();
+    initializeUI();
     writeBTFile();
 }
 
@@ -936,7 +980,7 @@ function generateOrgFile() {
     let orgText = metaPropertiesToString(AllNodes.metaProperties);
     
     // find and order the top level nodes according to table position
-    const topNodes = AllNodes.filter(node => !node.parentId);
+    const topNodes = AllNodes.filter(node => node && !node.parentId);
     topNodes.sort(function(a,b) {
         const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
         const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
@@ -1064,6 +1108,10 @@ function updatePrefs() {
 
 // Register listener for grouping mode change
 $(document).ready(function () {
+    if (typeof WaitingForKeys !== 'undefined') {
+        // Defined in btContentScript so undefined => some issue
+        alert("Something went wrong. The BrainTool app is not connected to its Chrome Extension!");
+    }
     $(':radio').click(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
@@ -1071,18 +1119,163 @@ $(document).ready(function () {
         setMetaProp('BTGroupingMode', GroupingMode);
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
-        console.log(`Changed grouping options from ${oldVal} to ${newVal}`);
-        groupingUpdate(oldVal, newVal);
+
+        writeBTFile(groupingUpdate(oldVal, newVal));
     });
 });
 
 function groupingUpdate(from, to) {
     // grouping has been changed, potentially update open tabs (WINDOW->NONE is ignored)
-
+    console.log(`Changing grouping options from ${from} to ${to}`);
     if (from == 'TABGROUP' && to == 'NONE')
         BTAppNode.ungroupAll();
     if ((from == 'NONE' || from == 'WINDOW') && to == 'TABGROUP')
         BTAppNode.groupAll();
     if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW')
         BTAppNode.windowAll();
+}
+
+
+
+/***
+ * 
+ * Keyboard event handlers
+ * 
+ ***/
+
+$(document).keydown(function(e) {
+
+    const key = e.which;
+    const alt = e.altKey;
+    const shift = e.shiftKey;
+    // This one doesn't need a row selected, alt-z for undo last delete
+    if (alt && key === 90) {
+        undo();
+    }
+    
+    // ignore keys if edit dialog is open
+    if ($($("#dialog")[0]).is(':visible')) return;
+
+    // n or down arrow, p or up arrow for up/down moves (w/o shift)
+    let next, currentSelection = $("tr.selected")[0];
+    if (!shift && [78, 80, 38, 40].includes(key)) {
+        if (currentSelection)
+            next = (key == 78 || key == 40) ?
+                  $(currentSelection).nextAll(":visible").first()[0] :          // down
+                  $(currentSelection).prevAll(":visible").first()[0];           // up
+        else
+            // no selection => nav in from top or bottom
+            next = (key == 78 || key == 40) ?
+                $('#content').find('tr:visible:first')[0] :
+            $('#content').find('tr:visible:last')[0];
+        
+        if (!next) return;
+        if (currentSelection) $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
+        e.preventDefault();
+        return;
+    }
+    
+    if (!currentSelection) return;
+    const nodeId = $(currentSelection).attr('data-tt-id');
+    const node = AllNodes[nodeId];
+    if (!node) return;
+
+    // up(38) and down(40) arrows move
+    if (shift && (key === 38 || key === 40)) {
+        if (node.childIds.length && !node.folded) {
+            $("#content").treetable("collapseNode", nodeId);
+        }
+        // its already below prev so we drop below prev.prev when moving up
+        const dropTr = (key === 38) ?
+              $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
+              $(currentSelection).nextAll(":visible").first();
+        const dropId = $(dropTr).attr('data-tt-id');
+        moveNode(node, AllNodes[dropId]);
+        return;
+    }
+
+    // enter == open or close.
+    if (!alt && key === 13) {
+        if (node.childIds.length) {
+            if (node.hasUnopenDescendants())
+                openRow(e);
+            else
+                closeRow(e);
+        } else {
+            if (node.URL && !node.tabId)
+                openRow(e);
+            if (node.tabId)
+                closeRow(e);
+        }
+    }
+    
+    // tab == expand or collapse
+    if (key === 9) {
+        if (AllNodes[nodeId].folded)
+            $("table.treetable").treetable("expandNode", nodeId);
+        else
+            $("table.treetable").treetable("collapseNode", nodeId);
+    }
+
+    // t = cycle TODO state
+    if (key === 84) {
+        toDo(e);
+    }
+
+    // e = edit
+    if (key === 69) {
+        editRow(e);
+        e.preventDefault();
+    }
+
+    // delete = delete
+    if (key === 8) {
+        deleteRow(e);
+    }
+
+    // opt enter = new child
+    if (alt && key === 13 && node.isTag()) {
+        addChild(e);
+    }
+
+    // <- = promote
+    if (key === 37) {
+        promote(e);
+    }
+
+    // space = open tab/window
+    if (key === 32) {
+        node.showNode();
+        e.preventDefault();
+    }    
+
+});
+
+
+function undo() {
+    // undo last delete
+    const node = BTNode.undoDelete();
+    const parent = AllNodes[node.parentId];
+    function updateTree(ttn, btn) {
+        // recurse as needed on tree update
+        $("table.treetable").treetable("loadBranch", ttn || null, btn.HTML());
+        if (btn.childIds.length) {
+            const n = $("table.treetable").treetable("node", btn.id);
+            btn.childIds.forEach(
+                (id) => updateTree(n, AllNodes[id]));
+        }
+    }
+
+    // Update tree
+    let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
+    updateTree(n, node);
+    $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
+
+    initializeUI();
+    writeBTFile();
+    BTAppNode.generateTags();        
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+
 }

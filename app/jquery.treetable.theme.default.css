@@ -1,12 +1,10 @@
 table.treetable {
-  border: 1px solid #DDD;
-/*  border-collapse: collapse; */
-  font-size: .7em;
-  font-family: tahoma;
-  line-height: 1;
-  margin: .6em 0 0.6em 0;
-  padding-bottom: 1.2em;
-  width: 100%;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    border: 1px solid #DDD;
+    font-size: .7em;
+    font-family: tahoma;
+    line-height: 1;
 }
 
 
@@ -72,12 +70,6 @@ table.treetable tr.branch {
   background-color: #f9f9f9;
 }
 
-table.treetable tr.selected {
-    background-color: #9d9; /* #cd72ae #4b9643;  #cfc;*/
-/*  background-color: #3875d7;
-  color: #fff; */
-}
-
 table.treetable tr span.indenter a {
   outline: none; /* Expander shows outline after upgrading to 3.0 (#141) */
 }
@@ -113,7 +105,7 @@ table.treetable tr span.elipse {
 
 
 table.treetable tr.opened {
-    background-color: #cec;
+    background-color: #BED8BE
 }
 tr.opened td.left {
     font-weight: bold;
@@ -132,15 +124,20 @@ table.treetable span.btText {
 table.treetable span.btTitle {
     padding-left: 0px;
 }
+
 table.treetable tr.hovered {
-    background-color: #7bb07b; /* #aca; */
+    background-color: #BED8BE;
+}
+
+table.treetable tr.selected {
+    background-color: #7bb07b;
 }
 
 table.treetable tr.attention {
-    background-color: #191;
+    background-color: #518651;
 }
 table.treetable td.dropOver {
     border-bottom-style: solid;
-    border-bottom-color: #191; /*grey;*/
+    border-bottom-color: #518651;
     border-bottom-width: 5px;
 }
