@@ -83,7 +83,7 @@ function popupOpen(tab) {
     const newTag = document.getElementById('newtag');
     const tagsArea = document.getElementById('currentTags');
     const heading = document.getElementById('heading');
-    const tabAction = document.getElementById('tabAction');
+    const forms = document.getElementById('forms');
     messageDiv.style.display = 'none';
     tagDiv.style.display = 'block';
 
@@ -127,7 +127,7 @@ function popupOpen(tab) {
             Note.disabled = true;
             newTag.disabled = true;
             tagsArea.disabled = true;
-            tabAction.style.display = 'none';
+            forms.style.display = 'none';
             heading.innerText = "Tag Info:";
         }
     });
