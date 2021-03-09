@@ -21,6 +21,7 @@ var fr=new FileReader();
 fr.onload=function(){ 
 var bt = tabsToBT(fr.result);
 document.getElementById('output').textContent=bt; 
+document.getElementById('output').select();
 } 
 
 fr.readAsText(this.files[0]); 
