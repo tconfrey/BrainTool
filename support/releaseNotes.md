@@ -29,9 +29,11 @@ In addition there are the following general keys:
   - Opt-b opens the BrainTool popup on the current browser tab.
   - Opt-b-b opens and selects the BrainTool side panel.
 
-Ability to tag all a windows tabs at once.
+## Ability to tag all a windows tabs at once
+See the checkbox on the BT popup.
 
-Reworked the control tab to be static at the top of the screen and added a stats bar showing you how big your braintool is.
+## Stats Bar
+I reworked the control tab to be static at the top of the screen and added a stats bar showing you how big your braintool is.
 
 
 # BrainTool 0.7
