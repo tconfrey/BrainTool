@@ -12,7 +12,7 @@ Hopefully you are seeing this page as a result of being upgraded to the new vers
 ## Keyboard shortcuts
 To support keyboard commands I've added the notion of having an explicitly selected row. Clicking a row selects it. The selected row is shown in <span style="background-color:#7bb07b">dark green</span> and the element-specific shortcuts operate on it. 
 
-Key bindings were influenced by emacs/org-mode but given that the browser absorbs lots of control characters (C-N, P, S etc) and that only a small subset of BrainTool users are emacs/org natives, I defaulted to skipping the modifier key or using Option. Commands operating on the selection are as follows:
+Key bindings were influenced by emacs/org-mode but given that the browser absorbs lots of control characters (C-N, P, S etc) and that only a small subset of BrainTool users are emacs/org natives, I defaulted to skipping the modifier key or using Option/Alt key. Commands operating on the selection are as follows:
   - n,p or arrow keys select the 'n'ext or 'p'revious row.
   - Left arrow out outdent the selection.
   - Tab expands or collapses the subtree for a Topic row.
