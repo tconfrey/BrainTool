@@ -757,7 +757,8 @@ function editRow(e) {
         $(dialog).css("top", top - $(dialog).height() - 50);
 
     // populate dialog
-    $("#title-text").val(node.title);
+    $("#title-text").val(node.displayTag);
+    $("#title-url").val(node.URL);
     $("#text-text").val(node.text);
     $("#update").prop("disabled", true);
     dialog.showModal();
@@ -895,9 +896,11 @@ function updateRow() {
     if (!node) return;
 
     // Update Model
-    node.title = $("#title-text").val();
+    const url = $("#title-url").val();
+    const title = $("#title-text").val();
+    node.title = `[[${url}][${title}]]`;
     node.text = $("#text-text").val();
-    
+
     // Update ui
     $(tr).find("span.btTitle").html(node.displayTitle());
     $(tr).find("span.btText").html(node.displayText());
@@ -1147,7 +1150,6 @@ $(document).keydown(function(e) {
 
     const key = e.which;
     const alt = e.altKey;
-    const shift = e.shiftKey;
     // This one doesn't need a row selected, alt-z for undo last delete
     if (alt && key === 90) {
         undo();
@@ -1156,9 +1158,9 @@ $(document).keydown(function(e) {
     // ignore keys if edit dialog is open
     if ($($("#dialog")[0]).is(':visible')) return;
 
-    // n or down arrow, p or up arrow for up/down moves (w/o shift)
+    // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
-    if (!shift && [78, 80, 38, 40].includes(key)) {
+    if (!alt && [78, 80, 38, 40].includes(key)) {
         if (currentSelection)
             next = (key == 78 || key == 40) ?
                   $(currentSelection).nextAll(":visible").first()[0] :          // down
@@ -1183,7 +1185,7 @@ $(document).keydown(function(e) {
     if (!node) return;
 
     // up(38) and down(40) arrows move
-    if (shift && (key === 38 || key === 40)) {
+    if (alt && (key === 38 || key === 40)) {
         if (node.childIds.length && !node.folded) {
             $("#content").treetable("collapseNode", nodeId);
         }
@@ -1193,6 +1195,7 @@ $(document).keydown(function(e) {
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
         moveNode(node, AllNodes[dropId]);
+        e.preventDefault();
         return;
     }
 
@@ -1240,9 +1243,17 @@ $(document).keydown(function(e) {
         addChild(e);
     }
 
-    // <- = promote
-    if (key === 37) {
+    // opt <- = promote
+    if (alt && key === 37) {
         promote(e);
+    }
+
+    // <- select parent
+    if (key === 37) {
+        if (!node.parentId) return;
+        next = $(`tr[data-tt-id=${node.parentId}]`)[0];
+        $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
     }
 
     // space = open tab/window

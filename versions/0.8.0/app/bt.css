@@ -71,18 +71,21 @@ dialog {
     border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
     border-radius: 6px;
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-    width: 80%;
+    width: 82%;
+    padding: 10px;
     margin-top: 0px;
     position: fixed;
 }
 
 dialog textarea {
     width: 90%;
-    height: 5em;
 }
-#editText {
-    margin-right: 0px;
-    margin-left: 10px;
+dialog #text-text {
+    height: 8em;
+    width: 95%;
+}
+dialog #title-url {
+    height: 4em;
 }
 
 #authDiv {
@@ -108,7 +111,7 @@ dialog textarea {
 .buttonDiv {
     width: 80%;
     margin: auto;
-    padding-top: 10px;
+    padding-top: 4px;
     display: flex;
     justify-content: space-around;
 }
