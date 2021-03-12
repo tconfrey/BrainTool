@@ -780,7 +780,12 @@ function editRow(e) {
 
     // populate dialog
     $("#title-text").val(node.displayTag);
-    $("#title-url").val(node.URL);
+    if (node.isTag())
+        $("#title-url").hide();
+    else {
+        $("#title-url").show();
+        $("#title-url").val(node.URL);
+    }
     $("#text-text").val(node.text);
     $("#update").prop("disabled", true);
     dialog.showModal();
@@ -920,7 +925,10 @@ function updateRow() {
     // Update Model
     const url = $("#title-url").val();
     const title = $("#title-text").val();
-    node.title = `[[${url}][${title}]]`;
+    if (node.isTag())
+        node.title = title;
+    else
+        node.title = `[[${url}][${title}]]`;
     node.text = $("#text-text").val();
 
     // Update ui
