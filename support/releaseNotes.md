@@ -13,6 +13,7 @@ Hopefully you are seeing this page as a result of being upgraded to the new vers
 To support keyboard commands I've added the notion of having an explicitly selected row. Clicking a row selects it (also navigating Next or Previous selects the first or last row). The selected row is shown in <span style="background-color:#7bb07b">dark green</span> and the selection-specific shortcuts operate on it. 
 
 Key bindings were influenced by emacs/org-mode but given that the browser absorbs lots of control characters (Ctrl-N, P, S etc) and that only a small subset of BrainTool users are emacs/org natives, I defaulted to skipping the Control key. Commands operating on the selection are as follows:
+  - Keyboard commands can be shown any time by typing 'h'
   - Tree Navigation/Display:
     - <b>n,p or arrow keys</b> select the 'n'ext or 'p'revious row.
     - <b>left arrow</b> navigates up the tree to the selections parent Topic.
