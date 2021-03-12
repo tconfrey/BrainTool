@@ -1248,6 +1248,8 @@ $(document).keydown(function(e) {
             $("table.treetable").treetable("expandNode", nodeId);
         else
             $("table.treetable").treetable("collapseNode", nodeId);
+        e.preventDefault();
+        return;
     }
 
     // t = cycle TODO state
