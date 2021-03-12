@@ -13,10 +13,11 @@
 }
 
 #stats_row {
-    float: right;
-    margin-top: 2px;
     height: 18px;
     color: darkslategray;
+    position: absolute;
+    top: 2px;
+    right: 5px;
 }
 
 .open_close {
@@ -116,7 +117,7 @@ dialog #title-url {
     justify-content: space-around;
 }
 
-#options {
+.control_overlay {
     margin: 0;
     position: absolute;
     top: 50%;
@@ -132,15 +133,23 @@ dialog #title-url {
     width: 80%;
     z-index: 3;
 }
-.option_table {
+.overlay_table {
     margin-left: auto;
     margin-right: auto;
+    font-size:13px;
 }
 .option_td {
     margin-left: auto;
     margin-right: auto;
-    text-align: center;
+    text-align: left;
 }
+
+.row_divider {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: grey;
+}
+
 #optionsClose {
     position: absolute;
     cursor: pointer;
@@ -182,6 +191,11 @@ textarea {
     /* font-family: "Palatino";
      font-family: "Arial";
      line-height: 1;*/
+}
+
+/* prevents selection being scrolled off top */
+.treetable tr {
+  scroll-margin-top: 330px;
 }
 
 

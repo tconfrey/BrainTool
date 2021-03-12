@@ -15,7 +15,6 @@ const tipsArray = [
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can tag individual gmails or google docs into the BT tree",
-    "BT uses org format for links: [[URL][Link Text]], both can be edited",
     "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
     "Tag LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
@@ -76,6 +75,9 @@ function toggleMenu() {
         $("#controls_screen").slideUp(750);
         $("#close").show();
         $("#open").hide();
+
+        // scroll-margin ensures the seleciton does not get hidden behind the header
+        $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
         if (FirstUse)
             FirstUse = false;
@@ -84,6 +86,7 @@ function toggleMenu() {
         $("#controls_screen").slideDown(750);
         $("#close").hide();
         $("#open").show();
+        $(".treetable tr").css("scroll-margin-top", "330px");
     }
 }
 function closeMenu() {
@@ -98,6 +101,25 @@ function toggleOptions(dur = 500) {
         $("#options").hide({duration: dur, easing: 'swing'});
     } else {
         $("#options").show({duration: dur, easing: 'swing'});
+    }
+}
+
+var ToggleMenuBackAfterHelp = false;      // keep track of if controls only opened to show help
+function toggleHelp(dur = 500) {
+    // Toggle visibility of help div
+    if ($("#help").is(":visible")) {
+        if (ToggleMenuBackAfterHelp) {
+            ToggleMenuBackAfterHelp = false;
+            toggleMenu();
+            dur = 1500;
+        }
+        $("#help").hide({duration: dur, easing: 'swing'});
+    } else {
+        $("#help").show({duration: dur, easing: 'swing'});
+        if (!$("#controls_screen").is(":visible")) {
+            ToggleMenuBackAfterHelp = true;
+            setTimeout(() => toggleMenu(), dur);
+        }
     }
 }
 
@@ -1179,6 +1201,12 @@ $(document).keydown(function(e) {
         return;
     }
     
+    // h = help
+    if (key === 72) {
+        toggleHelp();
+        e.preventDefault();
+    }
+
     if (!currentSelection) return;
     const nodeId = $(currentSelection).attr('data-tt-id');
     const node = AllNodes[nodeId];
@@ -1260,8 +1288,8 @@ $(document).keydown(function(e) {
     if (key === 32) {
         node.showNode();
         e.preventDefault();
-    }    
-
+    }
+    
 });
 
 

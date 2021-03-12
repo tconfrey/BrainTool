@@ -36,7 +36,7 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; margin-top: 3px; margin-bottom: 12px"><b>Now with Tab Grouping!</b></p>
+        <p style="text-align: center; margin-top: 3px; margin-bottom: 12px"><b>Now with Keyboard Shortcuts!</b></p>
         <p id='intro_text' style="margin: 10px; text-align: justify; display:none">
           BrainTool saves all your links and notes in a plain text file that is stored on your Google Drive. You need to grant it permission to read and write this file. There are no BT servers and nothing is stored anywhere except within the file, named BrainTool.org, which is fully under your control. For details see the <a href="https://braintool.org/BrainToolPrivacyPolicy.pdf" target="_blank">privacy policy</a>
           </p>
@@ -45,17 +45,17 @@
           <button id="authorize_button" style="display: none;">Authorize GDrive Access</button>
           <button id="options_button" onClick="toggleOptions()">Options</button>
         </div>
-        <p style="margin: 10px; text-align: justify;">Look here for quick tips or see <a href="https://braintool.org/overview" target="_blank">our website</a> for more information.
+        <p style="margin: 10px; text-align: justify;">Type h for help. See here for tips (below) or <a href="https://braintool.org/overview" target="_blank">BrainTool.org</a> for more info.
         </p>
         <p id="tip" style="margin: 10px; margin-bottom: 20px; text-align: justify;">
           NB The initial tree shows some examples of how to use tags. Feel free to build on it or delete anything you don't want by hovering over the row and hitting the trash button.<br/>
         </p>
           <p style="margin-bottom: 3px; margin-left:10px; font-style: italic; font-size: 12px">BrainTool is young. Please review positively. Feedback to braintool.extension@gmail. Thanks!</p>
         
-        <div id="options" style="display: none">
+        <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close"
                src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
-          <table class="option_table">
+          <table class="overlay_table">
             <tr><td class="option_td" colspan="2">
                 <b>Options</b>
             </td></tr>
@@ -84,23 +84,74 @@
             <tr><td class="option_td" colspan="2">
                 <b>Other options coming soon</b>
             </td></tr>
-            <!--
-            <tr><td class="option_td">
-                Font Size:
-            </td><td/></tr>
-            <tr><td class="option_td">
-                Window size/position:
-            </td><td/></tr>
-            <tr><td class="option_td">
-                New items: </td><td>On Top | On Bottom
-            </td></tr>
--->
             <tr><td class="option_td" style="text-align: left" colspan="2">
                 <i><small>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</small></i>
             </td></tr>
           </table>
         </div>
 
+        <div id="help" class="control_overlay" style="display: none; z-index: 4;">
+          <img id="optionsClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20" onClick="toggleHelp()">
+          <table class="overlay_table">
+            <tr><td class="option_td" colspan="3" style="font-size:15px; text-align:center">
+                <b>Keyboard Commands</b>
+            </td></tr>
+            <tr>
+              <td rowspan="3" style="writing-mode: vertical-rl;">Nav</td>
+              <td class="option_td">n,p,&uarr;&darr;</td>
+              <td>Navigate to Next, Previous row</td>
+            </tr>
+            <tr>
+              <td class="option_td">&larr;</td>
+              <td>Navigate to the parent Topic</td>
+            </tr>
+            <tr >
+              <td class="option_td, row_divider">Tab</td>
+              <td class="row_divider">Expand/Collapse the sub tree</td>
+            </tr>
+            <tr>
+              <td rowspan="2" style="writing-mode: vertical-rl;">Browse</td>
+              <td class="option_td">Space</td>
+              <td>Surface the associated tab or window</td>
+            </tr>
+            <tr>
+              <td class="option_td, row_divider">Enter</td>
+              <td class="row_divider">Open/Close in the browser</td>
+            </tr>
+            <tr>
+              <td rowspan="5" style="writing-mode: sideways-lr;">Edit</td>
+              <td class="option_td">Option &uarr;&darr;</td>
+              <td >Move selection up/down</td>
+            </tr>
+            <tr>
+              <td class="option_td">Option &larr;</td>
+              <td>Promote selection up a level</td>
+            </tr>
+            <tr>
+              <td class="option_td">t, e</td>
+              <td>t cycle TODO state, e Edit</td>
+            </tr>
+            <tr>
+              <td class="option_td">Delete</td>
+              <td>Delete selection</td>
+            </tr>
+            <tr>
+              <td class="option_td">Opt-Enter</td>
+              <td>Create a new sub Topic</td>
+            </tr>
+            <tr>
+              <td class="row_divider"/>
+              <td class="option_td, row_divider">Opt-z</td>
+              <td class="row_divider">Undo last deletion</td>
+            </tr>
+            <tr>
+              <td/>
+              <td class="option_td">Opt-b-b</td>
+              <td>Open BT SidePanel (this window)</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
       
