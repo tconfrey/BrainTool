@@ -461,7 +461,7 @@ function setBadge(tabId) {
     if (MarqueeEvent) clearTimeout(MarqueeEvent);
     chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
         if (!data.currentTag) {
-            chrome.browserAction.setBadgeText({'text' : ""});
+            chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId});
             chrome.browserAction.setTitle({'title' : 'BrainTool'});
         } else {
             marquee(data.currentTag, 0);
