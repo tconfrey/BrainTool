@@ -50,23 +50,23 @@
         <p id="tip" style="margin: 10px; margin-bottom: 20px; text-align: justify;">
           NB The initial tree shows some examples of how to use tags. Feel free to build on it or delete anything you don't want by hovering over the row and hitting the trash button.<br/>
         </p>
-          <p style="margin-bottom: 3px; margin-left:10px; font-style: italic; font-size: 12px">BrainTool is young. Please review positively. Feedback to braintool.extension@gmail. Thanks!</p>
+          <p style="margin-bottom: 3px; margin-left:10px; margin-top:30px; font-style: italic; font-size: 12px">BrainTool is young. Please review positively. Feedback to braintool.extension@gmail. Thanks!</p>
         
         <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close"
                src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
-          <table class="overlay_table">
-            <tr><td class="option_td" colspan="2">
+          <table class="overlay_table" style="font-size:15px; text-align:center">
+            <tr><td colspan="2">
                 <b>Options</b>
             </td></tr>
-            <tr><td class="option_td" colspan="2">
+            <tr><td colspan="2">
                 <button id="import_button" onClick="importBookmarks()">Import from Bookmarks</button>
             </td></tr>
-            <tr><td class="option_td" colspan="2">
+            <tr><td colspan="2">
                 <button id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
             </td></tr>
-            <tr><td>BT Tags map to:</td></tr>
-            <tr><td class="option_td" colspan="2">
+            <tr><td style="text-align:left">BT Tags map to:</td></tr>
+            <tr><td colspan="2">
                 <div class="toggle-radio">
                   <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
                   <label for="default_Option1">Windows</label>
@@ -78,10 +78,10 @@
                   <label for="default_Option3">Nothing</label>
                 </div>
             </td></tr>
-            <tr><td class="option_td" colspan="2">
+            <tr><td colspan="2">
                 <hr/>
             </td></tr>
-            <tr><td class="option_td" colspan="2">
+            <tr><td colspan="2">
                 <b>Other options coming soon</b>
             </td></tr>
             <tr><td class="option_td" style="text-align: left" colspan="2">
@@ -98,13 +98,17 @@
                 <b>Keyboard Commands</b>
             </td></tr>
             <tr>
-              <td rowspan="3" style="writing-mode: vertical-rl;">Nav</td>
+              <td rowspan="4" style="writing-mode: vertical-rl;">Nav</td>
               <td class="option_td">n,p,&uarr;&darr;</td>
               <td>Navigate to Next, Previous row</td>
             </tr>
             <tr>
               <td class="option_td">&larr;</td>
-              <td>Navigate to the parent Topic</td>
+              <td>Collapse or navigate to parent</td>
+            </tr>
+            <tr>
+              <td class="option_td">&rarr;</td>
+              <td>Open or navigate to child</td>
             </tr>
             <tr >
               <td class="option_td, row_divider">Tab</td>

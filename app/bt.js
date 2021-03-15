@@ -1252,7 +1252,7 @@ $(document).keydown(function(e) {
     
     // tab == expand or collapse
     if (key === 9) {
-        if (AllNodes[nodeId].folded)
+        if (node.folded)
             $("table.treetable").treetable("expandNode", nodeId);
         else
             $("table.treetable").treetable("collapseNode", nodeId);
@@ -1286,10 +1286,26 @@ $(document).keydown(function(e) {
         promote(e);
     }
 
-    // <- select parent
+    // <- collapse open node, then nav up tree
     if (key === 37) {
+        if (node.childIds.length && !node.folded) {
+            $("table.treetable").treetable("collapseNode", nodeId);
+            return;
+        }
         if (!node.parentId) return;
         next = $(`tr[data-tt-id=${node.parentId}]`)[0];
+        $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
+    }
+
+    // -> open node, then nav down tree
+    if (key === 39) {
+        if (node.folded) {
+            $("table.treetable").treetable("expandNode", nodeId);
+            return;
+        }
+        if (!node.childIds.length) return;        
+        next = $(currentSelection).nextAll(":visible").first()[0];
         $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
     }
