@@ -270,26 +270,26 @@ function reAuth(callback) {
 }
 
 window.LOCALTEST = false; // overwritten in test harness
-var lastWriteTime = new Date();
-var unwrittenChanges = null;
+var LastWriteTime = new Date();
+var UnwrittenChanges = null;
 function writeBTFile(cb) {
     // Notification of change that needs to be written
 
     // if its been 15 secs, just write out,
-    if (new Date().getTime() > (15000 + lastWriteTime.getTime()))
+    if (new Date().getTime() > (15000 + LastWriteTime.getTime()))
         _writeBTFile(cb);
     else
         // else set a timer, if one hasn't already been set
-        if (!unwrittenChanges) {
-            unwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
+        if (!UnwrittenChanges) {
+            UnwrittenChanges = setTimeout(_writeBTFile, 15000, cb);
             console.log("Holding BT file write");
         }
 
     function _writeBTFile(cb) {
         // Write file contents into BT.org file on GDrive
         console.log("Writing BT file");
-        lastWriteTime = new Date();
-        unwrittenChanges = null;
+        LastWriteTime = new Date();
+        UnwrittenChanges = null;
         
         BTFileText = generateOrgFile();
         updateStatsRow();                            // show updated stats

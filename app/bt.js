@@ -158,6 +158,12 @@ var OpenedNodes = [];          // attempt to preserve opened state across refres
 
 function refreshTable() {
     // refresh from file, first clear current state
+
+    // First check to make sure we're not clobbering a pending write, see gdriveManager.
+    if (UnwrittenChanges) {
+        alert('A save is currently in process, please wait a few seconds and try again');
+        return;
+    }
     $("#refresh").prop("disabled", true);
     $("#refresh").text('...');
     $('body').addClass('waiting');

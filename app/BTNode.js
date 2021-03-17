@@ -205,7 +205,7 @@ class BTNode {
         while (BTNode.undoStack.length) {
             node = BTNode.undoStack.pop();
             AllNodes[node.id] = node;
-            if (node.parentId)
+            if (node.parentId && AllNodes[node.parentId])
                 AllNodes[node.parentId].addChild(node.id);
         }
         return topNode;
