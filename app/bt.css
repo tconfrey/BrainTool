@@ -74,6 +74,7 @@ dialog {
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     width: 82%;
     padding: 10px;
+    padding-top: 2px;
     margin-top: 0px;
     position: fixed;
 }

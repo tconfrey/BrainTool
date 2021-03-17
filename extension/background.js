@@ -124,9 +124,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 chrome.tabs.onActivated.addListener((info) => {
     // Let app know there's a new top tab
-    if (!info.tabId || !BTTab) return;         // 
-    chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId});
-    setTimeout(function() {setBadge(info.tabId);}, 200);
+    if (!info.tabId || !BTTab) return;
+    chrome.tabs.get(info.tabId, tab => {
+        chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId, 'windowId': tab.windowId, 'groupId': tab.groupId});
+        setTimeout(function() {setBadge(info.tabId);}, 250);
+    });
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
@@ -357,20 +359,23 @@ function moveToWindow(msg, sender) {
 }
 
 function moveToTabGroup(msg, sender) {
-    // move tab to position in tabgroup
+    // move array of tabids to tabgroup
     // TODO group does not take position, need to add seperate move?
-    const tabId = msg.tabId;
-    const nodeId = msg.nodeId;
+    const tabIds = msg.tabIds;
+    const nodeIds = msg.nodeIds;
     const position = msg.position;
     const tabGroupId = msg.tabGroupId;
     const firstOpenTab = msg.firstOpenTab;
     const windowId = msg.windowId;
-    const args = tabGroupId ? {'groupId': tabGroupId, 'tabIds': tabId} : {'tabIds': tabId};
+    const args = tabGroupId ? {'groupId': tabGroupId, 'tabIds': tabIds} :
+          {'tabIds': tabIds, 'createProperties': {'windowId': windowId}};
     chrome.tabs.group(args, groupId => {
         check();
-        chrome.tabs.sendMessage(
-            BTTab, {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
-                    'windowId': windowId, 'tabGroupId': groupId});
+        for (let i = 0; i < tabIds.length; i++) {
+            chrome.tabs.sendMessage(
+                BTTab, {'function': 'tabOpened', 'nodeId': nodeIds[i], 'tabId': tabIds[i],
+                        'windowId': windowId, 'tabGroupId': groupId});
+        }
     });
 }
 

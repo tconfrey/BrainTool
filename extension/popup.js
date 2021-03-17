@@ -118,7 +118,7 @@ function popupOpen(tab) {
     });
     
     // Pull currentTag from local storage and prepopulate widget
-    chrome.storage.local.get(['currentTabId', 'currentTag', 'currentText'], function(data) {
+    chrome.storage.local.get(['currentTabId', 'currentTag', 'currentText', 'windowTopic', 'groupTopic', 'mruTopic', 'mruTime'], data => {
         if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
             newTag.value = data.currentTag;
             Defaulted = true;
@@ -129,6 +129,16 @@ function popupOpen(tab) {
             tagsArea.disabled = true;
             forms.style.display = 'none';
             heading.innerText = "Tag Info:";
+            return;
+        }
+        if (data.windowTopic || data.groupTopic || data.mruTopic) {
+            // pre-fill to Window or Group topic, or mru if less than 3 mins old
+            const now = new Date();
+            const mruAge = data.mruTime ? (now - new Date(data.mruTime)) : 0;
+            const value = (data.groupTopic || data.windowTopic ||
+                           ((mruAge < 180000) ? data.mruTopic : ''));
+            newTag.value = value;
+            if (newTag.value) Defaulted = true;
         }
     });
 }
@@ -245,19 +255,25 @@ function tabAdded() {
     // where tag may be new, new under parent, or existing but under parent to disambiguate
     const newTag = document.getElementById('newtag').value;          
     if (newTag == "") return;
-    const noteText = Note.value.replace(/\s+$/g, '');     // remove trailing newlines if any
+    let noteText = Note.value.replace(/\s+$/g, '');       // remove trailing newlines/validate
+    if (noteText.startsWith('Note (or hit Return):')) noteText = '';
     const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
     const cb = document.getElementById('all');
     const allTabs = cb.checked;                           // is the All Tabs checked
-    const tabsToOpen = allTabs ? Tabs : new Array(CurrentTab);
+    const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
 
-    tabsToOpen.forEach(tab => {
+    let message = {'function': 'storeTabs', 'tag': newTag, 'note': noteText,
+                   'windowId': CurrentTab.windowId, 'tabAction': TabAction};
+    let tabsData = [];
+    tabsToStore.forEach(tab => {
         // Send msg per tab to BT app for processing w text and tag info
-        const message = {'function': 'storeTab', 'tag': newTag, 'note': noteText,
-                         'url': tab.url, 'title': tab.title, 'tabId': tab.id,
-                         'windowId': tab.windowId, 'tabAction': TabAction};
-        chrome.tabs.sendMessage(BTTabId, message);
+        const tabData = {'url': tab.url, 'title': tab.title, 'tabId': tab.id};
+        tabsData.push(tabData);
     });
+    message.tabsData = tabsData;
+    chrome.tabs.sendMessage(BTTabId, message);
+    
+    // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
     if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
         chrome.runtime.sendMessage(
             {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});

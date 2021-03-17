@@ -493,8 +493,8 @@ function cleanTitle(text) {
     return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
 }
 
-function tabOpened(data, highlight = false) {
-    // handle tab open message
+function openNode(node) {
+    // set node and parent to open, propagate upwards as needed above any collapsed nodes
 
     function propogateOpened(parentId) {
         // recursively pass upwards adding opened class if appropriate
@@ -503,6 +503,15 @@ function tabOpened(data, highlight = false) {
             $("tr[data-tt-id='"+parentId+"']").addClass("opened");
         propogateOpened(AllNodes[parentId].parentId);
     };
+
+    const parentId = node.parentId;
+    $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+    $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+    propogateOpened(parentId);
+}
+
+function tabOpened(data, highlight = false) {
+    // handle tab open message
     
     const nodeId = data.nodeId;
     const node = AllNodes[nodeId];
@@ -520,19 +529,19 @@ function tabOpened(data, highlight = false) {
         AllNodes[parentId].tabGroupId = tabGroupId;
         node.tabGroupId = tabGroupId;
     }
-    let row = $("tr[data-tt-id='"+nodeId+"']");
-    row.addClass("opened");
-    $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-    propogateOpened(parentId);
+
+    openNode(node);    
     initializeUI();
     tabActivated(data);                             // also perform activation stuff
     
-    if (highlight)
+    if (highlight) {
+        const row = $("tr[data-tt-id='"+nodeId+"']");
         row.addClass("hovered",
                      {duration: 1000,
                       complete: function() {
                           row.removeClass("hovered", 1000);
                       }});
+    }
     
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
     if (GroupingMode != GroupOptions.WINDOW) return;
@@ -576,55 +585,77 @@ function tabClosed(data) {
     updateStatsRow();
 }
 
-function storeTab(data) {
-    // put this tab under storage w given tag
+function storeTabs(data) {
+    // put tab(s) under storage w given tag. tabsData is a list, could be on or all tabs in window
     // NB tagString may be tag, parent:tag, tag:keyword, parent:tag:keyword
     // where tag may be new, new under parent, or existing but under parent to disambiguate
     const tagString = data.tag;
     const note = data.note;
-    const url = data.url;
-    const title = cleanTitle(data.title);
-    const tabId = data.tabId;
     const windowId = data.windowId;
+    const tabAction = data.tabAction;
 
     // process tag and add new if doesn't exist    
     const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString);
     const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
-    
-    const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
-                                  note || "", parentNode.level + 1);
-    if (keyword) newNode.keyword = keyword;
-    newNode.tabId = tabId;
+    const ttParent = $("table.treetable").treetable("node", parentNode.id);
+    const tabsData = data.tabsData;
+    let newNodes = [];
 
-    const n = $("table.treetable").treetable("node", parentNode.id);     // find parent treetable node
-    $("table.treetable").treetable("loadBranch", n, newNode.HTML());     // and insert new row
+    // remember tag/time for potential pre-fill next time
+    window.postMessage({'function': 'localStore', 'data': {'mruTopic': tagPath, 'mruTime': new Date().toJSON()}});
+
+    tabsData.forEach(tabData => {
+        // create each new node and add to tree
+        const url = tabData.url;
+        const title = cleanTitle(tabData.title);
+        const tabId = tabData.tabId;        
+        const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
+                                      note || "", parentNode.level + 1);
+        newNodes.push(newNode);
+        if (keyword) newNode.keyword = keyword;
+        newNode.tabId = tabId;
+        $("table.treetable").treetable("loadBranch", ttParent, newNode.HTML());
+    });
 
     // sort tree based on position in parents child array
     const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
     const childIds = parentNode.childIds;
     $("table.treetable").treetable(
-        "sortBranch", n, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
+        "sortBranch", ttParent, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
     
     initializeUI();
     writeBTFile();
 
     // Execute tab action (close, stick, group)
-    if (data.tabAction == 'STICK') {
-        data.nodeId = newNode.id;
-        tabOpened(data);
+    if (tabAction == 'CLOSE') {
+        newNodes.forEach(node => node.closeTab());
         return;
     }
-    if (data.tabAction == 'CLOSE')
-        newNode.closeTab();
-    else {
-        // Move tab to group or win
-        if (GroupingMode == GroupOptions.NONE) {
-            data.nodeId = newNode.id;
-            tabOpened(data);
-            return;
+    newNodes.forEach(node => openNode(node));            // if not closing then show as open
+    if (GroupingMode == 'WINDOW') {
+        // w window grouping either move to existing assigned window or just remember this one
+        if (parentNode.windowId || newNodes.length == 1) {
+            newNodes.forEach(node => node.group());
+            newNodes[0].showNode();
         }
-        newNode.group();
-    }        
+        else
+            parentNode.windowId = windowId;
+        return;
+    }
+    
+    if (GroupingMode == 'TABGROUP')
+        if (parentNode.tabGroupId) {
+            newNodes.forEach(node => node.group());
+            newNodes[0].showNode();
+        }
+        else {
+            // Tell bg to create a new TG for Topic
+            const tabIds = newNodes.map(node => node.tabId);
+            const nodeIds = newNodes.map(node => node.id);
+            window.postMessage(
+                {'function': 'moveToTabGroup', 'tabIds': tabIds,
+                 'nodeIds': nodeIds, 'windowId': windowId});
+        }
 }
 
 function addNewTag(tag, parentTag = null, parentNode = null) {
@@ -674,13 +705,18 @@ function tabActivated(data) {
     // user switched to a new tab or win, fill in storage for popup's use
 
     const tabId = data['tabId'];
+    const winId = data['windowId'];
+    const groupId = data['groupId'];
     const node = BTAppNode.findFromTab(tabId);
-    let message = {};
+    const winNode = BTAppNode.findFromWindow(winId);
+    const groupNode = BTAppNode.findFromGroup(groupId);
+    let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
+                   'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
     if (node) 
-        message = {'currentTag': node.tagPath, 'currentTabId': node.tabId, 'currentText': node.text};
+        m1 = {'currentTag': node.tagPath, 'currentText': node.text};
     else
-        message = {'currentTag': '', 'currentTabId': tabId, 'currentText': ''};
-    window.postMessage({'function': 'localStore', 'data': message});
+        m1 = {'currentTag': '', 'currentText': ''};
+    window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
     // TODO highlight this node in tree
 }
 
@@ -776,9 +812,10 @@ function editRow(e) {
         $(dialog).css("top", top+50);
     else
         // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - $(dialog).height() - 50);
+        $(dialog).css("top", top - $(dialog).height() - 20);
 
     // populate dialog
+    $("#tag-path").text(node.fullTagPath());
     $("#title-text").val(node.displayTag);
     if (node.isTag())
         $("#title-url").hide();

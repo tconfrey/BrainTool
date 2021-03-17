@@ -211,7 +211,15 @@ class BTNode {
         return topNode;
     }
             
-
+    fullTagPath() {
+        // distinguished name for this node
+        const myTag = this.isTag() ? this.displayTag : '';
+        if (this.parentId && AllNodes[this.parentId])
+            return AllNodes[this.parentId].fullTagPath() + ':' + myTag;
+        else
+            return myTag;        
+    }
+    
     generateUniqueTagPath() {
         // same tag can be under multiple parents, generate a unique tagPath
 

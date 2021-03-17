@@ -216,8 +216,8 @@ class BTAppNode extends BTNode {
             const firstOpenTab = AllNodes[this.parentId].leftmostOpenTab();
             window.postMessage(
                 {'function' : 'moveToTabGroup', 'firstOpenTab' : firstOpenTab,
-                 'tabId' : tabId, 'tabGroupId': tabGroupId, 'windowId' : windowId,
-                 'position' : index, 'nodeId' : this.id});
+                 'tabIds' : [tabId], 'tabGroupId': tabGroupId, 'windowId' : windowId,
+                 'position' : index, 'nodeIds' : [this.id]});
         }
         if (GroupingMode == GroupOptions.NONE) {
             // no grouping implemented for this case, 
@@ -498,6 +498,16 @@ class BTAppNode extends BTNode {
         // Return node associated w url, if any
         return AllNodes.find(node => node && BTNode.compareURLs(node.URL, url));
     }
+
+    static findFromWindow(winId) {
+        // find topic from win
+        return AllNodes.find(node => node && node.isTag() && node.windowId == winId);
+    }
+    
+    static findFromGroup(groupId) {
+        // find topic from tab group
+        return AllNodes.find(node => node && node.isTag() && node.tabGroupId == groupId);
+    }
 }
 
 
@@ -551,7 +561,7 @@ const Handlers = {
     "tabUpdated": tabUpdated,
     "tabOpened" : tabOpened,
     "tabClosed" : tabClosed,
-    "storeTab": storeTab,
+    "storeTabs": storeTabs,
     "keys": processKeys
 };
 
