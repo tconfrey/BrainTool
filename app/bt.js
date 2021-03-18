@@ -34,7 +34,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         let msg = "Error Authenticating with Google. Google says:<br/><i>'";
         msg += (error.details) ? error.details : JSON.stringify(error);
         msg += "'</i><br/>If this is a cookie issue be aware that Google uses cookies for authentication.";
-        msg += "<br/>Go to 'chrome://settings/content/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry.";
+        msg += "<br/>Go to 'chrome://settings/content/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry. If it continues see \nbraintool.org/support";
         $("#loadingMessage").html(msg);
         closeMenu();
         return;
@@ -44,7 +44,7 @@ function updateSigninStatus(isSignedIn, error=false) {
         $("#options_button").show();
         $("#authDiv").addClass("notImportant");
         if (FirstUse) {
-            $("#intro_text").slideDown(750);
+            $("#intro_text").slideUp(750);
             $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
             setTimeout(closeMenu, 30000);
         } else {
@@ -54,12 +54,12 @@ function updateSigninStatus(isSignedIn, error=false) {
         findOrCreateBTFile();
     } else {
         $("#controls_screen").show();
+        $("#intro_text").slideDown(750);
         $("#loading").hide();
         $("#options_button").hide();
         $("#options").hide();
         $("#authDiv").addClass("important");
         authorizeButton.style.display = 'block';
-        //signoutButton.style.display = 'none';
     }
 }
 
@@ -76,7 +76,7 @@ function toggleMenu() {
         $("#close").show();
         $("#open").hide();
 
-        // scroll-margin ensures the seleciton does not get hidden behind the header
+        // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
         if (FirstUse)
@@ -528,7 +528,7 @@ function tabOpened(data, highlight = false) {
     const parentId = AllNodes[nodeId].parentId || nodeId;
     const indexInParent = node.indexInParent();
 
-    node.tabId = tabId;
+    node.tabId = tabId;         
     node.windowId = windowId;
     AllNodes[parentId].windowId = windowId;
     if (tabGroupId) {
@@ -694,9 +694,20 @@ function tabUpdated(data) {
     const tabUrl = data.tabURL;
 
     const tabNode = BTAppNode.findFromTab(tabId);
-    if (tabNode && !BTNode.compareURLs(tabNode.URL, tabUrl))
-        // existing BT node navigated away
-        tabClosed(data);
+    if (tabNode) {
+        // tab gets created (see tabOpened) then a status complete event gets us here
+        if (!BTNode.compareURLs(tabNode.URL, tabUrl)) {
+            // if the url on load complete != initial => redirect, so we shoudl follow
+            if (tabNode.opening) {
+                console.log(`redirect from ${tabNode.URL} to ${tabUrl}`);
+                tabNode.URL = tabUrl;
+            }
+            else
+                tabClosed(data);
+        }
+        tabNode.opening = false;
+        return;
+    }
 
     const urlNode = BTAppNode.findFromURL(tabUrl);
     if (urlNode) {
@@ -705,7 +716,6 @@ function tabUpdated(data) {
         tabOpened(data, true);
         // acknowledge nav to BT node with brain animation
         window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
-        /* TODO why? urlNode.showNode(); */
     }
 }
 
@@ -1209,8 +1219,11 @@ function groupingUpdate(from, to) {
         BTAppNode.ungroupAll();
     if ((from == 'NONE' || from == 'WINDOW') && to == 'TABGROUP')
         BTAppNode.groupAll();
-    if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW')
-        BTAppNode.windowAll();
+    if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW') {
+        const numPotentialWins = AllNodes.filter(n => n.isTag() && n.windowId).length;
+        if (confirm(`Also sort existing tabs into ${numPotentialWins} new windows?`))
+            BTAppNode.windowAll();
+    }
 }
 
 

@@ -15,6 +15,7 @@ class BTAppNode extends BTNode {
         this._tabId = 0;
         this._tabGroupId = 0;
         this._windowId = 0;
+        this._opening = false;
         this.drawers = {};
         this.tags = [];
         AllNodes[this._id] = this;
@@ -36,7 +37,6 @@ class BTAppNode extends BTNode {
     }
     set tabId(id) {
         this._tabId = id;
-        this._opening = false;
     }
     get tabId() {
         return this._tabId;
@@ -52,6 +52,12 @@ class BTAppNode extends BTNode {
     }
     get windowId() {
         return this._windowId;
+    }
+    set opening(val) {
+        this._opening = val;
+    }
+    get opening() {
+        return this._opening;
     }
     resetLevel(l) {
         // after a ui drag/drop need to reset level under new parent
@@ -184,7 +190,7 @@ class BTAppNode extends BTNode {
             return;
         }
 
-        // if we do care about windowing send openInWindow
+        // if we do care about grouping send openInWindow/TabGroup
         const windowId = this.windowId || AllNodes[this.parentId].windowId;
         if (GroupingMode == GroupOptions.WINDOW)
             window.postMessage(

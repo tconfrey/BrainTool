@@ -113,7 +113,8 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
-    if (!tabId || !BTTab) return;         // 
+    if (!tabId || !BTTab) return;
+    
     if (changeInfo.status == 'complete') {
         chrome.tabs.sendMessage(
             BTTab, {'function': 'tabUpdated', 'tabId': tabId,
@@ -309,7 +310,9 @@ function openInTabGroup(msg, sender) {
         // need to first create tabGroup, so create first tab and nest creation of the rest
         const firstTab = tabs[0];
         chrome.tabs.create({'url': firstTab.URL}, newtab => {
-                              check();
+            check();
+            
+            console.log(`TabCreate ${newtab.id}, ${JSON.stringify(newtab)}`);
             chrome.tabs.group({createProperties: {'windowId': newtab.windowId},
                                'tabIds': newtab.id}, groupId => {
                               check();
@@ -320,9 +323,10 @@ function openInTabGroup(msg, sender) {
                 tabs.forEach((t, i) => {
                     if (i == 0) return;                 // already created first one
                     chrome.tabs.create({'url': t.URL}, newnewtab => {
-                              check();
+                        check();
                         chrome.tabs.group({'groupId': groupId, 'tabIds': newnewtab.id}, () => {
-                              check();
+                            check();
+                            console.log(`TabCreate ${newtab.id}, ${JSON.stringify(newtab)}`);
                             chrome.tabs.sendMessage(
                                 BTTab,
                                 {'function': 'tabOpened', 'nodeId': t.nodeId, 'tabId': newnewtab.id,

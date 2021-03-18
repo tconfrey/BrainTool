@@ -36,6 +36,9 @@ class BTNode {
     get URL() {
         return this._URL;
     }
+    set URL(url) {
+        this._URL = url;
+    }
     get displayTag() {
 	    return this._displayTag;
     }
