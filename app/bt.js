@@ -604,7 +604,7 @@ function storeTabs(data) {
     const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString);
     const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
     const ttParent = $("table.treetable").treetable("node", parentNode.id);
-    const tabsData = data.tabsData;
+    const tabsData = data.tabsData.reverse();
     let newNodes = [];
 
     // remember tag/time for potential pre-fill next time
@@ -703,6 +703,8 @@ function tabUpdated(data) {
         // nav into a bt node
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
+        // acknowledge nav to BT node with brain animation
+        window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
         /* TODO why? urlNode.showNode(); */
     }
 }

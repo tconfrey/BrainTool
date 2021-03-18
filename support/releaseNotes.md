@@ -14,8 +14,9 @@ To support keyboard commands I've added the notion of having an explicitly selec
 
 Key bindings were influenced by emacs/org-mode but given that the browser absorbs lots of control characters (Ctrl-N, P, S etc) and that only a small subset of BrainTool users are emacs/org natives, I defaulted to skipping the Control key. Commands operating on the selection are as follows:
   - Tree Navigation/Display:
-    - <b>n,p or arrow keys</b> select the 'n'ext or 'p'revious row.
-    - <b>left arrow</b> navigates up the tree to the selections parent Topic.
+    - <b>n, p or up/down arrow keys</b> select the 'n'ext or 'p'revious row.
+    - <b>left arrow</b> collapse the selection, if expanded, then navigates up the tree to the selections parent Topic.
+    - <b>right arrow</b> expand the selection, if collapsed, then navigates down the tree to the selections children.
     - <b>Tab</b> expands or collapses the subtree for a Topic row.
   - Browser Control:
     - <b>Space</b> surfaces the selections' tab or window if it's open in the browser. (NB you also get this by double clicking a row.)
