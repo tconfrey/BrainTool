@@ -180,7 +180,7 @@ class BTAppNode extends BTNode {
             this.showNode();
             return;
         }
-        this._opening = true;   // avoid opening twice w double clicks. unset in tabid setter
+        this.opening = true;      // avoid opening twice w double clicks. unset in tabUpdated
 
         // if we don't care about windowing send openTab msg
         if (GroupingMode == GroupOptions.NONE) {
@@ -241,12 +241,17 @@ class BTAppNode extends BTNode {
         }
         else {                      // need to open all urls in single (possibly new) window
             let urls = [];
-            if (this.URL && !this.tabId) urls.push({'nodeId': this.id, 'URL': this.URL, 'index': 0});
+            if (this.URL && !this.tabId) {
+                urls.push({'nodeId': this.id, 'URL': this.URL, 'index': 0});
+                this.opening = true;             // unset in tabUpdated when request is satisified
+            }
             this.childIds.forEach(nodeId => {
                 const node = AllNodes[nodeId];
                 const index = node.indexInParent();
-                if (node.URL && !node.tabId && !node.childIds.length)
+                if (node.URL && !node.tabId && !node.childIds.length) {
                     urls.push({'nodeId': node.id, 'URL': node.URL, 'index': index});
+                    node.opening = true;
+                }
             });
             if (urls.length) {
                 if (GroupingMode == GroupOptions.WINDOW)

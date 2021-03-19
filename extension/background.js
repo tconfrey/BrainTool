@@ -114,7 +114,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
     if (!tabId || !BTTab) return;
-    
+    console.log(`TabUpdated ${tabId}, [${JSON.stringify(changeInfo)}], [${JSON.stringify(tab)}]`);
     if (changeInfo.status == 'complete') {
         chrome.tabs.sendMessage(
             BTTab, {'function': 'tabUpdated', 'tabId': tabId,
@@ -280,7 +280,7 @@ function openInTabGroup(msg, sender) {
     if (windowId && tabGroupId && firstOpenTab)                     // insert into existing group
         // iterate thru tabs, create, add to tabgroup and send back msg
         chrome.tabs.get(firstOpenTab, firstGroupTab => {
-                              check();
+            check();
             const tgIndex = firstGroupTab ? firstGroupTab.index : 0;        // index into tabGroup
             tabs.forEach((tabData, i) => {
                 const finalIndex = tabData.index + tgIndex + i;
@@ -288,7 +288,7 @@ function openInTabGroup(msg, sender) {
                 chrome.tabs.create(
                     {'url': tabData.URL, 'windowId': windowId, 'index': finalIndex},
                     tab => {
-                              check();
+                        check();
                         chrome.tabs.group(
                             {'groupId': tabGroupId, 'tabIds': tab.id}, () => {
                               check();
@@ -311,30 +311,30 @@ function openInTabGroup(msg, sender) {
         const firstTab = tabs[0];
         chrome.tabs.create({'url': firstTab.URL}, newtab => {
             check();
-            
-            console.log(`TabCreate ${newtab.id}, ${JSON.stringify(newtab)}`);
-            chrome.tabs.group({createProperties: {'windowId': newtab.windowId},
-                               'tabIds': newtab.id}, groupId => {
-                              check();
-                chrome.tabs.sendMessage(
-                    BTTab,
-                    {'function': 'tabOpened', 'nodeId': firstTab.nodeId, 'tabId': newtab.id,
-                     'tabGroupId': groupId, 'windowId': newtab.windowId});
-                tabs.forEach((t, i) => {
-                    if (i == 0) return;                 // already created first one
-                    chrome.tabs.create({'url': t.URL}, newnewtab => {
-                        check();
-                        chrome.tabs.group({'groupId': groupId, 'tabIds': newnewtab.id}, () => {
+            chrome.tabs.group(
+                {createProperties: {'windowId': newtab.windowId}, 'tabIds': newtab.id},
+                groupId => {
+                    check();
+                    chrome.tabs.sendMessage(
+                        BTTab,
+                        {'function': 'tabOpened', 'nodeId': firstTab.nodeId, 'tabId': newtab.id,
+                         'tabGroupId': groupId, 'windowId': newtab.windowId});
+                    tabs.forEach((t, i) => {
+                        if (i == 0) return;                 // already created first one
+                        chrome.tabs.create({'url': t.URL}, newnewtab => {
                             check();
-                            console.log(`TabCreate ${newtab.id}, ${JSON.stringify(newtab)}`);
-                            chrome.tabs.sendMessage(
-                                BTTab,
-                                {'function': 'tabOpened', 'nodeId': t.nodeId, 'tabId': newnewtab.id,
-                                 'tabGroupId': groupId, 'windowId': newnewtab.windowId});
+                            chrome.tabs.group({'groupId': groupId, 'tabIds': newnewtab.id}, () => {
+                                check();
+                                console.log(`TabCreate ${newtab.id}, ${JSON.stringify(newtab)}`);
+                                chrome.tabs.sendMessage(
+                                    BTTab,
+                                    {'function': 'tabOpened', 'nodeId': t.nodeId, 'tabId': newnewtab.id,
+                                     'tabGroupId': groupId, 'windowId': newnewtab.windowId});
+                            });
                         });
                     });
                 });
-            });
+            chrome.windows.update(newtab.windowId, {'focused' : true});
         });
     }
 }

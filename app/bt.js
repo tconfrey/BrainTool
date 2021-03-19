@@ -1125,6 +1125,8 @@ function loadBookmarks(msg) {
 function loadBookmarkNode(node, parent) {
     // load a new node from bookmark export format as child of parent BTNode and recurse on children
 
+    if (node.url && node.url.startsWith('javascript:')) return; // can't handle JS bookmarklets
+    
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
     const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
     if (btNode.level > 3)                 // keep things tidy
@@ -1133,6 +1135,7 @@ function loadBookmarkNode(node, parent) {
     // handle link children, reverse cos new links go on top
     node.children.reverse().forEach(node => {
         if (node.childen) return;
+        if (node.url && node.url.startsWith('javascript:')) return; // can't handle JS bookmarklets
         const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
         new BTAppNode(title, btNode.id, "", btNode.level + 1);
     });
