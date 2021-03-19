@@ -25,6 +25,7 @@ const tipsArray = [
 ];
 
 var FirstUse = true;
+var InitialLoad = true;         // track whether app is loading BT file for first time
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.WINDOW;
 
@@ -200,6 +201,11 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
+    if (InitialLoad) {
+        toggleMenu();
+        InitialLoad = false;
+    }
+    
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state

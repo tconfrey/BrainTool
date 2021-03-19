@@ -52,23 +52,18 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 var NotLoaded = true;
 var WaitingForKeys = true;
 if (!window.LOCALTEST && NotLoaded) {
-    chrome.runtime.sendMessage({
-        from: 'btwindow',
-        function: 'initializeExtension',
-    });
+    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
     NotLoaded = false;
     setTimeout(waitForKeys, 500);
     console.count('Content-OUT:initializeExtension');
 }
 
-function waitForKeys() {
+function waitForKeys(trynum = 0) {
     // Fail safe, if request to background script for keys failed we should try try again.
     if (!WaitingForKeys) return;                       // all good
     
-    chrome.runtime.sendMessage({
-        from: 'btwindow',
-        function: 'initializeExtension',
-    });
+    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension'});
     console.count('Content-OUT:initializeExtension');
-    setTimeout(waitForKeys, 1000);
+    trynum +=1;
+    setTimeout(waitForKeys(trynum), trynum * 1000);         // back off w retries
 }

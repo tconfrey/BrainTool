@@ -35,16 +35,35 @@
     border-bottom: 3px solid white;
     border-left: none;
     border-right: none;
-    z-index: 2;
+    z-index: 3;
 }                    
 
+#controls_screen::before {
+    content: "";
+    left: 15px;
+    top:0;
+    bottom:0;
+    right: 15px;
+    position: absolute;
+    z-index: -4;
+    background-color: white;
+}
 #controls_screen {
     position: relative;
     overflow: hidden;
     display: block;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.80), rgba(255, 255, 255, 0.80)),
-                      url("resources/marquee.png");
+}
+#controls_screen::after {
+    content: "";
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 10%,rgba(255, 255, 255, 0.6) 90%, rgba(255, 255, 255, 1) 100%), url(resources/marquee.png);
+    opacity: 0.7;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
     background-size: cover;
+    z-index: -1;
 }
 #logo_image {
     width: 80%;
@@ -101,7 +120,7 @@ dialog #title-url {
     border-width: 3px;
     border-style: solid;
     border-radius: 5px;
-    background-color: #7bb07b66;
+    background-color: #7bb07baa;
 }
 .important {
     border-color: crimson;
@@ -133,6 +152,12 @@ dialog #title-url {
     background-color: #dcdfd3f4;
     width: 80%;
     z-index: 3;
+}
+.control_text {
+    margin: 10px;
+    padding-left: 10px;
+    padding-right: 20px;
+    text-align: justify;
 }
 .overlay_table {
     margin-left: auto;
