@@ -13,7 +13,7 @@ BrainTool gives you complete and full access to all the data saved in the app by
 By default Chrome hides installed extensions under the little jigsaw piece icon on the nav bar. If the BrainTool extension installed correctly you can see it by clicking the jigsaw piece. You can pin it permanently to the nav bar by clicking the pushpin icon.
 
 ## I see 'Error Authenticating'
-Google uses what are called 'third-party cookies' to store its information. These kinds of cookies are also used by various other web tracking sites. To avoid such tracking, some users disable third party cookies in their Chrome settings. If you have done so BrainTool will not be able to save your data and will fail to launch. You can add an exemption for accounts.google.com in your Chrome settings. Doing so and restarting BrainTool should solve the problem.
+Google uses what are called 'third-party cookies' to store account information. These kinds of cookies are also used by various other web tracking sites. To avoid such tracking, some users disable third party cookies in their Chrome settings. If you have done so BrainTool will not be able to save your data and will fail to launch. You can add an exemption for accounts.google.com in your Chrome settings. Doing so and restarting BrainTool should solve the problem. (NB do not click the box titled 'Including Third-party cookies on this site'.)
 
 ## After clicking Authorize GDrive nothing happens
 Related to the above, some security and privacy related extensions stop web pages from sending messages to third party sites, in some cases I cannot catch this as an error. Privacy Badger is an example of such a site. You will need to disable such extensions for the braintool.org url. 
@@ -25,33 +25,20 @@ As noted above your braintool file is stored on Google Drive in a file associate
 # Current Roadmap items
 This list is my current near-term roadmap items. Feel free to email braintool.extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
 
-## Browser Window Control options
-BrainTool's model is that each url you have added is associated with a specific browser tab, and each tag you have created is associated with a specific browser window. When you click a link in a BT controlled tab the application will open that link in a new tab rather than navigating the BT controlled tab. 
-
-Relatedly when in the course of regular browsing you open a BT controlled url, the application will open that url in the browser window associated with the url's tag, creating the window if its not already in use.
-
-Both of the behaviors described above have caused confusion for some users, as well as perhaps infringing on the default browser behavior in a way that some users dislike. Control over this behavior is on top of the roadmap list to be addressed in a next release. I encourage your input on how windowing should work in the [discussion group](https://groups.google.com/u/2/g/braintool-discussion).
-
 ## Remove GDrive dependency
 As noted in the Problems section above, Drive authentication adds an extra step to getting BT up and running. A subsequent release will remove the Drive dependency by optionally storing your information directly in browser local storage.
 
 ## BrainTool Side Window options
-Default window position and size should be configureable.
+Default window position and size and tree font sizes should be configureable.
 
 ## New item insertion
 Currently new links are added at the top of their tags list of children while new tags are added at the bottom of their parent tags list. That ordering makes sense to me personally but it should be configureable.
 
-## Tag all tabs at once
-
 ## Session save/restore
+With the ability to tag all tabs in a window at once BT is already has basic session management capabilities. Adding a simple and complete save/restore session across windows would be nice.
 
-## Font sizes
-
-## Tree expand/collapse control
-Some users have requested that there be short cuts to expand or collapse the tree en mass, eg collapse everything to show only top level nodes, or only top and second level nodes etc.
-
-## Keyboard shortcuts
-It would be nice to have keyboard shortcuts to navigate within the BT tree, to open or close windows/tabs tags/links etc.
+## Search
+Browser search works in the side panel but does not find text in collapsed tree nodes or non-visible text. I plan to add full incremental search forward/backward functionality based on the emacs search model.
 
 ## Org-mode support
 The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states, and tags, within the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
