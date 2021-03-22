@@ -43,7 +43,7 @@ function popupAction () {
             {currentWindow: true}, list => {
                 Tabs = list;
                 const activeTab = list.find(t => t.active);
-                document.getElementById('allLabel').textContent = "All " + Tabs.length + " tabs";
+                document.getElementById('allLabel').textContent = "All free tabs";
                 popupOpen(activeTab);
             });
     else

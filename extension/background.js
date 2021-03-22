@@ -51,6 +51,7 @@ const Handlers = {
     "positionTab": positionTab,
     "closeTab": closeTab,
     "ungroupAll": ungroupAll,
+    "ungroup": ungroup,
     "groupAll": groupAll,
     "windowAll": windowAll,
     "exportBookmarks": exportBookmarks
@@ -114,10 +115,10 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
     if (!tabId || !BTTab) return;
-    console.log(`TabUpdated ${tabId}, [${JSON.stringify(changeInfo)}], [${JSON.stringify(tab)}]`);
+    //console.log(`TabUpdated ${tabId}, [${JSON.stringify(changeInfo)}], [${JSON.stringify(tab)}]`);
     if (changeInfo.status == 'complete') {
         chrome.tabs.sendMessage(
-            BTTab, {'function': 'tabUpdated', 'tabId': tabId,
+            BTTab, {'function': 'tabUpdated', 'tabId': tabId, 'groupId': tab.groupId,
                     'tabURL': tab.url, 'windowId': tab.windowId});
         setTimeout(function() {setBadge(tabId);}, 200);
     }
@@ -386,6 +387,11 @@ function moveToTabGroup(msg, sender) {
 function ungroupAll(msg, sender) {
     // we're not using tabgroups any more, so ungroup
     chrome.tabs.ungroup(msg.tabIds, () => check());
+}
+
+function ungroup(msg, sender) {
+    // we're not using tabgroups any more, so ungroup
+    chrome.tabs.ungroup(msg.tabId, () => check());
 }
 
 function groupAll(msg, sender) {

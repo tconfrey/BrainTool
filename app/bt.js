@@ -563,7 +563,7 @@ function tabOpened(data, highlight = false) {
 }
 
 function tabClosed(data) {
-    // handle tab closed message
+    // handle tab closed message, also used by tabUpdated when BT tab is navigated away
 
     function propogateClosed(parentId) {
         // node not open and recurse to parent
@@ -620,7 +620,8 @@ function storeTabs(data) {
         // create each new node and add to tree
         const url = tabData.url;
         const title = cleanTitle(tabData.title);
-        const tabId = tabData.tabId;        
+        const tabId = tabData.tabId;
+        if (BTAppNode.findFromTab(tabId)) return;            // ignore tabs we already have assigned
         const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
                                       note || "", parentNode.level + 1);
         newNodes.push(newNode);
@@ -657,7 +658,8 @@ function storeTabs(data) {
     
     if (GroupingMode == 'TABGROUP')
         if (parentNode.tabGroupId) {
-            newNodes.forEach(node => node.group());
+            if (tabAction == 'GROUP')
+                newNodes.forEach(node => node.group());
             newNodes[0].showNode();
         }
         else {
@@ -698,18 +700,24 @@ function tabUpdated(data) {
 
     const tabId = data.tabId;
     const tabUrl = data.tabURL;
-
+    const groupId = data.groupId;
+        
     const tabNode = BTAppNode.findFromTab(tabId);
     if (tabNode) {
-        // tab gets created (see tabOpened) then a status complete event gets us here
+        // Either completion of opening of BT tab *or* nav away of an open BT tab
         if (!BTNode.compareURLs(tabNode.URL, tabUrl)) {
             // if the url on load complete != initial => redirect, so we shoudl follow
             if (tabNode.opening) {
+                // tab gets created (see tabOpened) then a status complete event gets us here
                 console.log(`redirect from ${tabNode.URL} to ${tabUrl}`);
                 tabNode.URL = tabUrl;
             }
-            else
+            else {
+                // nav away from BT tab
+                data['nodeId'] = tabNode.id;
                 tabClosed(data);
+                window.postMessage({'function' : 'ungroup', 'tabId' : tabId});
+            }
         }
         tabNode.opening = false;
         return;
@@ -717,12 +725,19 @@ function tabUpdated(data) {
 
     const urlNode = BTAppNode.findFromURL(tabUrl);
     if (urlNode) {
-        // nav into a bt node
+        // nav into a bt node from an open tab
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
         // acknowledge nav to BT node with brain animation
         window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
+        urlNode.group();                        // handle mooving tab to its group/window
+        return;
     }
+
+    // Otherwise just a new tab. Take out of BT TG if its in one owned by BT
+    const tgParent = BTAppNode.findFromGroup(data.groupId);
+    if (tgParent)
+        window.postMessage({'function' : 'ungroup', 'tabId' : tabId});
 }
 
 function tabActivated(data) {
@@ -1371,7 +1386,6 @@ $(document).keydown(function(e) {
             $("table.treetable").treetable("expandNode", nodeId);
             return;
         }
-        if (!node.childIds.length) return;        
         next = $(currentSelection).nextAll(":visible").first()[0];
         $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
