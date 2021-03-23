@@ -141,3 +141,10 @@ table.treetable td.dropOver {
     border-bottom-color: #518651;
     border-bottom-width: 5px;
 }
+
+/* show indicator open if selected */
+tr.selected.opened td.left {
+    border-left-width: 5px;
+    border-left-style: solid;
+    border-left-color: #BED8BE;
+}

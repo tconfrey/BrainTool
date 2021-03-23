@@ -231,10 +231,10 @@ function processBTFile(fileText) {
         $("tr[data-tt-id='"+node.id+"']").addClass("opened");
         node.tabId = oldNode.tabId;
         node.windowId = oldNode.windowId;
-        node.tabgroupId = oldNode.tabgroupId;
+        node.tabGroupId = oldNode.tabGroupId;
         if (node.parentId && AllNodes[node.parentId]) {
             AllNodes[node.parentId].windowId = node.windowId;
-            AllNodes[node.parentId].tabgroupId = node.tabgroupdId;
+            AllNodes[node.parentId].tabGroupId = node.tabGroupId;
         }
     });
 
