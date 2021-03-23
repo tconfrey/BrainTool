@@ -3,8 +3,16 @@ title: BrainTool Release Notes
 description: Reverse chronological notes on recent BrainTool versions.
 ---
 
-# Welcome to BrainTool 0.8!
-This is a brief overview of the changes in this release.
+# Welcome to BrainTool 0.8.1!
+BrainTool 0.8.1 is now pending Google approval. You'll be automatically upgraded when they release it for use. 
+This BrainTool point release has a few changes you might notice:
+  - Improvements to navigation with the right and left arrow functions to open and close nodes while navigating the tree.
+  - Showing the full parentage in the topic editor popup.
+  - Better pre-fills for the topic to use in the popup.
+  - Improvements to keeping tabs assigned to tab groups properly during navigation.
+Thanks to Richard and Matti for their bug reports, suggestions and feedback on the above.
+
+# BrainTool 0.8.0
 
 ## Support for Release Notes!
 Hopefully you are seeing this page as a result of being upgraded to the new version of BrainTool. I also added a [Welcome](welcome.md) page for new installs, feel free to check it out. See also the general [Support](../support.md) page.

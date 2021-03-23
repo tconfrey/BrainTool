@@ -23,25 +23,26 @@ As noted above your braintool file is stored on Google Drive in a file associate
 
 
 # Current Roadmap items
-This list is my current near-term roadmap items. Feel free to email braintool.extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
+This list is my current near-term roadmap items, more or less in priority order. Feel free to email braintool.extension@gmail.com with your thoughts, feedback and requests; or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). See also the BrainTool [philosophy page](https://braintool.org/overview) for the longer term perspective.
 
 ## Remove GDrive dependency
 As noted in the Problems section above, Drive authentication adds an extra step to getting BT up and running. A subsequent release will remove the Drive dependency by optionally storing your information directly in browser local storage.
 
-## BrainTool Side Window options
-Default window position and size and tree font sizes should be configureable.
-
-## New item insertion
-Currently new links are added at the top of their tags list of children while new tags are added at the bottom of their parent tags list. That ordering makes sense to me personally but it should be configureable.
-
-## Session save/restore
-With the ability to tag all tabs in a window at once BT is already has basic session management capabilities. Adding a simple and complete save/restore session across windows would be nice.
+## Org-mode support
+The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states, and tags, within the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
 
 ## Search
 Browser search works in the side panel but does not find text in collapsed tree nodes or non-visible text. I plan to add full incremental search forward/backward functionality based on the emacs search model.
 
-## Org-mode support
-The BrainTool.org file is saved in an [org-mode](https://orgmode.org) syntax. In fact the original impetus behind the project was to unify my personal process of taking notes in Org with my browsing history. Currently the app faithfully retains file metadata, headlines, basic TODO states, and tags, within the file as it is read and written. Other org structures such as tables, code blocks, checkboxes etc will be lost, and whitespace may be changed. Ideally BT would work seamlessly with all org structures.
+## Preferences
+### BrainTool Side Window options
+Default window position and size and tree font sizes should be configureable.
+
+### New item insertion
+Currently new links are added at the top of their tags list of children while new tags are added at the bottom of their parent tags list. That ordering makes sense to me personally but it should be configureable.
+
+## Session save/restore
+With the ability to tag all tabs in a window at once BT already has basic session management capabilities. Adding a simple and complete save/restore session across windows would be nice. Beyond that supporting one of more windows as part of an actively tracked session is desirable. 
 
 ## Multiple Files
 Most peoples org-mode workflow involves using more than a single file. The ability to combine the contents of multiple files in the tree would be good.
