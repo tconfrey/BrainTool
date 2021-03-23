@@ -176,9 +176,8 @@ function refreshTable() {
     // TODO populate from node.opened
     OpenedNodes = [];
     $("tr.opened").each(function() {
-        var id = $(this).attr("data-tt-id");
-        var node = AllNodes[id];
-        OpenedNodes.push(node.title);
+        const id = $(this).attr("data-tt-id");
+        OpenedNodes.push(AllNodes[id]);
     });
     AllNodes = [];
     
@@ -226,10 +225,17 @@ function processBTFile(fileText) {
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
     
     // initialize ui from any pre-refresh opened state
-    OpenedNodes.forEach(function(nodeTitle) {
-        const node = BTNode.findFromTitle(nodeTitle);
+    OpenedNodes.forEach(oldNode => {
+        const node = BTNode.findFromTitle(oldNode.title);
         if (!node) return;
         $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+        node.tabId = oldNode.tabId;
+        node.windowId = oldNode.windowId;
+        node.tabgroupId = oldNode.tabgroupId;
+        if (node.parentId && AllNodes[node.parentId]) {
+            AllNodes[node.parentId].windowId = node.windowId;
+            AllNodes[node.parentId].tabgroupId = node.tabgroupdId;
+        }
     });
 
     // set collapsed state as per org data
