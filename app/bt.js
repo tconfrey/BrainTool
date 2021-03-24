@@ -240,7 +240,7 @@ function processBTFile(fileText) {
 
     // set collapsed state as per org data
     AllNodes.forEach(function(node) {
-        if (node && node.folded && node.hasWebLinks) // NB no weblinks => not displayed in tree
+        if (node && node.folded)
             tab.treetable("collapseNode", node.id);
     });
 
@@ -435,7 +435,7 @@ function positionNode(dragNode, dropParentId, dropBelow) {
     const newPos = $("tr").index(dropBelow);
     const treeTable = $("#content");
     const treeParent = treeTable.treetable("node", dropParentId);
-    const db = dropBelow[0];
+    const dropNode = dropBelow[0];
     $(dragNode).attr('data-tt-parent-id', dropParentId);
     function compare(a,b) {
         if (a<b) return -1;
@@ -448,12 +448,12 @@ function positionNode(dragNode, dropParentId, dropBelow) {
                             let aa = a.row[0];
                             let bb = b.row[0];
                             if (aa == dragNode){
-                                if (bb == db)
+                                if (bb == dropNode)
                                     return 1;
                                 return (compare (newPos, $("tr").index(bb)));
                             }
                             if (bb == dragNode) {
-                                if (aa == db)
+                                if (aa == dropNode)
                                     return -1;
                                 return (compare ($("tr").index(aa), newPos));
                             }
@@ -506,28 +506,6 @@ function handleLinkClick(e) {
  ***/
 
 
-function cleanTitle(text) {
-    // clean page title text of things that can screw up BT. Currently []
-    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
-}
-
-function openNode(node) {
-    // set node and parent to open, propagate upwards as needed above any collapsed nodes
-
-    function propogateOpened(parentId) {
-        // recursively pass upwards adding opened class if appropriate
-        if (!parentId) return;               // terminate recursion
-        if ($("tr[data-tt-id='"+parentId+"']").hasClass("collapsed"))
-            $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-        propogateOpened(AllNodes[parentId].parentId);
-    };
-
-    const parentId = node.parentId;
-    $("tr[data-tt-id='"+node.id+"']").addClass("opened");
-    $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-    propogateOpened(parentId);
-}
-
 function tabOpened(data, highlight = false) {
     // handle tab open message
     
@@ -548,7 +526,7 @@ function tabOpened(data, highlight = false) {
         node.tabGroupId = tabGroupId;
     }
 
-    openNode(node);    
+    setNodeOpen(node);    
     initializeUI();
     tabActivated(data);                             // also perform activation stuff
     
@@ -650,7 +628,7 @@ function storeTabs(data) {
         newNodes.forEach(node => node.closeTab());
         return;
     }
-    newNodes.forEach(node => openNode(node));            // if not closing then show as open
+    newNodes.forEach(node => setNodeOpen(node));            // if not closing then show as open
     if (GroupingMode == 'WINDOW') {
         // w window grouping either move to existing assigned window or just remember this one
         if (parentNode.windowId || newNodes.length == 1) {
@@ -676,29 +654,6 @@ function storeTabs(data) {
                 {'function': 'moveToTabGroup', 'tabIds': tabIds,
                  'nodeIds': nodeIds, 'windowId': windowId});
         }
-}
-
-function addNewTag(tag, parentTag = null, parentNode = null) {
-    // New tag - create node and add to tree, parentNode might be known (if local creation)
-
-    // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
-    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
-    if (parentTag && !parentTagNode) {
-        parentTagNode = new BTAppNode(parentTag, null, "", 1);
-        $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
-    }
-
-    // 2) Create new tag and update extension
-    const parentTagLevel = parentTagNode ? parentTagNode.level : 0;
-    const parentTagId = parentTagNode ? parentTagNode.id : null;
-    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1);
-    BTAppNode.generateTags();
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-
-    // 3) Update tree
-    const n = $("table.treetable").treetable("node", parentTagId);
-    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
-    return newNode;
 }
 
 function tabUpdated(data) {
@@ -790,6 +745,53 @@ function tabsGrouped(data) {
     });
 }
 
+// Utility functions for the above
+
+function cleanTitle(text) {
+    // clean page title text of things that can screw up BT. Currently []
+    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
+}
+
+function setNodeOpen(node) {
+    // utility - set node and parent to open, propagate upwards as needed above any collapsed nodes
+
+    function propogateOpened(parentId) {
+        // recursively pass upwards adding opened class if appropriate
+        if (!parentId) return;               // terminate recursion
+        if ($("tr[data-tt-id='"+parentId+"']").hasClass("collapsed"))
+            $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+        propogateOpened(AllNodes[parentId].parentId);
+    };
+
+    const parentId = node.parentId;
+    $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+    $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+    propogateOpened(parentId);
+}
+
+function addNewTag(tag, parentTag = null, parentNode = null) {
+    // New tag - create node and add to tree, parentNode might be known (if local creation)
+
+    // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
+    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
+    if (parentTag && !parentTagNode) {
+        parentTagNode = new BTAppNode(parentTag, null, "", 1);
+        $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
+    }
+
+    // 2) Create new tag and update extension
+    const parentTagLevel = parentTagNode ? parentTagNode.level : 0;
+    const parentTagId = parentTagNode ? parentTagNode.id : null;
+    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1); // name, parent, note, lvl
+    BTAppNode.generateTags();
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+
+    // 3) Update tree
+    const n = $("table.treetable").treetable("node", parentTagId);
+    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
+    return newNode;
+}
+
 
 /*** 
  * 
@@ -847,7 +849,7 @@ function buttonHide() {
 
 function editRow(e) {
     // position and populate the dialog and open it
-    const node = activeNode(e);
+    const node = getActiveNode(e);
     if (!node) return;
     const row = $(`tr[data-tt-id='${node.id}']`)[0];
     const top = $(row).position().top - $(document).scrollTop();
@@ -887,12 +889,12 @@ $("#popup").click(function(e) {
     }
 });
 
-function dialogClose() {
+function closeDialog() {
     $('#dialog')[0].close();
 }
     
 
-function selectedNode() {
+function getSelectedNode() {
     // Return the node currently highlighted or selected
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
     if (!tr) return null;
@@ -901,7 +903,7 @@ function selectedNode() {
     return AllNodes[nodeId];
 }
 
-function activeNode(e) {
+function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
     const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
     if (!tr) return null;
@@ -914,7 +916,7 @@ function openRow(e) {
     // Open all links under this row in windows per tag
 
     // First find all AppNodes involved - selected plus children
-    const appNode = activeNode(e);
+    const appNode = getActiveNode(e);
     if (!appNode) return;
 
     // Warn if opening lots of stuff
@@ -937,7 +939,7 @@ function openRow(e) {
 
 function closeRow(e) {
     // close this node's tab or window
-    const appNode = activeNode(e);  
+    const appNode = getActiveNode(e);  
     if (!appNode) return;
     appNode.closeTab();
 }
@@ -950,7 +952,7 @@ function escapeRegExp(string) {
 function deleteRow(e) {
     // Delete selected node/row.
     buttonHide();
-    const appNode = activeNode(e);
+    const appNode = getActiveNode(e);
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
@@ -1001,7 +1003,7 @@ function deleteNode(id) {
 function updateRow() {
     // Update this node/row after edit.
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const node = selectedNode();
+    const node = getSelectedNode();
     if (!node) return;
 
     // Update Model
@@ -1033,7 +1035,7 @@ function updateRow() {
 
 function toDo(e) {
     // iterate todo state of selected node/row (TODO -> DONE -> '').
-    const appNode = activeNode(e);
+    const appNode = getActiveNode(e);
     if (!appNode) return false;
 
     appNode.iterateKeyword()                // ask node to update
@@ -1048,7 +1050,7 @@ function toDo(e) {
 function promote(e) {
     // move node up a level in tree hierarchy
     
-    const node = activeNode(e);
+    const node = getActiveNode(e);
     if (!node || !node.parentId) return;                  // can't promote
     
     // collapse open subtree if any
@@ -1070,7 +1072,7 @@ function addChild(e) {
     // add new child to this node
 
     // create child element
-    const node = activeNode(e);
+    const node = getActiveNode(e);
     if (!node) return;
     const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Tag'));
     const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
@@ -1090,27 +1092,6 @@ function addChild(e) {
     writeBTFile();
 }
 
-function generateOrgFile() {
-    // iterate thru nodes to do the work
-    let orgText = metaPropertiesToString(AllNodes.metaProperties);
-    
-    // find and order the top level nodes according to table position
-    const topNodes = AllNodes.filter(node => node && !node.parentId);
-    topNodes.sort(function(a,b) {
-        const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
-        const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
-        const posA = eltA ? eltA.rowIndex : Number.MAX_SAFE_INTEGER;
-        const posB = eltB ? eltB.rowIndex : Number.MAX_SAFE_INTEGER;
-        return (posA - posB);
-    });
-    
-    // iterate on top level nodes, generate text and recurse
-    topNodes.forEach(function (node) {
-        if (node && (node.level == 1))
-            orgText += node.orgTextwChildren() + "\n";
-    });
-    return orgText.slice(0, -1);                                      // take off final \n
-}
 
 /***
  * 

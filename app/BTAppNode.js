@@ -414,11 +414,32 @@ class BTAppNode extends BTNode {
         return outputStr;
     }
 
-/***
- *
- * Utility functions
- *
- ***/
+    static generateOrgFile() {
+        // iterate thru nodes to do the work
+        let orgText = metaPropertiesToString(AllNodes.metaProperties);
+        
+        // find and order the top level nodes according to table position
+        const topNodes = AllNodes.filter(node => node && !node.parentId);
+        topNodes.sort(function(a,b) {
+            const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
+            const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
+            const posA = eltA ? eltA.rowIndex : Number.MAX_SAFE_INTEGER;
+            const posB = eltB ? eltB.rowIndex : Number.MAX_SAFE_INTEGER;
+            return (posA - posB);
+        });
+        
+        // iterate on top level nodes, generate text and recurse
+        topNodes.forEach(function (node) {
+            if (node && (node.level == 1))
+                orgText += node.orgTextwChildren() + "\n";
+        });
+        return orgText.slice(0, -1);                                      // take off final \n
+    }
+    /***
+     *
+     * Utility functions
+     *
+     ***/
 
     countOpenableTabs() {
         // used to warn of opening too many tabs

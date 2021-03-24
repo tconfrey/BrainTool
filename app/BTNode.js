@@ -53,12 +53,6 @@ class BTNode {
         return this._parentId;
     }
 
-    get hasWebLinks() {
-	    // Calculate on demand since it may change based on node creation/deletion
-	    if (this.URL) return true;
-	    return this.childIds.some(id => AllNodes[id].hasWebLinks);
-    }
-
     get childIds() {
         return this._childIds;
     }
@@ -73,10 +67,12 @@ class BTNode {
             this._childIds.splice(index, 0, parseInt(id));
     }
     removeChild(id) {
-        let index = this._childIds.indexOf(parseInt(id));
+	let index = this._childIds.indexOf(parseInt(id));
         if (index > -1)
             this._childIds.splice(index, 1);
     }
+
+    /* TODO Remove, not used anywhere
     allDescendents() {
         // return an array of all children and all their children etc
         let ids = [this._id];
@@ -85,10 +81,18 @@ class BTNode {
         });
         return ids.flat(Infinity);
     }
+     */
+
+    // only used in isTag
+    _hasWebLinks() {
+	// Calculate on demand since it may change based on node creation/deletion
+	if (this.URL) return true;
+	return this.childIds.some(id => AllNodes[id]._hasWebLinks);
+    }
 
     isTag() {
         // Is this node used as a tag => has webLinked children
-        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id].hasWebLinks);
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
     
     reparentNode(newP, index = -1) {

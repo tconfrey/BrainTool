@@ -290,7 +290,7 @@ function writeBTFile(cb) {
         LastWriteTime = new Date();
         UnwrittenChanges = null;
         
-        BTFileText = generateOrgFile();
+        BTFileText = BTAppNode.generateOrgFile();
         updateStatsRow();                            // show updated stats
         if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
