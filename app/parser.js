@@ -5,6 +5,7 @@
  ***/
 
 var AllNodes = [];
+var Lines = [];
 
 function parseBTFile(fileText) {
     // create and recursively walk orga parse tree to create bt model
@@ -15,17 +16,21 @@ function parseBTFile(fileText) {
     }
 
     // save top level properties if any, parser returns a str or array of strs
-    if (parseTree.meta.property) {
-        if ($.isArray(parseTree.meta.property))
-            AllNodes.metaProperties = parseTree.meta.property;
+    if (!$.isEmptyObject(parseTree.properties)) {
+        if ($.isArray(parseTree.properties))
+            AllNodes.metaProperties = parseTree.properties;
         else
-            AllNodes.metaProperties = parseTree.meta.property.split();
+            //AllNodes.metaProperties = parseTree.properties.split();
+            AllNodes.metaProperties = parseTree.properties['property'].split();
     } else
         AllNodes.metaProperties = [];
+
+    // Save raw lines for future output
+    Lines = generateLinesAndColumns(fileText);
 }
 
 function orgaSection(section, parentAppNode) {
-    // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
+    // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes. Saved all contained orgaNodes for output
     const appNode = new BTAppNode("", parentAppNode ? parentAppNode.id : null, "", 0);
     let allText = "";
     for (const orgaChild of section.children) {
@@ -33,57 +38,45 @@ function orgaSection(section, parentAppNode) {
             appNode.level = orgaChild.level;
             appNode.title = orgaText(orgaChild, appNode);
             if (orgaChild.keyword) appNode.keyword = orgaChild.keyword;
-            appNode.tags = orgaChild.tags;
-            appNode.drawers = orgaDrawers(orgaChild);
-            if (appNode.drawers.PROPERTIES)
-                appNode.folded = appNode.drawers.PROPERTIES.match(/:VISIBILITY:\s*folded/g) ? true : false;
-            else
-                appNode.folded = false;
+            if (orgaChild.tags) appNode.tags = orgaChild.tags;
         }
         if (orgaChild.type == "paragraph") {
             allText += allText.length ? "\n\n" : "";      // add newlines between para's
             allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode
         }
         if (orgaChild.type == "section") {
-            var childAppNode = orgaSection(orgaChild, appNode);
+            orgaSection(orgaChild, appNode);
         }
+        if (orgaChild.type == "drawer") {
+            appNode.drawers[orgaChild.name] = orgaChild.value;
+            if (orgaChild.name == "PROPERTIES")
+                appNode.folded = orgaChild.value.match(/:VISIBILITY:\s*folded/g) ? true : false;
+        }
+        appNode.orgaNodes.push(orgaChild);                // save all the organodes
     }
     appNode.text = allText;
     return appNode;
 }
 
-function orgaDrawers(node) {
-    // Look for org mode drawer w VISIBILITY property for folded state
-    var orgaChild;
-    var drawers = {};
-    for (var i = 0; i < node.children.length; i++) {
-        orgaChild = node.children[i];
-        if (orgaChild.type == "drawer" && orgaChild.name && orgaChild.value) {
-            drawers[orgaChild.name] = orgaChild.value;
-        }
-    }
-    return drawers;
-}
-
 function orgaLinkOrgText(node) {
-    return "[[" + node.uri.raw + "][" + node.desc + "]]";
+    return "[[" + node.value + "][" + node.description + "]]";
 }
 
-function orgaText(orgnode, containingNode) {
-    // generate text from orga headline or para node. Both can contain texts and links
+function orgaText(organode, containingNode) {
+    // Return text from orga headline or para node. Both can contain texts and links
     // NB also pulling out any keywords (TODO, DONE etc) for display
     let linkTitle, node, lnkNode, btString = "";
-    for (const orgaChild of orgnode.children) {
-        if (orgaChild.type == "text") {
+    for (const orgaChild of organode.children) {
+        if (orgaChild.type.startsWith("text.")) {
             btString += orgaChild.value;
         }
         if (orgaChild.type == "link") {
             linkTitle = orgaLinkOrgText(orgaChild);
             btString += linkTitle;
 
-            if (orgnode.type == "paragraph") {
+            if (organode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
-                lnkNode = new BTLinkNode(linkTitle, containingNode.id, "", containingNode.level+1, orgaChild.uri.protocol);
+                lnkNode = new BTLinkNode(linkTitle, containingNode.id, "", containingNode.level+1, orgaChild.protocol);
             }
         }
     }
@@ -130,4 +123,35 @@ function setMetaProp(prop, val) {
         AllNodes.metaProperties[index] = `${prop} ${val}`;
     else
         AllNodes.metaProperties.push(`${prop} ${val}`);
+}
+
+function generateLinesAndColumns(filetext) {
+    // return an array of the original lines and columns for use in regnerating orga
+
+    let lines = [];
+    filetext.split(/\r?\n+/).forEach(line => lines.push(line));
+    return lines;
+                                     
+}
+
+function orgaNodeRawText(organode) {
+    // return raw text for this node
+    
+    // orga gives 1 indexed line and I guess counts the new line in col?!
+    const startLine = organode.position.start.line - 1;
+    const startCol =  organode.position.start.column - 2;
+    const endLine = organode.position.end.line - 1;
+    const endCol =  organode.position.end.column - 2;
+    let string = "";
+    if (startLine == endLine)
+        return Lines[startLine].substr(startCol, (endCol - startCol));
+    for (let i = startLine; i <= endLine; i++) {
+        if (i == startLine)
+            string += Lines[i].substr(startCol);
+        else if (i == endLine)
+            string += Lines[i].substr(0, endCol);
+        else
+            string += Lines[i];
+    }
+    return string;
 }

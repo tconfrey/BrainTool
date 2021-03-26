@@ -485,6 +485,87 @@ QUnit.module("Inbound Message tests", function() {
         assert.ok(true, "default to ok");
     });
     
-})
+});
+
+QUnit.module("Org parsing tests", function() {
+
+    QUnit.moduleStart(function(details) {
+        if (details.name != "Org parsing tests") return;
+    });
+
+    QUnit.test("Basic node parse", function(assert) {
+        const orgHeader = "* Top Level Header\nassociated notes";
+        processBTFile(orgHeader);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].text, "associated notes");
+    });
+    
+    QUnit.test("Basic tree parse", function(assert) {
+        const orgTree = "* Top Level Header\nassociated notes\n\n** Next Level Header\nnext level notes";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].text, "associated notes");
+        assert.equal (AllNodes[2].displayTag, "Next Level Header");
+        assert.equal (AllNodes[2].text, "next level notes");
+    });
+    
+    QUnit.test("Headline links parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].URL, "https://google.com");
+        assert.equal (AllNodes[1].text, "top level notes");
+    });
+    
+    QUnit.test("Headline w paras parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes first line.\n\nsecond line";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].URL, "https://google.com");
+        assert.equal (AllNodes[1].text, "top level notes first line.\n\nsecond line");
+    });
+    
+    QUnit.test("Headline w tags parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]   :BrainTool:Test:\ntop level notes first line.\n\nsecond line";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].tags.length, 2);
+        assert.equal (AllNodes[1].tags[0], 'BrainTool');
+        assert.equal (AllNodes[1].tags[1], 'Test');
+        let expect = ' '.repeat(60) + ':BrainTool:Test:';
+        assert.equal (expect, AllNodes[1].orgTags(' '), 'tag output test');
+    });
+    
+    QUnit.test("Headline w drawers parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]   :BrainTool:Test:\n:PROPERTIES:\n:VISIBILITY: folded\n:OTHERPROP: none\n:END:\ntop level notes first line.\n\nsecond line\n\n* Next thing";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        let node = AllNodes[1];
+        assert.ok (node.drawers, 'drawers up');
+        assert.equal (Object.keys(node.drawers).length, 1);
+        assert.equal (node.drawers['PROPERTIES'], ':VISIBILITY: folded\n:OTHERPROP: none');
+        let drawerText = node.orgDrawers();
+        assert.equal (drawerText.replace(/\s/g, ""), ":PROPERTIES::VISIBILITY:folded:OTHERPROP:none:END:", 'drawer reg ok, ignoring whitespace');
+    });
+
+    QUnit.test("Ignore table", function(assert) {
+        const orgTree =
+`* Top Level
+some text
+|Header1|header2|
+|data 1|data2|
+more text
+** Sub header`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (orgTree, output);
+    });
+
+});
 
 

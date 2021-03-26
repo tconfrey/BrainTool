@@ -18,6 +18,7 @@ class BTAppNode extends BTNode {
         this._opening = false;
         this.drawers = {};
         this.tags = [];
+        this.orgaNodes = [];            // used to generate output for unmanaged element types
         AllNodes[this._id] = this;
         brainZoom();
     }
@@ -383,6 +384,12 @@ class BTAppNode extends BTNode {
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
         outputOrg += this.orgDrawers();                                 // add in any drawer text
         outputOrg += this._text ? this._text + "\n" : "";
+
+        // insert organodes not captured elsewhere, maybe should go above text?
+        let rawNodes = this.orgaNodes.filter(
+            on => !["headline", "paragraph", "section", "drawer"].includes(on.type));
+        rawNodes.forEach(rn => outputOrg += orgaNodeRawText(rn));
+            
         return outputOrg;
     }
 
@@ -395,23 +402,6 @@ class BTAppNode extends BTNode {
             outputOrg += txt.length ? "\n" + txt : "";           // eg BTLinkNodes might not have text 
         });
         return outputOrg;
-    }
-    
-    static _orgTextToHTML(txt) {
-        // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
-
-        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        const reg = new RegExp(regexStr, "mg");
-        let hits;
-        let outputStr = txt;
-        while (hits = reg.exec(outputStr)) {
-            const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
-            if ((hits[1].indexOf('file:') == 0) || (hits[1].indexOf('id:') == 0))       // internal org links get highlighted, but not as hrefs
-                outputStr = outputStr.substring(0, hits.index) + "<span class='file-link'>" + h2 + "</span>" + outputStr.substring(hits.index + hits[0].length);
-            else                
-                outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
-        }
-        return outputStr;
     }
 
     static generateOrgFile() {
@@ -440,6 +430,24 @@ class BTAppNode extends BTNode {
      * Utility functions
      *
      ***/
+
+        
+    static _orgTextToHTML(txt) {
+        // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
+
+        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        const reg = new RegExp(regexStr, "mg");
+        let hits;
+        let outputStr = txt;
+        while (hits = reg.exec(outputStr)) {
+            const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
+            if ((hits[1].indexOf('file:') == 0) || (hits[1].indexOf('id:') == 0))       // internal org links get highlighted, but not as hrefs
+                outputStr = outputStr.substring(0, hits.index) + "<span class='file-link'>" + h2 + "</span>" + outputStr.substring(hits.index + hits[0].length);
+            else                
+                outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
+        }
+        return outputStr;
+    }
 
     countOpenableTabs() {
         // used to warn of opening too many tabs
