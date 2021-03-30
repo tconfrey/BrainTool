@@ -1,7 +1,13 @@
+/***
+ *
+ *  Centralizes all the node-related app logic of reading and writing to org, creating the ui etc
+ *  
+ *
+ ***/
+
 'use strict'
 
 class BTAppNode extends BTNode {
-    // Centralizes all the app-only logic of reading and writing to org, creating the ui etc
 
 /***
  *
@@ -427,6 +433,7 @@ class BTAppNode extends BTNode {
         });
         return orgText.slice(0, -1);                                      // take off final \n
     }
+    
     /***
      *
      * Utility functions
@@ -554,7 +561,17 @@ class BTAppNode extends BTNode {
 
 
 class BTLinkNode extends BTAppNode {
-    // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
+/***
+ *
+ *  Specific link type node for links embedded in para text, not as BT created headlines.
+ *  they show as children in the tree but don't generate a new node when the org file is written out,
+ *  unless they are edited and given descriptive text, 
+ *  in which case they are written out as nodes and will be promoted to BTNodes 
+ *  the next time the file is read.
+ *
+ ***/
+
+    
     constructor(title, parent, text, level, protocol) {
         super(title, parent, text, level);
         this._protocol = protocol;
@@ -594,7 +611,12 @@ class BTLinkNode extends BTAppNode {
 }
 
 
-/* Centralized Mappings from MessageType to handler. Array of handler functions */
+/***
+ *
+ *  Centralized Mappings from MessageType to handler. Array of handler functions
+ *
+ ***/
+
 const Handlers = {
     "loadBookmarks": loadBookmarks,
     "tabActivated": tabActivated,

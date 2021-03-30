@@ -161,8 +161,8 @@ var OpenedNodes = [];          // attempt to preserve opened state across refres
 function refreshTable() {
     // refresh from file, first clear current state
 
-    // First check to make sure we're not clobbering a pending write, see gdriveManager.
-    if (UnwrittenChanges) {
+    // First check to make sure we're not clobbering a pending write, see fileManager.
+    if (unwrittenChangesP()) {
         alert('A save is currently in process, please wait a few seconds and try again');
         return;
     }
@@ -464,6 +464,15 @@ function positionNode(dragNode, dropParentId, dropBelow) {
     
 
 // Handle callbacks on node folding, update backing store
+function rememberFold() {
+    // Don't want to write file too often so wait 2 minutes after last change
+    if (rememberFold.writeTimer) {
+        clearTimeout(rememberFold.writeTimer);
+        rememberFold.writeTimer = null;
+    }
+    rememberFold.writeTimer = setTimeout(writeBTFile, 2*60*1000);
+}
+
 function nodeExpand() {
     console.log('Expanding ', this.id);
     let update = AllNodes[this.id].folded;
@@ -474,7 +483,7 @@ function nodeExpand() {
         $(this.row).removeClass('opened');
 
     // Update File 
-    if (update) writeBTFile();
+    if (update) rememberFold();
 }
 function nodeCollapse() {
     console.log('Collapsing ', this.id);
@@ -487,7 +496,7 @@ function nodeCollapse() {
         $(this.row).addClass('opened');
     
     // Update File, if collapse is not a result of a drag start
-    if (update && !node.dragging) writeBTFile();
+    if (update && !node.dragging) rememberFold();
 }
    
 
