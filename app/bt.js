@@ -1,9 +1,10 @@
 /*** 
  * 
  * Manages the App window UI and associated logic.
- * NB Runs in context of BT window, not the background BT extension or the helper btContent scripts 
+ * NB Runs in context of the BT side panel, not the background BT extension or the helper btContent scripts 
  * 
  ***/
+'use strict'
 
 const authorizeButton = document.getElementById('authorize_button');
 
@@ -516,7 +517,6 @@ function tabOpened(data, highlight = false) {
     const tabIndex = data.tabIndex;
     const windowId = data.windowId;
     const parentId = AllNodes[nodeId].parentId || nodeId;
-    const indexInParent = node.indexInParent();
 
     node.tabId = tabId;         
     node.windowId = windowId;
@@ -541,7 +541,7 @@ function tabOpened(data, highlight = false) {
     
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
     if (GroupingMode != GroupOptions.WINDOW) return;
-    const expectedIndex = AllNodes[nodeId].indexInParent();
+    const expectedIndex = node.indexInParent();
     if (tabIndex != expectedIndex)
         AllNodes[parentId].repositionTabs();
 }
@@ -582,7 +582,7 @@ function tabClosed(data) {
 }
 
 function storeTabs(data) {
-    // put tab(s) under storage w given tag. tabsData is a list, could be on or all tabs in window
+    // put tab(s) under storage w given tag. tabsData is a list, could be one or all tabs in window
     // NB tagString may be tag, parent:tag, tag:keyword, parent:tag:keyword
     // where tag may be new, new under parent, or existing but under parent to disambiguate
     const tagString = data.tag;
@@ -957,7 +957,7 @@ function deleteRow(e) {
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
 
     // If children nodes ask for confirmation
-    if (!kids || confirm('Delete all?')) {
+    if (!kids || confirm('Delete whole subtree?')) {
         $("table.treetable").treetable("removeNode", appNode.id);    // Remove from UI and treetable
         deleteNode(appNode.id);
     }   

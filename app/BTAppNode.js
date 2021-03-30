@@ -1,3 +1,5 @@
+'use strict'
+
 class BTAppNode extends BTNode {
     // Centralizes all the app-only logic of reading and writing to org, creating the ui etc
 
@@ -16,9 +18,12 @@ class BTAppNode extends BTNode {
         this._tabGroupId = 0;
         this._windowId = 0;
         this._opening = false;
+
+        // Three attributes of org ndes to track
         this.drawers = {};
         this.tags = [];
-        this.orgaNodes = [];            // used to generate output for unmanaged element types
+        this.planning = "";
+        
         AllNodes[this._id] = this;
         brainZoom();
     }
@@ -378,17 +383,14 @@ class BTAppNode extends BTNode {
 
     orgText() {
         // Generate org text for this node
-        let outputOrg = "*".repeat(this._level) + " ";
-        outputOrg += this._keyword ? this._keyword+" " : "";              // TODO DONE etc
+        let outputOrg = (this._id == 1) ? "" : "\n";
+        outputOrg += "*".repeat(this._level) + " ";
+        outputOrg += this._keyword ? this._keyword+" " : "";            // TODO DONE etc
         outputOrg += this.title;
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
+        outputOrg += this.planning;                                     // add in any planning rows
         outputOrg += this.orgDrawers();                                 // add in any drawer text
-        outputOrg += this._text ? this._text + "\n" : "";
-
-        // insert organodes not captured elsewhere, maybe should go above text?
-        let rawNodes = this.orgaNodes.filter(
-            on => !["headline", "paragraph", "section", "drawer"].includes(on.type));
-        rawNodes.forEach(rn => outputOrg += orgaNodeRawText(rn));
+        outputOrg += this._text ? this._text : "";
             
         return outputOrg;
     }
@@ -399,7 +401,7 @@ class BTAppNode extends BTNode {
         this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
             let txt = AllNodes[id].orgTextwChildren();
-            outputOrg += txt.length ? "\n" + txt : "";           // eg BTLinkNodes might not have text 
+            outputOrg += txt.length ? "\n" + txt : "";        // eg BTLinkNodes might not have text 
         });
         return outputOrg;
     }

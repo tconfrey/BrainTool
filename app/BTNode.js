@@ -2,6 +2,7 @@
    Base capabilities and model for a BrainTool node common across app and extension.
    Base Messaging and coordination capabilities will go here as they are refactored out.
 */
+'use strict'
 
 class BTNode {
     constructor(title, parentId = null) {
