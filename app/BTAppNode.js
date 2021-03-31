@@ -543,9 +543,24 @@ class BTAppNode extends BTNode {
         return AllNodes.find(node => node && (node.tabId == tabId));
     }
     
-    static findFromURL(url) {
-        // Return node associated w url, if any
-        return AllNodes.find(node => node && BTNode.compareURLs(node.URL, url));
+    static findFromURLTGWin(url, tg, win) {
+        // find node from url/TG/Window combo.
+        // #1 is there a unique BT node w url
+        // #2 is there a matching url in same TG or window as new tab
+        const urlNodes = AllNodes.filter(node => node && BTNode.compareURLs(node.URL, url));
+        if (urlNodes.length == 0) return null;
+        if (urlNodes.length == 1) return urlNodes[0];
+        for (const node of urlNodes) {
+            let parentId = node.parentId;
+            if (parentId && AllNodes[parentId] && AllNodes[parentId].tabGroupId == tg)
+                return node;
+        }
+        for (const node of urlNodes) {
+            let parentId = node.parentId;
+            if (parentId && AllNodes[parentId] && AllNodes[parentId].windowId == win)
+                return node;
+        }
+        return urlNodes[0];                                      // else just use first
     }
 
     static findFromWindow(winId) {

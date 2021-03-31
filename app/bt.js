@@ -28,7 +28,7 @@ const tipsArray = [
 var FirstUse = true;
 var InitialLoad = true;         // track whether app is loading BT file for first time
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
-var GroupingMode = GroupOptions.WINDOW;
+var GroupingMode = GroupOptions.TABGROUP;
 
 function updateSigninStatus(isSignedIn, error=false) {
     // CallBack on GDrive signin state change
@@ -651,7 +651,8 @@ function storeTabs(data) {
     
     if (GroupingMode == 'TABGROUP')
         if (parentNode.tabGroupId) {
-            if (tabAction == 'GROUP')
+            if (tabAction == 'GROUP' || (windowId == parentNode.windowId))
+                // even if 'stick' should group when in same window, confusing otherwise.
                 newNodes.forEach(node => node.group());
             newNodes[0].showNode();
         }
@@ -671,6 +672,7 @@ function tabUpdated(data) {
     const tabId = data.tabId;
     const tabUrl = data.tabURL;
     const groupId = data.groupId;
+    const windowId = data.windowId;
         
     const tabNode = BTAppNode.findFromTab(tabId);
     if (tabNode) {
@@ -693,7 +695,7 @@ function tabUpdated(data) {
         return;
     }
 
-    const urlNode = BTAppNode.findFromURL(tabUrl);
+    const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
     if (urlNode) {
         // nav into a bt node from an open tab
         data['nodeId'] = urlNode.id;
