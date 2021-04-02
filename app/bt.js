@@ -127,11 +127,11 @@ function toggleHelp(dur = 500) {
 
 function updateStatsRow() {
     // update #tags, urls, saves
+    const numTags = AllNodes.filter(n => n?.isTag()).length;
+    const numOpenTags = AllNodes.filter(n => n?.isTag() && n?.hasOpenChildren()).length;
+    const numLinks = AllNodes.filter(n => n?.URL).length;
+    const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
-    const numTags = AllNodes.filter(n => n && n.isTag()).length;
-    const numOpenTags = AllNodes.filter(n => n && n.isTag() && n.hasOpenChildren()).length;
-    const numLinks = AllNodes.filter(n => n && n.URL).length;
-    const numOpenLinks = AllNodes.filter(n => n && n.URL && n.tabId).length;
     const numSaves = getMetaProp('BTVersion');
     $('#num_tags').text(numOpenTags ? `:${numTags} (${numOpenTags})` : `:${numTags}`);
     $('#num_links').text(numOpenLinks ? `:${numLinks} (${numOpenLinks})` : `${numLinks}`);
@@ -241,7 +241,7 @@ function processBTFile(fileText) {
 
     // set collapsed state as per org data
     AllNodes.forEach(function(node) {
-        if (node && node.folded)
+        if (node?.folded)
             tab.treetable("collapseNode", node.id);
     });
 
@@ -739,7 +739,7 @@ function tabsWindowed(data) {
     tabIds.forEach(tid => {
         const node = BTAppNode.findFromTab(tid);
         if (node) node.windowId = windowId;
-        if (node && node.parentId)
+        if (node?.parentId)
             AllNodes[node.parentId].windowId = windowId;
     });
 }
@@ -751,7 +751,7 @@ function tabsGrouped(data) {
     tabIds.forEach(tid => {
         const node = BTAppNode.findFromTab(tid);
         if (node) node.tabGroupId = tgId;
-        if (node && node.parentId)
+        if (node?.parentId)
             AllNodes[node.parentId].tabGroupId = tgId;
     });
 }
@@ -837,7 +837,7 @@ function buttonShow() {
     if ($(this).hasClass("branch")) {
         const id = this.getAttribute("data-tt-id");
         const notOpenKids = $("tr[data-tt-parent-id='"+id+"']").not(".opened");
-        if (notOpenKids && notOpenKids.length)
+        if (notOpenKids?.length)
             $("#expand").show();
         const openKids = $("tr[data-tt-parent-id='"+id+"']").hasClass("opened");
         if (openKids)
@@ -1111,8 +1111,16 @@ function addChild(e) {
  * 
  ***/
 
+function processImport(nodeName) {
+    // an import (bkmark, org, tabsOutliner) has happened => save and refresh
+
+    RefreshCB = function() {animateNewImport(nodeName);};
+    writeBTFile(refreshTable);
+
+}
+
 function importBookmarks() {
-    // pull in Chrome bookmarks and insert into All Nodes for subsequent save
+    // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
     window.postMessage({'function': 'getBookmarks'});
     toggleOptions(1500);
@@ -1135,8 +1143,7 @@ function loadBookmarks(msg) {
         loadBookmarkNode(node, importNode);
     });
 
-    RefreshCB = function() {animateNewBookmark(importName);};
-    writeBTFile(refreshTable);
+    processImport(importName);                             // see above
 
     $("#export_button").prop('disabled', false);           // allow export after import 
 }
@@ -1144,7 +1151,7 @@ function loadBookmarks(msg) {
 function loadBookmarkNode(node, parent) {
     // load a new node from bookmark export format as child of parent BTNode and recurse on children
 
-    if (node.url && node.url.startsWith('javascript:')) return; // can't handle JS bookmarklets
+    if (node?.url?.startsWith('javascript:')) return; // can't handle JS bookmarklets
     
     const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
     const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
@@ -1154,7 +1161,7 @@ function loadBookmarkNode(node, parent) {
     // handle link children, reverse cos new links go on top
     node.children.reverse().forEach(node => {
         if (node.childen) return;
-        if (node.url && node.url.startsWith('javascript:')) return; // can't handle JS bookmarklets
+        if (node?.url?.startsWith('javascript:')) return; // can't handle JS bookmarklets
         const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
         new BTAppNode(title, btNode.id, "", btNode.level + 1);
     });
@@ -1166,7 +1173,7 @@ function loadBookmarkNode(node, parent) {
     });
 }
 
-function animateNewBookmark(name) {
+function animateNewImport(name) {
     // Helper for bookmark import, draw attention
     const node = BTNode.findFromTitle(name);
     if (!node) return;

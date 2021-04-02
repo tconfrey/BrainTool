@@ -6,7 +6,7 @@
 'use strict'
 
 var AllNodes = [];
-var Lines = [];
+var Lines= [];
 
 function parseBTFile(fileText) {
     // create and recursively walk orga parse tree to create bt model
@@ -31,6 +31,19 @@ function parseBTFile(fileText) {
     }
 }
 
+function insertOrgFile(fileName, fileText) {
+    // Insert contents of this org filetext under the provided parent
+
+    const parentNode = new BTAppNode(fileName, null, `Imported ${getDateString()}`, 1);
+    const parseTree = orgaparse(fileText);
+    Lines = generateLinesAndColumns(fileText);
+    for (const orgaNode of parseTree.children) {
+        if (orgaNode.type == "section")
+            orgaSection(orgaNode, parentNode);
+    }
+    processImport(fileName);                                   // bt.js fn to write and refresh 
+}
+
 function orgaSection(section, parentAppNode) {
     // Section is a Headlines, Paragraphs and contained Sections.
     // Generate BTNode per Headline from Orga nodes.
@@ -41,7 +54,7 @@ function orgaSection(section, parentAppNode) {
         orgaChild.indexInParent = index++; // remember order to help
         switch(orgaChild.type) {
         case "headline":
-            appNode.level = orgaChild.level;
+            appNode.level = parentAppNode ? parentAppNode.level + 1 : orgaChild.level;
             appNode.title = orgaText(orgaChild, appNode);
             if (orgaChild.keyword) appNode.keyword = orgaChild.keyword;
             if (orgaChild.tags) appNode.tags = orgaChild.tags;
@@ -59,7 +72,7 @@ function orgaSection(section, parentAppNode) {
             break;
         case "paragraph":
             allText += allText.length ? "\n" : "";        // add newlines between para's
-            allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode
+            allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode for contained links
             break;
         default:
             allText += allText.length ? "\n" : "";        // elements are newline seperated

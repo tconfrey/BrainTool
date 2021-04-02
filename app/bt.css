@@ -197,9 +197,80 @@ button {
 
 button:not([disabled]):hover {
     color: #222;
-    background-color: #7bb07b; /* #ACA; */
+    background-color: #7bb07b; /* #ACA; */  
+    cursor: pointer;
+}
+
+/* experiments w split button for import/export */
+.button_text {
+    font-family: Arial;
+    font-size: 13px;
+}
+
+.dropdown {
+    position: absolute;
+    display: inline-block;
+}
+
+.dropdown_content {
+    display: none;
+    position: absolute;
+    background-color: #ddd;
+    border: 2px solid grey;
+    border-radius: 0 0 4px 4px;
+    z-index: 1;
+    width: 170px;
+    transform: translate(-150px, -2px);
+}
+
+.dropdown_content_export {
+    width: 156px;
+    transform: translate(-136px, -2px);
+}
+
+.dropdown_content a {
+    color: black;
+    padding: 3px 5px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown_content label {  
+    cursor: pointer;
+    float: left;
+    padding: 3px 5px;
+}
+
+.dropdown:hover .dropdown_content {
+    display: block;
+}
+.dropdown_content div {  
+    cursor: pointer;
+    height: 20px;
 }
     
+.dropdown_content div:hover {background-color: #7bb07b}    
+.dropdown_content a:hover {background-color: #7bb07b}
+
+
+.split_image {
+    opacity: 0.6;
+    margin-top: 1px;
+}
+
+.left_split {
+    border-right: 1px solid grey;
+    border-radius:3px 0 0 3px;
+}
+
+.right_split {
+    border-left: 1px solid grey;
+    border-radius:0 3px 3px 0;
+    height: 21px;
+    padding: 0 3px 0 3px;
+}
+
+/* end expt */
+
 #refresh {
     width: 120px;
 }

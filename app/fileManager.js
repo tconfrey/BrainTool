@@ -50,6 +50,12 @@ function waitForGapi () {
 var InitClientReturned = false;
 function initClient() {
     // Initializes the API client library and sets up sign-in state listeners
+
+    /* TODO remove. Removes gapi calls during ui testing iterations */
+    //updateSigninStatus(true);
+    //return;
+    /* TODO remove */
+    
     console.log("Initializing GDrive client app");
     setTimeout(checkInitClientReturned, 10000);
     try {
@@ -124,7 +130,7 @@ function checkAuthClickReturned() {
     alert("Google Authentication failed to complete!\nThis can be due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. If it continues see \nbraintool.org/support");
 }
 
-
+/* not used any more
 function handleSignoutClick(event) {
     // Sign out the user upon button click.
     console.log("Signing out user");
@@ -140,7 +146,7 @@ function handleSignoutClick(event) {
         alert(`Error signing out: \n[${JSON.stringify(err)}]`);
     }
 }
-
+*/
 
 /**
  * Find or initialize BT file
@@ -245,7 +251,7 @@ function getAccessToken(cb) {
         return accessToken;
 
     // else there's some kind of issue. retry
-	alert("BT - Error Google Access Token not available. Trying to reAuth...");
+	console.error("BT - Error Google Access Token not available. Trying to reAuth...");
     if (cb)
         reAuth(cb);
     return null;
@@ -258,12 +264,12 @@ function reAuth(callback) {
         {client_id: CLIENT_ID, scope: SCOPES, immediate: true}
 	).then((res) => {
         if (res.status && res.status.signed_in) {
-            alert("reAuth succeeded. Continuing");
+            console.error("reAuth succeeded. Continuing");
 			if (callback)
                 callback();                         // try again
             refreshRefresh();
         } else {
-            console.log("Error in reAuth.");
+            alert("Error in reauthorizing GDrive access.");
         }});
     return;
 }
@@ -328,7 +334,7 @@ function writeBTFile(cb) {
                       body: form
                   }).then((res) => {
 	                  if (!res.ok) {
-		                  alert("BT - error writing to GDrive, reauthenticating...");
+		                  console.error("BT - error writing to GDrive, reauthenticating...");
 		                  console.log("GAPI response:\n", JSON.stringify(res));
                           reAuth(writeBTFile);
 		                  return('GAPI error');
@@ -346,3 +352,38 @@ function writeBTFile(cb) {
     }
 }
 
+function importOrgFile() {
+    // Import org file text from user chosen file
+    
+    const fr=new FileReader();
+    const uploader = $("#org_upload")[0];
+    if (!uploader.files.length) return;
+    const file = uploader.files[0];
+    fr.onload = function(){
+        insertOrgFile(file.name, fr.result);                 // call parser to insert
+    };
+    fr.readAsText(file);
+    this.value = null;                                       // needed to re-trigger if same file selected again
+}
+
+
+function importTabsOutliner() {
+    // Import TabsOutliner json from user chosen file
+    const fr=new FileReader();
+    const uploader = $("#to_upload")[0];
+    if (!uploader.files.length) return;
+    const file = uploader.files[0];
+    fr.onload=function(){
+        const orgForTabsO = tabsToBT(fr.result);
+        insertOrgFile(file.name, orgForTabsO);
+    };
+    fr.readAsText(file);
+    this.value = null;                                       // needed to re-trigger if same file selected again
+}
+
+function exportOrgFile(event) {
+    // Import an org file from file
+    let filetext = BTAppNode.generateOrgFile();
+    filetext = 'data:text/plain;charset=utf-8,' + encodeURIComponent(filetext);
+    $("#org_export").attr('href', filetext);
+}

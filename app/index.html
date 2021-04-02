@@ -51,31 +51,63 @@
           NB The initial tree shows some examples of how to use tags. Feel free to build on it or delete anything you don't want by hovering over the row and hitting the trash button. (This message will scroll up momentarily)<br/>
         </p>
           <p style="margin-bottom: 3px; margin-left:10px; margin-top:30px; font-style: italic; font-size: 12px">BrainTool is young. Please review positively. Feedback to braintool.extension@gmail. Thanks!</p>
-        
-        <div id="options" class="control_overlay" style="display: none">
-          <img id="optionsClose" type="image" alt="Close" title="Close"
-               src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
-          <table class="overlay_table" style="font-size:15px; text-align:center">
-            <tr><td colspan="2">
-                <b>Options</b>
+          
+          <div id="options" class="control_overlay" style="display: none">
+            <img id="optionsClose" type="image" alt="Close" title="Close"
+                 src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
+            <table class="overlay_table" style="font-size:15px; text-align:center">
+              <tr><td colspan="2">
+                  <b>Options</b>
+              </td></tr>
+              <tr><td colspan="2">
+                  <button class="left_split button_text" id="import_button" onClick="importBookmarks()">Import from Bookmarks</button>
+                  
+                  <div class="dropdown">
+                    <button class="right_split">
+                      <img class="split_image" height="14" width="15" src="resources/expanded.png">
+                    </button>
+                    <div class="dropdown_content">
+                      
+                      <div>
+                        <label for="org_upload" class="button_text">Import an org-mode File</label>
+                        <input type="file" id="org_upload" name="org_upload" accept=".org"
+                               style="display:none" onchange="importOrgFile()">
+                      </div>
+                      
+                      <div style="border-top: solid 1px grey">
+                        <label for="to_upload" class="button_text">Import from TabsOutliner</label>
+                        <input type="file" id="to_upload" name="to_upload" accept=".json"
+                               style="display:none" onchange="importTabsOutliner()">
+                      </div>
+                      
+                    </div>
+                  </div>
+
+              </td></tr>
+              <tr><td colspan="2" style="padding-top: 5px">
+                  <button class="left_split button_text" id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
+                  
+                  <div class="dropdown">
+                    <button class="right_split">
+                      <img class="split_image" height="14" width="15" src="resources/expanded.png">
+                    </button>
+                    <div class="dropdown_content dropdown_content_export">
+                      <a id="org_export" class="row_divider button_text" href="" download="BrainTool.org" style="text-align:left" onclick="exportOrgFile()">Export to local File</a>
+                    </div>
+                  </div>
+
             </td></tr>
-            <tr><td colspan="2">
-                <button id="import_button" onClick="importBookmarks()">Import from Bookmarks</button>
-            </td></tr>
-            <tr><td colspan="2">
-                <button id="export_button" onClick="exportBookmarks()" disabled>Export to Bookmarks</button>
-            </td></tr>
-            <tr><td style="text-align:left">BT Tags map to:</td></tr>
+            <tr><td style="text-align:left">BT Topics map to:</td></tr>
             <tr><td colspan="2">
                 <div class="toggle-radio">
                   <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
-                  <label for="default_Option1">Windows</label>
+                  <label class="button_text" for="default_Option1">Windows</label>
 
                   <input type="radio" name="grouping" id="default_Option2" value="TABGROUP">
-                  <label for="default_Option2">Tab Groups</label>
+                  <label class="button_text" for="default_Option2">Tab Groups</label>
 
                   <input type="radio" name="grouping" id="default_Option3" value="NONE">
-                  <label for="default_Option3">Nothing</label>
+                  <label class="button_text" for="default_Option3">Nothing</label>
                 </div>
             </td></tr>
             <tr><td colspan="2">
@@ -217,6 +249,7 @@
     <script src="bt.js"></script>
     <script src="BTAppNode.js"></script>
     <script src="parser.js"></script>
+    <script src="../utilities/converters.js"></script>
     <script async defer src="https://apis.google.com/js/api.js"
             onload="this.onload=function(){};"
             onreadystatechange="if (this.readyState === 'complete') this.onload()">

@@ -117,8 +117,8 @@ QUnit.module("Org parsing tests", function() {
         assert.equal (AllNodes.length, 3);
         let node = AllNodes[1];
         assert.ok (node.drawers, 'drawers up');
-        assert.equal (Object.keys(node.drawers).length, 1);
-        assert.equal (node.drawers['PROPERTIES'], ':VISIBILITY: folded\n:OTHERPROP: none');
+        assert.equal (Object.keys(node.drawers).length, 1, 'key saved');
+        assert.equal (node.drawers['PROPERTIES'], ':VISIBILITY: folded\n:OTHERPROP: none', 'drawers clean');
         let drawerText = node.orgDrawers();
         assert.equal (drawerText.replace(/\s/g, ""), ":PROPERTIES::VISIBILITY:folded:OTHERPROP:none:END:", 'drawer reg ok, ignoring whitespace');
     });
