@@ -389,14 +389,14 @@ class BTAppNode extends BTNode {
 
     orgText() {
         // Generate org text for this node
-        let outputOrg = (this._id == 1) ? "" : "\n";
+        let outputOrg = "";
         outputOrg += "*".repeat(this._level) + " ";
         outputOrg += this._keyword ? this._keyword+" " : "";            // TODO DONE etc
         outputOrg += this.title;
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
         outputOrg += this.planning;                                     // add in any planning rows
         outputOrg += this.orgDrawers();                                 // add in any drawer text
-        outputOrg += this._text ? this._text : "";
+        outputOrg += this._text ? (this._text + "\n") : "";
             
         return outputOrg;
     }
@@ -618,11 +618,13 @@ class BTLinkNode extends BTAppNode {
         // Link nodes are never tags
         return false;
     }
-    
+
+    /*
     get displayTag() {
         // No display tag for linknodes cos they should never be a tag
         return "";
     }
+*/
 }
 
 

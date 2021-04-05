@@ -214,10 +214,15 @@ function processBTFile(fileText) {
     
     parseBTFile(fileText);
 
-    var table = generateTable(); 
-    var tab = $("#content");
-    tab.html(table);
-    tab.treetable({ expandable: true, initialState: 'expanded', indent: 10,
+    var table = generateTable();
+    /*  for some reason w big files jquery was creating <table><table>content so using pure js
+    var container = $("#content");
+    container.html(table);
+    */
+    var container = document.querySelector('#content');
+    container.innerHTML = table;
+
+    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
 
     BTAppNode.generateTags();
@@ -242,7 +247,7 @@ function processBTFile(fileText) {
     // set collapsed state as per org data
     AllNodes.forEach(function(node) {
         if (node?.folded)
-            tab.treetable("collapseNode", node.id);
+            $(container).treetable("collapseNode", node.id);
     });
 
     initializeUI();
@@ -1144,8 +1149,6 @@ function loadBookmarks(msg) {
     });
 
     processImport(importName);                             // see above
-
-    $("#export_button").prop('disabled', false);           // allow export after import 
 }
 
 function loadBookmarkNode(node, parent) {
