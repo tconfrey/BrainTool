@@ -99,8 +99,19 @@
     };
 
     Node.prototype.hide = function() {
-      this._hideChildren();
-      this.row.hide();
+        this._hideChildren();
+        this.row.hide();
+        /* // Tony - tried these:
+        //this.row.slideUp(12000);  
+        $(this.row).find('> td')
+            .css({'height':'0px'})
+            .wrapInner('<div style=\"display:block;\" />')
+            .parent()
+            .find('td > div')
+            .slideUp('slow', function() {
+  	            $(this.row).parent().parent().remove();
+            });
+        */
       return this;
     };
 

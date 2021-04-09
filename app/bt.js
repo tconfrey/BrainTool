@@ -6,62 +6,69 @@
  ***/
 'use strict'
 
-const authorizeButton = document.getElementById('authorize_button');
-
 const tipsArray = [
-    "Add ':' at the end of a tag to create a new subtag.",
+    "Add ':' at the end of a topic in the popup to file under a new subtopic.",
     "Double click on a table row to highlight its open window, if any.",
-    "Type ':TODO' after a tag to make the item a TODO in the BT tree.",
-    "Create tags like ToRead to keep track of pages you want to come back to.",
+    "Type ':TODO' after a topic to make the item a TODO in the BT tree.",
+    "Create topics like ToRead to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
-    "You can tag individual gmails or google docs into the BT tree",
+    "You can save individual gmails or google docs into the BT tree",
     "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
-    "Tag LinkedIn pages into projects to keep track of your contacts",
+    "Save LinkedIn pages into projects to keep track of your contacts",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
     "Check out the Bookmark import/export functions under Options!",
-    "You can click on the tags shown in the BT popup instead of typing out the name",
+    "You can click on the topics shown in the BT popup instead of typing out the name",
     "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
 var FirstUse = true;
-var InitialLoad = true;         // track whether app is loading BT file for first time
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.TABGROUP;
+var GDriveConnected = false;
 
-function updateSigninStatus(isSignedIn, error=false) {
+function launchApp(msg) {
+    // Launch app w data passed from extension
+    
+    ClientID = msg.client_id;
+    APIKey = msg.api_key;
+    FirstUse = msg.initial_install || msg.upgrade_install;
+    BTFileText = msg.BTFileText;
+    processBTFile(BTFileText);
+    
+    if (FirstUse) {
+        $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
+        setTimeout(closeMenu, 30000);
+    } else {
+        addTip();
+        setTimeout(closeMenu, 10000);
+    }
+
+    // If GDrive connection was previously established, re-set it up on this startup
+    if (getMetaProp('BTGDriveConnected') == 'true') {
+        GDriveConnected = true;
+        authorizeGapi();
+    }
+}
+
+function updateSigninStatus(signedIn, error=false) {
     // CallBack on GDrive signin state change
     if (error) {
-        let msg = "Error Authenticating with Google. Google says:<br/><i>'";
+        let msg = "Error Authenticating with Google. Google says:\n'";
         msg += (error.details) ? error.details : JSON.stringify(error);
-        msg += "'</i><br/>If this is a cookie issue be aware that Google uses cookies for authentication.";
-        msg += "<br/>Go to 'chrome://settings/content/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry. If it continues see \nbraintool.org/support";
-        $("#loadingMessage").html(msg);
-        closeMenu();
+        msg += "'\nIf this is a cookie issue be aware that Google uses cookies for authentication.\n";
+        msg += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry. If it continues see \nbraintool.org/support";
+        alert(msg);
         return;
     }
-    if (isSignedIn) {
-        authorizeButton.style.display = 'none';
-        $("#options_button").show();
-        $("#authDiv").addClass("notImportant");
-        if (FirstUse) {
-            $("#intro_text").slideUp(750);
-            $("#tip").animate({backgroundColor: '#7bb07b'}, 3000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 3000);
-            setTimeout(closeMenu, 30000);
-        } else {
-            addTip();
-            setTimeout(closeMenu, 10000);
-        }
-        findOrCreateBTFile();
+    if (signedIn) {
+        $("#gdrive_auth").hide();
+        GDriveConnected = true;
+        refreshRefresh();
     } else {
-        $("#controls_screen").show();
-        $("#intro_text").slideDown(750);
-        $("#loading").hide();
-        $("#options_button").hide();
-        $("#options").hide();
-        $("#authDiv").addClass("important");
-        authorizeButton.style.display = 'block';
+        $("#gdrive_auth").show();
+        GDriveConnected = false;
     }
 }
 
@@ -158,8 +165,8 @@ var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 
-function refreshTable() {
-    // refresh from file, first clear current state
+function refreshTable(fromGDrive = false) {
+    // Clear current state and redraw table. Used after an import or on a manual GDrive refresh request
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
     if (unwrittenChangesP()) {
@@ -167,12 +174,8 @@ function refreshTable() {
         return;
     }
     $("#refresh").prop("disabled", true);
-    $("#refresh").text('...');
     $('body').addClass('waiting');
     
-    BTFileText = "";
-    BTNode.topIndex = 1;
-
     // Remember window opened state to repopulate later
     // TODO populate from node.opened
     OpenedNodes = [];
@@ -180,9 +183,11 @@ function refreshTable() {
         const id = $(this).attr("data-tt-id");
         OpenedNodes.push(AllNodes[id]);
     });
+    BTNode.topIndex = 1;
     AllNodes = [];
-    
-    getBTFile();
+
+    // Either get file from gDrive from scratch or use local copy
+    fromGDrive ? getBTFile() : processBTFile(BTFileText);
 }
 
 
@@ -201,11 +206,6 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract category tags
-    if (InitialLoad) {
-        toggleMenu();
-        InitialLoad = false;
-    }
-    
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
@@ -252,15 +252,15 @@ function processBTFile(fileText) {
 
     initializeUI();
     updatePrefs();
-    refreshRefresh();
+    if (GDriveConnected) refreshRefresh();
     if (RefreshCB) RefreshCB();                      // may be a callback registered
 }
 
 function refreshRefresh() {
     // set refresh button back on
     console.log('Refreshing Refresh');
+    $("#refresh_div").show();
     $("#refresh").prop("disabled", false); // activate refresh button
-    $("#refresh").text("Refresh");
     $('body').removeClass('waiting');
 }
     
@@ -347,7 +347,7 @@ function initializeUI() {
     if ($("#buttonRow")[0])
         ButtonRowHTML = $("#buttonRow")[0].outerHTML;
 
-    updateStatsRow();                            // show updated stats
+    updateStatsRow();                                      // show updated stats
 }
 
 function reCreateButtonRow() {
@@ -391,7 +391,7 @@ function dropNode(event, ui) {
         const oldParentId = dragNode.parentId;
         moveNode(dragNode, dropBTNode);
         
-        writeBTFile();
+        saveBT();
         BTAppNode.generateTags();        
         window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
         
@@ -475,11 +475,10 @@ function rememberFold() {
         clearTimeout(rememberFold.writeTimer);
         rememberFold.writeTimer = null;
     }
-    rememberFold.writeTimer = setTimeout(writeBTFile, 2*60*1000);
+    rememberFold.writeTimer = setTimeout(saveBT, 2*60*1000);
 }
 
 function nodeExpand() {
-    console.log('Expanding ', this.id);
     let update = AllNodes[this.id].folded;
     AllNodes[this.id].folded = false;
 
@@ -491,7 +490,6 @@ function nodeExpand() {
     if (update) rememberFold();
 }
 function nodeCollapse() {
-    console.log('Collapsing ', this.id);
     const node = AllNodes[this.id];
     const update = !node.folded;
     node.folded = true;
@@ -635,7 +633,7 @@ function storeTabs(data) {
         "sortBranch", ttParent, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
     
     initializeUI();
-    writeBTFile();
+    saveBT();
 
     // Execute tab action (close, stick, group)
     if (tabAction == 'CLOSE') {
@@ -1012,7 +1010,7 @@ function deleteNode(id) {
     }
     
     // Update File 
-    writeBTFile();
+    saveBT();
 }
 
 
@@ -1036,7 +1034,7 @@ function updateRow() {
     $(tr).find("span.btText").html(node.displayText());
 
     // Update File 
-    writeBTFile();
+    saveBT();
 
     // Update extension
     BTAppNode.generateTags();    
@@ -1060,7 +1058,7 @@ function toDo(e) {
     const tr = $(`tr[data-tt-id='${appNode.id}']`);
     $(tr).find("span.btTitle").html(appNode.displayTitle());
     initializeUI();
-    writeBTFile();
+    saveBT();
 }
 
 function promote(e) {
@@ -1079,7 +1077,7 @@ function promote(e) {
     $("table.treetable").treetable("promote", node.id);
 
     // save to file, update Tags etc
-    writeBTFile();
+    saveBT();
     BTAppNode.generateTags();
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
@@ -1105,14 +1103,14 @@ function addChild(e) {
     // Stop the event from selecting the row and line up a save
     e.stopPropagation();
     initializeUI();
-    writeBTFile();
+    saveBT();
 }
 
 
 /***
  * 
  * Option Processing
- * RN just Bookmarks
+ * Imports of Bookmarks, org file, tabsOutliner json. Grouping option updates
  * 
  ***/
 
@@ -1120,8 +1118,8 @@ function processImport(nodeName) {
     // an import (bkmark, org, tabsOutliner) has happened => save and refresh
 
     RefreshCB = function() {animateNewImport(nodeName);};
-    writeBTFile(refreshTable);
-
+    saveBT();
+    refreshTable();
 }
 
 function importBookmarks() {
@@ -1240,7 +1238,8 @@ $(document).ready(function () {
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
 
-        writeBTFile(groupingUpdate(oldVal, newVal));
+        saveBT();
+        groupingUpdate(oldVal, newVal);
     });
 });
 
@@ -1253,7 +1252,7 @@ function groupingUpdate(from, to) {
         BTAppNode.groupAll();
     if ((from == 'NONE' || from == 'TABGROUP') && to == 'WINDOW') {
         const numPotentialWins = AllNodes.filter(n => n.isTag() && n.windowId).length;
-        if (confirm(`Also sort existing tabs into ${numPotentialWins} new windows?`))
+        if (numPotentialWins && confirm(`Also sort existing tabs into ${numPotentialWins} new windows?`))
             BTAppNode.windowAll();
     }
 }
@@ -1428,7 +1427,7 @@ function undo() {
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
 
     initializeUI();
-    writeBTFile();
+    saveBT();
     BTAppNode.generateTags();        
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 

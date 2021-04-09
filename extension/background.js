@@ -176,7 +176,8 @@ function initializeExtension(msg, sender) {
     // send over gdrive app info
     chrome.tabs.sendMessage(                        
         BTTab,
-        {'function': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
+        {'function': 'launchApp', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY,
+         'initial_install': InitialInstall, 'upgrade_install': Update});
 
     // check to see if a welcome is called for
     if (InitialInstall || Update) {

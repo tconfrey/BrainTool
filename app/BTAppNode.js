@@ -203,15 +203,15 @@ class BTAppNode extends BTNode {
         }
 
         // if we do care about grouping send openInWindow/TabGroup
-        const windowId = this.windowId || AllNodes[this.parentId].windowId;
+        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
         if (GroupingMode == GroupOptions.WINDOW)
             window.postMessage(
                 {'function' : 'openInWindow', 'windowId' : windowId,
                  'tabs': [{'URL' : this.URL, 'nodeId' : this.id}] });
         if (GroupingMode == GroupOptions.TABGROUP) {
             const index = this.indexInParent();
-            const tabGroupId = this.tabGroupId || AllNodes[this.parentId].tabGroupId;
-            const firstOpenTab = AllNodes[this.parentId].leftmostOpenTab();
+            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'openInTabGroup', 'firstOpenTab': firstOpenTab,
                  'tabs': [{'URL' : this.URL, 'nodeId' : this.id, 'index' : index}],
@@ -222,7 +222,7 @@ class BTAppNode extends BTNode {
     group() {
         // tell background how to move this nodes tab to its appropriate group
 
-        const windowId = this.windowId || AllNodes[this.parentId].windowId;
+        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
         const tabId = this.tabId;
         const index = this.indexInParent();
         if (GroupingMode == GroupOptions.WINDOW)
@@ -230,8 +230,8 @@ class BTAppNode extends BTNode {
                 {'function' : 'moveToWindow', 'windowId' : windowId,
                  'tabId' : tabId, 'index' : index, 'nodeId' : this.id});
         if (GroupingMode == GroupOptions.TABGROUP) {
-            const tabGroupId = this.tabGroupId || AllNodes[this.parentId].tabGroupId;
-            const firstOpenTab = AllNodes[this.parentId].leftmostOpenTab();
+            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'moveToTabGroup', 'firstOpenTab' : firstOpenTab,
                  'tabIds' : [tabId], 'tabGroupId': tabGroupId, 'windowId' : windowId,
@@ -643,7 +643,7 @@ const Handlers = {
     "tabOpened" : tabOpened,
     "tabClosed" : tabClosed,
     "storeTabs": storeTabs,
-    "keys": processKeys
+    "launchApp": launchApp
 };
 
 // Set handler for extension messaging
