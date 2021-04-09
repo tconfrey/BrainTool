@@ -74,6 +74,8 @@ function updateSigninStatus(signedIn, error=false) {
         $("#gdrive_save").html(`Active`);
         GDriveConnected = true;
         refreshRefresh();
+        // TODO address in CWS submission, updagrades need to load from GDrive before first save
+        if (FirstUse) setTimeout(refreshTable(true), 5000); 
     } else {
         $("#gdrive_auth").show();
         GDriveConnected = false;
