@@ -43,8 +43,7 @@ function launchApp(msg) {
         if (msg.upgrade_install)
             // Need to make a one time assumption that an upgrade to 0.9 is already connected
             setMetaProp('BTGDriveConnected', 'true');
-        if (msg.initial_install) { // TODO remove before CWS submissionx
-            alert("Early release version, defaulting to GDrive connected");
+        if (msg.initial_install) { // TODO remove before CWS submission
             setMetaProp('BTGDriveConnected', 'true');
         }
     } else {
@@ -75,7 +74,10 @@ function updateSigninStatus(signedIn, error=false) {
         GDriveConnected = true;
         refreshRefresh();
         // TODO address in CWS submission, updagrades need to load from GDrive before first save
-        if (FirstUse) setTimeout(refreshTable(true), 5000); 
+        if (FirstUse) setTimeout(function () {
+            alert("Early release version, defaulting to GDrive connected");
+            refreshTable(true);
+        }, 5000); 
     } else {
         $("#gdrive_auth").show();
         GDriveConnected = false;
