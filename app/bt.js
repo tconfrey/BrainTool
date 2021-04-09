@@ -77,7 +77,7 @@ function updateSigninStatus(signedIn, error=false) {
         if (FirstUse) setTimeout(function () {
             alert("Early release version, defaulting to GDrive connected and refreshing, takes a few seconds");
             refreshTable(true);
-            setTimeout(saveBT(), 8000);
+            setTimeout(saveBT, 8000);
         }, 7000); 
     } else {
         $("#gdrive_auth").show();
