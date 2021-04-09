@@ -1,0 +1,344 @@
+    
+#controls_header {
+    background-color: #7bb07b;
+    border-width: 1px;
+    border-color: #AAA;
+}
+
+.stat_span {
+    padding-right: 8px;
+    vertical-align: top;
+    font-size: 13px;
+    font-family: arial;
+}
+
+#stats_row {
+    height: 18px;
+    color: darkslategray;
+    position: absolute;
+    top: 2px;
+    right: 5px;
+}
+
+.open_close {
+    opacity: 0.6;
+    margin-top: 1px;
+    margin-left:7px;
+}
+
+#controls {
+    position: fixed;
+    right: 8px;
+    left: 8px;
+    top: 0px;
+    border-top: 3px solid white;
+    border-bottom: 3px solid white;
+    border-left: none;
+    border-right: none;
+    z-index: 3;
+}                    
+
+#controls_screen::before {
+    content: "";
+    left: 15px;
+    top:0;
+    bottom:0;
+    right: 15px;
+    position: absolute;
+    z-index: -4;
+    background-color: white;
+}
+#controls_screen {
+    position: relative;
+    overflow: hidden;
+    display: block;
+}
+#controls_screen::after {
+    content: "";
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 10%,rgba(255, 255, 255, 0.6) 90%, rgba(255, 255, 255, 1) 100%), url(resources/marquee.png);
+    opacity: 0.7;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    background-size: cover;
+    z-index: -1;
+}
+#logo_image {
+    width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+    margin-top: 3px;
+    margin-bottom: 15px;
+}
+
+#buttonRow {
+    background-color: #7bb07b; /* #cec; #aca */
+    position: absolute;
+    padding-left: 10px;
+    padding-right: 3px;
+    right: 13px;
+    border-radius: 3px;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-width: 1px;
+    border-color: dimgrey;
+    cursor: pointer;
+}
+
+dialog {
+    border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
+    border-radius: 6px;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    width: 82%;
+    padding: 10px;
+    padding-top: 2px;
+    margin-top: 0px;
+    position: fixed;
+}
+
+dialog textarea {
+    width: 90%;
+}
+dialog #text-text {
+    height: 8em;
+    width: 95%;
+}
+dialog #title-url {
+    height: 4em;
+}
+
+#options_button_border {
+    width: 75%;
+    margin: auto;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-around;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: grey;
+    background-color: #7bb07baa;
+}
+.important {
+    border-color: crimson;
+}
+
+.buttonDiv {
+    width: 80%;
+    margin: auto;
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.control_overlay {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    
+    border: solid;
+    border-color: grey;
+    border-width: 3px;
+    border-radius: 5px;
+    background-color: #dcdfd3f4;
+    width: 80%;
+    z-index: 3;
+}
+.control_text {
+    margin: 10px;
+    padding-left: 10px;
+    padding-right: 20px;
+    text-align: justify;
+}
+.overlay_table {
+    margin-left: auto;
+    margin-right: auto;
+    font-size:13px;
+}
+
+.options_table td {
+    padding-top: 8px;
+}
+
+.option_td {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.row_divider {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: grey;
+}
+
+#optionsClose {
+    position: absolute;
+    cursor: pointer;
+    right: 3px;
+    top: 3px;
+    z-index: 4;
+}
+
+#inner {
+    width: 240px;
+    margin: 0 auto;
+}
+
+button {
+    color: #222;
+    border-style: double;
+    border-radius: 3px;
+}
+
+button:not([disabled]):hover {
+    color: #222;
+    background-color: #7bb07b; /* #ACA; */  
+    cursor: pointer;
+}
+
+/* split button for import/export */
+.button_text {
+    font-family: Arial;
+    font-size: 13px;
+}
+
+.dropdown {
+    position: absolute;
+    display: inline-block;
+}
+
+.dropdown_content {
+    display: none;
+    position: absolute;
+    background-color: #ddd;
+    border: 2px solid grey;
+    border-radius: 4px 0 4px 4px;
+    z-index: 1;
+    width: 170px;
+    transform: translate(-150px, -2px);
+}
+
+.dropdown_content_export {
+    width: 155px;
+    transform: translate(-135px, -2px);
+}
+
+.dropdown_content a {
+    color: black;
+    padding: 3px 5px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown_content label {  
+    cursor: pointer;
+    float: left;
+    padding: 3px 5px;
+}
+
+.dropdown:hover .dropdown_content {
+    display: block;
+}
+.dropdown_content div {  
+    cursor: pointer;
+    height: 20px;
+}
+    
+.dropdown_content div:hover {background-color: #7bb07b}    
+.dropdown_content a:hover {background-color: #7bb07b}
+
+
+.split_image {
+    opacity: 0.6;
+    margin-top: 1px;
+}
+
+.left_split {
+    border-right: 1px solid grey;
+    border-radius:3px 0 0 3px;
+}
+
+.right_split {
+    border-left: 1px solid grey;
+    border-radius:0 3px 3px 0;
+    height: 21px;
+    padding: 0 3px 0 3px;
+}
+
+/* end split button*/
+
+#refresh {
+    width: 240px;
+}
+
+span.elipse {
+     cursor:pointer;
+     color:blue;
+     text-decoration:underline;
+     padding-left: 0.1em;
+}
+
+textarea {
+    font-size: .8em;
+    line-height: 1.2;
+    /* font-family: "Palatino";
+     font-family: "Arial";
+     line-height: 1;*/
+}
+
+/* prevents selection being scrolled off top */
+.treetable tr {
+  scroll-margin-top: 330px;
+}
+
+
+body.waiting * {
+    cursor: progress !important;
+}
+
+
+/* 3-way chooser for window mapping */
+.toggle-radio > input + label {
+    background:#efefef;
+    border:2px solid grey;
+    border-width:2px 0 2px 0;
+}
+.toggle-radio > input:first-of-type + label {
+    border-right-width: 1px;
+    border-left-width: 2px;
+    margin-right: -4px;
+}
+.toggle-radio > input:last-of-type + label {
+    border-left-width:1px;
+    border-right-width:2px;
+    margin-left: -4px
+}
+.toggle-radio > input:checked + label {background: #7bb07b;}
+
+/* Rounded corners */
+.toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
+.toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
+
+/* CORE STYLES */
+.toggle-radio {
+    display:inline-block;
+    vertical-align:middle;
+}
+.toggle-radio > input[type='radio'] {display:none;}
+.toggle-radio > input + label {
+    display:inline-block;
+    margin-bottom:0;
+    padding:1px 10px;
+    cursor:pointer;
+    align-items:center;}
+
+/* Transitions */
+.toggle-radio > input:checked + label {transition:background 300ms linear;}
