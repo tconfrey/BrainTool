@@ -73,11 +73,12 @@ function updateSigninStatus(signedIn, error=false) {
         $("#gdrive_save").html(`Active`);
         GDriveConnected = true;
         refreshRefresh();
-        // TODO address in CWS submission, updagrades need to load from GDrive before first save
+        // TODO address in CWS submission, updagrades need to load from GDrive before first save, and then resave
         if (FirstUse) setTimeout(function () {
-            alert("Early release version, defaulting to GDrive connected");
+            alert("Early release version, defaulting to GDrive connected and refreshing, takes a few seconds");
             refreshTable(true);
-        }, 5000); 
+            setTimeout(saveBT(), 8000);
+        }, 7000); 
     } else {
         $("#gdrive_auth").show();
         GDriveConnected = false;
