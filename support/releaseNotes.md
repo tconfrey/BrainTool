@@ -3,6 +3,36 @@ title: BrainTool Release Notes
 description: Reverse chronological notes on recent BrainTool versions.
 ---
 
+# Welcome to BrainTool 0.9
+The BrainTool 0.9 version is now available with a manual install prior to it's release on the Chrome Web Store. See below for the 0.8 RNs.
+
+## File import/export
+In addition to Chrome Bookmarks, 0.9 adds the ability to import from a TabsOutliner export and also to import a text file with orgmode (org-mode?) markup. Heading, paragraph text and contained http(s) links are extracted and represented in the tree.
+
+In addition to exporting to Bookmarks you can now also export an org file.
+
+## org-mode support
+This version upgrades to version 2 of the very handy [[orga.js]] org parser by <guy>. BrainTool should now retain any org markup in the BrainTool.org file (or an imported file). BT stores app data using headers for Topics, headers with links for topic occurrences (ie links) and paragraph text for notes. Other constructs such as lists, tables, blocks etc will just be shown in plain text in the tree and written back out as such.
+
+The idea here is to allow BrainTool to become an integral part of a text and org-based note taking and productivity workflow.
+
+## Removed GDrive dependency
+The need to perform the GDrive permission workflow on the initial install made the whole thing overly complicated for people. With the new ability to upload and download the file manually I decided to decouple the GDrive permissions.
+
+By default BT now stores your data in Chrome local storage. This should be resilient across browser sessions on a single Chrome instance. Its still advisable to also write to the BrainTool.org file on your GDrive but not necessary. If you currently have the GDrive app connected you can disconnect it from Settings on the [aDrive web page](https://drive.google.com).
+
+## Installation Instructions
+To install this version of BT in advance of it being approved in the store follow these instructions. I'd love to hear your feedback on the [BT forum](https://groups.google.com/u/0/g/braintool-discussion)
+
+Pull down the extension code from [here](gdrive) and expand the zip file into a folder, or clone the [repo on GitHub](https://github.com/tconfrey/BrainTool) and go to the versions/0.9.0/extension directory, then follow these instructions:
+ * Open a tab to chrome://extensions
+ * Turn on Developer mode, top right
+ * Click the 'Load unpacked' button, top left
+ * Navigate to where you saved the 0.8 extension code and install that
+ * Remove or disable (via the slider) the current 0.8.1 BrainTool.
+ 
+You should be able to open and use BT like before. (Altho NB the keyboard shortcut is lost, you need to delete the keyboard shortcut and add it back in, via the top left hamburger menu).
+
 # Welcome to BrainTool 0.8.1!
 BrainTool 0.8.1 is now pending Google approval. You'll be automatically upgraded when they release it for use. 
 This BrainTool point release has a few changes you might notice:
@@ -11,6 +41,8 @@ This BrainTool point release has a few changes you might notice:
   - Better pre-fills for the topic to use in the popup.
   - Improvements to keeping tabs assigned to tab groups properly during navigation.
 Thanks to Richard and Matti for their bug reports, suggestions and feedback on the above.
+
+<hr/>
 
 # BrainTool 0.8.0
 
