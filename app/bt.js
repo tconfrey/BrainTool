@@ -40,6 +40,13 @@ function launchApp(msg) {
     if (FirstUse) {
         $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         setTimeout(closeMenu, 30000);
+        if (msg.upgrade_install)
+            // Need to make a one time assumption that an upgrade to 0.9 is already connected
+            setMetaProp('BTGDriveConnected', 'true');
+        if (msg.initial_install) { // TODO remove before CWS submissionx
+            alert("Early release version, defaulting to GDrive connected");
+            setMetaProp('BTGDriveConnected', 'true');
+        }
     } else {
         addTip();
         setTimeout(closeMenu, 10000);
@@ -63,7 +70,8 @@ function updateSigninStatus(signedIn, error=false) {
         return;
     }
     if (signedIn) {
-        $("#gdrive_auth").hide();
+        $("#gdrive_auth").hide();        
+        $("#gdrive_save").html(`Active`);
         GDriveConnected = true;
         refreshRefresh();
     } else {

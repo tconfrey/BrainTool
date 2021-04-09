@@ -70,7 +70,7 @@ async function initClient() {
     // Initializes the API client library and sets up sign-in state listeners
 
     console.log("Initializing GDrive client app");
-    let timeout = setTimeout(checkLoginReturned, 75000);
+    let timeout = setTimeout(checkLoginReturned, 60000);
     try {
         let signedin = await isSignedIn();
         
