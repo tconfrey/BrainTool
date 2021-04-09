@@ -1,7 +1,11 @@
-/* 
-   Base capabilities and model for a BrainTool node common across app and extension.
-   Base Messaging and coordination capabilities will go here as they are refactored out.
-*/
+/***
+ *
+ *  Base model for a BrainTool node. Keeps track of containment and relationships
+ *  Tree creation functions
+ *
+ ***/
+
+'use strict'
 
 class BTNode {
     constructor(title, parentId = null) {
@@ -53,12 +57,6 @@ class BTNode {
         return this._parentId;
     }
 
-    get hasWebLinks() {
-	    // Calculate on demand since it may change based on node creation/deletion
-	    if (this.URL) return true;
-	    return this.childIds.some(id => AllNodes[id].hasWebLinks);
-    }
-
     get childIds() {
         return this._childIds;
     }
@@ -73,22 +71,21 @@ class BTNode {
             this._childIds.splice(index, 0, parseInt(id));
     }
     removeChild(id) {
-        let index = this._childIds.indexOf(parseInt(id));
+	let index = this._childIds.indexOf(parseInt(id));
         if (index > -1)
             this._childIds.splice(index, 1);
     }
-    allDescendents() {
-        // return an array of all children and all their children etc
-        let ids = [this._id];
-        this.childIds.forEach(function (id) {
-            ids.push(AllNodes[id].allDescendents());
-        });
-        return ids.flat(Infinity);
+
+    // only used in isTag
+    _hasWebLinks() {
+	// Calculate on demand since it may change based on node creation/deletion
+	if (this.URL) return true;
+	return this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
 
     isTag() {
         // Is this node used as a tag => has webLinked children
-        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id].hasWebLinks);
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
     
     reparentNode(newP, index = -1) {
@@ -104,7 +101,7 @@ class BTNode {
     
     static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
-        // nb only find http urls, purposely ignore file: links
+        // nb only find http and chrome: urls, purposely ignore file: links
         const regexStr = "\\[\\[(http.*?|chrome.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
         const hits  = reg.exec(title);
@@ -150,15 +147,8 @@ class BTNode {
         const potentialMatches = AllNodes.filter(node => node.displayTag == tag);
         return potentialMatches.find(node => node.parentId && AllNodes[node.parentId].displayTag == parent);
     }
-
-    static reset() {
-        // Called when reloading nodes etc
-        AllNodes = [];
-        BTNode.topIndex = 1;
-    }
     
     static topIndex = 1;    // track the index of the next node to create, static class variable.
-
     
     static processTagString(tag) {
         // Tag string passed from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
@@ -180,15 +170,14 @@ class BTNode {
     static undoStack = [];
     static deleteNode(nodeId) {
         // Cleanly delete this node
-        BTNode.undoStack = [];                     // only one level of undo for now
+        BTNode.undoStack = [];                     // only one level of undo, so clear each time
 
         function _deleteNode(nodeId) {
             const node = AllNodes[nodeId];
             if (!node) return;
 
             // recurse to delete children if any
-            const children = [...node.childIds];
-            children.forEach(_deleteNode);
+            [...node.childIds].forEach(_deleteNode);
             
             // Remove from parent
             const parent = AllNodes[node.parentId];

@@ -1,5 +1,13 @@
+/***
+ *
+ *  Centralizes all the node-related app logic of reading and writing to org, creating the ui etc
+ *  
+ *
+ ***/
+
+'use strict'
+
 class BTAppNode extends BTNode {
-    // Centralizes all the app-only logic of reading and writing to org, creating the ui etc
 
 /***
  *
@@ -16,8 +24,12 @@ class BTAppNode extends BTNode {
         this._tabGroupId = 0;
         this._windowId = 0;
         this._opening = false;
+
+        // Three attributes of org ndes to track
         this.drawers = {};
         this.tags = [];
+        this.planning = "";
+        
         AllNodes[this._id] = this;
         brainZoom();
     }
@@ -191,15 +203,15 @@ class BTAppNode extends BTNode {
         }
 
         // if we do care about grouping send openInWindow/TabGroup
-        const windowId = this.windowId || AllNodes[this.parentId].windowId;
+        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
         if (GroupingMode == GroupOptions.WINDOW)
             window.postMessage(
                 {'function' : 'openInWindow', 'windowId' : windowId,
                  'tabs': [{'URL' : this.URL, 'nodeId' : this.id}] });
         if (GroupingMode == GroupOptions.TABGROUP) {
             const index = this.indexInParent();
-            const tabGroupId = this.tabGroupId || AllNodes[this.parentId].tabGroupId;
-            const firstOpenTab = AllNodes[this.parentId].leftmostOpenTab();
+            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'openInTabGroup', 'firstOpenTab': firstOpenTab,
                  'tabs': [{'URL' : this.URL, 'nodeId' : this.id, 'index' : index}],
@@ -210,7 +222,7 @@ class BTAppNode extends BTNode {
     group() {
         // tell background how to move this nodes tab to its appropriate group
 
-        const windowId = this.windowId || AllNodes[this.parentId].windowId;
+        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
         const tabId = this.tabId;
         const index = this.indexInParent();
         if (GroupingMode == GroupOptions.WINDOW)
@@ -218,8 +230,8 @@ class BTAppNode extends BTNode {
                 {'function' : 'moveToWindow', 'windowId' : windowId,
                  'tabId' : tabId, 'index' : index, 'nodeId' : this.id});
         if (GroupingMode == GroupOptions.TABGROUP) {
-            const tabGroupId = this.tabGroupId || AllNodes[this.parentId].tabGroupId;
-            const firstOpenTab = AllNodes[this.parentId].leftmostOpenTab();
+            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'moveToTabGroup', 'firstOpenTab' : firstOpenTab,
                  'tabIds' : [tabId], 'tabGroupId': tabGroupId, 'windowId' : windowId,
@@ -377,12 +389,15 @@ class BTAppNode extends BTNode {
 
     orgText() {
         // Generate org text for this node
-        let outputOrg = "*".repeat(this._level) + " ";
-        outputOrg += this._keyword ? this._keyword+" " : "";              // TODO DONE etc
+        let outputOrg = "";
+        outputOrg += "*".repeat(this._level) + " ";
+        outputOrg += this._keyword ? this._keyword+" " : "";            // TODO DONE etc
         outputOrg += this.title;
         outputOrg += this.orgTags(outputOrg) + "\n";                    // add in any tags
+        outputOrg += this.planning;                                     // add in any planning rows
         outputOrg += this.orgDrawers();                                 // add in any drawer text
-        outputOrg += this._text ? this._text + "\n" : "";
+        outputOrg += this._text ? (this._text + "\n") : "";
+            
         return outputOrg;
     }
 
@@ -392,11 +407,40 @@ class BTAppNode extends BTNode {
         this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
             let txt = AllNodes[id].orgTextwChildren();
-            outputOrg += txt.length ? "\n" + txt : "";           // eg BTLinkNodes might not have text 
+            outputOrg += txt.length ? "\n" + txt : "";        // eg BTLinkNodes might not have text 
         });
         return outputOrg;
     }
+
+    static generateOrgFile() {
+        // iterate thru nodes to do the work
+        let orgText = metaPropertiesToString(AllNodes.metaProperties);
+        
+        // find and order the top level nodes according to table position
+        const topNodes = AllNodes.filter(node => node && !node.parentId);
+        topNodes.sort(function(a,b) {
+            const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
+            const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
+            const posA = eltA ? eltA.rowIndex : Number.MAX_SAFE_INTEGER;
+            const posB = eltB ? eltB.rowIndex : Number.MAX_SAFE_INTEGER;
+            return (posA - posB);
+        });
+        
+        // iterate on top level nodes, generate text and recurse
+        topNodes.forEach(function (node) {
+            if (node && (node.level == 1))
+                orgText += node.orgTextwChildren() + "\n";
+        });
+        return orgText.slice(0, -1);                                      // take off final \n
+    }
     
+    /***
+     *
+     * Utility functions
+     *
+     ***/
+
+        
     static _orgTextToHTML(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
@@ -413,12 +457,6 @@ class BTAppNode extends BTNode {
         }
         return outputStr;
     }
-
-/***
- *
- * Utility functions
- *
- ***/
 
     countOpenableTabs() {
         // used to warn of opening too many tabs
@@ -505,9 +543,24 @@ class BTAppNode extends BTNode {
         return AllNodes.find(node => node && (node.tabId == tabId));
     }
     
-    static findFromURL(url) {
-        // Return node associated w url, if any
-        return AllNodes.find(node => node && BTNode.compareURLs(node.URL, url));
+    static findFromURLTGWin(url, tg, win) {
+        // find node from url/TG/Window combo.
+        // #1 is there a unique BT node w url
+        // #2 is there a matching url in same TG or window as new tab
+        const urlNodes = AllNodes.filter(node => node && BTNode.compareURLs(node.URL, url));
+        if (urlNodes.length == 0) return null;
+        if (urlNodes.length == 1) return urlNodes[0];
+        for (const node of urlNodes) {
+            let parentId = node.parentId;
+            if (parentId && AllNodes[parentId] && AllNodes[parentId].tabGroupId == tg)
+                return node;
+        }
+        for (const node of urlNodes) {
+            let parentId = node.parentId;
+            if (parentId && AllNodes[parentId] && AllNodes[parentId].windowId == win)
+                return node;
+        }
+        return urlNodes[0];                                      // else just use first
     }
 
     static findFromWindow(winId) {
@@ -523,7 +576,17 @@ class BTAppNode extends BTNode {
 
 
 class BTLinkNode extends BTAppNode {
-    // create a link type node for links embedded in para text - they show as children in the tree but don't generate a new node when the org file is written out, unless they are edited and given descriptive text, in which case they are written out as nodes and will be promoted to BTNodes the next time the file is read.
+/***
+ *
+ *  Specific link type node for links embedded in para text, not as BT created headlines.
+ *  they show as children in the tree but don't generate a new node when the org file is written out,
+ *  unless they are edited and given descriptive text, 
+ *  in which case they are written out as nodes and will be promoted to BTNodes 
+ *  the next time the file is read.
+ *
+ ***/
+
+    
     constructor(title, parent, text, level, protocol) {
         super(title, parent, text, level);
         this._protocol = protocol;
@@ -555,15 +618,22 @@ class BTLinkNode extends BTAppNode {
         // Link nodes are never tags
         return false;
     }
-    
+
+    /*
     get displayTag() {
         // No display tag for linknodes cos they should never be a tag
         return "";
     }
+*/
 }
 
 
-/* Centralized Mappings from MessageType to handler. Array of handler functions */
+/***
+ *
+ *  Centralized Mappings from MessageType to handler. Array of handler functions
+ *
+ ***/
+
 const Handlers = {
     "loadBookmarks": loadBookmarks,
     "tabActivated": tabActivated,
@@ -573,7 +643,7 @@ const Handlers = {
     "tabOpened" : tabOpened,
     "tabClosed" : tabClosed,
     "storeTabs": storeTabs,
-    "keys": processKeys
+    "launchApp": launchApp
 };
 
 // Set handler for extension messaging

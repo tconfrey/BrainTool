@@ -33,9 +33,9 @@ QUnit.module("BTNode tests", function() {
 	    const n2 = new BTNode("Second Level", n1.id);
 	    const n3 = new BTNode("[[file:somefile][file link]] blah", n2.id);
 	    const n4 = new BTNode("[[http://google.com][goog]] also blah", n2.id);
-	    assert.notOk (n3.hasWebLinks, "file: links are not web links");
-	    assert.ok (n4.hasWebLinks, "http links are web links");
-	    assert.ok ((n1.hasWebLinks && n2.hasWebLinks), "weblinkage bubbles up to ancestors");
+	    assert.notOk (n3._hasWebLinks(), "file: links are not web links");
+	    assert.ok (n4._hasWebLinks(), "http links are web links");
+	    assert.ok ((n1._hasWebLinks() && n2._hasWebLinks()), "weblinkage bubbles up to ancestors");
     });
 
     QUnit.test("Basic BTAppNode Tests", function(assert) {
@@ -55,6 +55,176 @@ QUnit.module("BTNode tests", function() {
         an4.tabId = 999;
         assert.ok (an2.hasOpenChildren(), "parent openChildren updated ok");
     });
+});
+
+
+QUnit.module("Org parsing tests", function() {
+
+    QUnit.moduleStart(function(details) {
+        if (details.name != "Org parsing tests") return;
+    });
+
+    QUnit.test("Basic node parse", function(assert) {
+        const orgHeader = "* Top Level Header\nassociated notes";
+        processBTFile(orgHeader);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].text, "associated notes");
+    });
+    
+    QUnit.test("Basic tree parse", function(assert) {
+        const orgTree = "* Top Level Header\nassociated notes\n\n** Next Level Header\nnext level notes";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].text, "associated notes");
+        assert.equal (AllNodes[2].displayTag, "Next Level Header");
+        assert.equal (AllNodes[2].text, "next level notes");
+    });
+    
+    QUnit.test("Headline links parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].URL, "https://google.com");
+        assert.equal (AllNodes[1].text, "top level notes");
+    });
+    
+    QUnit.test("Headline w paras parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes first line.\nsecond line";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].URL, "https://google.com");
+        assert.equal (AllNodes[1].text, "top level notes first line.\nsecond line");
+    });
+    
+    QUnit.test("Headline w tags parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]   :BrainTool:Test:\ntop level notes first line.\n\nsecond line";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        assert.equal (AllNodes[1].tags.length, 2);
+        assert.equal (AllNodes[1].tags[0], 'BrainTool');
+        assert.equal (AllNodes[1].tags[1], 'Test');
+        let expect = ' '.repeat(60) + ':BrainTool:Test:';
+        assert.equal (expect, AllNodes[1].orgTags(' '), 'tag output test');
+    });
+    
+    QUnit.test("Headline w drawers parse", function(assert) {
+        const orgTree = "* [[https://google.com][Top Level Header]]   :BrainTool:Test:\n:PROPERTIES:\n:VISIBILITY: folded\n:OTHERPROP: none\n:END:\ntop level notes first line.\n\nsecond line\n\n* Next thing";
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        let node = AllNodes[1];
+        assert.ok (node.drawers, 'drawers up');
+        assert.equal (Object.keys(node.drawers).length, 1, 'key saved');
+        assert.equal (node.drawers['PROPERTIES'], ':VISIBILITY: folded\n:OTHERPROP: none', 'drawers clean');
+        let drawerText = node.orgDrawers();
+        assert.equal (drawerText.replace(/\s/g, ""), ":PROPERTIES::VISIBILITY:folded:OTHERPROP:none:END:", 'drawer reg ok, ignoring whitespace');
+    });
+
+    QUnit.test("Output table", function(assert) {
+        const orgTree =
+`* Top Level
+some text
+|Header1|header2|
+|data 1|data2|
+more text
+** Sub header
+text`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    QUnit.test("Unprocessed elements", function(assert) {
+        const orgTree =
+`* Top Level
+start text
+#+BEGIN_SRC javascript
+const parser = new Parser()
+const ast = parser.parse('Hello World')
+#+END_SRC
+middle text
+|table| heading|
+|data 1|data2|
+end text
+------
+- [x] build an awesome org-mode parser
+- [ ] let people use it everywhere
+- orga :: the ultimate org-mode parser
+** Sub header
+text`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    QUnit.test("Text Markup", function(assert) {
+        const orgTree =
+`* Top Level
+start text
+_Orga_ is +probably+ the *best* /org-mode/ ~parser~ =alive=.
+** Sub header1
+text
+** Sub header2
+text`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 4);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    QUnit.test("Tags and todos", function(assert) {
+        const orgTree =
+`* Top Level                      :Test:
+_Orga_ is +probably+ the *best* /org-mode/ ~parser~ =alive=.
+
+** TODO Sub header1
+text
+** DONE Sub header2
+text`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 4);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    QUnit.test("Headline stuff", function(assert) {
+        const orgTree =
+`* TODO [#A] Hello World   :tag1:tag2:
+DEADLINE: <2018-01-01 Mon>
+:PROPERTY:
+:key0: value0
+:key1: value1
+:END:
+value text`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    
+    QUnit.test("Properties", function(assert) {
+        const orgTree =
+`#+PROPERTY: prop1 one
+#+PROPERTY: BTVersion 3
+* Hello World'`;
+        const nextorgTree =
+`#+PROPERTY: prop1 one
+#+PROPERTY: BTVersion 4
+* Hello World'
+`;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.metaProperties.length, 2, 'found three properties');
+        assert.equal (getMetaProp('prop1'), 'one', 'correct prop value');
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output, nextorgTree, 'wrote back out correctly');
+    });
+
 });
 
 
@@ -112,7 +282,8 @@ QUnit.module("App tests", function() {
 </table>`;
                 t2 = t2.replace(/[\t\n]+/g, "");
                 assert.equal(table, t2, "Table generated correctly");
-                assert.equal(generateOrgFile(), window.FileText, "Regenerated file text ok");
+                assert.equal(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ''),
+                             window.FileText.replaceAll(/\s+/g, ''), "Regenerated file text ok");
 
                 assert.equal(BTNode.findFromTitle("Category-Tag"), AllNodes[2], "findFromTitle ok");
 
@@ -131,7 +302,7 @@ QUnit.module("App tests", function() {
         addNewTag("foo");
         assert.equal(AllNodes.length, 5, "Tag node added ok");
         assert.deepEqual(node.HTML(), "<tr data-tt-id='3'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='right'><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>",  "HTML gen ok");
-        assert.deepEqual(generateOrgFile(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n\n* foo\n", "Org file ok");
+        assert.deepEqual(BTAppNode.generateOrgFile().trim(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n\n* foo", "Org file ok");
     });
 
     
@@ -141,13 +312,13 @@ QUnit.module("App tests", function() {
         
         assert.equal(node.displayText(), "Link: <a href='http://google.com' class='btlink'>The Goog</a>", "Conversion w link works");
 
-        assert.deepEqual(node.orgText(), "** Category-Tag\nLink: [[http://google.com][The Goog]]\n", "initial org text ok");
+        assert.deepEqual(node.orgText().trim(), "** Category-Tag\nLink: [[http://google.com][The Goog]]", "initial org text ok");
         node.title = "Category/Tag";
         node.text = "Same";
-        assert.deepEqual(node.orgText(), "** Category/Tag\nSame\n", "Updated org text ok");
+        assert.deepEqual(node.orgText().trim(), "** Category/Tag\nSame", "Updated org text ok");
         node.text = "Here's a link [[http://braintool.org][BrainTool site]] and text";
         assert.deepEqual(node.displayText(), "Here's a link <a href='http://braintool.org' class='btlink'>BrainTool site</a> and text", "Conversion w link works");
-        assert.deepEqual(node.orgText(), "** Category/Tag\nHere's a link [[http://braintool.org][BrainTool site]] and text\n", "Updated org text ok");
+        assert.deepEqual(node.orgText().trim(), "** Category/Tag\nHere's a link [[http://braintool.org][BrainTool site]] and text", "Updated org text ok");
     });
     
     QUnit.test("Store Tab under tag", function(assert) {
@@ -155,19 +326,19 @@ QUnit.module("App tests", function() {
         AllNodes = []; BTNode.topIndex = 1;
         processBTFile(window.FileText);
 
-        storeTab({tag: "tag1", url: "http://google.com", title: "The Goog"});
+        storeTabs({tag: "tag1", tabsData: [{url: "http://google.com", title: "The Goog", tabId:100}]});
         assert.equal(8, AllNodes.length, "tag and tab added ok");
         var node = AllNodes[6]; // newly created parent node
         assert.equal(node.childIds.length, 1, "parent knows about child");
         
-        assert.deepEqual(generateOrgFile(), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://google.com][The Goog]]\n", "file regen ok");
+        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://google.com][The Goog]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
         node = AllNodes[7]; // newly created node
         assert.deepEqual("<tr data-tt-id='7' data-tt-parent-id='6'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='right'><span class='btText'></span></td></tr>", node.HTML(), "HTML gen looks good");
-        storeTab({tag: "tag2", url: "http://yahoo.com", title: "Yahoodlers"});
+        storeTabs({tag: "tag2", tabsData: [{url: "http://yahoo.com", title: "Yahoodlers",  tabId: 123}]});
         assert.equal(10, AllNodes.length, "second tag and tab added ok");
-        storeTab({tag: "tag1", url: "http://gdrive.com", title: "The Cloud"});
+        storeTabs({tag: "tag1", tabsData: [{url: "http://gdrive.com", title: "The Cloud"}]});
         assert.equal(11, AllNodes.length, "tab added to first tag ok");
-        assert.deepEqual(generateOrgFile(),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n", "file regen ok");
+        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
@@ -246,6 +417,7 @@ QUnit.module("App tests", function() {
     });
 
 });
+
 
 
 QUnit.module("Extension tests", function() {
@@ -349,7 +521,7 @@ QUnit.module("Extension tests", function() {
                 let tr = trs[3];
                 $(tr).addClass("selected");
                 alert("Deleting " + $($("#content tr")[3])[0].innerText);
-                deleteRow();
+                deleteRow({type: 'test'});
                 assert.equal($("#content tr").length, numTrs - 1, 'node deletion via ui');
                 deleteRowFinished = true;
                 done();
@@ -485,6 +657,5 @@ QUnit.module("Inbound Message tests", function() {
         assert.ok(true, "default to ok");
     });
     
-})
-
+});
 

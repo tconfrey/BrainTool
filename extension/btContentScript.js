@@ -34,12 +34,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         break;
     case 'keys':                // note that keys were received and fall thru to pass on
         WaitingForKeys = false;
-        chrome.storage.local.get('permissions', perms => {
-            // If we have bookmark permission enable export button, (import triggers request)
-            let btn = document.getElementById("export_button");
-            if (perms.permissions.includes('bookmarks'))               
-                btn.disabled = false;
-        });
+        break;
+    case 'launchApp':           // set up btfiletext before passing on to app, see below
+        launchApp(msg);
+        break;
     default:
         // handle all other default type messages
         msg["from"] = "btextension";
@@ -54,7 +52,7 @@ var WaitingForKeys = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
     NotLoaded = false;
-    setTimeout(waitForKeys, 500);
+    //setTimeout(waitForKeys, 5000);
     console.count('Content-OUT:initializeExtension');
 }
 
@@ -62,8 +60,40 @@ function waitForKeys(trynum = 0) {
     // Fail safe, if request to background script for keys failed we should try try again.
     if (!WaitingForKeys) return;                       // all good
     
-    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension'});
-    console.count('Content-OUT:initializeExtension');
+    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
     trynum +=1;
     setTimeout(waitForKeys(trynum), trynum * 1000);         // back off w retries
+}
+
+
+function getFromLocalStorage(key) {
+    // Promisification of storage.local.get
+  return new Promise(resolve => {
+    chrome.storage.local.get(key, function(item) {
+      resolve(item[key]);
+    });
+  });
+}
+
+async function launchApp(msg) {
+    // Launchapp msg comes from extension code w GDrive app IDs
+    // inject btfile data into msg either from local storage or the initial .org on server
+    // and then just pass on to app
+    
+    if (window.LOCALTEST) return;                          // running inside test harness
+
+    let btdata = await getFromLocalStorage('BTFileText');
+    if (!btdata) {
+        let response = await fetch('/app/BrainTool.org');
+        if (response.ok) {
+            btdata = await response.text();
+            chrome.storage.local.set({'BTFileText': btdata});
+        } else {            
+            alert('Error getting initial BT file');
+            return;
+        }
+    }
+    msg["from"] = "btextension";
+    msg["BTFileText"] = btdata;
+    window.postMessage(msg);
 }

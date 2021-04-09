@@ -53,8 +53,7 @@ const Handlers = {
     "ungroupAll": ungroupAll,
     "ungroup": ungroup,
     "groupAll": groupAll,
-    "windowAll": windowAll,
-    "exportBookmarks": exportBookmarks
+    "windowAll": windowAll
 };
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
@@ -66,7 +65,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         Handlers[msg.function](msg, sender);
         return;
     }
-    if (msg.function == 'getBookmarks') {
+    if (msg.function == 'getBookmarks' || msg.function == 'exportBookmarks') {
         // request bookmark permission prior to bookmark operations
         // NB not using the dispatch cos that looses that its user triggered and Chrome prevents
 
@@ -78,7 +77,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
                 if (granted) {
                     chrome.permissions.getAll(
                         rsp => chrome.storage.local.set({'permissions' : rsp.permissions}));
-                    getBookmarks();
+                    (msg.function == 'getBookmarks') ? getBookmarks() : exportBookmarks();
                 } else {
                     // send back denial 
                     chrome.tabs.sendMessage(BTTab, {'function': 'loadBookmarks',
@@ -114,7 +113,7 @@ chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs
-    if (!tabId || !BTTab) return;
+    if (!tabId || !BTTab || (tabId == BTTab)) return;                        // not set up yet or don't care
     //console.log(`TabUpdated ${tabId}, [${JSON.stringify(changeInfo)}], [${JSON.stringify(tab)}]`);
     if (changeInfo.status == 'complete') {
         chrome.tabs.sendMessage(
@@ -177,7 +176,8 @@ function initializeExtension(msg, sender) {
     // send over gdrive app info
     chrome.tabs.sendMessage(                        
         BTTab,
-        {'function': 'keys', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY});
+        {'function': 'launchApp', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY,
+         'initial_install': InitialInstall, 'upgrade_install': Update});
 
     // check to see if a welcome is called for
     if (InitialInstall || Update) {

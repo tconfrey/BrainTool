@@ -3,131 +3,187 @@
  * Thin wrapper on top of orga. See orga-bundle.js
  * 
  ***/
+'use strict'
 
 var AllNodes = [];
+var Lines= [];
 
 function parseBTFile(fileText) {
     // create and recursively walk orga parse tree to create bt model
+    
     const parseTree = orgaparse(fileText);
+    Lines = generateLinesAndColumns(fileText);                 // used to pull out text content
     for (const orgaNode of parseTree.children) {
         if (orgaNode.type == "section")
             orgaSection(orgaNode, null);
     }
 
-    // save top level properties if any, parser returns a str or array of strs
-    if (parseTree.meta.property) {
-        if ($.isArray(parseTree.meta.property))
-            AllNodes.metaProperties = parseTree.meta.property;
-        else
-            AllNodes.metaProperties = parseTree.meta.property.split();
-    } else
-        AllNodes.metaProperties = [];
+    // Save top level properties if any, NB parser doesn't handle correctly
+    // See [[https://github.com/orgapp/orgajs/issues/82]]
+    const filePropertyRegex = /(^#\+PROPERTY: .*$\n)+/m;       // multi-line match prop statements
+    const match = filePropertyRegex.exec(fileText);
+    AllNodes.metaProperties = [];
+    if (!match) return;
+    const propValRegex = /PROPERTY: (.*?) (.*)/g;
+    let m;
+    while ((m = propValRegex.exec(match[0])) !== null) {
+        AllNodes.metaProperties.push({'name' : m[1], 'value' : m[2]});
+    }
+}
+
+function insertOrgFile(fileName, fileText) {
+    // Insert contents of this org filetext under the provided parent
+
+    const parentNode = new BTAppNode(fileName, null, `Imported ${getDateString()}`, 1);
+    const parseTree = orgaparse(fileText);
+    Lines = generateLinesAndColumns(fileText);
+    for (const orgaNode of parseTree.children) {
+        if (orgaNode.type == "section")
+            orgaSection(orgaNode, parentNode);
+    }
+    processImport(fileName);                                   // bt.js fn to write and refresh 
 }
 
 function orgaSection(section, parentAppNode) {
-    // Section is a Headlines, Paragraphs and contained Sections. Generate BTNode per Headline from Orga nodes
+    // Section is a Headlines, Paragraphs and contained Sections.
+    // Generate BTNode per Headline from Orga nodes.
     const appNode = new BTAppNode("", parentAppNode ? parentAppNode.id : null, "", 0);
     let allText = "";
+    let index = 0;
     for (const orgaChild of section.children) {
-        if (orgaChild.type == "headline") {
-            appNode.level = orgaChild.level;
+        orgaChild.indexInParent = index++; // remember order to help
+        switch(orgaChild.type) {
+        case "headline":
+            appNode.level = parentAppNode ? parentAppNode.level + 1 : orgaChild.level;
             appNode.title = orgaText(orgaChild, appNode);
             if (orgaChild.keyword) appNode.keyword = orgaChild.keyword;
-            appNode.tags = orgaChild.tags;
-            appNode.drawers = orgaDrawers(orgaChild);
-            if (appNode.drawers.PROPERTIES)
-                appNode.folded = appNode.drawers.PROPERTIES.match(/:VISIBILITY:\s*folded/g) ? true : false;
-            else
-                appNode.folded = false;
-        }
-        if (orgaChild.type == "paragraph") {
-            allText += allText.length ? "\n\n" : "";      // add newlines between para's
-            allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode
-        }
-        if (orgaChild.type == "section") {
-            var childAppNode = orgaSection(orgaChild, appNode);
+            if (orgaChild.tags) appNode.tags = orgaChild.tags;
+            break;
+        case "section": 
+            orgaSection(orgaChild, appNode);
+            break;
+        case "planning":
+            appNode.planning = orgaNodeRawText(orgaChild) + "\n";
+            break;
+        case "drawer": 
+            appNode.drawers[orgaChild.name] = orgaChild.value;
+            if (orgaChild.name == "PROPERTIES")
+                appNode.folded = orgaChild.value.match(/:VISIBILITY:\s*folded/g) ? true : false;
+            break;
+        case "paragraph":
+            allText += allText.length ? "\n" : "";        // add newlines between para's
+            allText += orgaText(orgaChild, appNode);      // returns text but also updates appNode for contained links
+            break;
+        default:
+            allText += allText.length ? "\n" : "";        // elements are newline seperated
+            allText += orgaNodeRawText(orgaChild);
         }
     }
     appNode.text = allText;
     return appNode;
 }
 
-function orgaDrawers(node) {
-    // Look for org mode drawer w VISIBILITY property for folded state
-    var orgaChild;
-    var drawers = {};
-    for (var i = 0; i < node.children.length; i++) {
-        orgaChild = node.children[i];
-        if (orgaChild.type == "drawer" && orgaChild.name && orgaChild.value) {
-            drawers[orgaChild.name] = orgaChild.value;
-        }
-    }
-    return drawers;
-}
-
 function orgaLinkOrgText(node) {
-    return "[[" + node.uri.raw + "][" + node.desc + "]]";
+    return "[[" + node.value + "][" + node.description + "]]";
 }
 
-function orgaText(orgnode, containingNode) {
-    // generate text from orga headline or para node. Both can contain texts and links
-    // NB also pulling out any keywords (TODO, DONE etc) for display
+function orgaText(organode, containingNode) {
+    // Return text from orga headline or para node. Both can contain texts and links
+    // NB also pulling out links inside paragraphs
     let linkTitle, node, lnkNode, btString = "";
-    for (const orgaChild of orgnode.children) {
-        if (orgaChild.type == "text") {
-            btString += orgaChild.value;
+    for (const orgaChild of organode.children) {
+        if (orgaChild.type == "priority") {
+            btString += orgaNodeRawText(orgaChild) + ' ';
+        }
+        if (orgaChild.type.startsWith("text.")) {
+            btString += orgaNodeRawText(orgaChild);
         }
         if (orgaChild.type == "link") {
             linkTitle = orgaLinkOrgText(orgaChild);
             btString += linkTitle;
 
-            if (orgnode.type == "paragraph") {
+            if (organode.type == "paragraph") {
                 // This is a link inside text, not a tag'd link. So special handling w BTLinkNode.
-                lnkNode = new BTLinkNode(linkTitle, containingNode.id, "", containingNode.level+1, orgaChild.uri.protocol);
+                lnkNode = new BTLinkNode(linkTitle, containingNode.id, "", containingNode.level+1, orgaChild.protocol);
             }
         }
     }
     return btString;
 }
 
+function orgaNodeRawText(organode) {
+    // return raw text for this node
+    
+    // orga uses 1-based indicies
+    const startLine = organode.position.start.line - 1;
+    let startCol =  organode.position.start.column - 1;
+    const endLine = organode.position.end.line - 1;
+    let endCol =  organode.position.end.column - 1;
+
+    if (organode.type == 'table') {                       // weird orga behavior for table
+        startCol--; endCol++;
+    }
+    let string = "";
+    if (startLine == endLine)
+        return Lines[startLine].substr(startCol, (endCol - startCol));
+    for (let i = startLine; i <= endLine; i++) {
+        if (i == startLine)
+            string += Lines[i].substr(startCol);
+        else if (i == endLine) {
+            string += Lines[i].substr(0, endCol);
+            break;                                        // done, skip adding another \n
+        }
+        else
+            string += Lines[i];
+        string += "\n";
+    }
+    return string;
+}
+
 function metaPropertiesToString(ary) {
     // return the string to be used to output meta properties to .org file
-    // obj is as captured in original parse, either a string or array of strings
+    // ary is as captured in original parse, array of {name: value:}
     if (!ary || !ary.length) return "";
     let str = "";
     let metaprops = [];
 
     if (!getMetaProp('BTVersion'))
-        ary.push('BTVersion 0');
-    ary.forEach(function(st) {
-        const version = st.match(/BTVersion (\d+)/);
-        if (version)                            // increment version
-            st = "BTVersion " + (parseInt(version[1]) + 1);
-        str += "#+PROPERTY: " + st + "\n";
-        metaprops.push(st);
+        ary.push({'name' : 'BTVersion', 'value' : 0});
+    ary.forEach(function(prop) {
+        if (prop.name == 'BTVersion')                            // increment version
+            prop.value++;
+        str += `#+PROPERTY: ${prop.name} ${prop.value}\n`;
+        metaprops.push(prop);
     });
     AllNodes.metaProperties = metaprops;        // update AllNodes for next time around
     return str;
 }
 
-function getMetaProp(prop) {
+function getMetaProp(propName) {
     // return the value of the meta property if it exists
-    const reg = new RegExp(`${prop} (\\w+)`);
     let val = '';
     if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
-    AllNodes.metaProperties.forEach(propStr => {
-	    let match = propStr.match(reg);
-	    if (match) val = match[1];
+    AllNodes.metaProperties.forEach(prop => {
+        if (prop.name == propName)
+            val = prop.value;
     });
     return val;
 }
 
-function setMetaProp(prop, val) {
+function setMetaProp(propName, val) {
     // set or change the value of the meta property
-    const reg = new RegExp(`${prop} (\\w+)`);
-    const index = AllNodes.metaProperties.findIndex(propStr => propStr.match(reg));
+    const index = AllNodes.metaProperties.findIndex(prop => prop.name == propName);
     if (index > -1)
-        AllNodes.metaProperties[index] = `${prop} ${val}`;
+        AllNodes.metaProperties[index] = {'name': propName, 'value': val};
     else
-        AllNodes.metaProperties.push(`${prop} ${val}`);
+        AllNodes.metaProperties.push({'name': propName, 'value': val});
+}
+
+function generateLinesAndColumns(filetext) {
+    // return an array of the original lines and columns for use in regnerating orga
+
+    let lines = [];
+    filetext.split(/\r?\n/).forEach(line => lines.push(line));
+    return lines;
+                                     
 }
