@@ -16,6 +16,7 @@ async function saveBT() {
     brainZoom();                                 // swell the brain
 
     // also save to GDrive if allowed
+    if (!GDriveConnected) return;
     let gdriveSave = await isSignedIn();
     if (gdriveSave) {
         writeBTFile();
@@ -47,7 +48,7 @@ async function isSignedIn () {
     };
     
     if (typeof gapi === 'undefined')
-        return false;                                      // if not library then not signed in
+        return false;                                      // if no library then not signed in
     if (AuthObject == null) {
         await loadGapiPromise();
         AuthObject = gapi.auth2.getAuthInstance({client_id: ClientID});
@@ -84,7 +85,7 @@ async function initClient() {
 	        });
         }
 
-        signedin = await isSignedIn();                     // sets AuthObject
+        signedin = await isSignedIn();                      // sets AuthObject
         
         if (!AuthObject) {
             alert("Error GDrive API reporting not authorized. Try reloading");
@@ -99,9 +100,9 @@ async function initClient() {
         // Listen for sign-in state changes.
         AuthObject.isSignedIn.listen(updateSigninStatus);
         
-        // connect w BTfile on GDrive and carry on
+        // connect w (or create) BTfile on GDrive and carry on
         setMetaProp('BTGDriveConnected', 'true');
-        findOrCreateBTFile();
+        await findOrCreateBTFile();
         updateSigninStatus(AuthObject.isSignedIn.get());
 	}
     catch (err) {
@@ -114,7 +115,7 @@ function checkLoginReturned() {
     // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger    
     $('body').removeClass('waiting');
     if (AuthObject?.isSignedIn?.get()) return;
-    alert("Google Authentication timed out.\nThis can be due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. Exampt braintool.org from blockers and allow cookies from accounts.google.com. If problems continues see \nbraintool.org/support");
+    alert("Google Authentication should have completed by now.\nIt may have failed due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. Exampt braintool.org from blockers and allow cookies from accounts.google.com. If problems continues see \nbraintool.org/support");
 }
 
 
@@ -122,22 +123,22 @@ function checkLoginReturned() {
  * Find or initialize BT file
  */
 var BTFileID;
-function findOrCreateBTFile() {
+async function findOrCreateBTFile() {
     try {
-        gapi.client.drive.files.list({
+        let response = await gapi.client.drive.files.list({
             'pageSize': 1,
             'fields': "files(id, name)",
             'q': "name='BrainTool.org' and not trashed"
-        }).then(function(response) {
-            const files = response.result.files;
-            if (files && files.length > 0) {
-                const file = files[0];                     // NB assuming only one bt.org file exists
-                BTFileID = file.id;
-            } else {
-                console.log('BrainTool.org file not found.');
-                createStartingBT();
-            }
         });
+        
+        const files = response?.result?.files;
+        if (files && files.length > 0) {
+            const file = files[0];                     // NB assuming only one bt.org file exists
+            BTFileID = file.id;
+        } else {
+            console.log('BrainTool.org file not found.');
+            await createStartingBT();
+        }
     }
     catch (err) {   
         alert("BT - error reading file list from GDrive. Check permissions and retry");
@@ -146,13 +147,13 @@ function findOrCreateBTFile() {
 }
 
 
-function createStartingBT() {
+async function createStartingBT() {
     // Upload current BTFileText to newly created BrainTool.org file on GDrive
 
     var metadata = {
         'name': 'BrainTool.org',                   // Filename at Google Drive
         'mimeType': 'text/plain'                   // mimeType at Google Drive
-	/*      'parents': ['### folder ID ###'],      // Folder ID at Google Drive */
+	    /*      'parents': ['### folder ID ###'],      // Folder ID at Google Drive */
     };
     
     // get accessToken, pass retry cb for if not available
@@ -160,45 +161,41 @@ function createStartingBT() {
     if (!accessToken) 
         return;
 
-    // fetch template file from bt server and write to GDrive
-    var form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', BTFileText);
-
-    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
-        method: 'POST',
-        headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-        body: form,
-    }).then((res) => {
-        return res.json();
-    }).then(function(val) {
-        console.log("Created ", val);
-        BTFileID = val.id;
-        $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
-    }).catch(function (err) {
-        alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
-    });
-}
-
-function getBTFile() {
-    console.log('Retrieving BT file');
     try {
-	    gapi.client.drive.files.get({
-            fileId: BTFileID,
-            alt: 'media'
-	    }).then(
-            function(response) {
-		        processBTFile(response.body);
-            },
-            function(error) {
-		        console.log("Error in getBTFile - Could not read BT file:", JSON.stringify(error));
-		        alert(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
-                reAuth(getBTFile);
-            });
+        // fetch template file from bt server and write to GDrive
+        var form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', BTFileText);
+
+        let response = await
+        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+            method: 'POST',
+            headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+            body: form,
+        });
+        let responseValue = await response.json();
+        
+        console.log("Created ", responseValue);
+        BTFileID = responseValue.id;
+        $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
     }
     catch(err) {
-        alert("BT - error reading BT file from GDrive. Check permissions and retry");
-        console.log("Error in getBTFile: ", JSON.stringify(err));
+        alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
+    }
+}
+
+async function getBTFile() {
+    console.log('Retrieving BT file');
+    try {
+	    let response = await gapi.client.drive.files.get({
+            fileId: BTFileID,
+            alt: 'media'
+	    });
+        BTFileText  = response.body;
+    }
+    catch(error) {
+		console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
+        reAuth(getBTFile);
     }
 }
 

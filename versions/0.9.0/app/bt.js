@@ -15,11 +15,12 @@ const tipsArray = [
     "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
     "You can save individual gmails or google docs into the BT tree",
     "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
-    "Save LinkedIn pages into projects to keep track of your contacts",
+    "Save LinkedIn pages under specific topics to keep track of your contacts in context",
     "Use the TODO button on a row to toggle between TODO, DONE and ''",
     "See BrainTool.org for the BrainTool blog and other info",
     "Check out the Bookmark import/export functions under Options!",
     "You can click on the topics shown in the BT popup instead of typing out the name",
+    "Close and re-open this controls overlay to get a new tip!",
     "Double tap Alt(Option)-b to surface the BrainTool side panel"
 ];
 
@@ -58,7 +59,7 @@ function launchApp(msg) {
     }
 }
 
-function updateSigninStatus(signedIn, error=false) {
+async function updateSigninStatus(signedIn, error=false) {
     // CallBack on GDrive signin state change
     if (error) {
         let msg = "Error Authenticating with Google. Google says:\n'";
@@ -69,16 +70,16 @@ function updateSigninStatus(signedIn, error=false) {
         return;
     }
     if (signedIn) {
-        $("#gdrive_auth").hide();        
+        $("#gdrive_auth").hide();                           // Hide button and add 'active' text
         $("#gdrive_save").html(`Active`);
         GDriveConnected = true;
         refreshRefresh();
-        // TODO address in CWS submission, updagrades need to load from GDrive before first save, and then resave
-        if (FirstUse) setTimeout(function () {
+        // Upgrades to 0.9 need to load from GDrive before first save, and then resave
+        if (FirstUse) {               // TODO fix FirstUse to only include new installs for store launch of 0.9
             alert("Early release version, defaulting to GDrive connected and refreshing, takes a few seconds");
-            refreshTable(true);
-            setTimeout(saveBT, 8000);
-        }, 7000); 
+            await refreshTable(true);                       // force read sync from GDrive
+            saveBT();                                       // and force save back into storage
+        }
     } else {
         $("#gdrive_auth").show();
         GDriveConnected = false;
@@ -178,7 +179,7 @@ var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 
-function refreshTable(fromGDrive = false) {
+async function refreshTable(fromGDrive = false) {
     // Clear current state and redraw table. Used after an import or on a manual GDrive refresh request
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
@@ -199,8 +200,10 @@ function refreshTable(fromGDrive = false) {
     BTNode.topIndex = 1;
     AllNodes = [];
 
-    // Either get file from gDrive from scratch or use local copy
-    fromGDrive ? getBTFile() : processBTFile(BTFileText);
+    // Either get BTFileText from gDrive or use local copy. If GDrive then await its return
+    if (fromGDrive)
+        await getBTFile();
+    processBTFile(BTFileText);
 }
 
 
