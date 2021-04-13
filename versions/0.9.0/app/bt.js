@@ -1320,6 +1320,19 @@ $(document).keydown(function(e) {
         e.preventDefault();
     }
 
+    // digit 1-9, fold all at that level, expand to make those visible
+    if (key > 48 && key <= 57) {
+        const lvl = key - 48;   // level requested
+        const tt = $("table.treetable");
+        AllNodes.forEach(function(node) {
+            if (!tt.treetable("node", node.id)) return;               // no such node
+            if (node?.level < lvl)
+                tt.treetable("expandNode", node.id);
+            if (node?.level == lvl)
+                tt.treetable("collapseNode", node.id);
+        });
+    }
+
     if (!currentSelection) return;
     const nodeId = $(currentSelection).attr('data-tt-id');
     const node = AllNodes[nodeId];
@@ -1376,8 +1389,9 @@ $(document).keydown(function(e) {
         e.preventDefault();
     }
 
-    // delete = delete
-    if (key === 8) {
+    // delete || backspace = delete
+    const keyString = e.key;
+    if (keyString === "Backspace" || keyString === "Delete") {
         deleteRow(e);
     }
 
@@ -1419,7 +1433,7 @@ $(document).keydown(function(e) {
         node.showNode();
         e.preventDefault();
     }
-    
+
 });
 
 
