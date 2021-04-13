@@ -52,6 +52,7 @@
     position: relative;
     overflow: hidden;
     display: block;
+    border: 1px solid #7bb07b11;
 }
 #controls_screen::after {
     content: "";
@@ -115,7 +116,7 @@ dialog #title-url {
     margin: auto;
     padding-top: 6px;
     padding-bottom: 6px;
-    margin-bottom: 25px;
+    margin-bottom: 0px;
     display: flex;
     justify-content: space-around;
     border-width: 3px;
@@ -123,6 +124,9 @@ dialog #title-url {
     border-radius: 5px;
     border-color: grey;
     background-color: #7bb07baa;
+}
+#tip {
+    margin-bottom: 20px;
 }
 .important {
     border-color: crimson;
@@ -153,6 +157,7 @@ dialog #title-url {
     z-index: 3;
 }
 .control_text {
+    font-size: 15px;
     margin: 10px;
     padding-left: 10px;
     padding-right: 20px;
