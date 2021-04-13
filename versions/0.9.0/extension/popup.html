@@ -36,11 +36,13 @@
         vertical-align: bottom;
     }
     #tabAction {
-        padding-right: 20px;
+        padding-right: 8px;
     }
+    
     #chk {
-        padding-left: 20px;
+        padding-left: 8px;
     }
+    
     hr {
         margin: 0px;
     }
@@ -78,25 +80,25 @@
     <div id="message" style="white-space: pre"><i>Opening BrainTool...</i></div>
     <div id="tag" style="display:none">
       <div align="center">
-        <h2 id="heading">Choose Tag</h2>
+        <h2 id="heading">Choose Topic</h2>
         <input type="text" id="newtag" size="40" autofocus></input>
         <textarea id="note" rows="3" cols="45" disabled>Note (or hit Return):</textarea>
         <div id="forms" >
           <form id="tabAction" class="horizontal">
-            <label class="radio-inline">
-              <input type="radio" name="bta" value="GROUP" id="GROUP" checked><span>Group</span>
+            <label class="radio-inline" id="groupLabel" title="Group w open tabs for topic">
+              <input type="radio" name="bta" value="GROUP" id="GROUP" checked>Group
             </label>
-            <label class="radio-inline">
-              <input type="radio" name="bta" value="STICK" id="STICK"><span>Stick</span>
+            <label class="radio-inline" title="Keep tab open in this window">
+              <input type="radio" name="bta" value="STICK" id="STICK">Stick
             </label>
-            <label class="radio-inline">
-              <input type="radio" name="bta" value="CLOSE" id="CLOSE"><span>Close</span>
+            <label class="radio-inline" title="Close tab after saving it">
+              <input type="radio" name="bta" value="CLOSE" id="CLOSE">Close
             </label>
           </form>
           <hr class="horizontal" width="1" size="15" style="vertical-align: sub">
           <div class="horizontal" id="chk">
             <input type="checkbox" style="vertical-align: sub" id="all" name="all" value="All">
-            <label for="all" id="allLabel">All Tabs</label>
+            <label for="all" id="allLabel">All unsaved tabs</label>
           </div>
         </div>
       </div>

@@ -210,7 +210,7 @@ class BTAppNode extends BTNode {
                  'tabs': [{'URL' : this.URL, 'nodeId' : this.id}] });
         if (GroupingMode == GroupOptions.TABGROUP) {
             const index = this.indexInParent();
-            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const tabGroupId = this.tabGroupId || (this.parentId ? AllNodes[this.parentId].tabGroupId : null);
             const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'openInTabGroup', 'firstOpenTab': firstOpenTab,
@@ -230,7 +230,7 @@ class BTAppNode extends BTNode {
                 {'function' : 'moveToWindow', 'windowId' : windowId,
                  'tabId' : tabId, 'index' : index, 'nodeId' : this.id});
         if (GroupingMode == GroupOptions.TABGROUP) {
-            const tabGroupId = this.tabGroupId || (this.parentid ? AllNodes[this.parentId].tabGroupId : null);
+            const tabGroupId = this.tabGroupId || (this.parentId ? AllNodes[this.parentId].tabGroupId : null);
             const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
                 {'function' : 'moveToTabGroup', 'firstOpenTab' : firstOpenTab,

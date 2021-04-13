@@ -43,7 +43,7 @@ function popupAction () {
             {currentWindow: true}, list => {
                 Tabs = list;
                 const activeTab = list.find(t => t.active);
-                document.getElementById('allLabel').textContent = "All free tabs";
+//                document.getElementById('allLabel').textContent = "Save all unsaved tabs";
                 popupOpen(activeTab);
             });
     else
@@ -60,8 +60,8 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    const url = "https://BrainTool.org/versions/"+version+'/app/';
-//    const url = "http://localhost:8000/app/";
+//    const url = "https://BrainTool.org/versions/"+version+'/app/';
+    const url = "http://localhost:8000/app/";
     console.log('loading from ', url);
     var wargs = {
         'url' : url,
@@ -128,7 +128,7 @@ function popupOpen(tab) {
             newTag.disabled = true;
             tagsArea.disabled = true;
             forms.style.display = 'none';
-            heading.innerText = "Tag Info:";
+            heading.innerText = "Topic Info:";
             return;
         }
         if (data.windowTopic || data.groupTopic || data.mruTopic) {
@@ -213,6 +213,8 @@ function newTagEntered() {
     // handle tag selection
     if (ReadOnly) return;       // => already a BT node, ignore input
     AwesomeWidget.select();
+    const tagName = document.getElementById('newtag').value;
+    document.getElementById('groupLabel').title = "Group with open " + tagName + " tabs";
     Note.disabled= false;
     if (Note.value == "Note (or hit Return):")
         Note.value="";          // Remove prompt text, but not previously entered notes
