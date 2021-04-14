@@ -101,8 +101,9 @@ class BTNode {
     
     static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
-        // nb only find http and chrome: urls, purposely ignore file: links
-        const regexStr = "\\[\\[(http.*?|chrome.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
+        // nb find http(s), file:/// and chrome: urls
+
+        const regexStr = "\\[\\[(http.*?|chrome.*?|file.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
         const hits  = reg.exec(title);
         return hits ? hits[1] : "";        

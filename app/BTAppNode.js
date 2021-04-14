@@ -450,8 +450,6 @@ class BTAppNode extends BTNode {
         let outputStr = txt;
         while (hits = reg.exec(outputStr)) {
             const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
-            // TODO file links?
-            //if ((hits[1].indexOf('file:') == 0) || (hits[1].indexOf('id:') == 0))       // internal org links get highlighted, but not as hrefs
             if (hits[1].indexOf('id:') == 0)             // internal org links get highlighted, but not as hrefs
                 outputStr = outputStr.substring(0, hits.index) + "<span class='file-link'>" + h2 + "</span>" + outputStr.substring(hits.index + hits[0].length);
             else                
@@ -609,9 +607,7 @@ class BTLinkNode extends BTAppNode {
     }
 
     HTML() {
-        // only generate an HTML node for http[s]: links
-        // other links (eg file:) pulled in from org won't work in the context of the browser
-        // TODO experiment w this
+        // was limited to http links, internal org links will not work but file links do
        // if (this.protocol.match('http'))
             return super.HTML();
        // return "";
