@@ -84,7 +84,9 @@ function orgaSection(section, parentAppNode) {
 }
 
 function orgaLinkOrgText(node) {
-    return "[[" + node.value + "][" + node.description + "]]";
+    // work around - orga.js includes protocol on http links but not file:
+    const url = (node.protocol == 'file') ? 'file:' + node.value : node.value;
+    return "[[" + url + "][" + node.description + "]]";
 }
 
 function orgaText(organode, containingNode) {
