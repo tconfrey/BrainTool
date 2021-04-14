@@ -96,8 +96,7 @@ function toggleMenu() {
     // Toggle the visibility of the intro page, auth button and open/close icon
     if ($("#controls_screen").is(":visible")) {
         $("#controls_screen").slideUp(750);
-        $("#close").show();
-        $("#open").hide();
+        $("#open_close_image").addClass('closed').removeClass('open');
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
@@ -107,8 +106,7 @@ function toggleMenu() {
         else
             addTip();               // display tip text on subsequent views
         $("#controls_screen").slideDown(750);
-        $("#close").hide();
-        $("#open").show();
+        $("#open_close_image").addClass('open').removeClass('closed');
         $(".treetable tr").css("scroll-margin-top", "330px");
     }
 }
