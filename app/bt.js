@@ -37,15 +37,20 @@ function launchApp(msg) {
     FirstUse = msg.initial_install || msg.upgrade_install;
     BTFileText = msg.BTFileText;
     processBTFile(BTFileText);
+
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
     
     if (FirstUse) {
         $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         setTimeout(closeMenu, 30000);
-        if (msg.upgrade_install)
+        if (msg.upgrade_install) {
             // Need to make a one time assumption that an upgrade to 0.9 is already connected
             setMetaProp('BTGDriveConnected', 'true');
+            gtag('event', 'Upgrade', {'event_category': 'General'});
+        }
         if (msg.initial_install) { // TODO remove before CWS submission
             setMetaProp('BTGDriveConnected', 'true');
+            gtag('event', 'Install', {'event_category': 'General'});
         }
     } else {
         addTip();
@@ -70,6 +75,7 @@ async function updateSigninStatus(signedIn, error=false) {
         return;
     }
     if (signedIn) {
+        gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
         $("#gdrive_auth").hide();                           // Hide button and add 'active' text
         $("#gdrive_save").html(`Active`);
         GDriveConnected = true;
@@ -1159,6 +1165,7 @@ function loadBookmarks(msg) {
     msg.data.bookmarks.children.forEach(node => {
         loadBookmarkNode(node, importNode);
     });
+    gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
     processImport(importName);                             // see above
 }
@@ -1223,6 +1230,7 @@ function exportBookmarks() {
 
     // wait briefly to allow local storage too be written before background tries to access
     setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);
+    gtag('event', 'BookmarkExport', {'event_category': 'Export'});
 }
 
 
