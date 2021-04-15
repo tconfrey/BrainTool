@@ -21,6 +21,10 @@ The need to perform the GDrive permission workflow on the initial install made t
 
 By default BT now stores your data in Chrome local storage. This should be resilient across browser sessions on a single Chrome instance. Its still advisable to also write to the BrainTool.org file on your GDrive but not necessary. If you currently have the GDrive app connected you can disconnect it from Settings on the [GDrive web page](https://drive.google.com).
 
+## Minor Usability improvements
+ * New Keyboard commands - entering 1 through 9 now collapses the tree to the numbered level (ie hit '2' to get just the top two levels of the tree shown)
+ * Tree folding and unfolding now has a slight animation to help maintain your bearings.
+ 
 ## Installation Instructions
 To install this version of BT in advance of it being approved in the store follow these instructions. I'd love to hear your feedback on the [BT forum](https://groups.google.com/u/0/g/braintool-discussion)
 
