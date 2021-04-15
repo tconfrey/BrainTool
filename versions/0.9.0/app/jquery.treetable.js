@@ -98,22 +98,26 @@
       return this.row.hasClass("expanded");
     };
 
-    Node.prototype.hide = function() {
-        this._hideChildren();
-        this.row.hide();
-        /* // Tony - tried these:
-        //this.row.slideUp(12000);  
-        $(this.row).find('> td')
-            .css({'height':'0px'})
-            .wrapInner('<div style=\"display:block;\" />')
-            .parent()
-            .find('td > div')
-            .slideUp('slow', function() {
-  	            $(this.row).parent().parent().remove();
-            });
-        */
-      return this;
-    };
+      Node.prototype.hide = function(delay) {
+          /// Tony - replacing plain hide with an attempt to animate the transition
+          const mydelay = this._hideChildren() || delay;    // last if children, otherwise use delay
+          const therow = this.row;
+          setTimeout(() => therow.hide(), mydelay);
+          return this;
+      };
+
+      Node.prototype.show = function(delay) {
+          /// Tony - replacing show with an attempt to animate the transition
+          if (!this.initialized) {
+              this._initialize();
+          }
+          const therow = this.row;
+          setTimeout(() => therow.show(), delay);
+          if (this.expanded()) {
+              this._showChildren();
+          }
+          return this;
+      };
 
     Node.prototype.isBranchNode = function() {
       if(this.children.length > 0 || this.row.data(this.settings.branchAttr) === true) {
@@ -226,17 +230,6 @@
       return node.addChild(this);
     };
 
-    Node.prototype.show = function() {
-      if (!this.initialized) {
-        this._initialize();
-      }
-      this.row.show();
-      if (this.expanded()) {
-        this._showChildren();
-      }
-      return this;
-    };
-
     Node.prototype.toggle = function() {
       if (this.expanded()) {
         this.collapse();
@@ -244,17 +237,6 @@
         this.expand();
       }
       return this;
-    };
-
-    Node.prototype._hideChildren = function() {
-      var child, _i, _len, _ref, _results;
-      _ref = this.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        _results.push(child.hide());
-      }
-      return _results;
     };
 
     Node.prototype._initialize = function() {
@@ -275,16 +257,33 @@
       return this.initialized = true;
     };
 
-    Node.prototype._showChildren = function() {
-      var child, _i, _len, _ref, _results;
-      _ref = this.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        _results.push(child.show());
-      }
-      return _results;
-    };
+      Node.prototype._hideChildren = function() {
+          // Tony edited to show animation 
+          var child, _i, _len, _ref, _results;
+          const animationTime = this.settings.animationTime || 500;
+          _ref = this.children;
+          _results = [];
+          const incr = Math.min(animationTime / _ref.length, 25);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              child = _ref[_i];
+              _results.push(child.hide(incr * _i));
+          }
+          return (incr * _i);                    // time to last animation
+      };
+
+      Node.prototype._showChildren = function() {
+          // Tony edited to show animation 
+          var child, _i, _len, _ref, _results;
+          const animationTime = this.settings.animationTime || 500;
+          _ref = this.children;
+          _results = [];
+          const incr = Math.min(animationTime / _ref.length, 25);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              child = _ref[_i];
+              _results.push(child.show(incr * _i));
+          }
+          return (incr * _i);
+      };
 
     return Node;
   })();

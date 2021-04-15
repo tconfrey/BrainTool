@@ -262,8 +262,6 @@ function writeBTFile(cb) {
         }
         
         BTFileText = BTAppNode.generateOrgFile();
-        updateStatsRow();                            // show updated stats
-        brainZoom();                                 // swell the brain
         if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
 	        alert("BT - Error in writeBTFile. Google API not available.");

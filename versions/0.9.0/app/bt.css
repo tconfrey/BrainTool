@@ -20,10 +20,18 @@
     right: 5px;
 }
 
-.open_close {
+#open_close_image {
     opacity: 0.6;
     margin-top: 1px;
     margin-left:7px;
+    transition: transform 0.75s;
+}
+
+#open_close_image.open {
+    transform: rotate(90deg);
+}
+#open_close_image.close {
+    transform: rotate(-90deg);
 }
 
 #controls {

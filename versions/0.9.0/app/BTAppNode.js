@@ -31,7 +31,6 @@ class BTAppNode extends BTNode {
         this.planning = "";
         
         AllNodes[this._id] = this;
-        brainZoom();
     }
 
     set text(txt) {
