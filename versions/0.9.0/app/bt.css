@@ -64,7 +64,7 @@
 }
 #controls_screen::after {
     content: "";
-    background-image: linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 10%,rgba(255, 255, 255, 0.6) 90%, rgba(255, 255, 255, 1) 100%), url(resources/marquee.png);
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 10%,rgba(255, 255, 255, 0.6) 90%, rgba(255, 255, 255, 1) 100%), url(resources/marquee.jpg);
     opacity: 0.7;
     top: 0;
     left: 0;

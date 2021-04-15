@@ -14,6 +14,8 @@ async function saveBT() {
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     updateStatsRow();                            // show updated stats
     brainZoom();                                 // swell the brain
+    
+    gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
 
     // also save to GDrive if allowed
     if (!GDriveConnected) return;
@@ -56,9 +58,13 @@ async function isSignedIn () {
     return AuthObject?.isSignedIn?.get() || false;
 }
 
-function authorizeGapi() {
+function authorizeGapi(userInitiated = false) {
     // gapi needed to access gdrive not yet loaded => this script needs to wait
     console.log('Loading Google API...');
+    if (userInitiated) {
+        // implies from button click        
+        gtag('event', 'AuthInitiated', {'event_category': 'GDrive'});
+    }
     if (typeof gapi !== 'undefined')
         gapi.load('client:auth2', initClient);             // initialize gdrive app
     else {
@@ -254,6 +260,10 @@ function writeBTFile(cb) {
     function _writeBTFile(cb) {
         // Write file contents into BT.org file on GDrive
         console.log("Writing BT file");
+        
+        gtag('event', 'Save', {'event_category': 'GDrive', 'event_label': 'Count',
+                               'value': getMetaProp('BTVersion')});
+        
         LastWriteTime = new Date();
         UnwrittenChangesTimer = null;
         if (!BTFileID) {
@@ -326,6 +336,7 @@ function importOrgFile() {
     const file = uploader.files[0];
     fr.onload = function(){
         insertOrgFile(file.name, fr.result);                 // call parser to insert
+        gtag('event', 'OrgImport', {'event_category': 'Import'});
     };
     fr.readAsText(file);
     this.value = null;                                       // needed to re-trigger if same file selected again
@@ -341,6 +352,7 @@ function importTabsOutliner() {
     fr.onload=function(){
         const orgForTabsO = tabsToBT(fr.result);
         insertOrgFile(file.name, orgForTabsO);
+        gtag('event', 'TOImport', {'event_category': 'Import'});
     };
     fr.readAsText(file);
     this.value = null;                                       // needed to re-trigger if same file selected again
@@ -351,4 +363,5 @@ function exportOrgFile(event) {
     let filetext = BTAppNode.generateOrgFile();
     filetext = 'data:text/plain;charset=utf-8,' + encodeURIComponent(filetext);
     $("#org_export").attr('href', filetext);
+    gtag('event', 'OrgExport', {'event_category': 'Export'});
 }

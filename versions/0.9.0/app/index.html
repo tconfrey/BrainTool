@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-184551494-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-184551494-1');
+    </script>
+
     <title>BrainTool Chrome Extension</title>
     <meta charset="utf-8" />
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
@@ -117,7 +127,7 @@
             </td></tr>
             <tr >
               <td style="text-align:left">GDrive auto-save :</td>
-              <td id="gdrive_save" style="text-align:left"><button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi()">Authorize</button></td>
+              <td id="gdrive_save" style="text-align:left"><button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi(true)">Authorize</button></td>
             </tr>
             
             <tr><td colspan="2">
