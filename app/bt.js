@@ -236,7 +236,7 @@ function processBTFile(fileText) {
     var container = document.querySelector('#content');
     container.innerHTML = table;
 
-    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10,
+    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10, animationTime: 250,
                     onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
 
     BTAppNode.generateTags();
