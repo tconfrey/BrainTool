@@ -189,6 +189,8 @@ document.onclick = function(e) {
         
         newTagEntered();
     }
+    if (e.target.id == 'submit')
+        tabAdded();
 };
 document.getElementById('newtag').onkeydown = function(e) {
     if (e.key == "Tab") {
