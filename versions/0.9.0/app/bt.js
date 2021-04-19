@@ -277,6 +277,7 @@ function processBTFile(fileText) {
     initializeUI();
     updatePrefs();
     if (GDriveConnected) refreshRefresh();
+    $('body').removeClass('waiting');
     if (RefreshCB) RefreshCB();                      // may be a callback registered
 }
 
