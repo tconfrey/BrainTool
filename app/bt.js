@@ -21,10 +21,14 @@ const tipsArray = [
     "Check out the Bookmark import/export functions under Options!",
     "You can click on the topics shown in the BT popup instead of typing out the name",
     "Close and re-open this controls overlay to get a new tip!",
-    "Double tap Alt(Option)-b to surface the BrainTool side panel"
+    "Double tap Alt(Option)-b to surface the BrainTool side panel",
+    "Click on a row to select it then use keyboard commands. 'h' for a list of them",
+    "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar",
+    "Try hitting '1','2','3' etc to collapse to that level"
 ];
 
-var FirstUse = true;
+var InitialInstall = false;
+var UpgradeInstall = false;
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.TABGROUP;
 var GDriveConnected = false;
@@ -34,22 +38,22 @@ function launchApp(msg) {
     
     ClientID = msg.client_id;
     APIKey = msg.api_key;
-    FirstUse = msg.initial_install || msg.upgrade_install;
+    InitialInstall = msg.initial_install ;
+    UpgradeInstall = msg.upgrade_install;
     BTFileText = msg.BTFileText;
     processBTFile(BTFileText);
 
     gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
     
-    if (FirstUse) {
+    if (InitialInstall || UpgradeInstall) {
         $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
-        setTimeout(closeMenu, 30000);
-        if (msg.upgrade_install) {
+        if (UpgradeInstall) {
             // Need to make a one time assumption that an upgrade to 0.9 is already connected
             setMetaProp('BTGDriveConnected', 'true');
             gtag('event', 'Upgrade', {'event_category': 'General'});
         }
-        if (msg.initial_install) { // TODO remove before CWS submission
-            setMetaProp('BTGDriveConnected', 'true');
+        if (InitialInstall) {
+            // setMetaProp('BTGDriveConnected', 'true'); // was only needed for early release migrating folks.
             gtag('event', 'Install', {'event_category': 'General'});
         }
     } else {
@@ -81,8 +85,8 @@ async function updateSigninStatus(signedIn, error=false) {
         GDriveConnected = true;
         refreshRefresh();
         // Upgrades to 0.9 need to load from GDrive before first save, and then resave
-        if (FirstUse) {               // TODO fix FirstUse to only include new installs for store launch of 0.9
-            alert("Early release version, defaulting to GDrive connected and refreshing, takes a few seconds");
+        if (UpgradeInstall) {
+            alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
             await refreshTable(true);                       // force read sync from GDrive
             saveBT();                                       // and force save back into storage
         }
@@ -107,10 +111,10 @@ function toggleMenu() {
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
-        if (FirstUse)
-            FirstUse = false;
+        if (!toggleMenu.introMessageShown)
+            toggleMenu.introMessageShown = true;            // leave tip showing and remember that it showed
         else
-            addTip();               // display tip text on subsequent views
+            addTip();                                       // display tip text after intro message has been shown
         $("#controls_screen").slideDown(750);
         $("#open_close_image").addClass('open').removeClass('closed');
         $(".treetable tr").css("scroll-margin-top", "330px");
@@ -548,7 +552,7 @@ function tabOpened(data, highlight = false) {
     const tabGroupId = data.tabGroupId;
     const tabIndex = data.tabIndex;
     const windowId = data.windowId;
-    const parentId = AllNodes[nodeId].parentId || nodeId;
+    const parentId = AllNodes[nodeId]?.parentId || nodeId;
 
     node.tabId = tabId;         
     node.windowId = windowId;

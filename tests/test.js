@@ -1,6 +1,7 @@
 window.LOCALTEST = true;
 QUnit.config.reorder = false;
 QUnit.config.testTimeout = 45000;
+gtag = function() { /* I don;t exist under test */};
 
 QUnit.module("BTNode tests", function() {
 
@@ -15,7 +16,7 @@ QUnit.module("BTNode tests", function() {
         const node1 = new BTNode("[[https://testing/1/2/3][Test Node]]");
         assert.equal (node1.URL, "https://testing/1/2/3", "getURL");
         const node2 = new BTNode("[[file:file.org][Test Node]]", node1.id);
-        assert.equal (node2.URL, "", "getURL w file:");
+        assert.equal (node2.URL, "file:file.org", "getURL w file:");
         assert.equal (node2.id, 2, "Ids managed ok");
         assert.equal (node2.parentId, 1, "parent hooked up ok");
         assert.deepEqual (node1.childIds, [2], "child hooked up ok");
@@ -33,7 +34,7 @@ QUnit.module("BTNode tests", function() {
 	    const n2 = new BTNode("Second Level", n1.id);
 	    const n3 = new BTNode("[[file:somefile][file link]] blah", n2.id);
 	    const n4 = new BTNode("[[http://google.com][goog]] also blah", n2.id);
-	    assert.notOk (n3._hasWebLinks(), "file: links are not web links");
+	    assert.ok (n3._hasWebLinks(), "file: links are web links");
 	    assert.ok (n4._hasWebLinks(), "http links are web links");
 	    assert.ok ((n1._hasWebLinks() && n2._hasWebLinks()), "weblinkage bubbles up to ancestors");
     });
@@ -131,7 +132,7 @@ some text
 |data 1|data2|
 more text
 ** Sub header
-text`;
+text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
         const output = BTAppNode.generateOrgFile();
@@ -155,7 +156,7 @@ end text
 - [ ] let people use it everywhere
 - orga :: the ultimate org-mode parser
 ** Sub header
-text`;
+text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
         const output = BTAppNode.generateOrgFile();
@@ -170,7 +171,7 @@ _Orga_ is +probably+ the *best* /org-mode/ ~parser~ =alive=.
 ** Sub header1
 text
 ** Sub header2
-text`;
+text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 4);
         const output = BTAppNode.generateOrgFile();
@@ -185,7 +186,7 @@ _Orga_ is +probably+ the *best* /org-mode/ ~parser~ =alive=.
 ** TODO Sub header1
 text
 ** DONE Sub header2
-text`;
+text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 4);
         const output = BTAppNode.generateOrgFile();
@@ -200,7 +201,7 @@ DEADLINE: <2018-01-01 Mon>
 :key0: value0
 :key1: value1
 :END:
-value text`;
+value text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 2);
         const output = BTAppNode.generateOrgFile();
@@ -212,11 +213,11 @@ value text`;
         const orgTree =
 `#+PROPERTY: prop1 one
 #+PROPERTY: BTVersion 3
-* Hello World'`;
+* Hello World `;
         const nextorgTree =
 `#+PROPERTY: prop1 one
 #+PROPERTY: BTVersion 4
-* Hello World'
+* Hello World 
 `;
         processBTFile(orgTree);
         assert.equal (AllNodes.metaProperties.length, 2, 'found three properties');
@@ -348,7 +349,8 @@ QUnit.module("App tests", function() {
         assert.equal(6, AllNodes.length, "nodes as expected");
         deleteNode(2);
         assert.notOk(AllNodes[2], "nodes as expected after deletion");
-        assert.deepEqual(BTFileText, "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n", "file cleaned up ok");
+        BTFileText = BTAppNode.generateOrgFile();
+        assert.deepEqual(BTFileText, "* TODO BrainTool\nBrainTool is a tool\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n", "file cleaned up ok");
     });
 
     QUnit.test("Open Tabs", function(assert) {

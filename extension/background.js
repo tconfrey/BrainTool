@@ -12,7 +12,7 @@ var BTTab = 0;
 var BTWin = 0;
 var LocalTest = false;                 // control code path during unit testing
 var InitialInstall = false;            // should we serve up the welcome page
-var Update = false;                   // or the release notes page
+var UpdateInstall = false;                   // or the release notes page
 
 function check() {
     // check for error
@@ -29,8 +29,8 @@ chrome.runtime.onInstalled.addListener(deets => {
     // special handling for first install or new version
     if (deets.reason == 'install')
         InitialInstall = true;
-    else if (deets.reason == 'update' && deets.version != chrome.runtime.getManifest().version)
-        Update = true;
+    if (deets.reason == 'update') // not needed:  && deets.version != chrome.runtime.getManifest().version)
+        UpdateInstall = true;
 });
 
 /***
@@ -177,15 +177,15 @@ function initializeExtension(msg, sender) {
     chrome.tabs.sendMessage(                        
         BTTab,
         {'function': 'launchApp', 'client_id': config.CLIENT_ID, 'api_key': config.API_KEY,
-         'initial_install': InitialInstall, 'upgrade_install': Update});
+         'initial_install': InitialInstall, 'upgrade_install': UpdateInstall});
 
     // check to see if a welcome is called for
-    if (InitialInstall || Update) {
+    if (InitialInstall || UpdateInstall) {
         const welcomePage = InitialInstall ?
               'https://braintool.org/support/welcome' :
               'https://braintool.org/support/releaseNotes';
         chrome.tabs.create({'url': welcomePage});
-        InitialInstall = null; Update = null;
+        InitialInstall = null; UpdateInstall = null;
     }
 }
 
