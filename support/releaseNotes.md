@@ -4,39 +4,29 @@ description: Reverse chronological notes on recent BrainTool versions.
 ---
 
 # Welcome to BrainTool 0.9
-The BrainTool 0.9 version is now available with a manual install prior to it's release on the Chrome Web Store. See below for the 0.8 RNs.
+The BrainTool 0.9 version is now available. See below for release notes from previous versions. 
 
-## File import/export
-In addition to Chrome Bookmarks, 0.9 adds the ability to import from a TabsOutliner export and also to import a text file with orgmode (org-mode?) markup. Heading, paragraph text and contained http(s) links are extracted and represented in the tree.
+## File Import/Export
+In addition to Chrome Bookmarks, 0.9 adds the ability to import from a TabsOutliner export and also to import a text file with org-mode markup. Heading, paragraph text and contained http(s) links are extracted and represented in the tree.
 
 In addition to exporting to Bookmarks you can now also export an org file.
 
-## org-mode support
+## org-mode Support
 This version upgrades to version 2 of the very handy [orga.js](https://github.com/orgapp/orgajs) org parser by [@xiaoxinghu](https://github.com/orgapp/orgajs/commits?author=xiaoxinghu). BrainTool should now retain any org markup in the BrainTool.org file (or an imported file). BT stores app data using headers for Topics, headers with links for topic occurrences (ie links) and paragraph text for notes. Other constructs such as lists, tables, blocks etc will just be shown in plain text in the tree and written back out as such.
 
 The idea here is to allow BrainTool to become an integral part of a text and org-based note taking and productivity workflow.
 
-## Removed GDrive dependency
+## Removed GDrive Dependency
 The need to perform the GDrive permission workflow on the initial install made the whole thing overly complicated for people. With the new ability to upload and download the file manually I decided to decouple the GDrive permissions.
 
 By default BT now stores your data in Chrome local storage. This should be resilient across browser sessions on a single Chrome instance. Its still advisable to also write to the BrainTool.org file on your GDrive but not necessary. If you currently have the GDrive app connected you can disconnect it from Settings on the [GDrive web page](https://drive.google.com).
 
-## Minor Usability improvements
+## Other Minor Improvements
  * New Keyboard commands - entering 1 through 9 now collapses the tree to the numbered level (e.g. hit '2' to show just the top two levels of the tree)
+ * URLS of the form file:/// are now supported, type something like file:///users/tconfrey/Documents/ into Chrome's address bar and save it into your BT tree! 
  * Tree folding and unfolding now has a slight animation to help maintain your bearings.
  * The popup now has some descriptive hover text and an explicit 'Save' button which does the same thing as just hitting Enter in the Notes field.
 
-## Installation Instructions
-To install this version of BT in advance of it being approved in the store follow these instructions. I'd love to hear your feedback on the [BT forum](https://groups.google.com/u/0/g/braintool-discussion)
-
-Pull down the extension code from [gdrive](https://drive.google.com/file/d/1sH61ru0d2IVmVdyEj7Ve8AxOmc1MK_Cs/view?usp=sharing) and expand the zip file into a folder, or clone the [repo on GitHub](https://github.com/tconfrey/BrainTool) and go to the versions/0.9.0/extension directory, then follow these instructions:
- * Open a tab to chrome://extensions
- * Turn on Developer mode, top right
- * Click the 'Load unpacked' button, top left
- * Navigate to where you saved the 0.9 extension code and install that
- * Remove or disable (via the slider) the current 0.8.1 BrainTool.
- 
-You should be able to open and use BT like before. (Altho NB the keyboard shortcut is lost, you need to delete the keyboard shortcut and add it back in, via the top left hamburger menu).
 
 # Welcome to BrainTool 0.8.1!
 
