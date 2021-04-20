@@ -19,12 +19,12 @@ description: BrainTool is a way of organizing things you want to remember and ge
 <br/><br/>
 Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
 
-With BrainTool you can save, tag and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 
+With BrainTool you can save and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 
 
 <table style="border:none;">
 <tr>
 <td style="border:none; vertical-align:top; padding-left:0px; padding-top: 50px;">
-The BrainTool side panel shows your nested tags hierarchy. A tag is a topic or category that groups web pages you want to organize and remember. Each tag is mapped to a dedicated Chrome window where the tabs on that window contain a tagged web page. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>. In this example I have an open Chrome window showing items tagged 'Kitchen Project', it has the Crown Point Cabinetry site open. I also have Personal TODO to try a meditation practice thats linked but not open in a window anywhere.
+The BrainTool side panel shows your nested Topics hierarchy. A Topic is a tag or category that groups web pages you want to organize and remember. Topics can be mapped to dedicated Chrome windows or tab groups where the tabs contain web pages saved under that topic. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>. In this example I have an open Chrome window showing my 'Kitchen Project' topic, it has the Crown Point Cabinetry site open. I also have Personal TODO to try a meditation practice thats linked but not open in a window anywhere.
 </td>
 <td style="border:none; padding-left:0px; width:50%"><img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
@@ -46,27 +46,27 @@ Here's a couple of videos showing more details:
 <tr id='2'>
 <td style="border:none; padding-left:0px;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
-To tag and save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Option-b, and just start typing.
+To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Alt/Option-b, and just start typing.
 </td>
 </tr>
 <tr>
 <td style="border:none; padding-left:0px;">
-Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its tag-mates.
-<br/><br/>Pop (pull torn-off tab and its tag window to the top), Hide (don't pop) and Close, support different organizational workflows.
+Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates.
+<br/><br/>Group (align with other tabs for the topic), Stick (don't group) and Close, support different organizational workflows.
 </td>
 <td style="border:none;"><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 </tr>
 </table>
 
-Open, Close and Control all pages by tag with a single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
+Open, Close and Control all pages by tag with a keystroke or single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
 <br/><br/>
-Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
+use key commands or Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
 
 <img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
 
 <hr/>
-All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an orgmode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
+All your data is stored in a plain text file that can be separately edited, backed-up or shared and optionally (and ideally) continuously synced to your Google Drive. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an org-mode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
 <br/>
 <img src="/site/AppStoreCollatoral/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
@@ -76,6 +76,6 @@ All your data is stored on your Google Drive in a plain text file that can be se
 
 Check it out on the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) or ping me at braintool.extension@gmail.com .
 
-There's more info in the [Overview](http://braintool.org/overview) and the required official privacy policy is [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
+There's philosophy and roadmap information in the [Overview](http://braintool.org/overview) and the required official privacy policy is [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
 
 Tony 
