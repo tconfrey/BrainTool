@@ -4,16 +4,28 @@ tagline: The Personal Information Manager for your Online Life
 description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
 ---
 
-# BrainTool Philosophy
+# BrainTool Vision
 
-BrainTool is a knowledge/notes/links/browser manager. While browsing you 'tag' web pages via the BrainTool Chrome plugin to store them in your personal braintool file. Tags provide a grouping for sets of web pages, they are nested in a hierarchy and have attached notes. Each tag is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window with tabs for tagged links. The side-panel indicates which links are currently open in a tab and allows fast access to open or access the page.
+The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information.
+
+While working on your computer you should be able to easily capture, categorize and store, all the information and knowledge you want to keep track of; right at the point you discover it or create it; and then to access that information and knowledge again whenever you need to refer to it or add to it. 
+
+Discovery and creation, generally for me, take place either in a browser window, or as some kind of note or task list or idea, written in text. This first version of BrainTool unifies these two information spaces - it makes it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
+
+Longer-term BrainTool will expand into other aspects of that organizational system offering a beautiful and satisfying in-place note taking environment, full content search, productivity tools, and content sharing with the exchange of curated informational Topic Maps.
+
+# Overview
+
+BrainTool is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages via the BrainTool Chrome plugin and add an optional note. Topics, links and associated notes are stored in your personal braintool file. 
+
+Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window or tab group with tabs for saved links. 
+
+The side-panel is your central control point. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, it indicates which links are currently open in a tab and allows fast access to open, close or surface any one or many pages.
 
 <br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 
-By tagging links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file saved to your Google Drive. As you tag pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in an [org-mode](http://orgmode.org) format.
-
-The text file can be edited in any text editor, ideally emacs with org-mode. At least for me, the tool's creator, it unites two of the main ways I capture information - in plain text notes typed into an emacs editor, and via links to relevant web pages.
+By organizing links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file. As you save pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in an [org-mode](http://orgmode.org) format. The text file can be edited in any text editor, ideally emacs with org-mode.
 
 <br/>
 <br/><br/>
@@ -21,45 +33,51 @@ The text file can be edited in any text editor, ideally emacs with org-mode. At 
 <br/><br/>
 <img src="/site/bt-screenshot2.png" style="border:solid; border-width:thin;">
 
-## Overview
+# Philosophy
 
-At its simplest BrainTool is a way of organizing links you want to remember - kind of like a hierarchical bookmark manager. Each node in the tree has editable notes. 
+The core BrainTool philosophy is that you own and have complete control over your data and its use, and that all of your data is stored in a human-readable plain text format. 
 
-From a Chrome session new links can be added to the tree and links from the tree can be opened in dedicated windows. The org file can be edited separately to edit the structure or add notes and other details. The BT tree automatically writes updates to the org file. The Refresh button will re-sync the display with any file changes.
+Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.
 
 ## Security
 
-BrainTool is comprised of a Chrome extension and a javascript Google Drive application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). On first startup the app asks your permission to create, read and write a file called BrainTool.org on your google drive. That file is used to store the window and link tree. So in use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. Also, see the [official privacy policy.](./BrainToolPrivacyPolicy.pdf)
+BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf)
 
-## Headlines, Tags and Categories
+# Concepts
+
+BrainTool is loosely based on the concept of [Topic Maps](ref) which define a TAO of information: _Topics_, _Associations_ between topics and _Occurrences_ of information about a topic. 
+
+## Topics
     
-These are different things in org but in BT they are all the same. Every headline in the tree is a tag. Leaf nodes carry the tags of all of their ancestors. 
+Topics are BTs basic unit of organization. A project you are working on can be a topic, or a hierarchical tree of related topics. An area of responsibility can be a topic (eg Home Finances). As can a set of resources you want to keep track of (eg Chrome Extensions). 
 
-## Links
+Every parent node in the BT side-panel tree is a topic.
 
-All url links in the .org file are shown as leaf nodes in the tree under their appropriate tag. Links in org-mode are represented as [[link url][link title]]. When editing a link within the BT tree view this convention is followed.
+## Associations
 
-## Editing
+Associations are links capturing a relationship between topics. Currently in BT the only associations are containment relationships between a topic and its subtopics. In the longer term bidirectional links will capture other kinds of association.
 
-<img src="/site/bt-screenshot3.png" style="border:solid; width:50%; height:50%; float:left; border-width:thin; margin-right: 10px;">
+## Occurrences
 
-The text and displayed link name can be edited within the extension window. The whole thing can also be edited in any text editor. As noted the unique feature of BT is the integration with an org-mode note taking process. My personal setup is to have my Google Drive mounted locally on my laptop and to have the BrainTool.org file open in emacs where I update notes under the appropriate tag headings and edit the overall tree structure as needed. The Drive app is pretty good about rapidly synchronizing any edits. After an edit hit the Refresh button in the tree to sync the display. This sounds like extra overhead but I'm generally working in one place or the other and the quick sync is pretty seamless (plus emacs will tell me before overwriting the file on Drive if it has changed).
+Occurrences of information about a topic are the things you save and capture into your braintool file. That includes all of your saved links as well as the notes associated with a link or topic.
 
-For a non org-mode user who wants to have greater control over the tree and its contents the org syntax is pretty minimally invasive. See [this tutorial](https://orgmode.org/worg/org-tutorials/org4beginners.html) for a minimal intro to emacs and org to give emacs a whirl. Or use your editor of choice noting to retain the *, ** header hierarchy and the [[url][display text]] structure for links.
+# Roadmap
 
-## Navigation
-The tree shows the current open state of links and tags via highlighting. Click on a link to open it or to bring its already-opened Chrome window to the top. Double click any highlighted row to go to that window or tab.
+There will always be a fully functional, free and open source version of BrainTool with an continuously evolving and improving feature set. That said, after achieving a stable 1.0 release efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback appreciated](https://groups.google.com/u/0/g/braintool-discussion).
 
-One thing I struggled with is how to handle navigation away from an opened BT window. I settled on intercepting the tabs navigation and redirecting to a new tab, leaving the original tab showing the page linked to from BT. This seems most intuitive to me given the tools operating model of not trying to track all windows and navigation but to capture only explicitly tagged pages which are intended to be added to my knowledge base.
+## Release 1.0
 
-## Known issues, future plans <small>(LMK if one of these is important to you)</small>
+- **Search** : In 1.0 BrainTool search will be modeled on emacs forward and backward text search across the full contents of your braintool file.
 
-- Due to the navigation feature mentioned above on some sites you'll get multiple tabs when you open a BT Link. Thats because those sites do a url redirect. This is a bug but its hard for me to fix in a generic manner.
-- Chrome's search only finds visible text, which makes sense, but the result is that you can't search your BT tree. I will add keyword search at some point.
-- It would be good to be able to reference multiple .org files and either combine or swap between them in the app.
-- The risk with an app like BrainTool is loosing your data. I'm going to add code to write a backup file on a daily basis so you have a rolling 7 day backup.
-- I should support extension preferences to define the BT window screen location and dimensions.
-- I've hard coded TODO/DONE/empty as the only supported workflow states. I could support a preference string defining the list of states to use.
-- If you are working directly with the BrainTool.org file you might find that whitespace is changed as the file is read and written by the app. I faithfully maintain header items and levels, free text, header properties and TODO state. But other things like tables ad embedded markup may be overwritten.
-- There's a built in collaboration aspect given that the drive file can be shared! I could see having common curated BrainTool file instances being a good way to share information within an organization.
-- My long term vision is that each link and note can have multiple tags and that the tool supports searching and reorganizing by different tag hierarchies. I'm investigating the use of [org-roam](https://org-roam.readthedocs.io/en/master/)
+## Post 1.0
+
+- **Preferences** : Factors such as font size and side panel location will be made configurable.
+- **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced file on a Google Drive, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
+- **Org Functions**: Org-mode itself provides a good roadmap for BrainTools feature set. It is a massively functional but highly complex personal organizational tool. BrainTool will provide an intuitive overlay for a subset of orgs most important functionality - TODO lists, journaling, agendas etc.
+- **Session Save and Live sessions**: While you can already save all the tabs in a window to a topic with a couple of clicks there would be value in being able to save a snapshot of the whole browser session for later recovery. Relatedly, continuously capturing all activity in a browser window into a topic could be useful while researching.
+- **In-page highlighting**: Some similar tools find value in allowing the user to capture text from within a saved page, this might make sense for BrainTool also.
+- **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that its all just text, savvy users can use emacs or any other text editor. That said it is a goal for BT to allow note-taking in place within the browser via some kind of simple but highly satisfying editor tool.
+- **Tags and Bi-directional Linking**: In addition to containment it should be possible to model other kinds of relationships between topics and to tag information occurrences as being relevant to multiple topics.
+- **Multi-file Support**: It should be possible to save and load Topic Trees from a dedicated file. For example a node 'Recipes' under Resources could point to a dedicated recipes.org file which is loaded on demand.
+- **Topic Tree Sharing**: Curated Topic Trees are a very good way of sharing knowledge. E.G. I could share my 'recipes' topic with a friend, my 'kitchen renovation' topic tree with my wife or a 'team onboarding links' topic with a new employee.
+- **Topic Tree Repository**: Building on the above, BrainTool will host best-practice topic trees around common areas such as 'productivity tools', 'Knowledge Management' etc.
