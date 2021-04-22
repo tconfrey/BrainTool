@@ -9,7 +9,7 @@ author: "Tony"
 
 # Adding BrainTool into an emacs & org-mode workflow
 
-<div style="line-height:1.5; font-size:small">_BrainTool is a browser plugin with a tree-structured side panel showing your personal hierarchical 'Topic' list. It's easy to assign a tab, or many tabs, to a topic and add associated notes. Tabs and whole topics can be opened and closed easily so it helps keep your tabs tidy and your research organized. Most importantly for this post, it writes all data to an org-mode formatted text file. [See more details in this overview.](/overview)_</div>
+<div style="line-height:1.5; font-size:small; font-style:italic">BrainTool is a browser plugin with a tree-structured side panel showing your personal hierarchical 'Topic' list. It's easy to assign a tab, or many tabs, to a topic and add associated notes. Tabs and whole topics can be opened and closed easily so it helps keep your tabs tidy and your research organized. Most importantly for this post, it writes all data to an org-mode formatted text file. <a href="/overview">See more details in this overview.</a></div>
 
 I'm an ascii-text note taker. Over the years I've experimented with a paper notebook per topic, then a single big notebook for everything, then smart pens and clipboards, then scannable paper notebooks, then an iPad with Pencil or the Galaxy Note. I've played with mindmap tools and EverNote. But I've always based my development environment around emacs, so inevitably I drift back to a text buffer in emacs - I type faster than I write, my handwriting is hard to read, its easy to cut and paste and organize text, and I can search or grep to find things fast even in the middle of a conversation.
 <!--more-->
