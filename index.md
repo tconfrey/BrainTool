@@ -1,9 +1,9 @@
 ---
-title: The Information Manager for your Online Life
+title: The Topic Manager for your Online Life
 layout: default
-description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
+description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested Topics. Its also a better way to control your browser.
 ---
-# The Information Manager for your Online Life
+# The Topic Manager for your Online Life
 
 ### Now with Bookmark Exchange and improved Tree editing!
 

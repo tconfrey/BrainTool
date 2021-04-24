@@ -41,6 +41,7 @@ Note that BrainTool is intended to help you actively curate an information space
 BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [my github account](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf)
 
 # Concepts
+<A href="#concepts"># Concepts</A>
 BrainTool is loosely based on the concept of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_, _Associations_ between topics, and _Occurrences_ of information about a topic. 
 
 ## Topics
