@@ -5,7 +5,6 @@ description: BrainTool is a way of organizing things you want to remember and ge
 ---
 # The Topic Manager for your Online Life
 
-### Now with Bookmark Exchange and improved Tree editing!
 
 **Praise from users and the press:**
 - "Bring your bookmarks into the 21st century"
@@ -69,7 +68,7 @@ use key commands or Drag and drop to reorder the hierarchy at will. Mark pages a
 All your data is stored in a plain text file that can be separately edited, backed-up or shared and optionally (and ideally) continuously synced to your Google Drive. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an org-mode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
 <br/>
-<img src="/site/AppStoreCollatoral/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
+<img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
