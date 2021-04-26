@@ -57,6 +57,7 @@ Note that BrainTool is intended to help you actively curate an information space
 
 ## Post 1.0
 - **Preferences** : Factors such as font size and side panel location will be made configurable asap.
+- **Browsers** : Firefox, Edge, Brave and Vivaldi will be supported.
 - **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced file on a Google Drive, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
 - **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool will provide an intuitive overlay for a subset of orgs most important functionality - TODO lists, journaling, agendas etc.
 - **Session Save and Live Sessions**: While you can already save all the tabs in a window to a topic with a couple of clicks, there would be value in being able to save a snapshot of the whole browser session for later recovery. Relatedly, continuously capturing all activity in a browser window into a topic could be useful while researching.
