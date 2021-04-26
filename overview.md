@@ -5,25 +5,23 @@ description: BrainTool is a way of organizing things you want to remember and ge
 ---
 
 # BrainTool Vision
-The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information.
+While working on your computer you should be able to easily capture and categorize, all the information and knowledge you want to keep track of; right at the point you discover it or create it. Then you should be able to access that information and knowledge later if you need to refer to it or if you want to edit it as part of your personal information space.
 
-While working on your computer you should be able to easily capture, categorize and store, all the information and knowledge you want to keep track of; right at the point you discover it or create it; and then to access that information and knowledge again whenever you need to refer to it or add to it. 
+Information discovery these days generally takes place in a browser tab, creation is either also in a tab or as some kind of note or task list or idea, written in text. BrainTool unifies these two information spaces - it makes it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
 
-Discovery these days generally takes place in a browser tab, and creation either also in a tab or as some kind of note or task list or idea, written in text. BrainTool unifies these two information spaces - it makes it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
-
-Longer-term BrainTool will expand into other aspects of that organizational system offering a beautiful and satisfying in-place note taking environment, full content search, productivity tools, and content sharing with the exchange of curated informational Topic Maps.
+The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing with the exchange of curated informational Topic Maps.
 
 # Overview
-BrainTool is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages you want to save via the BrainTool Chrome plugin, and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
+The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
 
 Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window or tab group with tabs for saved links. 
 
-The side-panel is your central control point. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, it indicates which links are currently open in a tab and allows fast access to open, close or surface any one or many pages.
+The side-panel is your central controller. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
 
 <br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 
-By organizing links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file. As you save pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
+By organizing links and capturing your notes about them you are mapping your personal information space. BrainTool stores that information space in a plain-text file. As you save pages, and add notes a file called BrainTool.org is kept updated. That file is regular text but structured in public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
 <!--
 <br/>
 <br/><br/>
@@ -35,7 +33,7 @@ By organizing links and capturing your notes about them you are building up a kn
 The core BrainTool philosophy is that your data is stored in a human-readable plain text format and that you own and have complete control over its use. BrainTool endeavors to be a fantastic standalone tool but to work well within an emacs and org-mode text-based workflow and to readily integrate with an associated ecosystem of information management and productivity tools.
 
 ## Security
-BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [a public github account](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
+BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [a public software repository](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
 
 # <A href="#concepts">Concepts</A>
 BrainTool (BT) is loosely based on the semantic web idea of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_ as an organizational unit, _Associations_ between topics, and _Occurrences_ of information about a topic. 
