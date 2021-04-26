@@ -9,12 +9,12 @@ The long term vision for BrainTool is to be the tool your brain needs to keep tr
 
 While working on your computer you should be able to easily capture, categorize and store, all the information and knowledge you want to keep track of; right at the point you discover it or create it; and then to access that information and knowledge again whenever you need to refer to it or add to it. 
 
-Discovery and creation, generally for me, take place either in a browser window, or as some kind of note or task list or idea, written in text. This first version of BrainTool unifies these two information spaces - it makes it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
+Discovery these days generally takes place in a browser tab, and creation either also in a tab or as some kind of note or task list or idea, written in text. BrainTool unifies these two information spaces - it makes it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
 
 Longer-term BrainTool will expand into other aspects of that organizational system offering a beautiful and satisfying in-place note taking environment, full content search, productivity tools, and content sharing with the exchange of curated informational Topic Maps.
 
 # Overview
-BrainTool is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages via the BrainTool Chrome plugin and add an optional note. Topics, links and associated notes are stored in your personal braintool file. 
+BrainTool is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages you want to save via the BrainTool Chrome plugin, and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
 
 Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window or tab group with tabs for saved links. 
 
@@ -23,7 +23,7 @@ The side-panel is your central control point. With drag and drop and powerful ke
 <br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 
-By organizing links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file. As you save pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in an [org-mode](http://orgmode.org) format. The text file can be edited in any text editor, ideally emacs with org-mode.
+By organizing links and capturing your notes about them you are building up a knowledge base. BrainTool stores that knowledge base in a plain-text file. As you save pages, and add notes in Chrome and in the BrainTool side-panel, a file called BrainTool.org is kept updated. That file is regular text but structured in public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
 <!--
 <br/>
 <br/><br/>
@@ -32,20 +32,16 @@ By organizing links and capturing your notes about them you are building up a kn
 <br/><br/>
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 # Philosophy
-The core BrainTool philosophy is 
-- that you own and have complete control over your data and its use; 
-- that all of your data is stored in a human-readable plain text format; 
-- that it can integrate with an emacs and org-mode based workflow and
-- open to integration with an associated ecosystem of professional productivity tools.
+The core BrainTool philosophy is that your data is stored in a human-readable plain text format and that you own and have complete control over its use. BrainTool endeavors to be a fantastic standalone tool but to work well within an emacs and org-mode text-based workflow and to readily integrate with an associated ecosystem of information management and productivity tools.
 
 ## Security
-BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [a public github account](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf)
+BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static source-available client-side app served from [a public github account](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org on your Google Drive. In use the only communicating parties are your browser and the Google Drive server, no information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
 
 # <A href="#concepts">Concepts</A>
-BrainTool (BT) is loosely based on the semantic web idea of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_, _Associations_ between topics, and _Occurrences_ of information about a topic. 
+BrainTool (BT) is loosely based on the semantic web idea of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_ as an organizational unit, _Associations_ between topics, and _Occurrences_ of information about a topic. 
 
 ## Topics
-Topics are the basic unit of organization. A project you are working on can be a topic, (more probably a hierarchical tree of related topics). An area of responsibility can be a topic (eg Home Finances). As can a set of resources you want to keep track of (eg web sites related to programming Chrome Extensions). Every parent node in the BT side-panel tree is a topic.
+Topics are the basic unit of organization. A project you are working on can be a topic. An area of responsibility can be a topic (eg Home Finances). As can a set of resources you want to keep track of (eg web sites related to programming Chrome Extensions). Every parent node in the BT side-panel tree is a topic.
 
 ## Associations
 Associations are links capturing a relationship between topics. Currently in BT the only associations are containment relationships between a topic and its subtopics. In the longer term bidirectional links will capture other kinds of association.
@@ -54,7 +50,7 @@ Associations are links capturing a relationship between topics. Currently in BT 
 Occurrences of information about a topic are the things you save and capture into your braintool file. That includes all of your saved links as well as the notes associated with a link or topic.
 
 # Roadmap
-There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. That said, after achieving a stable 1.0 release, efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback appreciated](https://groups.google.com/u/0/g/braintool-discussion).
+There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. That said, after achieving a stable 1.0 release, efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
 
 Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.
 
