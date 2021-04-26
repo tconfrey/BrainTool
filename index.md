@@ -57,9 +57,9 @@ Optionally add short or detailed notes to give context, aid recall or capture wh
 </tr>
 </table>
 
-Open, Close and Control all pages by tag with a keystroke or single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
+Open, Close and Control all pages by topic with a keystroke or single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
 <br/><br/>
-use key commands or Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
+Use the powerful keyboard commands or Drag and drop to reorganize the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
 
 <img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
