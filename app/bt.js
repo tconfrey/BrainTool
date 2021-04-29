@@ -599,9 +599,8 @@ function tabClosed(data) {
                             complete: function() {
                                 parentElt.removeClass("hovered", 1000);
                             }});
-        if (parentElt.hasClass('collapsed'))
-            // propogate up to a node which will be seen
-            propogateClosed(AllNodes[parentId].parentId);
+        // propogate up tree to dehighlight ancestors as appropriate
+        propogateClosed(AllNodes[parentId].parentId);
     };
 
     const tabId = data.tabId;
