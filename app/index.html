@@ -81,13 +81,13 @@
                   </button>
                   <div class="dropdown_content">
                     
-                    <div>
+                    <div onClick="$('#org_upload').val('');">
                       <label for="org_upload" class="button_text">Import an org-mode File</label>
                       <input type="file" id="org_upload" name="org_upload" accept=".org"
                              style="display:none" onchange="importOrgFile()">
                     </div>
                     
-                    <div style="border-top: solid 1px grey">
+                    <div style="border-top: solid 1px grey" onClick="$('#to_upload').val('');">
                       <label for="to_upload" class="button_text">Import from TabsOutliner</label>
                       <input type="file" id="to_upload" name="to_upload" accept=".tree"
                              style="display:none" onchange="importTabsOutliner()">

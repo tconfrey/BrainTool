@@ -330,7 +330,7 @@ function writeBTFile(cb) {
 function importOrgFile() {
     // Import org file text from user chosen file
     
-    const fr=new FileReader();
+    const fr = new FileReader();
     const uploader = $("#org_upload")[0];
     if (!uploader.files.length) return;
     const file = uploader.files[0];

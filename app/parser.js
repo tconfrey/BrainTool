@@ -98,6 +98,7 @@ function orgaText(organode, containingNode) {
             btString += orgaNodeRawText(orgaChild) + ' ';
         }
         if (orgaChild.type.startsWith("text.")) {
+            if (orgaChild.value.startsWith('*')) btString += ' '; // workaround. orga strips leading spaces
             btString += orgaNodeRawText(orgaChild);
         }
         if (orgaChild.type == "link") {

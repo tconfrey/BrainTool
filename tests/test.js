@@ -208,6 +208,30 @@ value text `;
         assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
     });
 
+    QUnit.test("Timestamps in Headlines", function(assert) {
+        const orgTree =
+`* [2021-03-30 Tue 15:40] Men Becoming Wolves | Lapham’s Quarterly     :grasp:
+para text
+* <2021-03-30 Tue 15:40> Men Becoming Wolves | Lapham’s Quarterly     :grasp:
+para text2 `;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 3);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
+    QUnit.test("Spaces before *", function(assert) {
+        const orgTree =
+`* top 
+para text
+  * should be just text
+para text2 `;
+        processBTFile(orgTree);
+        assert.equal (AllNodes.length, 2);
+        const output = BTAppNode.generateOrgFile();
+        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+    });
+
     
     QUnit.test("Properties", function(assert) {
         const orgTree =

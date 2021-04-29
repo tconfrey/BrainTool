@@ -237,8 +237,8 @@ button:not([disabled]):hover {
     border: 2px solid grey;
     border-radius: 4px 0 4px 4px;
     z-index: 1;
-    width: 170px;
-    transform: translate(-150px, -2px);
+    width: 153px;
+    transform: translate(-133px, -2px);
 }
 
 .dropdown_content_export {
