@@ -267,6 +267,7 @@ function processBTFile(fileText) {
 
     // Let extension know about model
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
+    window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     
     // initialize ui from any pre-refresh opened state
     OpenedNodes.forEach(oldNode => {
