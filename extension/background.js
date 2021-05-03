@@ -21,16 +21,39 @@ function check() {
     }
 }
 
+/* Document data kept in storage.local */
+const storageKeys = ["BTFileText",                // golden source of BT .org text data
+                     "GroupingMode",              // window/group/none user pref
+                     "TabAction",                 // remember popup default action
+                     "currentTabId",
+                     "currentTag",                // for setting badge text
+                     "currentText",
+                     "groupTopic",                // topic name for current tabgroup, if any
+                     "windowTopic",               // topic for current window, if any
+                     "mruTime",                   // mru items used to default mru topic in popup
+                     "mruTopic",
+                     "newVersion",                // used to let popup know to indicate an update to user
+                     "permissions",               // perms granted
+                     "tags"];                     // used for popup display
+
 chrome.runtime.onUpdateAvailable.addListener(deets => {
-    // Store so popup can inform and then upgrade
+    // Handle update. Store version so popup can inform and then upgrade
     chrome.storage.local.set({'newVersion' : deets.version});
 });
 chrome.runtime.onInstalled.addListener(deets => {
     // special handling for first install or new version
     if (deets.reason == 'install')
         InitialInstall = true;
-    if (deets.reason == 'update') // not needed:  && deets.version != chrome.runtime.getManifest().version)
-        UpdateInstall = true;
+    if (deets.reason == 'update') {
+        // also clean up local storage - get all keys in use and validate against those now needed
+        chrome.storage.local.get(null, (items) => {
+            Object.keys(items).forEach((key) => {
+                if (!storageKeys.includes(key))
+                    chrome.storage.local.remove(key);
+            });
+        });
+        UpdateInstall = deets.previousVersion;
+    }
 });
 
 /***

@@ -3,8 +3,8 @@ title: BrainTool Release Notes
 description: Reverse chronological notes on recent BrainTool versions.
 ---
 
-# Welcome to BrainTool 0.9
-The BrainTool 0.9 version is now available. See below for release notes from previous versions. 
+# Welcome to BrainTool 0.9.1
+This is a minor update with some ui bug fixes and improvements to org-mode imports. See below for release notes from 0.9.0 and previous versions. 
 
 ## File Import/Export
 In addition to Chrome Bookmarks, 0.9 adds the ability to import from a TabsOutliner export and also to import a text file with org-mode markup. Heading, paragraph text and contained http(s) links are extracted and represented in the tree.

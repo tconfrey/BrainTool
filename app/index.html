@@ -45,7 +45,7 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:18px; font-family: serif;"> Welcome to BrainTool 0.9! See the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
+        <p style="text-align: center; font-size:18px; font-family: serif;"> Welcome to BrainTool 0.9.1, see the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
         <!--<p style="text-align: center; margin-top: 3px; margin-bottom: 12px"><b>Press 'h' for Keyboard Shortcuts</b></p> 
         <p id="intro_text" style="margin: 10px; text-align: justify; display:none">
           BrainTool optionally saves all your links and notes in a plain text file that is stored on your Google Drive. See Options to grant it permission to read and write this file. There are no BT servers and nothing is stored anywhere except within the file, named BrainTool.org, which is fully under your control. For details see the <a href="https://braintool.org/BrainToolPrivacyPolicy.pdf" target="_blank">privacy policy</a>
@@ -56,9 +56,9 @@
         <p class="control_text" style="text-align: center; font-style: italic; font-size: 12px; margin-top:0px">Type h for help. Toggle back here for tips. Go to <a href="https://braintool.org/overview" target="_blank">BrainTool</a> for more info.
         </p>
         <p id="tip" class="control_text" style="margin-bottom: 20px;">
-          - Activate BrainTool to save any web page via the icon or with alt-b.<br/>
-          - BT icon hidden under a jigsaw icon browser top right until you pin it.<br/>
-          - This Options overlay is controlled by clicking the green bar at top.<br/>
+          - Activate BT to save any web page via the icon or with Opt/Alt-b.<br/>
+          - The icon is hidden under the jigsaw icon - browser top right.<br/>
+          - This Options overlay closes/opens by clicking the green bar above.<br/>
           - See Options for imports, exports, bookmarks and GDrive syncing.<br/>
           - Your BrainTool data is completely private and secure.<br/>
           - The initial tree shows some examples of how to use Topics. Feel free to build on it. Delete anything you don't want by hovering over it and hitting the trash button.<br/>
@@ -127,7 +127,10 @@
             </td></tr>
             <tr >
               <td style="text-align:left">GDrive auto-save :</td>
-              <td id="gdrive_save" style="text-align:left"><button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi(true)">Authorize</button></td>
+              <td style="text-align:left">
+                <button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi(true)">Authorize</button>
+                <p id="gdrive_save" style="display:none; margin: 0px;"/>
+              </td>
             </tr>
             
             <tr><td colspan="2">

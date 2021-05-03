@@ -15,7 +15,7 @@ description: BrainTool is a way of organizing things you want to remember and ge
 - "Behind the simplicity is a lot of power."
 - "Gave bookmarks the performance and usability boost that I'd been waiting for all these years"
   
-<br/><br/>
+<br/>
 Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
 
 With BrainTool you can save and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized in the BrainTool SidePanel, along with your annotations and notes. 

@@ -52,9 +52,11 @@
     };
 
     Node.prototype.collapse = function() {
-      if (this.collapsed()) {
-        return this;
-      }
+
+        if (this.collapsed()) {
+            return this;
+        }
+
 
       this.row.removeClass("expanded").addClass("collapsed");
 
@@ -67,44 +69,6 @@
 
       return this;
     };
-
-      /* Tony add. Set of functions like original treetable w/o delay for use in initial setup => no animation
-         Issue is that when running thru all nodes to re-setup collapsed state the delays mean children
-         that shoudl be hidden under a collapse are shown */
-    Node.prototype.collapseImmediate = function() {
-      if (this.collapsed()) {
-        return this;
-      }
-
-      this.row.removeClass("expanded").addClass("collapsed");
-
-      this._hideChildrenImmediate();
-      this.expander.attr("title", this.settings.stringExpand);
-
-      if (this.initialized && this.settings.onNodeCollapse != null) {
-        this.settings.onNodeCollapse.apply(this);
-      }
-
-      return this;
-    };
-    Node.prototype._hideChildrenImmediate = function() {
-      var child, _i, _len, _ref, _results;
-      _ref = this.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        _results.push(child.hideImmediate());
-      }
-      return _results;
-    };
-
-    Node.prototype.hideImmediate = function() {
-      this._hideChildrenImmediate();
-      this.row.hide();
-      return this;
-    };
-      /* End Special immediate set of functions */
-
 
     Node.prototype.collapsed = function() {
       return this.row.hasClass("collapsed");
@@ -308,7 +272,6 @@
           }
           return (incr * _i);                    // time to last animation
       };
-      
 
       Node.prototype._showChildren = function() {
           // Tony edited to show animation 
@@ -631,18 +594,6 @@
 
       if (node) {
         node.collapse();
-      } else {
-        throw new Error("Unknown node '" + id + "'");
-      }
-
-      return this;
-    },
-
-    collapseNodeImmediate: function(id) {
-      var node = this.data("treetable").tree[id];
-
-      if (node) {
-        node.collapseImmediate();
       } else {
         throw new Error("Unknown node '" + id + "'");
       }

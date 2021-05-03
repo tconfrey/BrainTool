@@ -17,12 +17,25 @@ async function saveBT() {
     
     gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
 
-    // also save to GDrive if allowed
+    // also save to GDrive if connected
     if (!GDriveConnected) return;
-    let gdriveSave = await isSignedIn();
-    if (gdriveSave) {
-        writeBTFile();
-        $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
+    try {
+        let sin = await isSignedIn();
+        // TODO handle not signed in
+        if (!sin)
+            sin = await trySignIn();
+        if (sin) {
+            writeBTFile();
+            $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
+        } else {
+            $("#gdrive_auth").show();
+            GDriveConnected = false;
+            alert("Can't connect to GDrive. Changes saved locally. Try re-auth (under Options) or restarting");
+        }
+    }
+    catch(err) {
+        alert(`Changes saved locally. GDrive connection failed. Google says:\n${JSON.stringify(err)}`);
+        console.log("Error in saveBT:", err);
     }
 }
 
@@ -58,12 +71,26 @@ async function isSignedIn () {
     return AuthObject?.isSignedIn?.get() || false;
 }
 
+async function trySignIn() {
+    // should be signed in but not, try to fix, shoudl not ever get here
+
+    let sin = await isSignedIn();                          // also tries to set AuthObject
+    if (sin) return true;
+    if (!AuthObject) {
+        alert("Error GDrive API reporting not authorized. Try reloading");
+        return;
+    }
+    sin = await AuthObject.signIn();
+    return sin;
+}
+
 function authorizeGapi(userInitiated = false) {
     // gapi needed to access gdrive not yet loaded => this script needs to wait
     console.log('Loading Google API...');
+    gtag('event', 'AuthInitiated', {'event_category': 'GDrive'});
     if (userInitiated) {
-        // implies from button click        
-        gtag('event', 'AuthInitiated', {'event_category': 'GDrive'});
+        // implies from button click
+        gtag('event', 'AuthInitiatedByUser', {'event_category': 'GDrive'});
     }
     if (typeof gapi !== 'undefined')
         gapi.load('client:auth2', initClient);             // initialize gdrive app
@@ -271,7 +298,8 @@ function writeBTFile(cb) {
             return;
         }
         
-        BTFileText = BTAppNode.generateOrgFile();
+        // Not needed since btfiletext is kept up to date for local storage
+        // BTFileText = BTAppNode.generateOrgFile();
         if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
 	        alert("BT - Error in writeBTFile. Google API not available.");

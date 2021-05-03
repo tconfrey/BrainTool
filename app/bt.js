@@ -16,7 +16,7 @@ const tipsArray = [
     "You can save individual gmails or google docs into the BT tree",
     "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
     "Save LinkedIn pages under specific topics to keep track of your contacts in context",
-    "Use the TODO button on a row to toggle between TODO, DONE and ''",
+    "Use the TODO button on a row to toggle between TODO, DONE and none",
     "See BrainTool.org for the BrainTool blog and other info",
     "Check out the Bookmark import/export functions under Options!",
     "You can click on the topics shown in the BT popup instead of typing out the name",
@@ -38,8 +38,8 @@ function launchApp(msg) {
     
     ClientID = msg.client_id;
     APIKey = msg.api_key;
-    InitialInstall = msg.initial_install ;
-    UpgradeInstall = msg.upgrade_install;
+    InitialInstall = msg.initial_install;
+    UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTFileText = msg.BTFileText;
     processBTFile(BTFileText);
 
@@ -48,12 +48,14 @@ function launchApp(msg) {
     if (InitialInstall || UpgradeInstall) {
         $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         if (UpgradeInstall) {
-            // Need to make a one time assumption that an upgrade to 0.9 is already connected
-            setMetaProp('BTGDriveConnected', 'true');
-            gtag('event', 'Upgrade', {'event_category': 'General'});
+            // Need to make a one time assumption that an upgrade from prior to 0.9 is already connected
+            if (UpgradeInstall.startsWith('0.8') ||
+                UpgradeInstall.startsWith('0.7') ||
+                UpgradeInstall.startsWith('0.6'))
+                setMetaProp('BTGDriveConnected', 'true');
+            gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall});
         }
         if (InitialInstall) {
-            // setMetaProp('BTGDriveConnected', 'true'); // was only needed for early release migrating folks.
             gtag('event', 'Install', {'event_category': 'General'});
         }
     } else {
@@ -65,7 +67,11 @@ function launchApp(msg) {
     if (getMetaProp('BTGDriveConnected') == 'true') {
         GDriveConnected = true;
         authorizeGapi();
+        gtag('event', 'GDriveLaunch', {'event_category': 'General'});
+    } else {
+        gtag('event', 'NonGDriveLaunch', {'event_category': 'General'});
     }
+        
 }
 
 async function updateSigninStatus(signedIn, error=false) {
@@ -73,24 +79,32 @@ async function updateSigninStatus(signedIn, error=false) {
     if (error) {
         let msg = "Error Authenticating with Google. Google says:\n'";
         msg += (error.details) ? error.details : JSON.stringify(error);
-        msg += "'\nIf this is a cookie issue be aware that Google uses cookies for authentication.\n";
-        msg += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. Then retry. If it continues see \nbraintool.org/support";
+        msg += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
+        msg += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
         alert(msg);
         return;
     }
     if (signedIn) {
         gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
         $("#gdrive_auth").hide();                           // Hide button and add 'active' text
-        $("#gdrive_save").html(`Active`);
+        $("#gdrive_save").show().html(`Active`);
         GDriveConnected = true;
         refreshRefresh();
-        // Upgrades to 0.9 need to load from GDrive before first save, and then resave
-        if (UpgradeInstall) {
+        
+        // Upgrades from before 0.9 to 0.9+ need to load from GDrive before first save, and then resave
+        if (UpgradeInstall &&
+            (UpgradeInstall.startsWith('0.8') ||
+             UpgradeInstall.startsWith('0.7') ||
+             UpgradeInstall.startsWith('0.6')))
+        {
             alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
             await refreshTable(true);                       // force read sync from GDrive
             saveBT();                                       // and force save back into storage
         }
+        
     } else {
+        alert("GDrive connection lost");
+        $("#gdrive_save").hide();
         $("#gdrive_auth").show();
         GDriveConnected = false;
     }
@@ -267,14 +281,16 @@ function processBTFile(fileText) {
             AllNodes[node.parentId].tabGroupId = node.tabGroupId;
         }
     });
-
-    // set collapsed state as per org data
-    AllNodes.forEach(function(node) {
-        if (node?.folded)
-            $(container).treetable("collapseNode", node.id);
-    });
-
+    
     initializeUI();
+    // Give events from init time to process
+    setTimeout(function () {
+        AllNodes.forEach(function(node) {
+            if (node?.folded)
+                $(container).treetable("collapseNodeImmediate", node.id);
+        });
+    }, 200);
+
     updatePrefs();
     if (GDriveConnected) refreshRefresh();
     $('body').removeClass('waiting');
@@ -323,7 +339,7 @@ function initializeUI() {
     });
     
     // make rows draggable    
-    $("tr").draggable({
+    $("table.treetable tr").draggable({
         helper: function() {
             buttonHide();
             const clone = $(this).clone();

@@ -16,7 +16,7 @@ var ReadOnly = false;                   // capture whether tab is already stored
 var TabAction;                          // current GROUP|CLOSE|STICK action
 var Tabs;                               // tabs in current window
 
-chrome.storage.local.get({'newVersion': false}, val => {
+chrome.storage.local.get('newVersion', val => {
     if (!val['newVersion']) {           //carry on
         popupAction();
         chrome.runtime.connect();       // tell background popup is open
@@ -60,8 +60,8 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    const url = "https://BrainTool.org/app/";
-//    const url = "http://localhost:8000/app/";
+    //    const url = "https://BrainTool.org/app/";
+    const url = "http://localhost:8000/app/";
     console.log('loading from ', url);
     var wargs = {
         'url' : url,
