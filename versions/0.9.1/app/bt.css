@@ -100,7 +100,7 @@
 dialog {
     border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
     border-radius: 6px;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 15px 15px 5px rgb(102, 136, 102, 80%);  /* 102, 136, 102 == #686 */
     width: 82%;
     padding: 10px;
     padding-top: 2px;

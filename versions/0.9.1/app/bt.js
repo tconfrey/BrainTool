@@ -945,7 +945,8 @@ $("#popup").click(function(e) {
 });
 
 function closeDialog() {
-    $('#dialog')[0].close();
+    const dialog = $("#dialog")[0];
+    dialog.close();
 }
     
 
@@ -1083,7 +1084,7 @@ function updateRow() {
     console.count('BT-OUT:tags_updated');
 
     // reset ui
-    $("#dialog")[0].close();
+    closeDialog();
     $("tr.selected").removeClass('selected');
     initializeUI();
 }
