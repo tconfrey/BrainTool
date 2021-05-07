@@ -37,6 +37,11 @@ table.treetable thead tr th {
   text-align: left;
 }
 
+#content.editOverlaid {
+    border-left-color: rgb(0,0,0,0);
+    border-right-color: rgb(0,0,0,0);
+}
+
 table.treetable tbody tr td {
   cursor: default;
   padding: .3em .1em;           /* changed from 1.0 to left align for better use of space*/

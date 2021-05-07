@@ -21,7 +21,8 @@ const tipsArray = [
     "Check out the Bookmark import/export functions under Options!",
     "You can click on the topics shown in the BT popup instead of typing out the name",
     "Close and re-open this controls overlay to get a new tip!",
-    "Double tap Alt(Option)-b to surface the BrainTool side panel",
+    "Double tap Alt(Option)-b, or double click the icon, to surface the BrainTool side panel",
+    "When you have an Edit card open the up/down arrows will open the next/previous card",
     "Click on a row to select it then use keyboard commands. 'h' for a list of them",
     "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar",
     "Try hitting '1','2','3' etc to collapse to that level"
@@ -32,6 +33,12 @@ var UpgradeInstall = false;
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.TABGROUP;
 var GDriveConnected = false;
+
+/***
+ *
+ * Opening activities
+ *
+ ***/
 
 function launchApp(msg) {
     // Launch app w data passed from extension
@@ -87,7 +94,8 @@ async function updateSigninStatus(signedIn, error=false) {
     if (signedIn) {
         gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
         $("#gdrive_auth").hide();                           // Hide button and add 'active' text
-        $("#gdrive_save").show().html(`Active`);
+        $("#autoSaveLabel").text("Auto-saving is on");
+        $("#gdrive_save").show();
         GDriveConnected = true;
         refreshRefresh();
         
@@ -116,10 +124,17 @@ function addTip() {
     $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
 }
 
+
+/***
+ *
+ * Controls controller
+ *
+ ***/
+
 function toggleMenu() {
     // Toggle the visibility of the intro page, auth button and open/close icon
     if ($("#controls_screen").is(":visible")) {
-        $("#controls_screen").slideUp(750);
+        $("#controls_screen").slideUp(400, 'easeInCirc');
         $("#open_close_image").addClass('closed').removeClass('open');
 
         // scroll-margin ensures the selection does not get hidden behind the header
@@ -129,7 +144,7 @@ function toggleMenu() {
             toggleMenu.introMessageShown = true;            // leave tip showing and remember that it showed
         else
             addTip();                                       // display tip text after intro message has been shown
-        $("#controls_screen").slideDown(750);
+        $("#controls_screen").slideDown(400, 'easeInCirc');
         $("#open_close_image").addClass('open').removeClass('closed');
         $(".treetable tr").css("scroll-margin-top", "330px");
     }
@@ -140,17 +155,17 @@ function closeMenu() {
         toggleMenu();
 }
 
-function toggleOptions(dur = 500) {
+function toggleOptions(dur = 400) {
     // Toggle visibility of option div
     if ($("#options").is(":visible")) {
-        $("#options").hide({duration: dur, easing: 'swing'});
+        $("#options").hide({duration: dur, easing: 'easeInCirc'});
     } else {
-        $("#options").show({duration: dur, easing: 'swing'});
+        $("#options").show({duration: dur, easing: 'easeInCirc'});
     }
 }
 
 var ToggleMenuBackAfterHelp = false;      // keep track of if controls only opened to show help
-function toggleHelp(dur = 500) {
+function toggleHelp(dur = 400) {
     // Toggle visibility of help div
     if ($("#help").is(":visible")) {
         if (ToggleMenuBackAfterHelp) {
@@ -158,9 +173,9 @@ function toggleHelp(dur = 500) {
             toggleMenu();
             dur = 1500;
         }
-        $("#help").hide({duration: dur, easing: 'swing'});
+        $("#help").hide({duration: dur, easing: 'easeInCirc'});
     } else {
-        $("#help").show({duration: dur, easing: 'swing'});
+        $("#help").show({duration: dur, easing: 'easeInCirc'});
         if (!$("#controls_screen").is(":visible")) {
             ToggleMenuBackAfterHelp = true;
             setTimeout(() => toggleMenu(), dur);
@@ -168,7 +183,7 @@ function toggleHelp(dur = 500) {
     }
 }
 
-function updateStatsRow() {
+function updateStatsRow(modifiedTime = null) {
     // update #tags, urls, saves
     const numTags = AllNodes.filter(n => n?.isTag()).length;
     const numOpenTags = AllNodes.filter(n => n?.isTag() && n?.hasOpenChildren()).length;
@@ -176,9 +191,16 @@ function updateStatsRow() {
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
     const numSaves = getMetaProp('BTVersion');
-    $('#num_tags').text(numOpenTags ? `:${numTags} (${numOpenTags})` : `:${numTags}`);
-    $('#num_links').text(numOpenLinks ? `:${numLinks} (${numOpenLinks})` : `${numLinks}`);
+    $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
+    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open`);
+    
+    const saveTime = getDateString(modifiedTime);
+    $("#gdrive_save").html(`<i><small>Saved: ${saveTime}</small></i>`);
     $('#num_saves').text(':'+numSaves);
+    $("#num_saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
+
+    if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
+        $("#saves").attr("src", "resources/drive_icon.png");
 }
 
 function brainZoom(iteration = 0) {
@@ -301,8 +323,8 @@ function processBTFile(fileText) {
 function refreshRefresh() {
     // set refresh button back on
     console.log('Refreshing Refresh');
-    $("#refresh_div").show();
-    $("#refresh").prop("disabled", false); // activate refresh button
+    $("#refresh").show();
+    $("#refresh").prop("disabled", false);
     $('body').removeClass('waiting');
 }
     
@@ -383,7 +405,7 @@ function initializeUI() {
     
     // Hide loading notice and show refresh button
     $("#loading").hide();
-    $("#refresh").show();
+    if (GDriveConnected) $("#refresh").show();
 
     // Copy buttonRow's html for potential later recreation (see below)
     if ($("#buttonRow")[0])
@@ -906,28 +928,54 @@ function editRow(e) {
     // position and populate the dialog and open it
     const node = getActiveNode(e);
     if (!node) return;
+    const duration = e.duration || 400;
     const row = $(`tr[data-tt-id='${node.id}']`)[0];
     const top = $(row).position().top - $(document).scrollTop();
+    const bottom = top + $(row).height();
     const dialog = $("#dialog")[0];
 
-    if ((top + $(dialog).height() + 50) < $(window).height())
-        $(dialog).css("top", top+50);
+    if ((top + $(dialog).height() + 60) < $(window).height())
+        $(dialog).css("top", bottom+30);
     else
         // position above row to avoid going off bottom of screen
         $(dialog).css("top", top - $(dialog).height() - 20);
 
     // populate dialog
-    $("#tag-path").text(node.fullTagPath());
-    $("#title-text").val(node.displayTag);
-    if (node.isTag())
-        $("#title-url").hide();
+    const dn = node.fullTagPath();
+    if (dn == node.displayTag)
+        $("#dn").hide();    
     else {
+        $("#dn").show();
+        const upto = dn.lastIndexOf(':');
+        let displayStr = dn.substr(0, upto);
+        const maxLen = 50;
+        if (displayStr.length > maxLen) displayStr = "..." + displayStr.substring(displayStr.length - maxLen);
+        $("#distinguishedName").text(displayStr);
+    }
+    if (node.isTag()) {
+        $("#title-url").hide();
+        $("#title-text").hide();
+        $("#topic").show();
+        $("#topic-text").val(node.displayTag);
+    } else {
         $("#title-url").show();
+        $("#title-text").show();
+        $("#title-text").val(node.displayTag);
+        $("#topic").hide();
         $("#title-url").val(node.URL);
     }
     $("#text-text").val(node.text);
     $("#update").prop("disabled", true);
-    dialog.showModal();
+
+    // overlay grays everything out, dialog animates open on top.
+    // NB setting margin-left auto needed to expand from center, but -left 8px looks better when expanded
+    $("#content").addClass('editOverlaid');
+    $("#editOverlay").css("display", "block");
+    const width = $(dialog).width();
+    const height = width / 1.618;                           // golden!
+    $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
+        .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
+                 function () {$("#text-text").focus();});
 }
 
 $(".editNode").on('input', function() {
@@ -935,18 +983,28 @@ $(".editNode").on('input', function() {
     $("#update").prop('disabled', false);
 });
 
-$("#popup").click(function(e) {
+$("#editOverlay").click(function(e) {
     // click on the backdrop closes the dialog
-    if (e.target.tagName === 'DIALOG')
+    if (e.target.id == 'editOverlay')
     {
-        $("#dialog")[0].close();
+        closeDialog();
         $("#buttonRow").show(100);
     }
 });
 
-function closeDialog() {
+function closeDialog(cb = null, duration = 250) {
+    // animate dialog close and potentially callback when done
     const dialog = $("#dialog")[0];
-    dialog.close();
+    const height = $(dialog).height();
+    const width = $(dialog).width();
+    $(dialog).css({'margin-left':'auto'});                  // see above, resetting to collapse back to center
+    $(dialog).animate({width: 0, height: 0}, duration, function () {
+        $("#editOverlay").css("display", "none");
+        $(dialog).css({width: '88%', height: height});      // reset for next open
+        dialog.close();
+        if (cb) cb();
+    });
+    $("#content").removeClass('editOverlaid');
 }
     
 
@@ -1065,8 +1123,9 @@ function updateRow() {
     // Update Model
     const url = $("#title-url").val();
     const title = $("#title-text").val();
+    const topic = $("#topic-text").val();
     if (node.isTag())
-        node.title = title;
+        node.title = topic;
     else
         node.title = `[[${url}][${title}]]`;
     node.text = $("#text-text").val();
@@ -1233,12 +1292,6 @@ function animateNewImport(name) {
     RefreshCB = null;
 }
     
-function getDateString() {
-    // return minimal date representation to append to bookmark tag
-    const d = new Date();
-    const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
-    return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
-}
 
 function exportBookmarks() {
     // generate minimal AllNodes for background to operate on
@@ -1318,12 +1371,13 @@ $(document).keydown(function(e) {
         undo();
     }
     
-    // ignore keys if edit dialog is open
-    if ($($("#dialog")[0]).is(':visible')) return;
+    // ignore keys (except nav up/down) if edit dialog is open
+    const editing = ($($("#dialog")[0]).is(':visible'));
+    const navKeys = editing ? [38, 40] : [78, 80, 38, 40];
 
     // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
-    if (!alt && [78, 80, 38, 40].includes(key)) {
+    if (!alt && navKeys.includes(key)) {
         if (currentSelection)
             next = (key == 78 || key == 40) ?
                   $(currentSelection).nextAll(":visible").first()[0] :          // down
@@ -1339,8 +1393,13 @@ $(document).keydown(function(e) {
         $(next).addClass('selected');
         next.scrollIntoView({block: 'nearest'});
         e.preventDefault();
+        if (editing) {
+            // allow nav while editing close and re-open w new content
+            closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);
+        }
         return;
     }
+    if (editing) return;
     
     // h = help
     if (key === 72) {

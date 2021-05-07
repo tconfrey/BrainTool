@@ -33,10 +33,7 @@
         <div id="stats_row">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                title="#Tags (open)" height="15" width="15">
-          <span id="num_tags" class="stat_span" title="#Tags (open)">: 0</span>
-          <img id="links" type="image" alt="Links" title="#Links (open)"
-               src="resources/link.png" height="15" width="15" style="opacity: 0.6;">
-          <span id="num_links" class="stat_span" title="#Links (open)">: 0</span>
+          <span id="num_topics" class="stat_span" title="#BT Cards (#links open)">: 0</span>
           <img id="saves" type="image" alt="#File Saves" title="File Saves"
                src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
           <span id="num_saves" class="stat_span" title="#File Saves"> : 0</span>
@@ -45,11 +42,7 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:18px; font-family: serif;"> Welcome to BrainTool 0.9.1, see the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
-        <!--<p style="text-align: center; margin-top: 3px; margin-bottom: 12px"><b>Press 'h' for Keyboard Shortcuts</b></p> 
-        <p id="intro_text" style="margin: 10px; text-align: justify; display:none">
-          BrainTool optionally saves all your links and notes in a plain text file that is stored on your Google Drive. See Options to grant it permission to read and write this file. There are no BT servers and nothing is stored anywhere except within the file, named BrainTool.org, which is fully under your control. For details see the <a href="https://braintool.org/BrainToolPrivacyPolicy.pdf" target="_blank">privacy policy</a>
-        </p>-->
+        <p style="text-align: center; font-size:18px; font-family: serif;"> Welcome to BrainTool 0.9.1a, see the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
         <div id="options_button_border">
           <button id="options_button" onClick="toggleOptions()">Options</button>
         </div>
@@ -126,13 +119,15 @@
                 </div>
             </td></tr>
             <tr >
-              <td style="text-align:left">GDrive auto-save :</td>
               <td style="text-align:left">
-                <button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi(true)">Authorize</button>
+                <span id="autoSaveLabel">GDrive Auto-save:</span><br/>
                 <p id="gdrive_save" style="display:none; margin: 0px;"/>
               </td>
-            </tr>
-            
+              <td style="text-align:left">
+                <button id="gdrive_auth" class="button_text" style="float:left" onClick="authorizeGapi(true)">Authorize</button>
+                <button id="refresh" onclick="refreshTable(true)" style="display:none">Refresh from File</button>
+              </td>
+            </tr>             
             <tr><td colspan="2">
                 <hr style="margin-bottom: 0px"/>
             </td></tr>
@@ -239,25 +234,35 @@
     
     <table id="content" >
     </table>
-    <div id="refresh_div" style="width: 100%; display: none;">
-      <div id="inner">
-        <button id="refresh" onclick="refreshTable(true)" >Refresh from GDrive File</button>
-      </div>
-    </div>
 
-    <div id="popup" style="padding: 0">
-      <dialog id="dialog">
-        <table style="width:100%">
-          <tr>
-            <td colspan="2" id="tag-path" style="text-align:center">Header</td>
+    <div id="editOverlay" class="modal">
+      <dialog id="dialog" >
+        <table style="width:100%;">
+          <tr id="dn">
+            <td style="padding-bottom: 2px">
+              <li>
+                <span id="distinguishedName"></span>
+              </li>
+            </td>
+          </tr>
+          <tr id="topic"> 
+            <td>
+              <li style="margin-left: 10px">
+                <span style="position: relative; left: -12px; top:5px">
+                  <textarea id="topic-text" class="editNode" style="width: 93%"rows="1"></textarea>
+                </span>
+              </li>
+            </td>
+          </tr> 
+          <tr> 
+            <td><textarea id="title-text" class="editNode" rows="1">title</textarea></td>
           </tr>
           <tr> 
-            <td><textarea id="title-text" class="editNode" ></textarea></td>
-            <td rowspan="2"><textarea id="text-text" class="editNode" ></textarea></td>
-          </tr> 
-          <tr> 
-            <td><textarea id="title-url" class="editNode" ></textarea></td>
-          </tr> 
+            <td><textarea id="title-url" class="editNode">url</textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="text-text" class="editNode" ></textarea></td>
+          </tr>
         </table>
         <div class="buttonDiv">
           <button id="update" onClick="updateRow()">Update</button>

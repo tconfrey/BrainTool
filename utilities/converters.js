@@ -6,9 +6,9 @@
  ***/
 
 
-function getDateString() {
-    // return minimal date representation to append to bookmark tag
-    const d = new Date();
+function getDateString(googleTimestamp = null) {
+    // return minimal date representation to append to bookmark tag, optionally work on TS from google
+    const d = googleTimestamp ? new Date(googleTimestamp) : new Date();
     const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
     return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
 }
