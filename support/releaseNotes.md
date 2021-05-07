@@ -8,6 +8,10 @@ This is a minor update with some Side Panel improvements (no change to the core 
 
 See below for release notes from 0.9.0 and previous versions. 
 
+# BrainTool 0.9.1
+Org mode import fixes.
+
+# BrainTool 0.9.0
 ## File Import/Export
 In addition to Chrome Bookmarks, 0.9 adds the ability to import from a TabsOutliner export and also to import a text file with org-mode markup. Heading, paragraph text and contained http(s) links are extracted and represented in the tree.
 
@@ -30,7 +34,7 @@ By default BT now stores your data in Chrome local storage. This should be resil
  * The popup now has some descriptive hover text and an explicit 'Save' button which does the same thing as just hitting Enter in the Notes field.
 
 
-# Welcome to BrainTool 0.8.1!
+# BrainTool 0.8.1
 
 This BrainTool point release has a few changes you might notice:
   - Improvements to navigation with the right and left arrow functions to open and close nodes while navigating the tree.
