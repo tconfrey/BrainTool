@@ -9,7 +9,7 @@ We're very glad to have you as a new user. This page should help you get up and 
 
 ## Tool bar icon
 By default Chrome hides new extensions under the jigsaw piece icon on the top right of its window. You can pin the BrainTool icon to your browser toolbar by clicking the puzzle piece and hitting the pin next to the BT icon. Clicking the icon opens the popup window that allows you to tag your current tab. BTW you can also activate the popup with the accelerator key which is set to Option-b (Alt-b on PC). Hitting the b twice (Opt-b-b) will surface the BrainTool side panel if its hidden.
-
+<img src="/site/initialInstall.png" alt="initial install" style="border:solid; border-width:thin; width:70%;">
 ## Security and Permissions
 The BrainTool philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what its doing.
 
