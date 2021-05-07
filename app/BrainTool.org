@@ -5,9 +5,6 @@
 * Project
 Keep all your links and notes for each project in one place.
 ** XYZ Project
-   :PROPERTIES:
-   :VISIBILITY: folded
-   :END:
 Example project. Delete Me!
 
 *** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
