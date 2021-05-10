@@ -102,6 +102,9 @@ Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand a
 *****  [[https://www.gnu.org/software/emacs/][emacs]]
  The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
 
+***** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
+A set of articles from The Lucid Manager
+
 ***** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
 
 ***** [[https://orgmode.org/][Org mode for Emacs - Your Life in Plain Text]]
