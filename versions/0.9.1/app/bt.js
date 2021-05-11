@@ -973,6 +973,7 @@ function editRow(e) {
     $("#editOverlay").css("display", "block");
     const width = $(dialog).width();
     const height = width / 1.618;                           // golden!
+    $("#text-text").height(height - 140);                   // notes field fits but as big as possible
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
         .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
                  function () {$("#text-text").focus();});
@@ -1399,7 +1400,21 @@ $(document).keydown(function(e) {
         }
         return;
     }
-    if (editing) return;
+    if (editing) {
+        // restrain tabbing to within dialog
+        const focused = $(":focus")[0];
+        const last = $("#cancel")[0];
+        const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
+        if (focused == last && key == 9 && !e.shiftKey) {
+            $(first).focus();
+            e.preventDefault();
+        }
+        if (focused == first && key == 9 && e.shiftKey) {
+            $(last).focus();
+            e.preventDefault();
+        }
+        return;
+    }
     
     // h = help
     if (key === 72) {

@@ -178,11 +178,13 @@ dialog li::marker {
 }
 
 .buttonDiv {
-    width: 80%;
+    width: 95%;
     margin: auto;
     padding-top: 4px;
     display: flex;
     justify-content: space-around;
+    position: absolute;
+    bottom: 10px;
 }
 
 .control_overlay {
