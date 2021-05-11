@@ -97,26 +97,62 @@
     cursor: pointer;
 }
 
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0,0.2);
+}
+
 dialog {
-    border: 3px solid #686 ; /* rgba(0, 0, 0, 0.3); */
-    border-radius: 6px;
-    box-shadow: 15px 15px 5px rgb(102, 136, 102, 80%);  /* 102, 136, 102 == #686 */
-    width: 82%;
+    border: 3px solid #3f673f ;
+    border-radius: 2px;
+    box-shadow: 10px 10px 3px rgb(63, 103, 63, 90);
+    width: 88%;
     padding: 10px;
     padding-top: 2px;
     margin-top: 0px;
     position: fixed;
+    background-image: url("resources/gridBackground.png");
+    background-size: 300px 300px;
 }
 
 dialog textarea {
-    width: 90%;
+    width: 91%;
+    resize: none;
+    border: 1px solid #3f673f;
+    border-radius: 2px;
+    opacity: 0.7;
+    font-family: tahoma;
+}
+dialog #title-text {
+    white-space: nowrap;
+    margin-left: 20px;
 }
 dialog #text-text {
-    height: 8em;
-    width: 95%;
+    height: 11em;
+    margin-left: 20px;
 }
 dialog #title-url {
-    height: 4em;
+    height: 2em;
+    margin-left: 20px;
+    font-size: 0.6em;
+    font-style: italic;
+    whitespace: nowrap;
+}
+dialog #distinguishedName {
+    position: relative;
+    left: -10px;
+    font-family:tahoma;
+    color: #3f673f;
+}
+dialog li::marker {
+    color: #3f673f;
 }
 
 #options_button_border {
@@ -156,14 +192,16 @@ dialog #title-url {
     left: 50%;
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    
-    border: solid;
-    border-color: grey;
-    border-width: 3px;
-    border-radius: 5px;
+
+    /* same as edit dialog */
+    border: 3px solid #3f673f ;
+    border-radius: 2px;
+    box-shadow: 10px 10px 3px rgb(63, 103, 63, 90);
+
     background-color: #dcdfd3f4;
     width: 80%;
     z-index: 3;
+    
 }
 .control_text {
     font-size: 15px;
@@ -288,10 +326,6 @@ button:not([disabled]):hover {
 }
 
 /* end split button*/
-
-#refresh {
-    width: 240px;
-}
 
 span.elipse {
      cursor:pointer;

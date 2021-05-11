@@ -26,7 +26,6 @@ async function saveBT() {
             sin = await trySignIn();
         if (sin) {
             writeBTFile();
-            $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
         } else {
             $("#gdrive_auth").show();
             GDriveConnected = false;
@@ -153,14 +152,14 @@ function checkLoginReturned() {
 
 
 /**
- * Find or initialize BT file
+ * Find or initialize BT file at gdrive 
  */
 var BTFileID;
 async function findOrCreateBTFile() {
     try {
         let response = await gapi.client.drive.files.list({
             'pageSize': 1,
-            'fields': "files(id, name)",
+            'fields': "files(id, name, modifiedTime)",
             'q': "name='BrainTool.org' and not trashed"
         });
         
@@ -168,6 +167,7 @@ async function findOrCreateBTFile() {
         if (files && files.length > 0) {
             const file = files[0];                     // NB assuming only one bt.org file exists
             BTFileID = file.id;
+            updateStatsRow(file.modifiedTime);
         } else {
             console.log('BrainTool.org file not found.');
             await createStartingBT();
@@ -210,7 +210,7 @@ async function createStartingBT() {
         
         console.log("Created ", responseValue);
         BTFileID = responseValue.id;
-        $("#gdrive_save").html(`<i><small>Last Saved on ${getDateString()}</small></i>`);
+        updateStatsRow();
     }
     catch(err) {
         alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
@@ -298,8 +298,6 @@ function writeBTFile(cb) {
             return;
         }
         
-        // Not needed since btfiletext is kept up to date for local storage
-        // BTFileText = BTAppNode.generateOrgFile();
         if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
 	        alert("BT - Error in writeBTFile. Google API not available.");
@@ -338,6 +336,7 @@ function writeBTFile(cb) {
                       return res.json();
                   }).then(function(val) {
                       console.log(val);
+                      updateStatsRow();                    // update stats when we know successful save
                       if (cb) cb();
                   });
         }

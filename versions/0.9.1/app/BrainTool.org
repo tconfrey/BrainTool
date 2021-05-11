@@ -5,9 +5,6 @@
 * Project
 Keep all your links and notes for each project in one place.
 ** XYZ Project
-   :PROPERTIES:
-   :VISIBILITY: folded
-   :END:
 Example project. Delete Me!
 
 *** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
@@ -74,7 +71,7 @@ Project document
  JS parser for org mode
 
 **** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
-Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by by farias and Done by Praveen.
+Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by Farias and Done by Praveen.
 
 **** [[http://jackconfrey.com/work][jconfrey Art]]
  Graphic design and project artwork by Jack Confrey
@@ -104,6 +101,9 @@ Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand a
 
 *****  [[https://www.gnu.org/software/emacs/][emacs]]
  The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
+
+***** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
+A set of articles from The Lucid Manager
 
 ***** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
 
