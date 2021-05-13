@@ -192,7 +192,7 @@ function updateStatsRow(modifiedTime = null) {
 
     const numSaves = getMetaProp('BTVersion');
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
-    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open`);
+    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tab`);
     
     const saveTime = getDateString(modifiedTime);
     $("#gdrive_save").html(`<i><small>Saved: ${saveTime}</small></i>`);
@@ -1374,19 +1374,23 @@ $(document).keydown(function(e) {
     
     // ignore keys (except nav up/down) if edit dialog is open
     const editing = ($($("#dialog")[0]).is(':visible'));
-    const navKeys = editing ? [38, 40] : [78, 80, 38, 40];
+    if (editing) {
+        handleEditCardKeydown(e);
+        return;
+    }
+    const navKeys = [78, 80, 38, 40];
 
     // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
     if (!alt && navKeys.includes(key)) {
         if (currentSelection)
             next = (key == 78 || key == 40) ?
-                  $(currentSelection).nextAll(":visible").first()[0] :          // down
-                  $(currentSelection).prevAll(":visible").first()[0];           // up
+            $(currentSelection).nextAll(":visible").first()[0] :          // down
+            $(currentSelection).prevAll(":visible").first()[0];           // up
         else
             // no selection => nav in from top or bottom
             next = (key == 78 || key == 40) ?
-                $('#content').find('tr:visible:first')[0] :
+            $('#content').find('tr:visible:first')[0] :
             $('#content').find('tr:visible:last')[0];
         
         if (!next) return;
@@ -1394,25 +1398,6 @@ $(document).keydown(function(e) {
         $(next).addClass('selected');
         next.scrollIntoView({block: 'nearest'});
         e.preventDefault();
-        if (editing) {
-            // allow nav while editing close and re-open w new content
-            closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);
-        }
-        return;
-    }
-    if (editing) {
-        // restrain tabbing to within dialog
-        const focused = $(":focus")[0];
-        const last = $("#cancel")[0];
-        const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
-        if (focused == last && key == 9 && !e.shiftKey) {
-            $(first).focus();
-            e.preventDefault();
-        }
-        if (focused == first && key == 9 && e.shiftKey) {
-            $(last).focus();
-            e.preventDefault();
-        }
         return;
     }
     
@@ -1538,6 +1523,40 @@ $(document).keydown(function(e) {
 
 });
 
+function handleEditCardKeydown(e) {
+    // subset of keydown handler applicible to card edit dialog
+
+    const key = e.which;
+    const alt = e.altKey;
+    if (key == 9) {
+        // restrain tabbing to within dialog
+        const focused = $(":focus")[0];
+        const last = $("#cancel")[0];
+        const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
+        if (focused == last && !e.shiftKey) {
+            $(first).focus();
+            e.preventDefault();
+        }
+        if (focused == first && e.shiftKey) {
+            $(last).focus();
+            e.preventDefault();
+        }
+        return;
+    }
+    if (alt && [38,40].includes(key)) {
+        // alt up/down iterates rows opening cards
+        const currentSelection = $("tr.selected")[0];
+        const next = (key == 40) ?
+              $(currentSelection).nextAll(":visible").first()[0] :          // down
+              $(currentSelection).prevAll(":visible").first()[0];           // up        
+        if (!next) return;
+        $(currentSelection).removeClass('selected');
+        $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
+        e.preventDefault();
+        closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);        
+    }
+}
 
 function undo() {
     // undo last delete

@@ -29,7 +29,10 @@
     <div id="controls">
       <div id="controls_header" style="cursor: pointer;" onClick="toggleMenu()">
         <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png">
-        
+        <div id="search">
+          <span>Search:</span>
+          <input id="search_entry" type="text" size="20" value="coming soon..." disabled>
+        </div>
         <div id="stats_row">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                title="#Tags (open)" height="15" width="15">
@@ -180,7 +183,7 @@
             </tr>
             <tr>
               <td class="option_td">Alt/Opt &uarr;&darr;</td>
-              <td >Move selection up/down</td>
+              <td >Move selection (or card) up/down</td>
             </tr>
             <tr>
               <td class="option_td">Alt/Opt &larr;</td>

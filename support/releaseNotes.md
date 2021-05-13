@@ -4,7 +4,7 @@ description: Reverse chronological notes on recent BrainTool versions.
 ---
 
 # Welcome to BrainTool 0.9.1a
-This is a minor update with some Side Panel improvements (no change to the core extension). The header row now shows GDrive connected state and, on hover, the latest save time. The Card Edit popup has been cleaned up quite a bit and now allows navigation to next/previous cards with the arrow keys. Other popups were tweaked for consistency. Finally, the 'Refresh from Gdrive' button has been moved inside the Options panel.
+This is a minor update with some Side Panel improvements (no change to the core extension). The header row now shows GDrive connected state and, on hover, the latest save time. The Edit Card popup has been cleaned up quite a bit and now allows tabbing through fields and navigation to next/previous cards with Alt/Option arrow keys. Other popups were tweaked for consistency. Finally, the 'Refresh from Gdrive' button has been moved inside the Options panel.
 
 See below for release notes from 0.9.0 and previous versions. 
 

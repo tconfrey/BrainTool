@@ -20,6 +20,24 @@
     right: 5px;
 }
 
+#search {
+    height: 18px;
+    position: absolute;
+    top: 0px;
+    left: calc((100% - 250px) / 2);
+    font-family: tahoma;
+    font-size: small;
+    color: darkslategrey;
+}
+#search_entry {
+    height: 13px;
+    top: 2px;
+    color: darkolivegreen;
+    margin-top: 1px;
+    border-bottom-width: 1px;
+    font-style: italic;
+}
+
 #open_close_image {
     opacity: 0.6;
     margin-top: 1px;
