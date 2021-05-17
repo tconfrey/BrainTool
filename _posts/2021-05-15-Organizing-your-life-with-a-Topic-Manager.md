@@ -23,19 +23,22 @@ Until recently your topic occurrences would have been accessed using a large var
 
 <table style="border:none;"><tr><td style="border:none; vertical-align:top; width:36%; padding-left:0px;  padding-top: 50px">
 That's where BrainTool comes in. Each time you open a new tab you are adding an open loop into your psychic space. BrainTool (BT) allows you to quickly save a tab as an occurrence of a topic, capture a quick note or TODO, and file it away out of mind. BT keeps your evolving topic map visually present and operates as a control panel for your browser, making it easy to navigate your topics and occurrences as needed. So you avoid keeping everything ever-present, background processing in your brain.
-</td><td style="border:none; padding-right:50px; height: 70%">
-<img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:60%; float:right;">
+<br/><br/>
+This image (right) shows my personal braintool with a bunch of tabs associated with my 'BrainTool:Admin' topic open in the browser.
+</td><td style="border:none;">
+<img src="/media/side-panel.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:100%; float:right;">
 </td></tr></table>
 
 ## Lowering Impedance
-<table style="border:none;"><tr><td style="border:none; vertical-align:top; width:50%; padding-left:0px;  padding-top: 5px">
 I've tracked and used productivity and note taking tools for many years. There's been kind of an ebb and flow from early wikis to tools like EverNote and OneNote and now more recently Roam and Obsidian. And through it all text files and paper notebooks.
-<br/><br/>
+
+<table style="border:none;"><tr><td style="border:none; vertical-align:top; width:50%; padding-left:0px;  padding-top: 5px">
 An issue with all these tools has been the gap between the tool and the topic occurrence. There is an impedance between coming across a resource and saving it away such that you can get to it easily at the pertinent moment in the future. That impedance makes it more likely that you'll just leave the tab open. If you do take the time to copy and paste, then in that future moment there is still the context switch between fetching the resource you need from one app and opening it in another. With the convergence of all your stuff into the browser, where BrainTool lives, that gap is minimized so you are more likely to click, click, save, and close the tab away.
 </td><td style="border:none; padding-right:10px;">
 <img src="/media/edit-card.png" alt="BrainTool card editor" style="border:solid; border-width:thin; float:right;">
 </td></tr></table>
 
+While the initial save and tab close for an occurrence is designed to be fast, there's a note card associated with each topic and occurrence where you can keep detailed notes.
 ## Organizing Topics
 
 <table style="border:none;"><tr><td style="border:none; width:40%">
