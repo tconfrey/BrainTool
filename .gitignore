@@ -8,6 +8,6 @@ extension/archivedVersions
 extension.*
 _site
 *.zip
-media/
+media/*.mov
 .sass-cache
 TAGS
