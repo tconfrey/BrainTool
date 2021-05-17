@@ -39,7 +39,7 @@ An issue with all these tools has been the gap between the tool and the topic oc
 ## Organizing Topics
 
 <table style="border:none;"><tr><td style="border:none; width:40%">
-<img src="/media/PARA+t-tree.png" alt="BrainTool PARA+T tree" style="border:solid; border-width:thin; float:left;">
+<img src="/media/parat-tree.png" alt="BrainTool PARA+T tree" style="border:solid; border-width:thin; float:left;">
 </td>
 <td style="border:none; padding-left:50px;">
 There's no right way to organize topics - your information space is unique to you. BT encourages the creation of a hierarchical topic tree where topics are divided into finer grained subtopics. One good organizing framework is <a href="https://fortelabs.co/blog/para/">Forte Labs 'PARA' model</a> which divides your topics into the <b>Projects</b> you are working on, your <b>Areas</b> of responsibility, informational <b>Resources</b> that you have captured and refer to, and <b>Archived</b> items that you don't want to loose but which are no longer in your active workspace. 
