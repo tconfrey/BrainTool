@@ -365,8 +365,11 @@ function initializeUI() {
     $("table.treetable tr").draggable({
         helper: function() {
             buttonHide();
+	    
             const clone = $(this).clone();
-            $(clone).addClass("dragClone");                // green highlight is confusing
+	    $(clone).find('.btTitle').html('');		   // empty clone of contents, for some reason
+	    $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
+	    
             $("table.treetable tr").off('mouseenter');     // turn off hover behavior during drag
             $("table.treetable tr").off('mouseleave');
             return clone;
@@ -377,7 +380,7 @@ function initializeUI() {
         scrollSpeed: 10,
         containment: "#content",
         cursor: "move",
-        opacity: .20,
+        opacity: .50,
         stop: function( event, ui ) {
             // turn hover bahavior back on
             $("table.treetable tr").on('mouseenter', null, buttonShow);
