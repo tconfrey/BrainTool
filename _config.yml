@@ -8,8 +8,8 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 title: BrainTool
-tagline: The Personal Information Manager for your Online Life
-description: Tame your browser, track your bookmarks! Tag and link your online info to see it organized and annotated in the side panel. Control your Chrome tabs from there.
+tagline: The Topic Manager for your Online Life
+description: Tame your browser, trim your tabs! Tag and link your online info to see it organized and annotated in the side panel. Control your Chrome tabs from there.
 url: https://braintool.org
 logo: /site/logo.png
 # Google Analytics

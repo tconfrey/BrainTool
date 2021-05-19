@@ -23,38 +23,31 @@
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-    <style>
-      /* header is responsive (style.css) so link div needs to be also to keep links on top */
-      @media screen and (min-width: 64em) {
-      .header-links {
-      margin-top: -4.75rem; } }
-      @media screen and (min-width: 42em) and (max-width: 64em) {
-      .header-links {
-      margin-top: -2.75rem; } }
-      @media screen and (max-width: 42em) {
-      .header-links {
-      margin-top: -1.75rem; } }
-    </style>
   </head>
   <body>
-    <header class="page-header" role="banner"
-            style="background-image: url('/site/AppStoreCollatoral/BraintoolMarqueeLarge.png');
-                   background-repeat: round; height: 40vh">
-      <div class="header-links" style="text-align:center;"><b>
-        <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left; background-color:rgba(165,199,73,0.8); border-radius:4px">Discuss</a>
-        <a href="{{ site.url  }}/posts.html" style="float:right; background-color:rgba(165,199,73,0.1); border-radius:4px">Blog</a>
-        <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block; background-color:rgba(165,199,73,0.6); border-radius:4px;">Home</a></b>
-      </div>    
-      
-      <!--
-          <h1 class="project-name" style="opacity:0.0;">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
-          <h2 class="project-tagline" style="opacity:0.0;">{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
-          -->
-          <a href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
-            <div style="position:absolute; bottom: 61vh; left:45vw; background-color: #1a73e8; color: #fff; margin-left:auto; margin-right: auto; width: 150px; height: 36px; cursor: pointer; border-radius: 4px; font-size:16px; padding-top:5px">
+    <header class="page-header" role="banner">
+      <div class="header-left">
+	<div class="header-links">
+	  <a href="{{ site.url  }}/index.html">
+	    <img id="logo" src="{{ site.url }}/site/logo-transparent.png" height='60px' alt='logo'>
+	  </a>
+	</div>
+	<div class="header-buttons">
+          <a href="{{ site.url  }}/overview.html" >Vision</a>
+          <a href="{{ site.url  }}/support.html" >Support</a>
+          <a href="{{ site.url  }}/posts.html" >Blog</a>
+	</div>
+	<div>
+	  <a href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
+            <div style="background-color: #1a73e8; color: #fff; margin-left:auto; margin-right: auto; width: 150px; height: 36px; cursor: pointer; margin-top: 20px; padding-top:5px">
               Add to Chrome
             </div>
           </a>
+	</div>
+      </div>  
+	<div class="header-right">
+	  <img id="marquee" src="{{ site.url }}/site/AppstoreCollatoral/BraintoolMarquee-nologo.png" height="95%" style="float:right" alt='logo'>
+	</div>  
     </header>
 
     <main id="content" class="main-content" role="main">
@@ -65,7 +58,7 @@
         <span class="site-footer-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</span>
         {% endif %}
         <div class="hvp-footer" style="text-align:center">
-          <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left">Discuss</a>
+          <a href="{{ site.url  }}/support.html" style="float:left">Support</a>
           <a href="{{ site.url  }}/posts.html" style="float:right">Blog</a>
           <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block">Home</a>
         </div>

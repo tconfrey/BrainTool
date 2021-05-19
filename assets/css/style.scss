@@ -1,0 +1,71 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+
+.page-header {
+    background-color: #ecf0eb;
+    background-image: linear-gradient(180deg, #7bb07b, #ffffff);
+    box-sizing: content-box;
+    display: flex;
+}
+@media screen and (min-width: 64em) {
+    .page-header {
+	padding: 0.1rem 8rem; 
+	height: 12rem;
+    } }
+@media screen and (min-width: 42em) and (max-width: 64em) {
+    .page-header {
+	padding: 0.1rem 6rem;
+	height: 10rem;
+    } }
+@media screen and (max-width: 42em) {
+    .page-header {
+	padding: 0.1rem 4rem;
+	height: 8rem;
+    } }
+
+.page-header a {
+    margin-top: 20px;
+}
+
+.header-left {
+    flex: 1;
+    margin-top: 10px;
+}
+.header-right {
+    flex: 1.5;
+}
+
+.header-buttons {
+    margin-top: 15px;
+}
+.header-buttons a {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+@keyframes rotate {
+    0% {transform: rotateY(0deg);}
+    40% {transform: rotateY(-10deg);}
+    50% {transform: rotateY(-12deg);}
+    60% {transform: rotateY(-10deg);}
+    100% {transform: rotateY(0deg);}
+}
+
+#marquee {
+/*    animation: rotate, 5s, linear, 5s, infinite, alternate; */
+  animation-name: rotate;
+    transform-origin: 90%;
+  animation-duration: 2s;
+  animation-delay: 0.1s;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+}
+
+#logo {
+    border: solid 1px #7bb07b;
+    border-radius: 3px;
+    padding: 2px;
+}
