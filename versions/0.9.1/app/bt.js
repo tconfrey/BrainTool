@@ -450,11 +450,11 @@ function dropNode(event, ui) {
     const dragNode = AllNodes[dragNodeId];
     const dropNode = $($(".dropOver")[0]).parent();
     const dropNodeId = $(dropNode).attr('data-tt-id');
+    const dropBTNode = AllNodes[dropNodeId];
     const treeTable = $("#content");
 
-    if (dropNodeId) {
+    if (dropNodeId && dropBTNode) {
 
-        const dropBTNode = AllNodes[dropNodeId];
         const oldParentId = dragNode.parentId;
         moveNode(dragNode, dropBTNode);
         
@@ -1438,7 +1438,8 @@ $(document).keydown(function(e) {
               $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
-        moveNode(node, AllNodes[dropId]);
+	const dropNode = AllNodes[dropId];
+        if (dropNode) moveNode(node, dropNode);
         e.preventDefault();
         return;
     }
