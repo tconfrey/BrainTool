@@ -38,7 +38,8 @@ An issue with all these tools has been the gap between the tool and the topic oc
 <img src="/media/edit-card.png" alt="BrainTool card editor" style="border:solid; border-width:thin; float:right;">
 </td></tr></table>
 
-While the initial save and tab close is designed to be fast, there's a note card associated with each topic and occurrence where you can keep detailed notes.
+While content capture is designed to be fast in the browser, the BT side-panel provides full curation capabilities. Drag and drop and powerful keyboard commands allow you to refine your topic tree structure, and note cards associated with each topic and occurrence let you keep detailed notes.
+
 ## Organizing Topics
 
 <table style="border:none;"><tr><td style="border:none; width:40%">
@@ -58,10 +59,10 @@ BrainTool is built on the notion that plain text is best and that as a user you 
 
 Org-mode is a longstanding infinitely flexible organizational framework for text-based information. At its simplest it's a hierarchical outlining tool, but it has a complete markup syntax ([arguably better than any of the markdown dialects](https://karl-voit.at/2017/09/23/orgmode-as-markup-only/)) and support for journaling, to-do lists, dates and deadlines, internal linking, and full project management.
 
-In its current incarnation, in addition to being a standalone topic manager, BrainTool can be used as part of an org-mode based workflow, bridging the gap between text-based notes and all of your online resources. For those so-inclined it is a shallow on-ramp to starting to work with org. (In subsequent posts I'll outline how to take your first steps in that direction.)
+In its current incarnation, in addition to being a standalone topic manager, BrainTool can be used as part of an org-mode based workflow, bridging the gap between text-based notes and all of your online resources. For those so-inclined it is a shallow on-ramp to starting to work with org. (In subsequent posts I'll outline how to take your first steps in that direction and there's a description of my setup [here.]({ post_url 2021-04-21-My-BrainTool-orgmode-and-emacs-workflow})
 
 Longer term it is envisioned that BrainTool will expand to provide an intuitive interface to an ever larger subset of org-mode's functionality, becoming an all-inclusive personal productivity and knowledge management tool.
 
 ## Conclusion
 
-A Topic Manager is a tool for managing all of the information, notes and resources relevant to the topics you need to keep track of. With its tight integration into the browser, BrainTool minimizes the cognitive effort required to assign a topic and close out a tab, thus keeping your workspace clean and your mind clear. Being based on org-mode allows BrainTool to be part of a larger text-based productivity and note taking workflow. It continues to evolve but is available now free from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio), see the [Overview](/overview) on this site for more details.
+A Topic Manager is a tool for managing all of the information, notes and resources relevant to the topics you need to keep track of. With its tight integration into the browser, BrainTool minimizes the cognitive effort required to assign a topic and close out a tab, thus keeping your workspace clean and your mind clear. Being based on org-mode allows BrainTool to be part of a larger text-based productivity and note taking workflow. It continues to evolve but is available now free from the [Chrome Web Store.](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) See the [Overview](/overview) on this site for more details.
