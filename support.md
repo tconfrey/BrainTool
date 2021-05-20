@@ -5,7 +5,7 @@ tagline: The Topic Manager for your Online Life
 description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
 ---
 
-There is a Google Group for discussion of issues, questions and suggestions related to BrainTool and Personal Information Management. You can access it [here](https://groups.google.com/u/2/g/braintool-discussion)
+There is a Google Group for discussion of issues, questions and suggestions related to BrainTool and Topic Management. You can access it [here.](https://groups.google.com/u/2/g/braintool-discussion) See also the [Welcome](/support/welcome) page and the latest [ReleaseNotes](/support/releaseNotes).
 
 # Common BrainTool Problems
 BrainTool gives you complete and full access to all the data saved in the app by optionally writing it to a file on your Google Drive (if you have a Google account, you have Drive storage). Nothing is stored anywhere else other than in your browser. Ironically taking this hands-off approach to your data requires you to grant the application additional permissions after the extension is installed to permit GDrive syncing. This additional step of walking through the Google permission flow is the cause of confusion and some conflicts with other things going on in your browser,

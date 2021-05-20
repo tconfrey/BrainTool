@@ -1,6 +1,8 @@
 ---
 title: BrainTool Release Notes
 description: Reverse chronological notes on recent BrainTool versions.
+layout: default
+tagline: The Topic Manager for your Online Life
 ---
 
 # Welcome to BrainTool 0.9.1a

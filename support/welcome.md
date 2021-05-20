@@ -1,6 +1,8 @@
 ---
 title: BrainTool Welcome page
-description: New installs of extension open this page which welcomes the new user.
+layout: default
+tagline: The Topic Manager for your Online Life
+description: Welcome to BrainTool - a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
 ---
 
 # Welcome to BrainTool!
