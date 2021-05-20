@@ -59,7 +59,7 @@ BrainTool is built on the notion that plain text is best and that as a user you 
 
 Org-mode is a longstanding infinitely flexible organizational framework for text-based information. At its simplest it's a hierarchical outlining tool, but it has a complete markup syntax ([arguably better than any of the markdown dialects](https://karl-voit.at/2017/09/23/orgmode-as-markup-only/)) and support for journaling, to-do lists, dates and deadlines, internal linking, and full project management.
 
-In its current incarnation, in addition to being a standalone topic manager, BrainTool can be used as part of an org-mode based workflow, bridging the gap between text-based notes and all of your online resources. For those so-inclined it is a shallow on-ramp to starting to work with org. (In subsequent posts I'll outline how to take your first steps in that direction and there's a description of my setup [here.]({ post_url 2021-04-21-My-BrainTool-orgmode-and-emacs-workflow})
+In its current incarnation, in addition to being a standalone topic manager, BrainTool can be used as part of an org-mode based workflow, bridging the gap between text-based notes and all of your online resources. For those so-inclined it is a shallow on-ramp to starting to work with org. (In subsequent posts I'll outline how to take your first steps in that direction and there's a description of my setup [here.]({% post_url 2021-04-21-My-BrainTool-orgmode-and-emacs-workflow%})
 
 Longer term it is envisioned that BrainTool will expand to provide an intuitive interface to an ever larger subset of org-mode's functionality, becoming an all-inclusive personal productivity and knowledge management tool.
 
