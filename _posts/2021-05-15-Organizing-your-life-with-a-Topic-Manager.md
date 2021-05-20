@@ -4,6 +4,7 @@ title:  "Organizing your life with a Topic Manager"
 description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool"
 excerpt_separator: <!--more-->
 author: "Tony"
+audience: "nonuser"
 ---
 
 # Organizing your life with a Topic Manager

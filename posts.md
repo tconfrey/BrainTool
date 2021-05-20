@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Posts and Case Studies
+audience: nonuser
 ---
 <ul>
     {% for post in site.posts %}

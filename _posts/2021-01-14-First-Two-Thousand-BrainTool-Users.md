@@ -4,6 +4,7 @@ title:  "First Two Thousand BrainTool Users"
 description: "Backstory and BrainTool launch"
 excerpt_separator: <!--more-->
 author: "Tony"
+audience: "nonuser"
 ---
 
 # The First Two Thousand BrainTool Users

@@ -37,6 +37,7 @@
           <a href="{{ site.url  }}/support.html" >Support</a>
           <a href="{{ site.url  }}/posts.html" >Blog</a>
 	</div>
+	{% if page.audience == "nonuser" %}
 	<div>
 	  <a href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
             <div style="background-color: #1a73e8; color: #fff; margin-left:auto; margin-right: auto; width: 150px; height: 36px; cursor: pointer; margin-top: 10px; padding-top:5px">
@@ -44,6 +45,7 @@
             </div>
           </a>
 	</div>
+	{% endif %}
       </div>  
       <div class="header-right">
 	<img id="marquee" src="{{ site.url }}/site/AppStoreCollatoral/BraintoolMarquee-nologo.png" height="95%" style="float:right" alt='logo'>

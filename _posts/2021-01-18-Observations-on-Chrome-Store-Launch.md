@@ -4,6 +4,7 @@ title:  "Observations on the Chrome Store Launch"
 description: "Backstory and Observations on the first 2000 BrainTool users."
 excerpt_separator: <!--more-->
 author: "Tony"
+audience: "nonuser"
 ---
 
 

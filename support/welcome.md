@@ -3,6 +3,7 @@ title: BrainTool Welcome page
 layout: default
 tagline: The Topic Manager for your Online Life
 description: Welcome to BrainTool - a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
+audience: user
 ---
 
 # Welcome to BrainTool!
@@ -26,4 +27,4 @@ NB Bookmark and Tab Group permissions are also requested if you make use of thos
 BrainTool is a 'Topic Manager', designed to allow you to categorize and manage all of the topics you need to keep track of. It comes with an example organizational hierarchy to give you an idea of how it can be used. Any of those contents may be deleted. It's up to you to create your own hierarchy.
 
 ## Support and more Info
-Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org). For troubleshooting see the [Support page](../support.md). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md).
+Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md).
