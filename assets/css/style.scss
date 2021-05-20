@@ -10,24 +10,9 @@
     box-sizing: content-box;
     display: flex;
 }
-@media screen and (min-width: 64em) {
-    .page-header {
-	padding: 0.1rem 8rem; 
-	height: 12rem;
-    } }
-@media screen and (min-width: 42em) and (max-width: 64em) {
-    .page-header {
-	padding: 0.1rem 6rem;
-	height: 10rem;
-    } }
-@media screen and (max-width: 42em) {
-    .page-header {
-	padding: 0.1rem 4rem;
-	height: 8rem;
-    } }
 
 .page-header a {
-    margin-top: 20px;
+    flex: 1;
 }
 
 .header-left {
@@ -39,11 +24,7 @@
 }
 
 .header-buttons {
-    margin-top: 15px;
-}
-.header-buttons a {
-    margin-left: 15px;
-    margin-right: 15px;
+    display: flex;
 }
 
 @keyframes rotate {
@@ -55,13 +36,13 @@
 }
 
 #marquee {
-/*    animation: rotate, 5s, linear, 5s, infinite, alternate; */
-  animation-name: rotate;
+    /*    animation: rotate, 5s, linear, 5s, infinite, alternate; */
+    animation-name: rotate;
     transform-origin: 90%;
-  animation-duration: 2s;
-  animation-delay: 0.1s;
-  animation-timing-function: linear;
-  animation-iteration-count: 1;
+    animation-duration: 2s;
+    animation-delay: 0.1s;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
 }
 
 #logo {
@@ -71,20 +52,75 @@
 }
 
 .PageNavigation {
-  font-size: 14px;
-  display: block;
-  width: auto;
-  overflow: hidden;
+    font-size: 14px;
+    display: block;
+    width: auto;
+    overflow: hidden;
 }
 
 .PageNavigation a {
-  display: block;
-  width: 50%;
-  float: left;
-  margin: 1em 0;
+    display: block;
+    width: 50%;
+    float: left;
+    margin: 1em 0;
 }
 
 .PageNavigation .next {
     text-align: right;
     margin-top: 0px;
+}
+.row {
+    width: 100%;
+    margin-top: 20px;
+    display: inline-block;
+}
+.cell {
+    width: 50%;
+}
+.left {
+    float: left;
+    padding-right: 10px;
+}
+.right {
+    float: right;
+    padding-left: 10px;
+}
+
+
+@media screen and (min-width: 72em) {
+    .page-header {
+	padding: 0.1rem 10rem; 
+	height: 15rem;
+    }
+}
+@media screen and (min-width: 60em) and (max-width: 72em){
+    .page-header {
+	padding: 0.1rem 8rem; 
+	height: 12rem;
+    }
+}
+@media screen and (min-width: 42em) and (max-width: 60em) {
+    .page-header {
+	padding: 0.1rem 3rem;
+	height: 10rem;
+    }
+}
+@media screen and (max-width: 42em) {
+    .page-header {
+	padding: 0.1rem 1rem;
+	height: 8rem;
+    }
+    .header-right {
+	display: none;
+    }
+    .cell {
+	width: 100%;
+	margin-top: 15px;
+    }
+    .right {
+	padding: 0;
+    }
+    .left {
+	padding: 0;
+    }
 }
