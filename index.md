@@ -18,52 +18,48 @@ audience: nonuser
 
 Increasingly all the things you need to keep track of have a URL and you access them inside a browser. That's why you always have five windows open with 23 tabs each - they're so small you can't even tell them apart! 
 
-With BrainTool you can save and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized by topic in the BrainTool SidePanel, along with your annotations and notes. 
-
+# Control your Browser
 <div class="row">
 <div class="cell left" >
-
-The BrainTool side panel shows your nested Topics hierarchy. A Topic is a tag or category that groups web pages you want to organize and remember. Topics can be mapped to dedicated Chrome windows or tab groups where the tabs contain web pages saved under that topic. On this screenshot you can see open tabs and Chrome windows shown highlighted and <b>TODO</b> items indicated in <b>bold</b>. In this example I have a tab group showing my Finance' topic with a bank site open.
+With BrainTool you can save and link all your online information sources (web sites, Google docs, gmails, files, photos, Slack channels, social media groups, code repos, wiki pages, task backlogs, Jupyter notebooks, etc etc etc) and then see them organized by topic in the BrainTool side panel, along with your annotations and notes. 
+<br/><br/>
+The side panel shows your nested Topics hierarchy. A Topic is a tag or category that groups web pages you want to organize and remember. Topics can be mapped to dedicated Chrome windows or tab groups where the tabs contain web pages saved under that topic. On this screenshot you can see open tabs and Chrome windows shown highlighted and <b>TODO</b> items indicated in <b>bold</b>. In this example I have a tab group showing my Finance' topic with a bank site open.
+<br/><br/>
+Open, Close and Control all pages by topic with a keystroke or single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
+<br/><br/>
+Use the powerful keyboard commands or Drag and drop to reorganize the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
+</div>
+<div class="cell right" style="padding-top:15px">
+<img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width: 90%; float:right;">
+</div>
+</div>
+# Tame your Tabs, Capture your Notes
+<div class="row"><div class="cell left">
+<img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;">
+<br/><br/>
+Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates. Group (align with other tabs for the topic), Stick (don't group) and Close, support different organizational workflows.
 </div>
 <div class="cell right">
-<img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:80%">
+To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Alt/Option-b, and just start typing.
+<br/><br/>
+<img src="/media/edit-card.png" alt="Card editor" style="border:solid; border-width:thin; ">
+
 </div>
 </div>
-<br/>
+# Plain Text for the Win!
+All your data is stored in a plain text file that can be separately edited, backed-up or shared, and optionally (and ideally) continuously synced to your Google Drive. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool data is structured as an [org-mode](http://orgmode.org) file. If you are an org-mode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
+
+<img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
+
 <div class="row">
 Here's a couple of videos showing more details:
 </div>
 <div class="row"><div class="cell left">
-<iframe src="https://www.youtube.com/embed/K6PhRJAAdRg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe src="https://www.youtube.com/embed/K6PhRJAAdRg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" style="width:90%" allowfullscreen></iframe>
 </div><div class="cell right">
-<iframe src="https://www.youtube.com/embed/8NZ6q5Y4Q0s?origin=https://braintool.org" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe src="https://www.youtube.com/embed/8NZ6q5Y4Q0s?origin=https://braintool.org" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" style="width:90%"  allowfullscreen></iframe>
 </div>
 </div>
-<br/>
-<div class="row"><div class="cell left">
-<img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;">
-</div>
-<div class="cell right">
-To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Alt/Option-b, and just start typing.
-</div>
-</div>
-<div class="row">
-Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates. Group (align with other tabs for the topic), Stick (don't group) and Close, support different organizational workflows.
-</div>
-
-Open, Close and Control all pages by topic with a keystroke or single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
-<br/><br/>
-Use the powerful keyboard commands or Drag and drop to reorganize the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
-<br/>
-
-<img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
-
-<hr/>
-All your data is stored in a plain text file that can be separately edited, backed-up or shared and optionally (and ideally) continuously synced to your Google Drive. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an org-mode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
-
-<br/>
-<img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
-
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 

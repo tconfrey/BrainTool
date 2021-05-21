@@ -25,6 +25,11 @@
 
 .header-buttons {
     display: flex;
+    margin-top: 0.5em;
+}
+
+.store-button {
+    margin-top: 0.5em;
 }
 
 @keyframes rotate {
@@ -44,9 +49,10 @@
     animation-timing-function: linear;
     animation-iteration-count: 1;
 }
-
+    
 #logo {
-    border: solid 1px #7bb07b;
+    border: solid 1px #5f954e;
+    background-color: #7bb07b;
     border-radius: 3px;
     padding: 2px;
 }
