@@ -51,15 +51,8 @@ All your data is stored in a plain text file that can be separately edited, back
 
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
-<div class="row">
-Here's a couple of videos showing more details:
-</div>
-<div class="row"><div class="cell left">
-<iframe src="https://www.youtube.com/embed/K6PhRJAAdRg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" style="width:90%" allowfullscreen></iframe>
-</div><div class="cell right">
-<iframe src="https://www.youtube.com/embed/8NZ6q5Y4Q0s?origin=https://braintool.org" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" style="width:90%"  allowfullscreen></iframe>
-</div>
-</div>
+Here's a playlist of videos showing more details:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
 
