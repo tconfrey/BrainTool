@@ -19,7 +19,7 @@ audience: nonuser
 <div class="row">
 <div class="cell left" >
 <h2>
-<br/>You spend all your time working in a browser. But the browser doesn't support your workflow.
+You spend all your time working in a browser. But the browser doesn't support your workflow.
 <br/><br/>
 With BrainTool all your tools & online information sources are organized by Topic in the BrainTool side panel.
 <br/><br/>
@@ -47,7 +47,7 @@ No longer fear closing a tab!
 
 <div class="cell right">
 <img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;">
-<h2>Or leave it open and group it with its Topic-mates.
+<h2>Or leave it open while you work on it, grouped with its Topic-mates.
 <br/><br/>
 Keep detailed notes on the Topic card associated with every item.
 <br/><br/>
