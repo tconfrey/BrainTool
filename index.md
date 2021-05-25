@@ -23,9 +23,9 @@ You spend all your time working in a browser. But the browser doesn't support yo
 <br/><br/>
 With BrainTool all your tools & online information sources are organized by Topic in the BrainTool side panel.
 <br/><br/>
-Open and close groups of tabs for a Topic by mouse or with powerful keyboard commands.
+Open and close groups of tabs for a Topic with a click.
 <br/><br/>
-Context switch with ease and keep your workspace clean.</h2>
+Context switch with ease and keep your workspace clean. Control everything with powerful keyboard commands.</h2>
 </div>
 <div class="cell right" >
 <img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width: 90%; float:right;">

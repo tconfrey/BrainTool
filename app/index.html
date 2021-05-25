@@ -11,7 +11,7 @@
       gtag('config', 'UA-184551494-1');
     </script>
 
-    <title>BrainTool Chrome Extension</title>
+    <title>BrainTool Side Panel</title>
     <meta charset="utf-8" />
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -35,7 +35,7 @@
         </div>
         <div id="stats_row">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
-               title="#Tags (open)" height="15" width="15">
+               title="#Topics" height="15" width="15">
           <span id="num_topics" class="stat_span" title="#BT Cards (#links open)">: 0</span>
           <img id="saves" type="image" alt="#File Saves" title="File Saves"
                src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
@@ -221,7 +221,7 @@
            src="resources/drag.png"  height="16" width="16" style="cursor: move; opacity: 0.75;">
       <img id="outdent" type="image" alt="Outdent" title="Outdent"
            src="resources/outdent.png" onClick="promote(event)" height="16" width="16" style="opacity: 0.75;">
-      <img id="addChild" type="image" alt="add Child" title="Add Child Tag"
+      <img id="addChild" type="image" alt="add Child" title="Add Child Topic"
            src="resources/addChild.png" onClick="addChild(event)" height="16" width="16" style="opacity: 0.75;">
       <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
            src="resources/edit.png"  height="16" width="16">

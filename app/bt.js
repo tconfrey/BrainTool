@@ -192,7 +192,8 @@ function updateStatsRow(modifiedTime = null) {
 
     const numSaves = getMetaProp('BTVersion');
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
-    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tab`);
+    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tabs`);
+    $("#brain").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tabs`);
     
     const saveTime = getDateString(modifiedTime);
     $("#gdrive_save").html(`<i><small>Saved: ${saveTime}</small></i>`);
