@@ -5,7 +5,7 @@ layout: default
 audience: nonuser
 ---
 
-# Tabs Outliner Import
+# Tabs Outliner to [OrgMode](https://orgmode.org) conversion
 Tabs Outliner import is now supported directly from inside BrainTool, see Import under Options. This tool takes a Tabs Outliner export and converts it to org-mode format (as used by BrainTool and many other productivity apps) for use elsewhere.
 
 Export your data from Tabs Outliner and save the file somewhere locally. Then select it using the file chooser below. The resulting org-mode formatted data can then be copied into any text file.
