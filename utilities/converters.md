@@ -1,16 +1,14 @@
 ---
 title: BrainTool Converter Utilities
 description: Convery other formats to BrainTool org-mode markup
+layout: default
+audience: nonuser
 ---
 
 # Tabs Outliner Import
-This tool imports from Tabs Outliner, converts to BrainTool org-mode format and selects the text ready for import into your BrainTool.org file.
+Tabs Outliner import is now supported directly from inside BrainTool, see Import under Options. This tool takes a Tabs Outliner export and converts it to org-mode format (as used by BrainTool and many other productivity apps) for use elsewhere.
 
-First export your data from Tabs Outliner and save the file somewhere locally. Then select it using the file chooser below. Copy the generated org-mode version text and paste it into the bottom of your BrainTool.org file.
-
-NB Your BrainTool.org file is stored on your Google Drive available [here](https://drive.google.com) (assuming you have the extension installed and granted file permissions). It's a plain text file so you'll need to either sync it locally and use a text editor, which is what I do (using the Google Drive Sync app and emacs) or hook up a GDrive app like [Text Editor](https://texteditor.co/).
-
-Tabs Outliner import will be supported directly from inside BrainTool by the upcoming 1.0 release.
+Export your data from Tabs Outliner and save the file somewhere locally. Then select it using the file chooser below. The resulting org-mode formatted data can then be copied into any text file.
 
 
 <input type="file" name="inputfile" id="inputfile"> 
