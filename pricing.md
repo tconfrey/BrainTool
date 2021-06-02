@@ -13,6 +13,7 @@ In advance of the 1.0 BrainTool release a free lifetime subscription coupon is b
 - Posting a positive review or mention on a social network feed or blog.
 - Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
 
+<i style="font-size:0.8rem; margin-top:0px;">* Send a link showing the post to braintool.extension@gmail.com and I'll send you the coupon code. Do all 3 and I'll send you 3 coupons!</i>
 # BrainTool Introductory Pricing
 
 <div class="row">
@@ -54,7 +55,7 @@ To-Do/Done annotations.
 <h2>Premium</h2>
 
 <p>
-Unlimited Topic cards and saves.
+Unlimited Topic Cards and saves.
 </p>
 <p>
 <i>Planned Features:</i>
@@ -86,4 +87,8 @@ $3.99/mo or $40/yr
 </div>
 </div>
 <br/>
-<i style="font-size:0.8rem; margin-top:0px;">* Send a link showing the post to braintool.extension@gmail.com and I'll send you the coupon code. Do all 3 and I'll send you 3 coupons!</i>
+
+# BrainTool Pricing and Data Philosophy
+There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and stuff to do so, so it seems nice to share!
+
+There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription you are paying for those tools and their continued improvement, and keeping your data to yourself.
