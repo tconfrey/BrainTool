@@ -15,12 +15,7 @@
     flex: 1;
 }
 
-.row h2 {
-    color: #606c71;
-    font-size: 1.3rem;
-}
-
-li {
+.row h3 {
     color: #606c71;
     font-size: 1.3rem;
 }
@@ -143,4 +138,9 @@ li {
         width: auto !important;
         height: auto !important;
     }
+}
+
+.site-footer {
+  padding-top: 1rem;
+  margin-top: 1rem;
 }

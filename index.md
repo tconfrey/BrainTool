@@ -18,14 +18,14 @@ audience: nonuser
 # Control your Browser
 <div class="row">
 <div class="cell left" >
-<h2>
+<h3>
 You spend all your time working in a browser. But the browser doesn't support your workflow.
 <br/><br/>
 With BrainTool all your tools & online information sources are organized by Topic in the BrainTool side panel.
 <br/><br/>
 Open and close groups of tabs for a Topic with a click.
 <br/><br/>
-Context switch with ease and keep your workspace clean. Control everything with powerful keyboard commands.</h2>
+Context switch with ease and keep your workspace clean. Control everything with powerful keyboard commands.</h3>
 </div>
 <div class="cell right" >
 <img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width: 90%; float:right;">
@@ -35,23 +35,23 @@ Context switch with ease and keep your workspace clean. Control everything with 
 <div class="row">
 
 <div class="cell left">
-<h2>
+<h3>
 <br/>
 Trivially save a page, assign a Topic and close it out.
 <br/><br/>
 No longer fear closing a tab!
 <br/><br/>
-</h2>
+</h3>
 <img src="/media/edit-card.png" alt="Card editor" style="border:solid; border-width:thin; ">
 </div>
 
 <div class="cell right">
 <img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;">
-<h2>Or leave it open while you work on it, grouped with its Topic-mates.
+<h3>Or leave it open while you work on it, grouped with its Topic-mates.
 <br/><br/>
 Keep detailed notes on the Topic card associated with every item.
 <br/><br/>
-</h2>
+</h3>
 </div>
 
 </div>
@@ -63,7 +63,7 @@ Keep detailed notes on the Topic card associated with every item.
 
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
-<h2>Here's a playlist of videos showing more details:</h2>
+<h3>Here's a playlist of videos showing more details:</h3>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)

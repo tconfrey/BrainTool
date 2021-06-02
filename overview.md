@@ -2,7 +2,7 @@
 title: BrainTool Philosophy
 layout: default
 tagline: The Topic Manager for your Online Life
-description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
+description: BrainTool is a way of organizing things you want to remember and get back to, using notes and a nested topic tree. Its also a better way to control your browser.
 audience: nonuser
 ---
 
