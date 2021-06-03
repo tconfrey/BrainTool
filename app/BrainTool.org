@@ -349,6 +349,9 @@ the inspiration for the general structure of this sample set of BrainTool Topics
 *** [[https://francescod.medium.com/][Francesco D]]
 Productivity blogger and software reviewer
 
+*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
+The "self-help classic for managing work-life balance in the twenty-first century"
+
 ** Machine Learning
   :PROPERTIES:
   :VISIBILITY: folded
