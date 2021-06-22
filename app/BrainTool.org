@@ -68,7 +68,7 @@ An example party planning project
   :VISIBILITY: folded
   :END:
 
-**** [[https://www.concordcheeseshop.com/][Peter's got you covered!]]
+**** [[https://www.concordcheeseshop.com/][Peter's got it covered!]]
 
 *** Venues
   :PROPERTIES:
@@ -329,6 +329,9 @@ A set of articles from The Lucid Manager
 The structure of your tags and links is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
 
 *** [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode beginning at the basics]]
+
+*** [[https://orgmodeforbeginners.com/overview/][Org mode for beginners]]
+another set of tutorials
 
 *** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
 Jethro Kuan's workflow
