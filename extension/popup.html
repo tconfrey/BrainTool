@@ -3,100 +3,25 @@
   <head>
     <link rel="stylesheet" href="awesomplete.css" />
     <script src="awesomplete.js" async></script>
-    <style>
-    body {
-        background-color: #7bb07bb3;
-    }
-    h2 {
-        color: #225222;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        text-align:center;
-    }
-    h3 {
-        color: #225222;
-        margin-top: 5px;
-        margin-bottom: 0px;
-    }
-    textarea {
-        font-size: x-small;
-        margin-top: 5px;
-        margin-right: 1px;
-        background-color: #e6f3e7;
-    }
-    #forms {
-        font-style: italic;
-        font-size: x-small;
-        opacity: 60%;
-    }
-    #forms .horizontal {
-        display: inline-block;
-    }
-    #forms input {
-        vertical-align: bottom;
-    }
-    #tabAction {
-        padding-right: 8px;
-        cursor: pointer;
-    }
-    
-    #chk {
-        padding-left: 8px;
-        cursor: pointer;
-    }
-    #allLabel {
-        cursor: pointer;
-    }
-    .radio_inline {
-        cursor: pointer;
-    }
-    input {
-        cursor: pointer;
-    }
-    hr {
-        margin: 0px;
-    }
-    ul {
-        padding-left: 10px;
-        margin-top: 3px;
-        margin-bottom: 3px;
-        list-style-type: none;
-    }
-    #newtag {
-        background-color: #e6f3e7;
-        border-color: #686;
-        border-width: 1px;
-        border-style: solid;
-        cursor: text;
-    }
-    #currentTags {
-        font-size: x-small;
-        margin-left: -10px;
-    }
-    .highlight {
-        background: #cec;
-    }
-    span:hover {
-        cursor: pointer;
-        background: #cec;
-    }
-    html {
-        border-style: solid;
-        border-width: 2px;
-        border-color: #518651;
-    }
-    #submit {
-        width: 150px;
-        height: 15px;
-        margin-top: 3px;
-        font-size: x-small;
-        font-style: italic;
-        cursor: pointer;
-    }
-    </style>
+    <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <div id="message" style="white-space: pre"><i>Opening BrainTool...</i></div>
+
+    <div id="welcome" style="display:none; width:400px;">
+      <h2>Welcome to BrainTool</h2>
+      <p>To get you started I'm going to:<br/>
+	- Open the BrainTool side-panel window on the left of this screen.<br/>
+	- Resize this window to accommodate. (Feel free to undo that later.)<br/>
+	- Open a tab showing the BrainTool welcome screen with new user information.<br/>
+	  <br/>
+	  Remember:<br/>
+	  - Click the BrainTool icon or use the Option/Alt-b key to open this popup and save the current tab.<br/>
+	  - Double-click the icon or use Option/Alt-b-b to show the side-panel.
+      </p>
+      <button id="ok">OK</button>
+    </div>
+    
     <div id="tag" style="display:none">
       <div align="center">
         <h2 id="heading">Choose Topic</h2>

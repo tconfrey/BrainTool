@@ -15,13 +15,22 @@ var KeyCount = 0;
 var ReadOnly = false;                   // capture whether tab is already stored in BT
 var TabAction;                          // current GROUP|CLOSE|STICK action
 var Tabs;                               // tabs in current window
+var newInstall = false;			// set below, ignore some events if = true
 
-chrome.storage.local.get('newVersion', val => {
-    if (!val['newVersion']) {           //carry on
-        popupAction();
-        chrome.runtime.connect();       // tell background popup is open
-    } else {
-        // Background has received updateAvailable, so inform user and upgrade
+chrome.storage.local.get(['newInstall', 'newVersion'], val => {
+    if (val['newInstall']) {
+	// This is a new install, show the welcome page
+	const welcomeDiv = document.getElementById('welcome');
+	const messageDiv = document.getElementById('message');
+	messageDiv.style.display = 'none';
+	welcomeDiv.style.display = 'block';
+	newInstall = true;
+        chrome.storage.local.remove('newInstall');
+	return;
+    }
+    
+    if (val['newVersion']) {
+	// Background has received updateAvailable, so inform user and upgrade
         const msg = document.getElementById('message');
         msg.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
         chrome.storage.local.remove('newVersion');
@@ -32,18 +41,23 @@ chrome.storage.local.get('newVersion', val => {
                                   chrome.runtime.reload();
                               }));
         }, 2000);
+	return;
     }
+
+    // Else just normal popup
+    popupAction();
+    chrome.runtime.connect();       // tell background popup is open
+    return;
 });
 
 function popupAction () {
-    // Activate popup -> populate form is app is open, otherwise open app
+    // Activate popup -> populate form if app is open, otherwise open app
     
     if (BackgroundPage.BTTab)
         chrome.tabs.query(              // find active tab to open popup from
             {currentWindow: true}, list => {
                 Tabs = list;
                 const activeTab = list.find(t => t.active);
-//                document.getElementById('allLabel').textContent = "Save all unsaved tabs";
                 popupOpen(activeTab);
             });
     else
@@ -60,17 +74,22 @@ function windowOpen() {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    const url = "https://BrainTool.org/app/";
-    //const url = "http://localhost:8000/app/";
+    //const url = "https://BrainTool.org/app/";
+    const url = "http://localhost:8000/app/";
     console.log('loading from ', url);
     var wargs = {
         'url' : url,
         'type' : "panel",
         'top' : 10, 'left' : 5,
-        'width' : 500, 'height' : 1100
+        'width' : 500, 'height' : screen.height
     };
     chrome.windows.create(wargs, function(window) {
         console.log("window was opened");
+	// resize main windows to accomodate side-panel
+	chrome.windows.getCurrent(win => {
+	    chrome.windows.update(win.id, {left: 500, width: (screen.width - 500)});
+	});
+	// and focus side-panel
         chrome.windows.update(window.id, {'focused' : true});
     });
 }
@@ -191,6 +210,8 @@ document.onclick = function(e) {
     }
     if (e.target.id == 'submit')
         tabAdded();
+    if (e.target.id == 'ok')
+	windowOpen();
 };
 document.getElementById('newtag').onkeydown = function(e) {
     if (e.key == "Tab") {
@@ -227,6 +248,7 @@ function newTagEntered() {
 window.onkeyup = function(e) {
     // We previously set a default if window already has a tag. Make it easy to delete.
     // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
+    if (newInstall) return;	           // showing the welcome screen, no keyboard input
     if (Defaulted && (KeyCount < 2) && (e.key == "Backspace")) {
         const newTag = document.getElementById("newtag");
         newTag.value = "";

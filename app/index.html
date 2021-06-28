@@ -48,7 +48,7 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:18px;"> Welcome to BrainTool 0.9.1a, see the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
+        <p style="text-align: center; font-size:18px;"> Welcome to BrainTool 0.9.5, see the <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a> for details</p>
         <div id="options_button_border">
           <button id="options_button" onClick="toggleOptions()">Options</button>
         </div>
@@ -288,5 +288,19 @@
             onload="this.onload=function(){};"
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
+    
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-functions.js"></script>
+    <!-- See https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+
+    <!-- needed?   -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
+    <!-- Add Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="subscriptionManager.js"></script>
+
   </body>
 </html>
