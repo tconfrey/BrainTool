@@ -45,6 +45,7 @@ function launchApp(msg) {
     
     ClientID = msg.client_id;
     APIKey = msg.api_key;
+    FBKey = msg.fb_key;
     InitialInstall = msg.initial_install;
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTFileText = msg.BTFileText;
