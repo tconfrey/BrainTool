@@ -65,36 +65,29 @@
     font-family: Roboto;
 }                    
 
+
 #controls_screen::before {
     content: "";
-    left: 15px;
+    left: 0px;
     top:0;
     bottom:0;
-    right: 15px;
+    right: 0px;
     position: absolute;
     z-index: -4;
-    background-color: white;
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 30%,rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0.5) 100%)
 }
+
 #controls_screen {
     position: relative;
     overflow: hidden;
     display: block;
-    border: 1px solid #7bb07b11;
+    border: 2px solid #7bb07b;
+    border-radius: 5px;
+    backdrop-filter: blur(10px);
 }
-#controls_screen::after {
-    content: "";
-    background-image: linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 10%,rgba(255, 255, 255, 0.6) 90%, rgba(255, 255, 255, 1) 100%), url(resources/marquee.jpg);
-    opacity: 0.7;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: absolute;
-    background-size: cover;
-    z-index: -1;
-}
+
 #logo_image {
-    width: 80%;
+    width: 40%;
     display: block;
     margin-left: auto;
     margin-right:auto;
@@ -129,15 +122,15 @@
 }
 
 dialog {
-    border: 3px solid #3f673f ;
-    border-radius: 2px;
-    box-shadow: 10px 10px 3px rgb(63, 103, 63, 90);
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
     width: 88%;
     padding: 10px;
     padding-top: 2px;
     margin-top: 0px;
     position: fixed;
-    background-image: url("resources/gridBackground.png");
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
     background-size: 300px 300px;
 }
 
@@ -146,7 +139,6 @@ dialog textarea {
     resize: none;
     border: 1px solid #3f673f;
     border-radius: 2px;
-    opacity: 0.7;
     font-family: tahoma;
 }
 dialog #title-text {
@@ -215,11 +207,11 @@ dialog li::marker {
     transform: translate(-50%, -50%);
 
     /* same as edit dialog */
-    border: 3px solid #3f673f ;
-    border-radius: 2px;
-    box-shadow: 10px 10px 3px rgb(63, 103, 63, 90);
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
 
-    background-color: #dcdfd3f4;
+    background-color: white;
     width: 80%;
     z-index: 3;
     
@@ -234,7 +226,7 @@ dialog li::marker {
 .overlay_table {
     margin-left: auto;
     margin-right: auto;
-    font-size:13px;
+    font-size:11px;
 }
 
 .options_table td {
