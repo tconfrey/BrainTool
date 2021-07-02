@@ -6,26 +6,27 @@
  ***/
 'use strict'
 
+const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
 const tipsArray = [
-    "Add ':' at the end of a topic in the popup to file under a new subtopic.",
-    "Double click on a table row to highlight its open window, if any.",
+    "Add ':' at the end of a topic in the popup to create a new subtopic.",
+    "Double click on a table row to highlight its' open window, if any.",
     "Type ':TODO' after a topic to make the item a TODO in the BT tree.",
-    "Create topics like ToRead to keep track of pages you want to come back to.",
+    "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
-    "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
-    "You can save individual gmails or google docs into the BT tree",
-    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
-    "Save LinkedIn pages under specific topics to keep track of your contacts in context",
-    "Use the TODO button on a row to toggle between TODO, DONE and none",
-    "See BrainTool.org for the BrainTool blog and other info",
+    `${OptionKey}-b is the BrainTool accelerator key. You can change that in Chrome://extensions`,
+    "You can save individual gmails or google docs into the BT tree.",
+    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs.",
+    "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
+    "Use the TODO button on a row to toggle between TODO, DONE and none.",
+    "See BrainTool.org for the BrainTool blog and other info.",
     "Check out the Bookmark import/export functions under Options!",
-    "You can click on the topics shown in the BT popup instead of typing out the name",
+    "You can click on the topics shown in the BT popup instead of typing out the name.",
     "Close and re-open this controls overlay to get a new tip!",
-    "Double tap Alt(Option)-b, or double click the icon, to surface the BrainTool side panel",
-    "When you have an Edit card open the up/down arrows will open the next/previous card",
-    "Click on a row to select it then use keyboard commands. 'h' for a list of them",
-    "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar",
-    "Try hitting '1','2','3' etc to collapse to that level"
+    `Double tap ${OptionKey}-b, or double click the icon, to surface the BrainTool side panel.`,
+    "When you have an Edit card open the up/down arrows will open the next/previous card.",
+    "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
+    "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
+    "Try hitting '1','2','3' etc to collapse to that level."
 ];
 
 var InitialInstall = false;
@@ -33,6 +34,7 @@ var UpgradeInstall = false;
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.TABGROUP;
 var GDriveConnected = false;
+
 
 /***
  *
@@ -54,7 +56,8 @@ function launchApp(msg) {
     gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
     
     if (InitialInstall || UpgradeInstall) {
-        $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
+	$("#tip").hide();
+        $("#openingTips").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         if (UpgradeInstall) {
             // Need to make a one time assumption that an upgrade from prior to 0.9 is already connected
             if (UpgradeInstall.startsWith('0.8') ||
@@ -79,7 +82,15 @@ function launchApp(msg) {
     } else {
         gtag('event', 'NonGDriveLaunch', {'event_category': 'General'});
     }
-        
+    
+    // If bookmarks have been imported remove button from controls screen (its still under options)
+    if (!getMetaProp('BTLastBookmarkImport')) {
+	$("#importBookmarkButton").show();
+	$("#openOptionsButton").text("Other Actions");
+    }
+
+    // show Alt or Option appropriately in visible text
+    $(".alt_opt").text(OptionKey);
 }
 
 async function updateSigninStatus(signedIn, error=false) {
@@ -134,20 +145,24 @@ function addTip() {
 
 function toggleMenu() {
     // Toggle the visibility of the intro page, auth button and open/close icon
+    // NB controls_screen has a min height set, need to remove during animations
+    const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {
-        $("#controls_screen").slideUp(400, 'easeInCirc');
+        $("#controls_screen").css('min-height',0)
+	    .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('closed').removeClass('open');
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
         if (!toggleMenu.introMessageShown)
-            toggleMenu.introMessageShown = true;            // leave tip showing and remember that it showed
+            toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
         else
-            addTip();                                       // display tip text after intro message has been shown
-        $("#controls_screen").slideDown(400, 'easeInCirc');
+            addTip();                                    // display tip text after intro message shown
+        $("#controls_screen").css('min-height',0)
+	    .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('open').removeClass('closed');
-        $(".treetable tr").css("scroll-margin-top", "330px");
+        $(".treetable tr").css("scroll-margin-top", "375px");
     }
 }
 function closeMenu() {
@@ -197,7 +212,7 @@ function updateStatsRow(modifiedTime = null) {
     $("#brain").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tabs`);
     
     const saveTime = getDateString(modifiedTime);
-    $("#gdrive_save").html(`<i><small>Saved: ${saveTime}</small></i>`);
+    $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
     $('#num_saves').text(':'+numSaves);
     $("#num_saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
 
@@ -267,7 +282,7 @@ function generateTable() {
 
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
-    // turn the org-mode text into an html table, extract category tags
+    // turn the org-mode text into an html table, extract Topics
     BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
@@ -1233,7 +1248,7 @@ function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
     window.postMessage({'function': 'getBookmarks'});
-    toggleOptions(1500);
+//    toggleOptions(1500);
 }
 
 function loadBookmarks(msg) {
@@ -1246,7 +1261,8 @@ function loadBookmarks(msg) {
         return;
     }
 
-    const importName = "Imported Bookmarks (" + getDateString() + ")";
+    const dateString = getDateString();
+    const importName = "Imported Bookmarks (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
     msg.data.bookmarks.children.forEach(node => {
@@ -1254,6 +1270,10 @@ function loadBookmarks(msg) {
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
+    // remmember this import and remove button from main control screen
+    setMetaProp('BTLastBookmarkImport', dateString);
+    $("#importBookmarkButton").hide();
+    $("#openOptionsButton").text("Options");
     processImport(importName);                             // see above
 }
 

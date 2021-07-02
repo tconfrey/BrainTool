@@ -58,7 +58,6 @@
     left: 8px;
     top: 0px;
     border-top: 3px solid white;
-    border-bottom: 3px solid white;
     border-left: none;
     border-right: none;
     z-index: 3;
@@ -74,16 +73,27 @@
     right: 0px;
     position: absolute;
     z-index: -4;
-    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.8) 30%,rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0.5) 100%)
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0%,
+				      rgba(255, 255, 255, 0.95) 5%,
+				      rgba(255, 255, 255, 0.95) 95%,
+				      rgba(255, 255, 255, 0.1) 100%)
 }
-
 #controls_screen {
     position: relative;
     overflow: hidden;
     display: block;
     border: 2px solid #7bb07b;
-    border-radius: 5px;
-    backdrop-filter: blur(10px);
+    border-radius: 0px 0px 5px 5px;
+    backdrop-filter: blur(3px);
+    min-height: 280px;
+}
+
+#tip {
+    margin-top: 35px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #logo_image {
@@ -91,8 +101,7 @@
     display: block;
     margin-left: auto;
     margin-right:auto;
-    margin-top: 3px;
-    margin-bottom: 15px;
+    margin-top: 30px;
 }
 
 #buttonRow {
@@ -137,9 +146,9 @@ dialog {
 dialog textarea {
     width: 91%;
     resize: none;
-    border: 1px solid #3f673f;
+    border: 1px solid #ddd;
     border-radius: 2px;
-    font-family: tahoma;
+    font-family: roboto;
 }
 dialog #title-text {
     white-space: nowrap;
@@ -159,31 +168,35 @@ dialog #title-url {
 dialog #distinguishedName {
     position: relative;
     left: -10px;
-    font-family:tahoma;
+    font-family:roboto;
     color: #3f673f;
 }
 dialog li::marker {
     color: #3f673f;
 }
 
-#options_button_border {
-    width: 75%;
+#important_buttons {
+    width: 90%;
     margin: auto;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding-top: 30px;
+    padding-bottom: 20px;
     margin-bottom: 0px;
     display: flex;
     justify-content: space-around;
-    border-width: 3px;
+}
+
+.important_button {    
+    border-width: 2px;
     border-style: solid;
     border-radius: 5px;
     border-color: grey;
     background-color: #7bb07baa;
+    width: 180px;
+    height: 40px;
+    font-size: 1.2em;
+    font-family: 'Roboto';
 }
-#tip {
-    margin-bottom: 20px;
-    margin-top: 20px;
-}
+
 .important {
     border-color: crimson;
 }
@@ -212,25 +225,19 @@ dialog li::marker {
     box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
 
     background-color: white;
-    width: 80%;
-    z-index: 3;
+    width: 90%;
+    /*z-index: 3;*/
     
-}
-.control_text {
-    font-size: 15px;
-    margin: 10px;
-    padding-left: 10px;
-    padding-right: 20px;
-    text-align: justify;
 }
 .overlay_table {
     margin-left: auto;
     margin-right: auto;
-    font-size:11px;
+    font-size: 12px;
+    border-spacing: 1px;
 }
 
 .options_table td {
-    padding-top: 8px;
+    padding-top: 18px;
 }
 
 .option_td {
@@ -258,86 +265,74 @@ dialog li::marker {
     margin: 0 auto;
 }
 
-button {
-    color: #222;
-    border-style: double;
-    border-radius: 3px;
-}
-
 button:not([disabled]):hover {
     color: #222;
-    background-color: #7bb07b; /* #ACA; */  
+    background-color: #7bb07b;
     cursor: pointer;
 }
 
-/* split button for import/export */
+/* button for import/export */
 .button_text {
-    font-family: Arial;
-    font-size: 13px;
+    font-family: Roboto;
+    font-size: 15px;
+}
+.split_image {
+    opacity: 0.6;
+    margin-top: 1px;
+}
+
+.general_button {
+    width: 130px;
+    border-radius: 3px 3px 3px 3px;
+    border: 1px solid #ddd;
+    padding: 5px 5px 5px 8px;
+    font-size: 15px;
+}
+.dropdown_button {
+    border-radius: 3px 3px 0px 0px;
+}
+    
+.dropdown_text {
+    float: left;
+}
+.button_image_wrapper {
+    float: right;
 }
 
 .dropdown {
-    position: absolute;
     display: inline-block;
 }
 
 .dropdown_content {
     display: none;
     position: absolute;
-    background-color: #ddd;
-    border: 2px solid grey;
-    border-radius: 4px 0 4px 4px;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 0px 4px 4px 4px;
     z-index: 1;
-    width: 153px;
-    transform: translate(-133px, -2px);
-}
-
-.dropdown_content_export {
-    width: 155px;
-    transform: translate(-135px, -2px);
+    width: 160px;
+    transform: translate(0px, -4px);
 }
 
 .dropdown_content a {
     color: black;
-    padding: 3px 5px;
     text-decoration: none;
-    display: block;
-}
-.dropdown_content label {  
-    cursor: pointer;
     float: left;
-    padding: 3px 5px;
 }
-
-.dropdown:hover .dropdown_content {
-    display: block;
+.dropdown_content label {
+    float: left;
+    cursor: pointer;
 }
 .dropdown_content div {  
     cursor: pointer;
-    height: 20px;
+    float: left;
+    padding: 5px 0px 5px 8px;
+    width: 152px;
 }
-    
-.dropdown_content div:hover {background-color: #7bb07b}    
-.dropdown_content a:hover {background-color: #7bb07b}
-
-
-.split_image {
-    opacity: 0.6;
-    margin-top: 1px;
+.dropdown_content div:hover {background-color: #7bb07b}  
+.dropdown:hover .dropdown_content {
+    display: block;
 }
-
-.left_split {
-    border-right: 1px solid grey;
-    border-radius:3px 0 0 3px;
-}
-
-.right_split {
-    border-left: 1px solid grey;
-    border-radius:0 3px 3px 0;
-    height: 21px;
-    padding: 0 3px 0 3px;
-}
-
 /* end split button*/
 
 span.elipse {
@@ -350,14 +345,11 @@ span.elipse {
 textarea {
     font-size: .8em;
     line-height: 1.2;
-    /* font-family: "Palatino";
-     font-family: "Arial";
-     line-height: 1;*/
 }
 
-/* prevents selection being scrolled off top */
+/* prevents selection being scrolled off top, nb edited in toggleMenu */
 .treetable tr {
-  scroll-margin-top: 330px;
+  scroll-margin-top: 375px;
 }
 
 
@@ -368,26 +360,22 @@ body.waiting * {
 
 /* 3-way chooser for window mapping */
 .toggle-radio > input + label {
-    background:#efefef;
-    border:2px solid grey;
-    border-width:2px 0 2px 0;
+    background:#eee;
+    border:solid #ddd;
+    border-width:1px; /* 0 1px 0;*/
 }
 .toggle-radio > input:first-of-type + label {
-    border-right-width: 1px;
-    border-left-width: 2px;
-    margin-right: -4px;
+    margin-right: -5px;
 }
 .toggle-radio > input:last-of-type + label {
-    border-left-width:1px;
-    border-right-width:2px;
-    margin-left: -4px
+    margin-left: -5px
 }
-.toggle-radio > input:checked + label {background: #7bb07b;}
 
 /* Rounded corners */
 .toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
 .toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
 
+.toggle-radio > input:checked + label {background: #7bb07b;}
 /* CORE STYLES */
 .toggle-radio {
     display:inline-block;
@@ -397,7 +385,7 @@ body.waiting * {
 .toggle-radio > input + label {
     display:inline-block;
     margin-bottom:0;
-    padding:1px 10px;
+    padding:5px 10px;
     cursor:pointer;
     align-items:center;}
 
