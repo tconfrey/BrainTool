@@ -374,6 +374,9 @@ function initializeUI() {
     // single click - select row
     $("table.treetable tr").off("click");              // remove any previous handler
     $("table.treetable tr").on("click", function (e) {
+	// first check this is not openclose button, can't stop propagation
+	if (e?.originalEvent?.target?.classList?.contains('openClose')) return;
+	
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
     });
@@ -909,7 +912,8 @@ function buttonShow() {
     
     $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset();
-    $("#buttonRow").offset({top: offset.top});
+    const height = $(this).height();
+    const rowtop = (offset.top + (height / 2) - 11);
     if ($(this).hasClass("opened")){
         $("#expand").hide();
         $("#collapse").show();
@@ -934,6 +938,7 @@ function buttonShow() {
         $("#addChild").show();
     else
         $("#addChild").hide();
+    $("#buttonRow").offset({top: rowtop});
     $("#buttonRow").show();        
 }
 
@@ -942,6 +947,15 @@ function buttonHide() {
     $(this).removeClass("hovered");
     $("#buttonRow").hide();
     $("#buttonRow").detach().appendTo($("#dialog"));
+}
+
+function toggleMoreButtons(e) {
+    // show/hide non essential buttons
+    $("#otherButtons").toggle();
+    $(".openClose").toggle();
+    e = e || window.event;
+    e.preventDefault();		                        // don't propogate click
+    return false;
 }
 
 function editRow(e) {
