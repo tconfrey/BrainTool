@@ -20,7 +20,8 @@ function tabsToBT(tabsStr) {
     const tabsJson = JSON.parse(tabsStr);
     const lastIndex = tabsJson.length - 1;
     let node, title, numwin = 1;
-    let BTText = "* TabsOutliner Import - " + getDateString() + "\n";
+    let dateStr = getDateString().replace(':', ';');
+    let BTText = "* TabsOutliner Import - " + dateStr + "\n";
     tabsJson.forEach((elt, ind) => {
         // ignore first and last elements, TO seems to use them for some special purpose 
         if (!ind || ind == lastIndex) return;   

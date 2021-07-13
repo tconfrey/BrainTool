@@ -55,14 +55,17 @@
           <button id="importBookmarkButton" class="important_button" style="display:none" onClick="importBookmarks()">Import Bookmarks</button>
           <button id="openOptionsButton" class="important_button" onClick="toggleOptions()">Options</button>
         </div>
-        <p id="openingTips" style="margin-bottom: 10px; display:none">
-          - Activate BT to save any web page via the icon or with Opt/Alt-b.<br/>
-          - The icon is hidden under the jigsaw icon - browser top right.<br/>
-          - This Options overlay closes/opens by clicking the green bar above.<br/>
-          - See Options for imports, exports, bookmarks and GDrive syncing.<br/>
-          - Your BrainTool data is completely private and secure.<br/>
-          - The initial tree shows some examples of how to use Topics. Feel free to build on it. Delete anything you don't want by hovering over it and hitting the trash button.<br/>
-        </p>
+	<div id="specialOffer" style="display:none; text-align: center; font-size:14px; margin-top: -10px;">
+	  <a href="https://braintool.org/pricing" target="_blank">Special subscription offer!</a>
+	</div>
+	<div id="openingTips" style="display:none">
+          <p>- Activate BT to save any web page via the icon or with Opt/Alt-b.</p>
+          <p>- The icon is hidden under the jigsaw icon - browser top right.</p>
+	  <p>- Get started by importing and organizing your bookmarks or go through your open tabs and assign topics.
+	  <p>- See 'Other Actions' for imports, exports and GDrive syncing.</p>
+          <p>- The initial tree shows some examples of how to use Topics. Feel free to build on it. Delete anything you don't want by hovering over it and hitting the trash button.</p>
+          <p>- This Message board overlay closes/opens by clicking the green bar at top.</p>
+	</div>
 	<p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
         <p style="margin-bottom: 15px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.</p>
         
@@ -143,21 +146,27 @@
               </td>
               <td style="text-align:left">
                 <button id="gdrive_auth" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="authorizeGapi(true)">Authorize</button>
-                <button id="refresh" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="refreshTable(true)" style="display:none">Refresh from File</button>
+                <button id="refresh" class="button_text general_button" onclick="refreshTable(true)" style="display:none">Refresh from File</button>
               </td>
             </tr>          
-            <tr><td>
+            <tr class="subscription_buttons">
+	      <td>
                 <p style="margin:0px; float:left; padding-bottom:0px">Upgrade to <a href="https://braintool.org/pricing" target="_blank">Premium</a>:</p>		
             </td><td></td></tr>
-            <tr>
+            <tr class="subscription_buttons">
 	      <td style="padding-top:0px; padding-bottom:0px">
-                <button id="annual_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="">$40/Yr</button>
+                <button id="annual_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="createSubscription(Annual)">$40/Yr</button>
               </td>
 	      <td style="padding-top:0px; padding-bottom:0px">
-                <button id="monthly_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="">$3.99/Mo</button>
+                <button id="monthly_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="createSubscription(Monthly)">$3.99/Mo</button>
 	      </td>
 	    </tr>
-            <tr><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
+	    <tr id="portal_row" style="display:none">
+	      <td colspan="2">
+		<a id="portal_link" href="https://braintool.org" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
+	      </td>
+	    </tr>
+            <tr class="subscription_buttons" ><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
                 <i>Coupons applied at checkout</i>
             </td></tr>
             <tr><td colspan="2" style="padding-top:0px">
@@ -178,7 +187,7 @@
                 <b>Keyboard Commands &nbsp;</b><a href="https://braintool.org/support" target="_blank" style="font-size:10px; font-style:italic">(Other Help)</a>
             </td></tr>
             <tr>
-              <td rowspan="4" class="row_divider" style="writing-mode: vertical-rl;">Nav</td>
+              <td rowspan="4" class="row_divider help_vertical_td">Nav</td>
               <td class="option_td">n,p,&uarr;&darr;</td>
               <td>Navigate to Next, Previous row</td>
             </tr>
@@ -195,7 +204,7 @@
               <td class="row_divider">Expand/Collapse the sub tree</td>
             </tr>
             <tr>
-              <td rowspan="2" class="row_divider" style="writing-mode: vertical-rl;">Browse&nbsp;</td>
+              <td rowspan="2" class="row_divider help_vertical_td">Browse&nbsp;</td>
               <td class="option_td">Space</td>
               <td>Surface the associated tab or window</td>
             </tr>
@@ -204,7 +213,7 @@
               <td class="row_divider">Open/Close in the browser</td>
             </tr>
             <tr>
-              <td rowspan="5" style="writing-mode: sideways-lr;">Edit</td>
+              <td rowspan="6" class="row_divider help_vertical_td">Edit</td>
               <td class="option_td"><span class="alt_opt">Option</span>-z</td>
               <td >Undo last deletion</td>
             </tr>
@@ -225,7 +234,6 @@
               <td>Delete selection</td>
             </tr>
             <tr>
-              <td class="row_divider"/>
               <td class="option_td, row_divider"><span class="alt_opt">Option</span>-Enter</td>
               <td class="row_divider">Create a new sub Topic</td>
             </tr>

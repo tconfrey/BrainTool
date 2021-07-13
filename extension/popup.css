@@ -1,6 +1,10 @@
-
 body {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #518651;
     background-color: #7bb07bb3;
+    margin: 0px;
+    padding: 8px;
 }
 h2 {
     color: #225222;
@@ -74,11 +78,6 @@ ul {
 span:hover {
     cursor: pointer;
     background: #cec;
-}
-html {
-    border-style: solid;
-    border-width: 2px;
-    border-color: #518651;
 }
 #submit {
     width: 150px;

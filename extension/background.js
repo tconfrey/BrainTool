@@ -46,6 +46,7 @@ chrome.runtime.onInstalled.addListener(deets => {
     if (deets.reason == 'install') {
         InitialInstall = true;
 	chrome.storage.local.set({'newInstall' : true});
+        chrome.tabs.create({'url': "https://braintool.org/support/welcome"});
     }
     if (deets.reason == 'update') {
         // also clean up local storage - get all keys in use and validate against those now needed
@@ -204,6 +205,7 @@ function initializeExtension(msg, sender) {
         BTTab,
         {'function': 'launchApp', 'client_id': config.CLIENT_ID,
 	 'api_key': config.API_KEY, 'fb_key': config.FB_KEY,
+	 'stripe_key': config.STRIPE_KEY,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall});
 
     // check to see if a welcome is called for
@@ -549,13 +551,6 @@ function getBookmarks() {
                                             'result': 'success'});
         });
     });
-}
-
-function getDateString() {
-    // return minimal date representation to append to bookmark tag
-    const d = new Date();
-    const mins = d.getMinutes() < 10 ? "0"+d.getMinutes() : d.getMinutes();
-    return (`${d.getMonth()+1}/${d.getDate()}/${d.getYear()-100} ${d.getHours()}:${mins}`);
 }
 
 function exportBookmarks() {

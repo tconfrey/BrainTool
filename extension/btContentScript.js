@@ -1,7 +1,9 @@
-/*
-     This script is basically just a relay for messages between the app window and the extension.
-     In general message are passed thru, sometimes we need to pull from local storage
-*/
+/***
+ *
+ *    This script is basically just a relay for messages between the app window and the extension.
+ *    In general message are passed thru, sometimes we need to pull from local storage
+ *
+***/
 
 // Listen for messages from the App
 window.addEventListener('message', function(event) {
@@ -32,9 +34,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         });
         chrome.storage.local.remove('bookmarks');             // clean up space
         break;
-    case 'keys':                // note that keys were received and fall thru to pass on
-        WaitingForKeys = false;
-        break;
     case 'launchApp':           // set up btfiletext before passing on to app, see below
         launchApp(msg);
         break;
@@ -48,21 +47,11 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
 // Let extension know bt window is ready to open gdrive app. Should only run once
 var NotLoaded = true;
-var WaitingForKeys = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
     NotLoaded = false;
     //setTimeout(waitForKeys, 5000);
     console.count('Content-OUT:initializeExtension');
-}
-
-function waitForKeys(trynum = 0) {
-    // Fail safe, if request to background script for keys failed we should try try again.
-    if (!WaitingForKeys) return;                       // all good
-    
-    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
-    trynum +=1;
-    setTimeout(waitForKeys(trynum), trynum * 1000);         // back off w retries
 }
 
 
@@ -93,6 +82,10 @@ async function launchApp(msg) {
             return;
         }
     }
+
+    // also pull out sub id if exists (=> premium)
+    let BTId = await getFromLocalStorage('BTId');
+    if (BTId) msg["bt_id"] = BTId;
     msg["from"] = "btextension";
     msg["BTFileText"] = btdata;
     window.postMessage(msg);

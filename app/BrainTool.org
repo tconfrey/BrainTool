@@ -3,7 +3,7 @@
 #+PROPERTY: BTGroupingMode TABGROUP
 
 * Project
-Keep all your links and notes for each project in one place. These are examples to use or delete.
+Keep all your links and notes for each project in one place. These are examples to use or delete. Open them to see sample sub topics.
 
 ** Sample Project - Kitchen Renovation
   :PROPERTIES:
@@ -85,10 +85,10 @@ An example party planning project
 **** [[https://web.whatsapp.com/][Group Chat]]
 Special group w mom excluded!
 
-**** [[https://mail.google.com/mail/u/1/#inbox][Aunt Marge travel logistics email]]
+**** [[https://mail.google.com/mail/u/1/#inbox/FMfcgzGkZGfRLCtJkHDvfDSGkGMxQgSJ][Aunt Marge travel logistics email]]
 links to emails work just fine
 
-** Sample Project - Engineering Manager
+** Sample Project - My work project
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
@@ -116,6 +116,9 @@ Non-project areas of life to keep track of.
 ** Personal
 Maybe keep personal and work stuff separate.
 *** House
+     :PROPERTIES:
+     :VISIBILITY: folded
+     :END:
 
 **** Concord
      :PROPERTIES:

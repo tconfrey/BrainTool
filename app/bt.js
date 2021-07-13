@@ -42,24 +42,42 @@ var GDriveConnected = false;
  *
  ***/
 
-function launchApp(msg) {
-    // Launch app w data passed from extension
+async function launchApp(msg) {
+    // Launch app w data passed from extension local storage
     
     ClientID = msg.client_id;
     APIKey = msg.api_key;
     FBKey = msg.fb_key;
+    STRIPE_PUBLISHABLE_KEY = msg.stripe_key;
     InitialInstall = msg.initial_install;
-    UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
+    UpgradeInstall = msg.upgrade_install;		    // null or value of 'previousVersion'
     BTFileText = msg.BTFileText;
-    processBTFile(BTFileText);
+    processBTFile(BTFileText);				    // create table etc
 
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+    // Get BT sub id => premium 
+    // BTId in local store and from org data should be the same. local store is primary
+    if (msg.bt_id) {
+	BTId = msg.bt_id;
+	if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
+	else if (BTId != getMetaProp('BTId'))
+	    alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
+    } else {
+	// get from file if not in local storage and save locally
+	if (getMetaProp('BTId')) {
+	    BTId = getMetaProp('BTId');	    
+	    window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
+	}
+    }
     
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+
+    // Update ui for new users
     if (InitialInstall || UpgradeInstall) {
 	$("#tip").hide();
+	$("#openingTips").show();
         $("#openingTips").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         if (UpgradeInstall) {
-            // Need to make a one time assumption that an upgrade from prior to 0.9 is already connected
+            // Need to make a one time assumption that an upgrade from before 0.9 is already connected
             if (UpgradeInstall.startsWith('0.8') ||
                 UpgradeInstall.startsWith('0.7') ||
                 UpgradeInstall.startsWith('0.6'))
@@ -91,9 +109,27 @@ function launchApp(msg) {
 
     // show Alt or Option appropriately in visible text
     $(".alt_opt").text(OptionKey);
+
+    // If subscription exists and not expired then user is premium
+    let sub = null;
+    if (BTId) {
+	sub = await getSub();
+	if (sub) {
+	    console.log('Premium subscription exists, good til:', new Date(sub.current_period_end.seconds * 1000));
+	    if ((sub.current_period_end.seconds * 1000) > Date.now()) {
+		// valid subscription, toggle from sub buttons to portal link
+		$(".subscription_buttons").hide();
+		$("#portal_row").show();
+	    }
+	}
+    }
+
+    // show special offer link if not subscribed and not first run
+    if (!sub && !(InitialInstall || UpgradeInstall))
+	$("#specialOffer").show();
 }
 
-async function updateSigninStatus(signedIn, error=false) {
+async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
     // CallBack on GDrive signin state change
     if (error) {
         let msg = "Error Authenticating with Google. Google says:\n'";
@@ -118,14 +154,16 @@ async function updateSigninStatus(signedIn, error=false) {
              UpgradeInstall.startsWith('0.6')))
         {
             alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
-            await refreshTable(true);                       // force read sync from GDrive
-            saveBT();                                       // and force save back into storage
+            await refreshTable(true);                       // Read previous org from GDrive
+            saveBT();					    // save to record it's now synced
         }
-        
+	if (userInitiated) saveBT();			    // also save if newly authorized
     } else {
         alert("GDrive connection lost");
         $("#gdrive_save").hide();
+	$("#refresh").hide();
         $("#gdrive_auth").show();
+        $("#autoSaveLabel").text("Auto-saving is off");
         GDriveConnected = false;
     }
 }
@@ -134,6 +172,7 @@ function addTip() {
     // add random entry from the tipsArray
     let indx = Math.floor(Math.random() * tipsArray.length);
     $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
+    $("#tip").show();
 }
 
 
@@ -151,13 +190,16 @@ function toggleMenu() {
         $("#controls_screen").css('min-height',0)
 	    .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('closed').removeClass('open');
+	$("#openingTips").hide();			// if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
+	/*
         if (!toggleMenu.introMessageShown)
             toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
         else
+	*/
             addTip();                                    // display tip text after intro message shown
         $("#controls_screen").css('min-height',0)
 	    .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
@@ -215,6 +257,7 @@ function updateStatsRow(modifiedTime = null) {
     $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
     $('#num_saves').text(':'+numSaves);
     $("#num_saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
+    $("#saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
         $("#saves").attr("src", "resources/drive_icon.png");
@@ -233,6 +276,7 @@ function brainZoom(iteration = 0) {
     const interval = iteration == 4 ? 400 : 200;
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
+
 
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
@@ -951,8 +995,7 @@ function buttonHide() {
 
 function toggleMoreButtons(e) {
     // show/hide non essential buttons
-    $("#otherButtons").toggle();
-    $(".openClose").toggle();
+    $("#otherButtons").toggle(250, 'easeInCirc', () => $(".openClose").toggle());
     e = e || window.event;
     e.preventDefault();		                        // don't propogate click
     return false;
@@ -967,12 +1010,13 @@ function editRow(e) {
     const top = $(row).position().top - $(document).scrollTop();
     const bottom = top + $(row).height();
     const dialog = $("#dialog")[0];
+    const dialogHeight = $(dialog).height() || 300;	    // before initial display it's 0
 
-    if ((top + $(dialog).height() + 60) < $(window).height())
+    if ((top + dialogHeight + 60) < $(window).height())
         $(dialog).css("top", bottom+30);
     else
         // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - $(dialog).height() - 20);
+        $(dialog).css("top", top - dialogHeight - 20);
 
     // populate dialog
     const dn = node.fullTagPath();
@@ -1275,7 +1319,7 @@ function loadBookmarks(msg) {
         return;
     }
 
-    const dateString = getDateString();
+    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
     const importName = "Imported Bookmarks (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
@@ -1339,9 +1383,10 @@ function exportBookmarks() {
         if (!n) return null;
         return {'displayTag': n.displayTag, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
     });
+    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
     window.postMessage({'function': 'localStore',
                         'data': {'AllNodes': nodeList,
-                                 title: 'BrainTool Export ' + getDateString()}});
+                                 title: 'BrainTool Export ' + dateString}});
 
     // wait briefly to allow local storage too be written before background tries to access
     setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);

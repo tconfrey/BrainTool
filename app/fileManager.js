@@ -45,7 +45,7 @@ var ClientID, APIKey;
 // Authorization scopes required by the API;
 // Need to be able to create/read/write BTFile
 var Scopes = 'https://www.googleapis.com/auth/drive.file';
-//  Turns out query is supported by .file for app-created files and make approavl simpler.
+//  Turns out query is supported by .file for app-created files and make approval simpler.
 // https://www.googleapis.com/auth/drive.metadata.readonly';
 var AuthObject = null;
 
@@ -92,14 +92,14 @@ function authorizeGapi(userInitiated = false) {
         gtag('event', 'AuthInitiatedByUser', {'event_category': 'GDrive'});
     }
     if (typeof gapi !== 'undefined')
-        gapi.load('client:auth2', initClient);             // initialize gdrive app
+        gapi.load('client:auth2', initClient(userInitiated));             // initialize gdrive app
     else {
         $("#loadingMessage").append(".");
         setTimeout(authorizeGapi, 500);
     }
 }
 
-async function initClient() {
+async function initClient(userInitiated = false) {
     // Initializes the API client library and sets up sign-in state listeners
 
     console.log("Initializing GDrive client app");
@@ -135,7 +135,7 @@ async function initClient() {
         // connect w (or create) BTfile on GDrive and carry on
         setMetaProp('BTGDriveConnected', 'true');
         await findOrCreateBTFile();
-        updateSigninStatus(AuthObject.isSignedIn.get());
+        updateSigninStatus(AuthObject.isSignedIn.get(), false, userInitiated);
 	}
     catch (err) {
         clearTimeout(timeout);

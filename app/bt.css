@@ -88,8 +88,22 @@
     min-height: 280px;
 }
 
+#openingTips {
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 15px;
+    line-height: 1.4em;
+    padding: 3px;
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+}
+#openingTips p {
+    margin-block-start: 0.3em;
+    margin-block-end: 0.3em;
+}
+
 #tip {
-    margin-top: 35px;
+    margin-top: 55px;
     margin-bottom: 10px;
     font-size: 15px;
     padding-left: 10px;
@@ -240,6 +254,12 @@ dialog li::marker {
     margin-left: auto;
     margin-right: auto;
     text-align: left;
+}
+
+.help_vertical_td {
+    writing-mode: vertical-rl;
+    text-align: center;
+    padding-right: 10px;
 }
 
 .row_divider {
