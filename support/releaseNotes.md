@@ -6,7 +6,18 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
-# Welcome to BrainTool 0.9.1a
+# Welcome to BrainTool 0.9.5
+We're almost at 1.0!
+## Cleaner more minimal UI
+Based on the results of a comprehensive review by a panel of designers and UX folks I've moved to a cleaner more minimal UI with bigger buttons, more spacing and clearer backgrounds. 
+## Improved onboarding process
+Combined with the general UI improvements I overhauled the installation and getting started process to try to address areas where new users were getting confused and to get them up and running with less effort.
+## Support for Edge and Brave browsers
+Edge users can get BrainTool at the Edge store. Brave users can install from the Chrome store. Unfortunately Firefox does not support the tab groups function BT needs and has other incompatibilities that made it too onorous for me to support it in this release. Vivaldi (installable via the Chrome store) works with Topic mapping set to 'Windows'.
+## Added support for subscription memberships and coupons
+In advance of the 1.0 version of BrainTool I needed to put some structure in place to allow me to charge for premium subscriptions. See the in-app coupon offer!
+
+# BrainTool 0.9.1a
 This is a minor update with some Side Panel improvements (no change to the core extension). The header row now shows GDrive connected state and, on hover, the latest save time. The Edit Card popup has been cleaned up quite a bit and now allows tabbing through fields and navigation to next/previous cards with Alt/Option arrow keys. Other popups were tweaked for consistency. Finally, the 'Refresh from Gdrive' button has been moved inside the Options panel.
 
 See below for release notes from 0.9.0 and previous versions. 
