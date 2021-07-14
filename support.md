@@ -6,7 +6,12 @@ description: BrainTool is a way of organizing things you want to remember and ge
 audience: user
 ---
 
-There is a Google Group for discussion of issues, questions and suggestions related to BrainTool and Topic Management. You can access it [here.](https://groups.google.com/u/2/g/braintool-discussion) See also the [Welcome](/support/welcome) page and the latest [ReleaseNotes](/support/releaseNotes).
+# Information Sources
+- There is a Google Group for discussion of issues, questions and suggestions related to BrainTool and Topic Management. You can access it [here.](https://groups.google.com/u/2/g/braintool-discussion).
+- The BrainTool [Overview page](https://braintool.org/overview) discusses philosophy and direction.
+- Here's a [playlist of short videos](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix) walking through the complete set of BrainTool features (note that the first one is more of an ad).
+- You can post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback or questions.
+- There's also the [Welcome](/support/welcome) page and the [Release Notes](/support/releaseNotes).
 
 # Common BrainTool Problems
 BrainTool gives you complete and full access to all the data saved in the app by optionally writing it to a file on your Google Drive (if you have a Google account, you have Drive storage). Nothing is stored anywhere else other than in your browser. Ironically taking this hands-off approach to your data requires you to grant the application additional permissions after the extension is installed to permit GDrive syncing. This additional step of walking through the Google permission flow is the cause of confusion and some conflicts with other things going on in your browser,
@@ -23,6 +28,5 @@ Related to the above, some security and privacy related extensions stop web page
 ## I use two computers and don't see my changes on the second one
 As noted above your braintool data is stored in the browser and optionally on Google Drive in a file associated with your Google account (the file is called BrainTool.org, you can see it by visiting [drive.google.com](https://drive.google.com)). Thus you will have a single such file across any set of computers you use. If you have BrainTool running simultaneously on multiple computers you need to use the Refresh button (under Options) to reload the latest version of the file when you swap between computers. 
 
-
-# More Info
-See the BrainTool [Overview page](https://braintool.org/overview) for philosophy and direction, post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback.
+# Some other problem
+Email braintool.discussion@gmail.com or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback.

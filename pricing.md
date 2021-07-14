@@ -39,7 +39,7 @@ Full text search on links, descriptions and notes.
 To-Do/Done annotations.
 </p>
 <p>
-<i>Planned Features:</i>
+<i><b>Planned Features:</b></i>
 </p>
 <p>
 <i>Topic sharing</i>
@@ -58,7 +58,7 @@ To-Do/Done annotations.
 Unlimited Topic Cards and saves.
 </p>
 <p>
-<i>Planned Features:</i>
+<i><b>Planned Features:</b></i>
 </p>
 <p>
 <i>Multi-file support with per-Topic files.</i>
@@ -86,8 +86,6 @@ $3.99/mo or $40/yr
 </p>
 </div>
 </div>
-<br/>
-
 # BrainTool Pricing and Data Philosophy
 There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and stuff to do so, so it seems nice to share!
 

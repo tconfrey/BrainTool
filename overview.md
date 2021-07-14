@@ -59,14 +59,13 @@ Note that BrainTool is intended to help you actively curate an information space
 
 ## Post 1.0
 - **Preferences** : Factors such as font size and side panel location will be made configurable asap.
-- **Browsers** : Firefox, Edge, Brave and Vivaldi will be supported.
 - **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced file on a Google Drive, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
 - **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool will provide an intuitive overlay for a subset of orgs most important functionality - TODO lists, journaling, agendas etc.
 - **Session Save and Live Sessions**: While you can already save all the tabs in a window to a topic with a couple of clicks, there would be value in being able to save a snapshot of the whole browser session for later recovery. Relatedly, continuously capturing all activity in a browser window into a topic could be useful while researching.
 - **In-Page Highlighting**: Some similar tools find value in allowing the user to capture text from within a saved page, this might make sense for BrainTool also.
 - **Syncing Tree moves with Tab moves**: Currently if you drag and drop browser tabs the tree is not updated. Similarly operating on tree nodes does not move browser tabs. The two should remain in sync.
 - **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that its all just text, savvy users can use emacs or any other text editor. That said, it is a goal for BT to allow note-taking in place within the browser via some kind of simple but beautiful and highly satisfying editor tool.
-- **Deep Search**: As noted above search across your braintool file will be part of 1.0. Longer term it will be possible to crawl the actual contents of all of your saved pages and to augment browser search with a search across your personal information space.
+- **Deep Search**: As noted above, search across your braintool file will be part of 1.0. Longer term it will be possible to crawl the actual contents of all of your saved pages and to augment browser search with a search across your personal information space.
 - **Tags and Bi-Directional Linking**: In addition to containment it should be possible to model other kinds of relationships between topics and to tag information occurrences as being relevant to multiple topics.
 - **Multi-file Support**: It should be possible to save and load Topic Trees from a dedicated file. For example a node 'Recipes' could point to a dedicated recipes.org file which is loaded on demand.
 - **Topic Tree Sharing**: Curated Topic Trees are a very good way of sharing knowledge. E.G. I could share my 'recipes' topic with a friend, my 'Kitchen Project' topic tree with my wife or a 'team links' topic with an employee as part of onboarding.
