@@ -7,11 +7,11 @@ audience: user
 ---
 
 # Information Sources
-- There is a Google Group for discussion of issues, questions and suggestions related to BrainTool and Topic Management. You can access it [here.](https://groups.google.com/u/2/g/braintool-discussion).
 - The BrainTool [Overview page](https://braintool.org/overview) discusses philosophy and direction.
-- Here's a [playlist of short videos](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix) walking through the complete set of BrainTool features (note that the first one is more of an ad).
+- Here's a [playlist of short videos](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix). they walk through the complete set of BrainTool features (note that the first one is more of an ad).
 - You can post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback or questions.
 - There's also the [Welcome](/support/welcome) page and the [Release Notes](/support/releaseNotes).
+- And some other relevant stuff on the [blog](https://braintool.org/posts.html).
 
 # Common BrainTool Problems
 BrainTool gives you complete and full access to all the data saved in the app by optionally writing it to a file on your Google Drive (if you have a Google account, you have Drive storage). Nothing is stored anywhere else other than in your browser. Ironically taking this hands-off approach to your data requires you to grant the application additional permissions after the extension is installed to permit GDrive syncing. This additional step of walking through the Google permission flow is the cause of confusion and some conflicts with other things going on in your browser,
