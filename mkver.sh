@@ -22,3 +22,5 @@ cp extension/_locales/de/* versions/$1/extension/_locales/de
 cp extension/_locales/en/* versions/$1/extension/_locales/en
 cp extension/_locales/es/* versions/$1/extension/_locales/es
 cp extension/_locales/fr/* versions/$1/extension/_locales/fr
+
+echo "Don't forget to update the manifest and popup files to point to the right version!"

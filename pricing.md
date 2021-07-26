@@ -8,7 +8,7 @@ audience: nonuser
 
 # Special One-Time Offer!
 In advance of the 1.0 BrainTool release a free lifetime subscription coupon is being offered to any existing user who contributes to it's success by performing one of the following*:
-- Posting an honest 5 star review on the Web Store.
+- Posting an honest 5 star review on the [Chrome](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) or [Edge](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol) Web Store.
 <!-- - Filling out this survey:[link] -->
 - Posting a positive review or mention on a social network feed or blog.
 - Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
@@ -24,7 +24,7 @@ In advance of the 1.0 BrainTool release a free lifetime subscription coupon is b
 Up to 300 Topic Cards and 3000 Saves
 </p>
 <p>
-Import and export Chrome Bookmarks
+Import and export Browser Bookmarks
 </p>
 <p>
 Import-from and export-to local text file in readable <a href='http://orgmode.org' target='_blank'>org-mode</a> format.
@@ -55,7 +55,7 @@ To-Do/Done annotations.
 <h2>Premium</h2>
 
 <p>
-Unlimited Topic Cards and saves.
+Unlimited Topic Cards and Saves.
 </p>
 <p>
 <i><b>Planned Features:</b></i>

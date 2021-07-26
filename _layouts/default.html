@@ -3,13 +3,13 @@
   <head>
 
     {% if site.google_analytics %}
-      <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ site.google_analytics }}');
-      </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ site.google_analytics }}');
+    </script>
     {% endif %}
     <meta charset="UTF-8">
     {% seo %}
@@ -23,33 +23,47 @@
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+
   </head>
   <body>
     <header class="page-header" role="banner">
-      <div class="header-left">
-	<div class="header-links">
-	  <a href="{{ site.url  }}/index.html">
-	    <img id="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" height='60px' alt='logo'>
-	  </a>
+      <div class="header-top">
+	<img class="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" height='80px' alt='logo'/>
+	<p class="beyond-bookmarks"><i>Beyond Bookmarks</i></p>
 	</div>
-	<div class="header-buttons">
-          <a href="{{ site.url  }}/overview.html" >Vision</a>
-          <a href="{{ site.url  }}/support.html" >Help</a>
-          <a href="{{ site.url  }}/posts.html" >Blog</a>
-	</div>
+      </div>
+      
+      {% if page.audience != "landingpage" %}
+      <div style="display:flex">
+	<div class="header-left">
+	  <div class="header-buttons">
+            <a href="{{ site.url  }}/overview.html" >Vision</a>
+            <a href="{{ site.url  }}/support.html" >Help</a>
+            <a href="{{ site.url  }}/posts.html" >Blog</a>
+	  </div>
+	</div>  
 	{% if page.audience == "nonuser" %}
-	<div class="store-button">
-	  <a href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
-            <div style="background-color: #1a73e8; color: #fff; margin-left:auto; margin-right: auto; width: 150px; height: 36px; cursor: pointer; margin-top: 10px; padding-top:5px">
-              Add to Chrome
-            </div>
-          </a>
+	<div class="header-right">
+	  <div class="store-button">
+	    <a id="store-link" href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
+              <div id="store-text">Add to Chrome</div>
+            </a>
+	  </div>
+	  <script>
+	    // if edge change button to point to edge store
+	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
+	    let link = document.getElementById('store-link');
+	    let text = document.getElementById('store-text').firstChild;
+	    link.href = "http://www.mywebsite.com";
+	    text.nodeValue = "Add to Edge";
+	    }
+	  </script>
 	</div>
 	{% endif %}
-      </div>  
-      <div class="header-right">
-	<img id="marquee" src="{{ site.url }}/site/AppStoreCollatoral/BraintoolMarquee-nologo.png" height="95%" style="float:right" alt='logo'>
-      </div>  
+      </div>
+      {% endif %}
     </header>
 
     <main id="content" class="main-content" role="main">
