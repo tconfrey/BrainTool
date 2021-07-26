@@ -3,7 +3,7 @@
     "name": "__MSG_appName__",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
-    "version": "0.9.5",
+    "version": "0.9.6",
     "permissions": ["tabs", "storage", "bookmarks"],
     "background": {
         "scripts": ["background.js", "config.js"],
