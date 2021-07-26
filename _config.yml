@@ -7,7 +7,7 @@ github:
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
-title: BrainTool
+title: BrainTool - Beyond Bookmarks
 tagline: The Topic Manager for your Online Life
 description: Tame your tabs, control your browser! Tag and link your online info to see it organized and annotated in the side panel. Control your browser tabs from there.
 url: https://braintool.org
