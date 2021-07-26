@@ -30,15 +30,16 @@ async function createSubscription(product) {
 	return;
     }
     let sub = await getSub();
-    if (sub) {
-	console.log("Subscription exists for this user:", sub);
-	return;
-    }
 
     // Save sub id as BTId in local storage and org file property
     window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
     setMetaProp('BTId', BTId);
     await saveBT();
+    if (sub) {
+	alert("Seems like you already have a subscription associated with this browser.");
+	console.log("Subscription exists for this user:", sub);
+	return;
+    }
     
     // Create sub - redirects to Stripe, so execution will end here.
     // on reload the BTId value set above will indicate a premium subscription

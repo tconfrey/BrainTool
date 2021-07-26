@@ -19,7 +19,7 @@ async function createSubscription(product) {
 	return;
     }
 
-    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place and a link to the Stripe portal from which you can manage or cancel your subscription at any time.\n\nNB coupons can be applied at purchase.\n\nForwarding might take several seconds."))
+    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place and a link to the Stripe portal from which you can manage or cancel your subscription at any time.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
 	return;
 
     // Create user id, store in localStore and in BTFile text
@@ -30,15 +30,16 @@ async function createSubscription(product) {
 	return;
     }
     let sub = await getSub();
-    if (sub) {
-	console.log("Subscription exists for this user:", sub);
-	return;
-    }
 
     // Save sub id as BTId in local storage and org file property
     window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
     setMetaProp('BTId', BTId);
     await saveBT();
+    if (sub) {
+	alert("Seems like you already have a subscription associated with this browser.");
+	console.log("Subscription exists for this user:", sub);
+	return;
+    }
     
     // Create sub - redirects to Stripe, so execution will end here.
     // on reload the BTId value set above will indicate a premium subscription
