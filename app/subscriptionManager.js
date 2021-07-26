@@ -19,7 +19,7 @@ async function createSubscription(product) {
 	return;
     }
 
-    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place and a link to the Stripe portal from which you can manage or cancel your subscription at any time.\n\nNB coupons can be applied at purchase.\n\nForwarding might take several seconds."))
+    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place and a link to the Stripe portal from which you can manage or cancel your subscription at any time.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
 	return;
 
     // Create user id, store in localStore and in BTFile text
