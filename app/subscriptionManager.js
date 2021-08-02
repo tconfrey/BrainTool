@@ -71,8 +71,8 @@ const firebaseConfig = {
   appId: "1:177084785905:web:305c20b6239b97b3243550"
 };
 
-const Annual = "price_1J0uYvJfoHixgzDGqVnNt5Zg";
-const Monthly = "price_1J0uYFJfoHixgzDGiXtFAcdB";
+const Annual =  "price_1J0uJMJfoHixgzDGapSAEFMa"; // test: "price_1J0uYvJfoHixgzDGqVnNt5Zg";
+const Monthly = "price_1J0uI4JfoHixgzDGAnx2b087"; // test: "price_1J0uYFJfoHixgzDGiXtFAcdB";
 
 const FunctionLocation = 'us-east1';
 let FBDB = null;

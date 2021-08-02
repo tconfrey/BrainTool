@@ -208,12 +208,19 @@ function initializeExtension(msg, sender) {
 	 'stripe_key': config.STRIPE_KEY,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall});
 
-    // check to see if a welcome is called for
+    // check to see if a welcome is called for. repeat popup setting on bt win for safety.
     if (InitialInstall || UpdateInstall) {
         const welcomePage = InitialInstall ?
               'https://braintool.org/support/welcome' :
               'https://braintool.org/support/releaseNotes';
-        chrome.tabs.create({'url': welcomePage});
+        chrome.tabs.create({'url': welcomePage},
+			   () => {
+			       chrome.windows.update(BTWin,
+						     {'focused' : true,
+						      'state' : "normal",
+						      'top' : 10, 'left' : 5,
+						      'width' : 500, 'height' : screen.height});
+			   });
         InitialInstall = null; UpdateInstall = null;
     }
 }
