@@ -6,7 +6,7 @@ description: BrainTool is a way of organizing things you want to remember and ge
 audience: nonuser
 ---
 
-# Special One-Time Offer!
+# Special One-Time Offers!
 In advance of the 1.0 BrainTool release a free lifetime subscription coupon is being offered to any existing user who contributes to it's success by performing one of the following*:
 - Posting an honest 5 star review on the [Chrome](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) or [Edge](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol) Web Store.
 <!-- - Filling out this survey:[link] -->
@@ -14,6 +14,9 @@ In advance of the 1.0 BrainTool release a free lifetime subscription coupon is b
 - Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
 
 <i style="font-size:0.8rem; margin-top:0px;">* Send a link showing the post to braintool.extension@gmail.com and I'll send you the coupon code. Do all 3 and I'll send you 3 coupons!</i>
+
+If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the EarlyFinancerDiscount coupon code to receive 50% off your subscription forever.
+
 # BrainTool Introductory Pricing
 
 <div class="row">

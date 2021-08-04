@@ -168,9 +168,10 @@ async function findOrCreateBTFile() {
             BTFileID = Config ? Config.BTFileID || file.id : file.id;
             updateStatsRow(file.modifiedTime);
 	    const driveFileVersion = parseInt(file.version);
-	    if (driveFileVersion > Config.BTExternalFileVersion) {
+	    if (driveFileVersion > (Config.BTExternalFileVersion || 0)) {
 		warnBTFileVersion();
-		alert('GDrive BrainTool.org file is newer.\nA Refresh might be needed');
+		if (confirm('BrainTool.org file already exists. Use it?')) 
+		    await refreshTable(true);
 	    }
 	    // Save BTFileID if we haven't already
 	    if (!Config || !Config.BTFileID) {
