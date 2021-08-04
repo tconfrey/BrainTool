@@ -38,12 +38,17 @@
 #search_entry {
     height: 13px;
     top: 2px;
-    color: darkolivegreen;
+    font-family: Roboto;
     margin-top: 1px;
     border-bottom-width: 1px;
-    font-style: italic;
+    background-color: #bed8be;
 }
-
+.highlight {
+    background-color: lime;
+}
+.failed {
+    background-color: #E59A98 !important;
+}
 #open_close_image {
     opacity: 0.6;
     margin-top: 1px;

@@ -1,9 +1,10 @@
 /*** 
  * 
  * Manages the App window UI and associated logic.
- * NB Runs in context of the BT side panel, not the background BT extension or the helper btContent scripts 
+ * NB Runs in context of the BT side panel, not background BT extension or helper btContent script
  * 
  ***/
+
 'use strict'
 
 const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
@@ -1466,14 +1467,104 @@ function groupingUpdate(from, to) {
 
 /***
  * 
+ * Search support
+ * 
+ ***/
+let reverseSearch = false;;
+function enableSearch(e, reverse = false) {
+    // activate search mode
+    $("#search_entry").val("");
+    $("#search_entry").select();
+    e.preventDefault();
+    e.stopPropagation();
+
+    reverseSearch = reverse;
+}
+function disableSearch() {
+    // turn off search mode
+    keyPressHandler.searchMode = false;
+    $("span.highlight").contents().unwrap();
+    $("#search_entry").blur();
+    $("#search_entry").removeClass('failed');
+
+    // redisplay selected node to remove any search markup
+    const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
+    if (selectedNodeId) AllNodes[selectedNodeId].redisplay();
+}
+
+function search(key) {
+    // called on input change for search_entry, could be Search or Reverse-search,
+    // new letter added or search for next
+
+    key.stopPropagation();
+    let sstr = $("#search_entry").val();
+    let next = false;
+    const char = key.originalEvent.data;
+
+    if (char && (char.charCodeAt(0) == 223 || char.charCodeAt(0) == 174)) {
+	// ie opt-s, ie search next
+	sstr = sstr.slice(0, -1);
+	$("#search_entry").val(sstr);
+	next = true;
+	reverseSearch = (char.charCodeAt(0) == 174);
+    }
+    console.log('searching for ', sstr, ' reverse=', reverseSearch);
+    const inc = reverseSearch ? -1 : 1;			      // forward or reverse
+    
+    $("span.highlight").contents().unwrap();
+    if (sstr.length < 1) return;                              // don't search for nothing!
+
+    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:first')[0];
+    let nodeId = parseInt($(currentSelection).attr('data-tt-id'));
+    if (next) {
+	AllNodes[nodeId].redisplay();
+	nodeId = nodeId + inc;				      // find next hit, forward/reverse
+    }
+    if ($("#search_entry").hasClass('failed'))
+	nodeId = reverseSearch ? AllNodes.length - 1 : 1;     // restart at top or bottom (reverse)
+
+    let node = AllNodes[nodeId];
+    const reg = new RegExp(sstr, 'ig');
+
+    while(node && !node.search(reg, sstr)) {
+	node = AllNodes[nodeId];
+	nodeId = nodeId + inc;
+    }
+    if (node) {
+	$("tr.selected").removeClass('selected');
+	$(node.displayNode()).addClass('selected');
+	node.show();
+	node.displayNode().scrollIntoView({block: 'center'});
+	let highlight = $(node.displayNode()).find("span.highlight")[0];
+	if (highlight) highlight.scrollIntoView({'inline' : 'center'});
+	$("#search_entry").removeClass('failed');
+	console.log(`found in node# ${nodeId}`);
+    } else {
+	console.log(`"${sstr}" not found. nodeId = ${nodeId}`);
+	$("#search_entry").addClass('failed');
+    }
+}
+$("#search_entry").on('input', search);
+
+/***
+ * 
  * Keyboard event handlers
  * 
  ***/
 
-$(document).keydown(function(e) {
+function keyPressHandler(e) {
 
+    if (this.searchMode) {
+	if (e.key == 'Enter') {
+	    // done
+	    this.searchMode = false;
+	    disableSearch();
+	}
+	return;
+    }
+
+    const alt = e.altKey;    
     const key = e.which;
-    const alt = e.altKey;
     // This one doesn't need a row selected, alt-z for undo last delete
     if (alt && key === 90) {
         undo();
@@ -1503,11 +1594,19 @@ $(document).keydown(function(e) {
         if (!next) return;
         if (currentSelection) $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
-        next.scrollIntoView({block: 'nearest'});
+        next.scrollIntoView({block: 'nearest'});	
+	$("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
         return;
     }
-    
+
+    // s,r = Search, Reverse-search
+    if (key === 83 || key === 82) {
+	this.searchMode = true;
+	enableSearch(e, (key === 82));
+        return;
+    }
+
     // h = help
     if (key === 72) {
         toggleHelp();
@@ -1629,7 +1728,8 @@ $(document).keydown(function(e) {
         e.preventDefault();
     }
 
-});
+};
+$(document).on("keyup", keyPressHandler);
 
 function handleEditCardKeydown(e) {
     // subset of keydown handler applicible to card edit dialog

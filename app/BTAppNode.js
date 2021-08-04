@@ -165,6 +165,46 @@ class BTAppNode extends BTNode {
         return txt + BTAppNode._orgTextToHTML(this.title);
     }
 
+    displayNode() {
+	// return jquery table row for node
+	return $(`tr[data-tt-id='${this.id}']`)[0];
+    }
+
+    redisplay() {
+	// regenerate content
+	$(this.displayNode()).find("span.btTitle").html(this.displayTitle());
+	$(this.displayNode()).find("span.btText").html(this.displayText());
+    }
+    
+    show() {
+	// show this node in the tree (might be folded)
+	const disp = this.displayNode();
+	if(!$(disp).is(':visible'))
+	{
+	    AllNodes[this.parentId].show(); 		       // btnode show
+	    $(disp).show();				       // jquery node show
+	}
+    }
+
+    search(reg, sstr) {
+	// search node for regex of /sstr/ig
+	let match = false;
+	const node = this.displayNode();
+	if (reg.test(this._title)) {
+	    let titleStr = this._title.replaceAll(reg,
+						  `<span class='highlight'>${sstr}</span>`);
+	    $(node).find("span.btTitle").html(titleStr);	    
+	    match = true;
+	}
+	if (reg.test(this._text)) {
+	    let textStr = this.displayText().replaceAll(reg,
+							`<span class='highlight'>${sstr}</span>`);
+	    $(node).find("span.btText").html(textStr);
+	    match = true;
+	}
+
+	return match;	
+    }
 
 /***
  *
