@@ -175,6 +175,7 @@ function getMetaProp(propName) {
 
 function setMetaProp(propName, val) {
     // set or change the value of the meta property
+    if (!AllNodes.metaProperties) AllNodes.metaProperties = [];
     const index = AllNodes.metaProperties.findIndex(prop => prop.name == propName);
     if (index > -1)
         AllNodes.metaProperties[index] = {'name': propName, 'value': val};
