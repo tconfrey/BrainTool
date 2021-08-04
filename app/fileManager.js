@@ -170,8 +170,10 @@ async function findOrCreateBTFile() {
 	    const driveFileVersion = parseInt(file.version);
 	    if (driveFileVersion > (Config.BTExternalFileVersion || 0)) {
 		warnBTFileVersion();
-		if (confirm('BrainTool.org file already exists. Use it?')) 
+		if (confirm('BrainTool.org file already exists. Use it?')) {
 		    await refreshTable(true);
+		    await saveBT();
+		}
 	    }
 	    // Save BTFileID if we haven't already
 	    if (!Config || !Config.BTFileID) {
