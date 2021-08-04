@@ -247,10 +247,15 @@ podcast interview
 Reference Material. Create sub tags under here - eg Reference:Machine Learning
 
 ** BrainTool
-   :PROPERTIES:
-   :VISIBILITY: folded
-   :END:
- As another example in a recursive kind of way. This tag and its children capture resources related to BrainTool.
+As another example in a recursive kind of way. This tag and its children capture resources related to BrainTool.
+
+*** [[https://braintool.org/support][BrainTool Support Page]]
+
+*** [[https://braintool.org/posts.html][Blog]]
+
+*** [[https://braintool.org/overview.html][Vision]]
+
+*** [[https://groups.google.com/u/0/g/braintool-discussion][Discussion Group]]
 
 *** Complementary Tools
     :PROPERTIES:
