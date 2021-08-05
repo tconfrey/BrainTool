@@ -164,22 +164,23 @@ async function findOrCreateBTFile() {
         
         const files = response?.result?.files;
         if (files && files.length > 0) {
-            const file = files.find((f) => f.BTFileID == (Config.BTFileID || 0)) || files[0];
-            BTFileID = Config ? Config.BTFileID || file.id : file.id;
+            const file = files.find((f) => f.id == (Config.BTFileID || 0)) || files[0];
+            BTFileID = file.id;
             updateStatsRow(file.modifiedTime);
 	    const driveFileVersion = parseInt(file.version);
-	    if (driveFileVersion > (Config.BTExternalFileVersion || 0)) {
+	    if (Config?.BTExternalFileVersion && (driveFileVersion > Config.BTExternalFileVersion)) {
 		warnBTFileVersion();
 		if (confirm('BrainTool.org file already exists. Use it?')) {
 		    await refreshTable(true);
-		    await saveBT();
+		    Config.BTExternalFileVersion = driveFileVersion;
+		    await saveBT(); // later in flow property save was overwriting w old data on upgrade, so resave here to get disk version written to memory etc.
 		}
 	    }
-	    // Save BTFileID if we haven't already
-	    if (!Config || !Config.BTFileID) {
-		Config.BTFileID = BTFileID;
-		window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-	    }
+	    // Update and Save Config
+	    Config.BTFileID = BTFileID;
+	    Config.BTExternalFileVersion = Config.BTExternalFileVersion || driveFileVersion;
+	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    
         } else {
             console.log('BrainTool.org file not found.');
             await createStartingBT();
