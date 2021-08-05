@@ -35,7 +35,7 @@ chrome.storage.local.get(['newInstall', 'newVersion'], val => {
         msg.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
         chrome.storage.local.remove('newVersion');
         setTimeout(() => {            
-            chrome.tabs.query({title: "BrainTool Chrome Extension"},
+            chrome.tabs.query({title: "BrainTool Side Panel"},
                               (tabs => {
                                   if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
                                   chrome.runtime.reload();
@@ -69,7 +69,7 @@ function windowOpen() {
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
-    chrome.tabs.query({title: "BrainTool Chrome Extension"},
+    chrome.tabs.query({title: "BrainTool Side Panel"},
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
 
     // Create window, remember it and highlight it
