@@ -82,7 +82,9 @@ async function trySignIn() {
 }
 
 function authorizeGapi(userInitiated = false) {
+    // called from initial launch or Connect button (=> userInitiated)
     // gapi needed to access gdrive not yet loaded => this script needs to wait
+    
     console.log('Loading Google API...');
     gtag('event', 'AuthInitiated', {'event_category': 'GDrive'});
     if (userInitiated) {
@@ -133,7 +135,7 @@ async function initClient(userInitiated = false) {
         
         // connect w (or create) BTfile on GDrive and carry on
         setMetaProp('BTGDriveConnected', 'true');
-        await findOrCreateBTFile();
+        await findOrCreateBTFile(userInitiated);
         updateSigninStatus(AuthObject.isSignedIn.get(), false, userInitiated);
 	}
     catch (err) {
@@ -154,7 +156,8 @@ function checkLoginReturned() {
  * Find or initialize BT file at gdrive 
  */
 var BTFileID;
-async function findOrCreateBTFile() {
+async function findOrCreateBTFile(userInitiated) {
+    // on launch or explicit user 'connect to Gdrive' action (=> userInitiated)
     try {
         let response = await gapi.client.drive.files.list({
             'pageSize': 1,
@@ -168,9 +171,16 @@ async function findOrCreateBTFile() {
             BTFileID = file.id;
             updateStatsRow(file.modifiedTime);
 	    const driveFileVersion = parseInt(file.version);
-	    if (Config?.BTExternalFileVersion && (driveFileVersion > Config.BTExternalFileVersion)) {
+	    if (userInitiated ||
+		(Config?.BTExternalFileVersion && (driveFileVersion > Config.BTExternalFileVersion)))
+	    {
+		// if user just initiated connection but file exists ask to import
+		// or if we have a recorded version thats older than disk, ask to import
 		warnBTFileVersion();
-		if (confirm('BrainTool.org file already exists. Use it?')) {
+		const msg = userInitiated ?
+		      "BrainTool.org file already exists. Use it's contents?" :
+		      "BrainTool.org file is newer than browser data. User newer?";
+		if (confirm(msg)) {
 		    await refreshTable(true);
 		    Config.BTExternalFileVersion = driveFileVersion;
 		    await saveBT(); // later in flow property save was overwriting w old data on upgrade, so resave here to get disk version written to memory etc.
@@ -212,17 +222,18 @@ async function createStartingBT() {
         return;
 
     try {
-        // fetch template file from bt server and write to GDrive
+        // write BTFileText to GDrive
         var form = new FormData();
         form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
         form.append('file', BTFileText);
 
         let response = await
-        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version', {
-            method: 'POST',
-            headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-            body: form,
-        });
+        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version'
+	      , {
+		  method: 'POST',
+		  headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+		  body: form,
+              });
         let responseValue = await response.json();
         
         console.log("Created ", responseValue);
