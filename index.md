@@ -36,7 +36,7 @@ No longer fear closing a tab!
 	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
 	    let link = document.getElementById('store-link');
 	    let text = document.getElementById('store-text').firstChild;
-	    link.href = "http://www.mywebsite.com";
+	    link.href = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
 	    text.nodeValue = "Add to Edge";
 	    }
 	  </script>
