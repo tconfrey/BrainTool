@@ -15,7 +15,7 @@ Context switch with ease and keep your workspace clean.
 </h3>
 <h1> Control your Browser</h1>
 <h3>
-With BrainTool all your tools & online information sources are organized by Topic in the BrainTool side panel.
+Everything is organized by Topic in the BrainTool side panel.
 <br/><br/>
 No longer fear closing a tab!
 </h3>
@@ -57,7 +57,7 @@ Trivially save a page, assign a Topic and close it out.
 <img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin; margin-top:1rem;">
 <br/><br/>
 <h3>
-Keep detailed notes on the Topic card associated with every item.
+Or keep detailed notes on the Topic card associated with every item.
 <br/><br/>
 </h3>
 </div>
@@ -82,5 +82,5 @@ Keep detailed notes on the Topic card associated with every item.
 <h1>More Info</h1>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-There's philosophy and roadmap information in the [Vision Statement](http://braintool.org/overview) and the required official privacy policy is [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
+See the [Vision Statement](http://braintool.org/overview) for philosophy and roadmap information and see the required official privacy policy [here](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
 
