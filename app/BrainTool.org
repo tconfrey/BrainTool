@@ -344,7 +344,8 @@ another set of tutorials
 *** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
 Jethro Kuan's workflow
 
-
+*** [[https://www.youtube.com/c/SystemCrafters][System Crafters Videos]]
+See particularly the intro series
 
 
 ** Personal Productivity
