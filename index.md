@@ -9,18 +9,18 @@ audience: landingpage
 <div class="cell left" >
 <h1> Tame your Tabs</h1>
 <h3>
-Open and close groups of tabs for a Topic with a click.
+Everything is organized by Topic in the BrainTool side panel.
 <br/><br/>
-Context switch with ease and keep your workspace clean.
+Open and close groups of tabs for a Topic with a click.
 </h3>
 <h1> Control your Browser</h1>
 <h3>
-Everything is organized by Topic in the BrainTool side panel.
+Context switch with ease and keep your workspace clean.
 <br/><br/>
 No longer fear closing a tab!
 </h3>
 <br/>
-<h1> Capture your Notes</h1>
+<h1> Capture your Thoughts</h1>
 </div>
 <div class="cell right" >
 
