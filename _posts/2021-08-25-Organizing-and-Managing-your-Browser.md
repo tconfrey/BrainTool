@@ -13,7 +13,7 @@ You already know why!
 
 - You have hundreds of web sites and pages and apps that you visit regularly in a browser.
 - You keep dozens of tabs open and spend too much time finding the one you want. 
-- You have no good way to keep track of all your stuff.
+- You have no good way to keep track of all your online stuff.
 - You're afraid to close a tab when you leave it because you'll be coming back at some point and you'd have to put too much thought into saving it somewhere. 
 
 You've long since given up on your disorganized bookmarks. You've tried pinned tabs and tab groups and vertical tabs. They help, a little bit.
@@ -26,7 +26,7 @@ BrainTool is a [Topic Manager]({% post_url 2021-05-15-Organizing-your-life-with-
 <div class="cell left">
 BrainTool is also an extension that sits inside your browser and helps you keep track of all your topics and to work more efficiently.
 <br/><br/>
-The BrainTool Popup makes it easy to capture a note and assign a topic to a web page. 
+The BrainTool Popup makes it easy to assign a topic to a web page, with a note capturing why its important.
 <br/><br/>
 The SidePanel holds the topic hierarchy for you to edit and curate. It lets you open and close topics en masse and navigate the pages you've associated with a topic. 
 </div>
@@ -51,10 +51,10 @@ For improved focus get in the habit of working within a single topic, or small n
 ## What you should know
 Your browsing data and associated topics and notes are your personal and private information. BrainTool is structured such that no one else has any access to your data. The tool running inside your browser uses local browser storage or a synced file that is solely under your control.
 
-To further support efficient browser operation and in homage to its roots, BrainTool has a full set of keyboard commands - use 'h' from the side panel for the full list.
+To further support efficient browser operation and in homage to its roots, BrainTool supports keyboard control - use 'h' from the side panel for the full list. _(See BT below, navigating the hierarchy and controlling vertical tabs in Edge.)_
 
 <img src="/site/BT-keyboard.gif" alt="BrainTool popup" style="border:solid; border-width:thin; width:75%; display:block; margin: auto">
 
 WRT its roots, BrainTool originally came out of my attempt to unify my text notes and my bookmarks. I keep my text notes in [Org-mode](https://orgmode.org) syntax so that's how BrainTool stores your underlying information. You can sync to an Org file, keep your braintool data in there, and then use other tools to edit it also.
 
-For a deeper dive see some of these: [other posts](/posts). The [privacy policy](/BrainToolPrivacyPolicy.pdf), [pricing](/pricing) and [vision](/overview) pages might also be of interest.
+For a deeper dive into various aspects see [the blog](/posts). The [privacy policy](/BrainToolPrivacyPolicy.pdf), [pricing](/pricing) and [vision](/overview) pages might also be of interest.
