@@ -9,15 +9,15 @@ audience: landingpage
 <div class="cell left" >
 <h1> Tame your Tabs</h1>
 <h3>
-BrainTool organizes all your stuff by Topic in a side panel.
+BrainTool organizes all your sites by Topic in a side panel.
 <br/><br/>
-Open and close groups of tabs for a Topic with a click.
+No longer fear closing a tab!
 </h3>
 <h1> Control your Browser</h1>
 <h3>
-Context switch with ease and keep your workspace clean.
+Open and close groups of tabs for a Topic with a click.
 <br/><br/>
-No longer fear closing a tab!
+Context switch with ease and keep your workspace clean.
 </h3>
 <br/>
 <h1>Curate your Topics</h1>
@@ -145,7 +145,7 @@ With Braintool I have found it.</td></tr>
 - "Gave bookmarks the performance and usability boost that I'd been waiting for all these years"
 -->
 <br/>
-# Plain Text for the Win!
+# Plain Text FTW!
 - Your data is stored in a continuously synced plain text file.
 - BrainTool uses structured [org-mode](http://orgmode.org) syntax.
 - The file can be separately edited, backed-up or shared.
