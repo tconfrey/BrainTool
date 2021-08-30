@@ -179,7 +179,7 @@ async function findOrCreateBTFile(userInitiated) {
 		warnBTFileVersion();
 		const msg = userInitiated ?
 		      "BrainTool.org file already exists. Use it's contents?" :
-		      "BrainTool.org file is newer than browser data. User newer?";
+		      "BrainTool.org file is newer than browser data. Use newer?";
 		if (confirm(msg)) {
 		    await refreshTable(true);
 		    Config.BTExternalFileVersion = driveFileVersion;
