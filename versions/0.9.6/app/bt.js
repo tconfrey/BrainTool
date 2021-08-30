@@ -1038,8 +1038,8 @@ function editRow(e) {
     if ((top + dialogHeight + 60) < $(window).height())
         $(dialog).css("top", bottom+30);
     else
-        // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - dialogHeight - 20);
+        // position above row to avoid going off bottom of screen (or the top)
+        $(dialog).css("top", Math.max(10, top - dialogHeight - 20));
 
     // populate dialog
     const dn = node.fullTagPath();
