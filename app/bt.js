@@ -192,6 +192,8 @@ async function warnBTFileVersion(e) {
     $("#num_saves").attr('title', 'Remote file is newer, consider refreshing'); 
     $("#saves").attr('title', 'Remote file is newer, consider refreshing');
     $("#stats_row").css('background-color', '#ffcc00');
+    console.log("Newer BTFile version on GDrive, sending gtag event and warning");
+    gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
 }
 window.onfocus = warnBTFileVersion;
 
