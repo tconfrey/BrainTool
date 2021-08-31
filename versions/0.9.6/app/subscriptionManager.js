@@ -23,7 +23,7 @@ async function createSubscription(product) {
 	return;
 
     // Create user id, store in localStore and in BTFile text
-    BTId = BTId || await signIn();
+    BTId = BTId || getMetaProp('BTId') || await signIn();
     if (!BTId) {
 	console.error("Error signing in to FB");
 	alert("Sorry Firebase user creation failed.");

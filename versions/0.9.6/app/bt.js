@@ -192,6 +192,8 @@ async function warnBTFileVersion(e) {
     $("#num_saves").attr('title', 'Remote file is newer, consider refreshing'); 
     $("#saves").attr('title', 'Remote file is newer, consider refreshing');
     $("#stats_row").css('background-color', '#ffcc00');
+    console.log("Newer BTFile version on GDrive, sending gtag event and warning");
+    gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
 }
 window.onfocus = warnBTFileVersion;
 
@@ -1038,8 +1040,8 @@ function editRow(e) {
     if ((top + dialogHeight + 60) < $(window).height())
         $(dialog).css("top", bottom+30);
     else
-        // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - dialogHeight - 20);
+        // position above row to avoid going off bottom of screen (or the top)
+        $(dialog).css("top", Math.max(10, top - dialogHeight - 20));
 
     // populate dialog
     const dn = node.fullTagPath();
@@ -1077,7 +1079,8 @@ function editRow(e) {
     $("#text-text").height(height - 140);                   // notes field fits but as big as possible
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
         .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
-                 function () {$("#text-text").focus();});
+                 function () {
+		     e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();});
 }
 
 $(".editNode").on('input', function() {
@@ -1291,8 +1294,8 @@ function addChild(e) {
     // create child element
     const node = getActiveNode(e);
     if (!node) return;
-    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Tag'));
-    const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
+    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Topic'));
+    const newName = newnodes.length ? 'New Topic'+newnodes.length : 'New Topic';
     const newNode = addNewTag(newName, node.tagPath, node);
 
     // and highlight it for editing
@@ -1300,7 +1303,7 @@ function addChild(e) {
     $("tr.selected").removeClass('selected');
     $(tr).addClass("selected");
     const clientY = tr[0].getBoundingClientRect().top + 25;
-    const dummyEvent = {'clientY': clientY, 'target': tr[0]};
+    const dummyEvent = {'clientY': clientY, 'target': tr[0], 'newTopic': true};
     editRow(dummyEvent);
 
     // Stop the event from selecting the row and line up a save

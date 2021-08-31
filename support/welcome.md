@@ -23,6 +23,8 @@ BrainTool is a ['Topic Manager'](https://braintool.org/2021/05/15/Organizing-you
 ## Support and more Info
 Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md).
 
+Also check out [this special offer](../pricing.md) in advance BrainTool 1.0 dropping.
+
 ## Security and Permissions
 The BrainTool (BT) philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what its doing.
 

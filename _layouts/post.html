@@ -2,9 +2,16 @@
 layout: default
 audience: nonuser
 ---
-<p>{{ page.date | date_to_string }} - Written by {{ page.author }}</p>
+<style type="text/css">
+  .main-content {
+    padding-top: 1px;
+  }
+</style>
+
 
 {{ content }}
+<p style="font-style: italic; margin-bottom:0px; margin-top:0px; text-align:center;"><small>{{ page.date | date_to_string }} - Written by {{ page.author }}</small></p>
+
 <div class="PageNavigation">
   {% if page.previous.url %}
     <a class="prev" href="{{page.previous.url}}">&laquo; {{page.previous.title}}</a>

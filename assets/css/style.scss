@@ -20,9 +20,15 @@ h1 {
     font-family: Roboto;
     text-align: center;
 }
+h1:first-of-type {
+    margin-top: 0.5rem;
+}
 
 h2 {
     font-family: Roboto;
+}
+h2 + p {
+    margin-top: -0.75rem;
 }
 
 h3 {
@@ -89,7 +95,7 @@ iframe {
     color: #159957;
     font-size: 3em;
     font-family: Roboto;
-    margin-top: 0.1rem;
+    margin-top: -0.75rem;
     margin-bottom: -0.4rem;
 }
 
@@ -130,12 +136,12 @@ iframe {
 
 @media screen and (min-width: 72em) {
     .page-header {
-	padding: 1rem 10rem 3rem 10rem; 
+	padding: 1rem 10rem 1rem 10rem; 
     }
 }
 @media screen and (min-width: 60em) and (max-width: 72em){
     .page-header {
-	padding: 0.3rem 8rem 3rem 8rem; 
+	padding: 0.3rem 8rem 1rem 8rem; 
     }
 }
 @media screen and (min-width: 48em) and (max-width: 60em) {

@@ -7,7 +7,7 @@ audience: user
 ---
 
 # Welcome to BrainTool 0.9.6
-We're almost at 1.0!
+We're almost at 1.0! See [Pricing](../pricing.md) for a limited time offer for pre 1.0 subscribers.
 ## Cleaner more minimal UI
 Based on the results of a comprehensive review by a panel of designers and UX folks I've moved to a cleaner more minimal UI with bigger buttons, more spacing and clearer backgrounds. 
 ## Improved onboarding process

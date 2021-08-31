@@ -11,3 +11,4 @@ _site
 media/*.mov
 .sass-cache
 TAGS
+reference
