@@ -94,7 +94,7 @@ async function launchApp(msg) {
         }
     } else {
         addTip();
-        setTimeout(closeMenu, 10000);
+        setTimeout(closeMenu, 3000);
     }
 
     // If GDrive connection was previously established, re-set it up on this startup
@@ -205,9 +205,12 @@ window.onfocus = warnBTFileVersion;
  *
  ***/
 
-function toggleMenu() {
+function toggleMenu(event) {
     // Toggle the visibility of the intro page, auth button and open/close icon
     // NB controls_screen has a min height set, need to remove during animations
+
+    if (event.target == $('#search_entry')[0]) return; 	      // click was on search box
+    
     const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {
         $("#controls_screen").css('min-height',0)
@@ -1473,81 +1476,128 @@ function groupingUpdate(from, to) {
  * Search support
  * 
  ***/
-let reverseSearch = false;;
-function enableSearch(e, reverse = false) {
+let ReverseSearch = false;
+let SearchOriginId = 0;
+function enableSearch(e) {
     // activate search mode
-    $("#search_entry").val("");
     $("#search_entry").select();
+
+    let row = (ReverseSearch) ? 'last' : 'first';
+    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:'+row)[0];
+    SearchOriginId = parseInt($(currentSelection).attr('data-tt-id'));
+    
+    // prevent other key actions til search is done
+    $(document).unbind('keyup');
     e.preventDefault();
     e.stopPropagation();
-
-    reverseSearch = reverse;
 }
-function disableSearch() {
+function disableSearch(e) {
     // turn off search mode
-    keyPressHandler.searchMode = false;
-    $("span.highlight").contents().unwrap();
-    $("#search_entry").blur();
+    e || $("#search_entry").blur();			      // e => user drived blur
     $("#search_entry").removeClass('failed');
 
+    // undo display of search hits
+    $("span.highlight").contents().unwrap();
+    $("td").removeClass('search');
+
+    // turn back on other key actions, but only after this keyup is done
+    $(document).on("keyup", function() {
+	$(document).unbind('keyup');			      // get rid of this anon fn
+	$(document).on("keyup", keyPressHandler);
+    });
+
+    AllNodes.forEach((n) => n.unshowForSearch());	      // fold search-opened nodes back closed
+    
     // redisplay selected node to remove any search markup
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
-    if (selectedNodeId) AllNodes[selectedNodeId].redisplay();
+    if (selectedNodeId) AllNodes[selectedNodeId].redisplay(true);
 }
 
-function search(key) {
-    // called on input change for search_entry, could be Search or Reverse-search,
-    // new letter added or search for next
+function handleKeyUp(keyevent){
+    // special case handling cos keydown does not get delete key
+    // and also first key when textinput still has prev content keydown gets both, need to wait till keyup
+    if ((keyevent.key == 'Backspace') || ( $("#search_entry").val().length == 1)) {
+	search({'key':'', 'startId': SearchOriginId});
+    }
+}
 
-    key.stopPropagation();
+function search(keyevent) {
+    // called on keypress for search_entry, could be Search or Reverse-search,
+    // key is new letter pre-added or opt-s/r (search for next) or del 
+
     let sstr = $("#search_entry").val();
     let next = false;
-    const char = key.originalEvent.data;
 
-    if (char && (char.charCodeAt(0) == 223 || char.charCodeAt(0) == 174)) {
-	// ie opt-s, ie search next
-	sstr = sstr.slice(0, -1);
+    // done
+    if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
+	disableSearch();
+	keyevent.stopPropagation();
+	keyevent.preventDefault();			      // stop enter from runnin on selection
+	return false;
+    }
+
+    // opt-s/r drop that char code and go to next match
+    if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
+	//sstr = sstr.slice(0, -1);
 	$("#search_entry").val(sstr);
 	next = true;
-	reverseSearch = (char.charCodeAt(0) == 174);
+	ReverseSearch = (keyevent.code == "KeyR");
+	keyevent.stopPropagation();
+	keyevent.preventDefault();			      // stop opt key from displaying
+    } else {
+	sstr += keyevent.key;
     }
-    console.log('searching for ', sstr, ' reverse=', reverseSearch);
-    const inc = reverseSearch ? -1 : 1;			      // forward or reverse
-    
+    const inc = ReverseSearch ? -1 : 1;			      // forward or reverse
+
+    // undo effects of any previous hit
     $("span.highlight").contents().unwrap();
+    $("td").removeClass('search');
+    
     if (sstr.length < 1) return;                              // don't search for nothing!
 
-    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:first')[0];
-    let nodeId = parseInt($(currentSelection).attr('data-tt-id'));
+    // Find where we're starting from (might be passed in from backspace key handling
+    let row = (ReverseSearch) ? 'last' : 'first';
+    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:'+row)[0];
+    let nodeId = keyevent.startId || parseInt($(currentSelection).attr('data-tt-id'));
+    
+    let prevNodeId = nodeId;
     if (next) {
 	AllNodes[nodeId].redisplay();
 	nodeId = nodeId + inc;				      // find next hit, forward/reverse
     }
     if ($("#search_entry").hasClass('failed'))
-	nodeId = reverseSearch ? AllNodes.length - 1 : 1;     // restart at top or bottom (reverse)
+	// restart at top or bottom (reverse)
+	nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
 
+    // Do the search
     let node = AllNodes[nodeId];
-    const reg = new RegExp(sstr, 'ig');
-
-    while(node && !node.search(reg, sstr)) {
+    const reg = new RegExp(escapeRegExp(sstr), 'ig');
+    while(nodeId > 0 && nodeId < AllNodes.length) {
 	node = AllNodes[nodeId];
 	nodeId = nodeId + inc;
+	if (!node) continue;				      // AllNodes is sparse
+	if (node.search(reg, sstr)) break;
+	node = null;
     }
+    
     if (node) {
+	if (prevNodeId != node.id)
+	    AllNodes[prevNodeId].redisplay();		      // remove search formating if moving on
 	$("tr.selected").removeClass('selected');
-	$(node.displayNode()).addClass('selected');
-	node.show();
-	node.displayNode().scrollIntoView({block: 'center'});
-	let highlight = $(node.displayNode()).find("span.highlight")[0];
+	$(node.getDisplayNode()).addClass('selected');
+	node.showForSearch();
+	let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
 	if (highlight) highlight.scrollIntoView({'inline' : 'center'});
+	node.getDisplayNode().scrollIntoView({block: 'center'});
 	$("#search_entry").removeClass('failed');
-	console.log(`found in node# ${nodeId}`);
+	console.log(`found in node# ${node.id}`);
     } else {
 	console.log(`"${sstr}" not found. nodeId = ${nodeId}`);
 	$("#search_entry").addClass('failed');
     }
+    
+    return (!next);					      // ret false to prevent entry
 }
-$("#search_entry").on('input', search);
 
 /***
  * 
@@ -1557,15 +1607,10 @@ $("#search_entry").on('input', search);
 
 function keyPressHandler(e) {
 
-    if (this.searchMode) {
-	if (e.key == 'Enter') {
-	    // done
-	    this.searchMode = false;
-	    disableSearch();
-	}
-	return;
-    }
 
+    // searchMode takes precidence and is detected on the search box input handler
+    if ($("#search_entry").is(":focus")) return;
+    
     const alt = e.altKey;    
     const key = e.which;
     // This one doesn't need a row selected, alt-z for undo last delete
@@ -1605,8 +1650,8 @@ function keyPressHandler(e) {
 
     // s,r = Search, Reverse-search
     if (key === 83 || key === 82) {
-	this.searchMode = true;
-	enableSearch(e, (key === 82));
+	ReverseSearch = (key === 82);
+	enableSearch(e);
         return;
     }
 
@@ -1621,12 +1666,13 @@ function keyPressHandler(e) {
         const lvl = key - 48;   // level requested
         const tt = $("table.treetable");
         AllNodes.forEach(function(node) {
-            if (!tt.treetable("node", node.id)) return;               // no such node
+            if (!tt.treetable("node", node.id)) return;	      // no such node
             if (node?.level < lvl)
                 tt.treetable("expandNode", node.id);
             if (node?.level == lvl)
                 tt.treetable("collapseNode", node.id);
         });
+	rememberFold();					      // save to storage
     }
 
     if (!currentSelection) return;
@@ -1740,18 +1786,30 @@ function handleEditCardKeydown(e) {
     const key = e.which;
     const alt = e.altKey;
     if (key == 9) {
-        // restrain tabbing to within dialog
+        // restrain tabbing to within dialog. Button gets focus and then this handler is called.
+	// so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
         const last = $("#cancel")[0];
         const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
-        if (focused == last && !e.shiftKey) {
-            $(first).focus();
-            e.preventDefault();
+	if (!e.shiftKey) {	// tabbing forward
+	    if (handleEditCardKeydown.LastKeyFocused)
+	    {
+		$(first).focus();
+		handleEditCardKeydown.LastKeyFocused = false;
+	    }
+            if (focused == last)
+		handleEditCardKeydown.LastKeyFocused = true;
         }
-        if (focused == first && e.shiftKey) {
-            $(last).focus();
-            e.preventDefault();
+        if (e.shiftKey) {	// tabbing backward
+	    if (handleEditCardKeydown.LastKeyFocused)
+	    {
+		$(last).focus();
+		handleEditCardKeydown.LastKeyFocused = false;
+	    }
+	    if (focused == first)
+		handleEditCardKeydown.LastKeyFocused = true;
         }
+        e.preventDefault();
         return;
     }
     if (alt && [38,40].includes(key)) {
@@ -1767,7 +1825,8 @@ function handleEditCardKeydown(e) {
         e.preventDefault();
         closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);        
     }
-}
+};
+handleEditCardKeydown.LastKeyFocused = false;
 
 function undo() {
     // undo last delete

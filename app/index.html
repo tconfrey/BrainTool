@@ -30,12 +30,13 @@
   <body>
     
     <div id="controls">
-      <div id="controls_header" style="cursor: pointer;" onClick="toggleMenu()">
+      <div id="controls_header" style="cursor: pointer;" onClick="toggleMenu(event)">
         <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png">
         <div id="search">
           <span>Search:</span>
-          <input id="search_entry" type="text" size="20" value=""
-		 onClick="enableSearch(event)" autocomplete="off">
+          <input id="search_entry" type="text" size="20" value="" onkeypress="search(event)"
+		 onkeyup="handleKeyUp(event)"
+		 onFocus="enableSearch(event)" autocomplete="off" onBlur="disableSearch(event)">
         </div>
         <div id="stats_row">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
@@ -49,7 +50,7 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool #version</p>
+        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool 1.0</p>
         <p style="text-align: center; font-style: italic; font-size: 12px; margin-top:0px">Type h for help. Check back here for random tips. (<a href="https://braintool.org/overview" target="_blank">More Info</a>, <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a>)
         </p>
         <div id="important_buttons">

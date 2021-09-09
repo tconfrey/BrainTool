@@ -164,45 +164,80 @@ class BTAppNode extends BTNode {
         if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
         return txt + BTAppNode._orgTextToHTML(this.title);
     }
+    
+    url() {
+	// Node title as seen when its a search result
+	const reg = new RegExp("\\[\\[(.*?)\\]\\[(.*?)\\]\\]");           // NB non greedy
+	const match = this.title.match(reg);
+	return match ? match[1] : "";
+    }
 
-    displayNode() {
+    getDisplayNode() {
 	// return jquery table row for node
 	return $(`tr[data-tt-id='${this.id}']`)[0];
     }
 
-    redisplay() {
+    redisplay(show=false) {
 	// regenerate content
-	$(this.displayNode()).find("span.btTitle").html(this.displayTitle());
-	$(this.displayNode()).find("span.btText").html(this.displayText());
+	const dn = this.getDisplayNode();
+	$(dn).find("span.btTitle").html(this.displayTitle());
+	$(dn).find("span.btText").html(this.displayText());
+	$(dn).find("a").each(function() {		       // reset link click intercept
+	    this.onclick = handleLinkClick;
+	});
+	show && this.showForSearch();				   // reclose if needed
     }
     
-    show() {
-	// show this node in the tree (might be folded)
-	const disp = this.displayNode();
-	if(!$(disp).is(':visible'))
-	{
-	    AllNodes[this.parentId].show(); 		       // btnode show
-	    $(disp).show();				       // jquery node show
-	}
+    showForSearch() {
+	// show this node in the tree cos its the search hit (might be folded)
+	const disp = this.getDisplayNode();
+	if(!$(disp).is(':visible')) {
+	    if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
+	    $(disp).show();						   // jquery node show
+	    this.shownForSearch = true;
+	} 
     }
 
+    unshowForSearch() {
+	// if this node was shown as a search result, now unshow it to get tree back to where it was
+	if (this.shownForSearch) {
+	    const disp = this.getDisplayNode();
+	    if (this.parentId) AllNodes[this.parentId].unshowForSearch();
+	    $(disp).hide();
+	    this.shownForSearch = false;
+	}
+    }
+    
     search(reg, sstr) {
-	// search node for regex of /sstr/ig
+	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
 	let match = false;
-	const node = this.displayNode();
-	if (reg.test(this._title)) {
-	    let titleStr = this._title.replaceAll(reg,
-						  `<span class='highlight'>${sstr}</span>`);
-	    $(node).find("span.btTitle").html(titleStr);	    
+	const node = this.getDisplayNode();
+	let titleStr;
+	if (reg.test(this.displayTag)) {
+	    titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	    $(node).find("span.btTitle").html(titleStr);
+	    $(node).find("td").addClass('search');
+	    match = true;
+	} else if (reg.test(this.url())) {
+	    const hurl = this.url().replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	    titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
+	    $(node).find("span.btTitle").html(titleStr);
+	    $(node).find("td").addClass('search');
 	    match = true;
 	}
 	if (reg.test(this._text)) {
-	    let textStr = this.displayText().replaceAll(reg,
-							`<span class='highlight'>${sstr}</span>`);
+	    // show 125 chars before and after any match 
+	    const index = this._text.search(reg);
+	    const start = Math.max(index - 125, 0);
+	    const len = this._text.length;
+	    const end = Math.min(index + 125, len);
+	    let textStr = this._text.substring(start, end);
+	    textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
+	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	    $(node).find("span.btText").html(textStr);
+	    $(node).find("td").addClass('search');
 	    match = true;
 	}
-
 	return match;	
     }
 

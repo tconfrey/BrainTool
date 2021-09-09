@@ -23,6 +23,11 @@ table.treetable td.left {
     white-space: nowrap;
 }
 
+table.treetable td.search {
+    text-overflow: initial;
+    white-space: normal;
+}
+		       
 table.treetable caption {
   font-size: 1.5em;
   font-weight: bold;
