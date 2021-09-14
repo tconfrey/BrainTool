@@ -61,11 +61,11 @@ Hovering your mouse over a row in the table reveals a set of buttons that perfor
 - **Delete:** delete the row's link or topic. If it's a topic also delete all its children, in the latter case a confirmation warning will be shown.
 - **Open/Close:** open the link in a tab or all the topics links in a set of tabs or close links if open. See Options below for details on groupings - tabs for a topic can be separated into tab groups or dedicated windows.
 - **Edit:** Show the Topic card associated with each entry. This allows you to change the topic's title or a links label or url, as well as to edit the notes for the item.
-- **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
 - **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states.
 - **Add Child:** Create a new child topic under this one and open its Topic card.
 - **Outdent:** Move a node up the topic hierarchy.
 - **Move:** Allow the node to be dragged elsewhere in the hierarchy and dropped into a new position. If it's a topic node all its children will be moved along with it.
+- **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
 All these tools can also be accessed using keyboard accelerators.
 
 ## Keyboard Accelerators
