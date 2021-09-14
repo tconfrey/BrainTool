@@ -21,9 +21,9 @@ NB, by default Chrome hides new extensions under the jigsaw piece icon on the to
 BrainTool is a ['Topic Manager'](https://braintool.org/2021/05/15/Organizing-your-life-with-a-Topic-Manager.html), designed to allow you to categorize and manage all of the topics you need to keep track of. It comes with an example organizational hierarchy to give you an idea of how it can be used. Any of those contents may be deleted. It's up to you to create your own hierarchy.
 
 ## Support and more Info
-Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md).
+Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org) and the brief [User Guide](userGuide). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md).
 
-Also check out [this special offer](../pricing.md) in advance BrainTool 1.0 dropping.
+Also check out [this special offer](../pricing.md) in advance of BrainTool 1.0 dropping.
 
 ## Security and Permissions
 The BrainTool (BT) philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what its doing.
