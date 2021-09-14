@@ -92,10 +92,10 @@ Hitting Enter exits search leaving you with the selected row which you can then 
 
 Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
 
-## Options, Import, Export and Syncing
+## Actions: Import/Export, Syncing and Options
 The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking into the bar will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
 
-From the Welcome card there's a button to import your bookmarks. It's a good idea to do this early in your use of BT and then to organize your bookmarked links into your topic hierarchy. After a first import the button is moved inside the Tools and Options card which is also accessible from the Welcome card.
+From the Welcome card there's a button to import your bookmarks. It's a good idea to do this early in your use of BT and then to organize your bookmarked links into your topic hierarchy. After a first import the button is moved inside the Actions card which is also accessible from the Welcome card.
 
 <div class="row">
 <div class="cell left">
