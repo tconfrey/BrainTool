@@ -102,7 +102,7 @@ From the Welcome card there's a button to import your bookmarks. It's a good ide
 <img src="/site/welcomeCard.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
 </div>
 <div class="cell right">
-<img src="/site/OptionsCard.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
+<img src="/site/optionsCard.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
 </div>
 </div>
 
