@@ -306,6 +306,11 @@ function brainZoom(iteration = 0) {
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
+/***
+ *
+ * Table handling
+ *
+ ***/
 
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
@@ -547,19 +552,8 @@ function dropNode(event, ui) {
     const treeTable = $("#content");
 
     if (dropNodeId && dropBTNode) {
-
         const oldParentId = dragNode.parentId;
-        moveNode(dragNode, dropBTNode);
-        
-        saveBT();
-        BTAppNode.generateTags();        
-        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-        
-        // update tree row if oldParent is now childless
-        if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
-            const ttNode = $("#content").treetable("node", oldParentId);
-            $("#content").treetable("unloadBranch", ttNode);
-        }
+        moveNode(dragNode, dropBTNode, oldParentId);        
     }
     
     // Clean up
@@ -568,8 +562,8 @@ function dropNode(event, ui) {
     $("td").removeClass("dropOver");
 }
 
-function moveNode(dragNode, dropNode) {
-    // perform move for DnD - drop Drag over Drop
+function moveNode(dragNode, dropNode, oldParentId) {
+    // perform move for DnD and keyboard move - drop Drag over Drop
     
     const treeTable = $("#content");
     if (dropNode.isTag() && !dropNode.folded) {
@@ -593,6 +587,17 @@ function moveNode(dragNode, dropNode) {
             treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
         }
     }
+    
+    // update tree row if oldParent is now childless
+    if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
+        const ttNode = $("#content").treetable("node", oldParentId);
+        $("#content").treetable("unloadBranch", ttNode);
+    }
+
+    // update the rest of the app and backing store
+    saveBT();
+    BTAppNode.generateTags();        
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});        
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {
@@ -630,12 +635,13 @@ function positionNode(dragNode, dropParentId, dropBelow) {
 
 // Handle callbacks on node folding, update backing store
 function rememberFold() {
-    // Don't want to write file too often so wait 2 minutes after last change
-    if (rememberFold.writeTimer) {
-        clearTimeout(rememberFold.writeTimer);
-        rememberFold.writeTimer = null;
-    }
-    rememberFold.writeTimer = setTimeout(saveBT, 2*60*1000);
+    // Don't want to write file too often so wait a minute after last change
+    if (!rememberFold.writeTimer)
+	rememberFold.writeTimer =
+	setTimeout(() => {
+	    saveBT();
+	    rememberFold.writeTimer = null
+	}, 1*60*1000);
 }
 
 function nodeExpand() {
@@ -970,6 +976,7 @@ function addNewTag(tag, parentTag = null, parentNode = null) {
  * 
  * Row Operations
  * buttonShow/Hide, Edit Dialog control, Open Tab/Tag(Window), Close, Delete, ToDo
+ * NB same fns for key and mouse events. getActiveNode finds the correct node in either case from event
  * 
  ***/
 
@@ -1006,11 +1013,19 @@ function buttonShow() {
         if (openKids)
             $("#collapse").show();
     }
+
     // allow adding children on branches or unpopulated branches (ie no links)
     if ($(this).hasClass("branch") || !$(this).find('a').length)
         $("#addChild").show();
     else
         $("#addChild").hide();
+
+    // only show outdent on non-top level items
+    if (this.getAttribute("data-tt-parent-id"))
+        $("#outdent").show();
+    else
+        $("#outdent").hide();
+    
     $("#buttonRow").offset({top: rowtop});
     $("#buttonRow").show();        
 }
@@ -1116,7 +1131,6 @@ function closeDialog(cb = null, duration = 250) {
     $("#content").removeClass('editOverlaid');
 }
     
-
 function getSelectedNode() {
     // Return the node currently highlighted or selected
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
@@ -1133,7 +1147,6 @@ function getActiveNode(e) {
     const nodeId = $(tr).attr('data-tt-id') || 0;
     return AllNodes[nodeId];
 }
-    
 
 function openRow(e) {
     // Open all links under this row in windows per tag
@@ -1691,7 +1704,7 @@ function keyPressHandler(e) {
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
 	const dropNode = AllNodes[dropId];
-        if (dropNode) moveNode(node, dropNode);
+        if (dropNode) moveNode(node, dropNode, node.parentId);
         e.preventDefault();
         return;
     }
