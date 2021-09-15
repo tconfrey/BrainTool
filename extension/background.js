@@ -14,10 +14,10 @@ var LocalTest = false;                 // control code path during unit testing
 var InitialInstall = false;            // should we serve up the welcome page
 var UpdateInstall = false;                   // or the release notes page
 
-function check() {
+function check(msg='') {
     // check for error
     if (chrome.runtime.lastError) {
-        console.log("!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
+        console.log(msg + "!!Whoops, runtime error.. " + chrome.runtime.lastError.message);
     }
 }
 
@@ -132,9 +132,9 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
 chrome.tabs.onRemoved.addListener((tabId, otherInfo) => {
     // listen for tabs being closed, if its a managed tab let BT know
-    if (!tabId || !BTTab) return;         // 
+    if (!tabId || !BTTab) return;         // closed?
     chrome.tabs.sendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
-    if (tabId == BTTab) BTTab = null;
+    if (tabId == BTTab) setTimeout(() => suspendExtension(), 100);
 });
 
 
@@ -163,6 +163,7 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
     // Let app know there's a new top tab
 
     // don't care about special windows like dev tools or the BT win
+    check();
     if (!BTTab || windowId <= 0 || windowId == BTWin) return;              
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
@@ -178,8 +179,9 @@ chrome.runtime.onConnect.addListener((port) => {
     const connectTime = Date.now();
     port.onDisconnect.addListener(() => {
         const disconnectTime = Date.now();
+	if (!BTWin) return;	                                 // might have been closed
         if ((disconnectTime - connectTime) < 500)
-            chrome.windows.update(BTWin, {'focused': true});
+            chrome.windows.update(BTWin, {'focused': true}, () => check());
     });
 });
 
@@ -219,10 +221,47 @@ function initializeExtension(msg, sender) {
 						     {'focused' : true,
 						      'state' : "normal",
 						      'top' : 10, 'left' : 5,
-						      'width' : 500, 'height' : screen.height});
+						      'width' : 500, 'height' : screen.height},
+						     () => check());
 			   });
         InitialInstall = null; UpdateInstall = null;
     }
+    updateBTIcon('', 'BrainTool', '#5E954E');
+    chrome.browserAction.setIcon({'path': 'images/BrainTool128.png'});
+}
+
+function suspendExtension() {
+    // called when the BTWin/BTTab is detected to have been closed
+
+    BTWin = 0; BTTab = 0;
+    updateBTIcon('', 'BrainTool is not running.\nClick to start', '#e57f21');
+    chrome.browserAction.setIcon({'path': 'images/BrainToolGray.png'});
+    
+    chrome.tabs.query({'currentWindow': true, 'active': true}, (tabs) => {
+	if (!tabs.length || !tabs[0].id) return;		 // sometimes theres no active tab
+	const tabId = tabs[0].id;	
+	setTimeout(() => {
+	    // wait for updateBTIcon to finish then show 'OFF' on top tab for 3 secs
+	    chrome.browserAction.setBadgeText({'text' : 'OFF', 'tabId': tabId});
+	    setTimeout(() => chrome.browserAction.setBadgeText({'text' : '', 'tabId': tabId}), 3000);
+	}, 500);
+    });
+}
+
+function updateBTIcon(text, title, color) {
+    // utility fn called when BT is opened or closed to update icon appropriately
+
+    chrome.tabs.query({}, (tabs) =>
+		      {
+			  tabs.forEach((tab) => {
+			      chrome.browserAction.setBadgeText(
+				  {'text' : text, 'tabId': tab.id}, () => check());
+			      chrome.browserAction.setTitle(
+				  {'title' : title, 'tabId': tab.id});
+			      chrome.browserAction.setBadgeBackgroundColor(
+				  {'color' : color, 'tabId': tab.id});
+			  });
+		      });
 }
 
 function openTab(msg, sender, tries=0) {
@@ -235,7 +274,7 @@ function openTab(msg, sender, tries=0) {
     try {
         chrome.tabs.create({'url': url}, tab => {
                               check();
-            chrome.windows.update(tab.windowId, {'focused' : true});
+            chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
             chrome.tabs.sendMessage(
                 BTTab, {'function': 'tabOpened', 'nodeId': nodeId,
                         'tabId': tab.id, 'windowId': tab.windowId});
@@ -270,7 +309,7 @@ function openInWindow(msg, sender) {
     const tabs = msg.tabs;
 
     if (windowId) {
-        chrome.windows.update(windowId, {'focused' : true});
+        chrome.windows.update(windowId, {'focused' : true}, () => check());
         tabs.forEach(tabData => {
             chrome.tabs.create({'url': tabData.URL, 'windowId': windowId}, tab => {
                               check();
@@ -286,6 +325,7 @@ function openInWindow(msg, sender) {
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // Send back message per tab
             let id, url, tab;
+	    check();
             for (const elt of tabs) {
                 id = elt.nodeId;
                 url = elt.URL;
@@ -332,7 +372,8 @@ function openInTabGroup(msg, sender) {
                                 if (firstTab) {
                                     // highlight one tab in case TG window is buried
                                     firstTab = false;
-                                    chrome.windows.update(windowId, {'focused' : true});
+                                    chrome.windows.update(windowId, {'focused' : true},
+							  () => check());
                                 }
                                 chrome.tabs.sendMessage(
                                     BTTab,
@@ -371,7 +412,7 @@ function openInTabGroup(msg, sender) {
                         });
                     });
                 });
-            chrome.windows.update(newtab.windowId, {'focused' : true});
+            chrome.windows.update(newtab.windowId, {'focused' : true}, () => check());
         });
     }
 }
@@ -412,7 +453,7 @@ function moveToTabGroup(msg, sender) {
           {'tabIds': tabIds, 'createProperties': {'windowId': windowId}};
     chrome.tabs.group(args, groupId => {
         check();
-        chrome.windows.update(windowId, {'focused' : true});
+        chrome.windows.update(windowId, {'focused' : true}, () => check());
         for (let i = 0; i < tabIds.length; i++) {
             chrome.tabs.sendMessage(
                 BTTab, {'function': 'tabOpened', 'nodeId': nodeIds[i], 'tabId': tabIds[i],
@@ -460,13 +501,13 @@ function showNode(msg, sender) {
     if (msg.tabId) {
         chrome.tabs.get(msg.tabId, function(tab) {
                               check();
-            chrome.windows.update(tab.windowId, {'focused' : true});
+            chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
             chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index},
                                   () => check());
         });
     }
     if (msg.windowId) {
-        chrome.windows.update(msg.windowId, {'focused' : true});
+        chrome.windows.update(msg.windowId, {'focused' : true}, () => check());
     }
 }
 
@@ -498,6 +539,7 @@ function compareURLs(first, second) {
 }
 
 var MarqueeEvent;                            // ptr to timeout event to allow cancellation
+
 function setBadge(tabId) {
     // tab/window activated, set badge appropriately
 
@@ -513,7 +555,8 @@ function setBadge(tabId) {
     if (MarqueeEvent) clearTimeout(MarqueeEvent);
     chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
         if (!data.currentTag) {
-            chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId}, () => check());
+            chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId},
+					      () => check('Resetting badge text:'));
             chrome.browserAction.setTitle({'title' : 'BrainTool'});
         } else {
             marquee(data.currentTag, 0);
@@ -535,7 +578,7 @@ function brainZoom(msg, sender, iteration = 0) {
         "128": "images/BrainTool128.png"
     };
     
-    if (iteration == iterationArray.length) {            
+    if (iteration == iterationArray.length) {
         chrome.browserAction.setIcon({'path': default_icon, 'tabId': msg.tabId});
         setTimeout(function() {setBadge(msg.tabId);}, 150);
         return;

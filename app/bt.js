@@ -209,7 +209,7 @@ function toggleMenu(event) {
     // Toggle the visibility of the intro page, auth button and open/close icon
     // NB controls_screen has a min height set, need to remove during animations
 
-    if (event.target == $('#search_entry')[0]) return; 	      // click was on search box
+    if (event && event.target == $('#search_entry')[0]) return;	// click was on search box
     
     const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {

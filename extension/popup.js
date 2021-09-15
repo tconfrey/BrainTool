@@ -69,6 +69,8 @@ function windowOpen() {
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
+    const messageDiv = document.getElementById('message');
+    messageDiv.style.display = 'block';
     chrome.tabs.query({title: "BrainTool Side Panel"},
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
 
@@ -263,7 +265,8 @@ window.onkeyup = function(e) {
         });
         const suggestions = AwesomeWidget.isOpened ? AwesomeWidget.suggestions || [] : [];
         suggestions.forEach(function(sug) {
-            document.getElementById(sug.value).classList.add("highlight");
+	    const elt = document.getElementById(sug.value);
+            elt.classList.add("highlight");
         });
         return;    // Done, unless Enter key
     }
@@ -315,7 +318,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     case 'btwindow':
         if (msg.function == 'initializeExtension') {
             console.log("BT window is ready");
-            window.close();
+           // window.close();
         }
         break;
     }
