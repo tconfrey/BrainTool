@@ -1131,15 +1131,6 @@ function closeDialog(cb = null, duration = 250) {
     $("#content").removeClass('editOverlaid');
 }
     
-function getSelectedNode() {
-    // Return the node currently highlighted or selected
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    if (!tr) return null;
-    const nodeId = $(tr).attr('data-tt-id');
-    if (!nodeId) return null;
-    return AllNodes[nodeId];
-}
-
 function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
     const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
@@ -1239,8 +1230,10 @@ function deleteNode(id) {
 function updateRow() {
     // Update this node/row after edit.
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const node = getSelectedNode();
-    if (!node) return;
+    if (!tr) return null;
+    const nodeId = $(tr).attr('data-tt-id');
+    if (!nodeId) return null;
+    const node = AllNodes[nodeId];
 
     // Update Model
     const url = $("#title-url").val();
