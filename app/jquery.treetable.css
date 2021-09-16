@@ -26,3 +26,9 @@ table.treetable span.indenter a {
   text-decoration: none;
   width: 17px;
 }
+
+/* Since childless topics don't have the indenter arrow they show as same indent as their parent,
+   but for top level nodes this is confusing so explicitly set indent */
+td.childlessTop span.indenter {
+    width: 5px;
+}
