@@ -1487,7 +1487,9 @@ let SearchOriginId = 0;
 function enableSearch(e) {
     // activate search mode
     $("#search_entry").select();
+    $("#search_buttons").show();
 
+    // Start search from...
     let row = (ReverseSearch) ? 'last' : 'first';
     let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:'+row)[0];
     SearchOriginId = parseInt($(currentSelection).attr('data-tt-id'));
@@ -1497,14 +1499,15 @@ function enableSearch(e) {
     e.preventDefault();
     e.stopPropagation();
 }
-function disableSearch(e) {
+function disableSearch(e = null) {
     // turn off search mode
+    if (e && e.currentTarget == $("#search")[0]) return;      // don't if still in search div
     e || $("#search_entry").blur();			      // e => user drived blur
     $("#search_entry").removeClass('failed');
 
     // undo display of search hits
     $("span.highlight").contents().unwrap();
-    $("td").removeClass('search');
+    $("td").removeClass('search searchLite');
 
     // turn back on other key actions, but only after this keyup is done
     $(document).on("keyup", function() {
@@ -1514,42 +1517,63 @@ function disableSearch(e) {
 
     AllNodes.forEach((n) => n.unshowForSearch());	      // fold search-opened nodes back closed
     
-    // redisplay selected node to remove any search markup
+    // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
     if (selectedNodeId) AllNodes[selectedNodeId].redisplay(true);
 }
 
 function handleKeyUp(keyevent){
-    // special case handling cos keydown does not get delete key
+    // special case handling cos keypress  does not get delete key
     // and also first key when textinput still has prev content keydown gets both, need to wait till keyup
     if ((keyevent.key == 'Backspace') || ( $("#search_entry").val().length == 1)) {
 	search({'key':'', 'startId': SearchOriginId});
     }
 }
 
+function searchButton(e, action) {
+    // called from next/prev search buttons. construct event and pass to search
+    
+    let event = {
+	altKey : true,
+	code : (action == "down") ? "KeyS" : "KeyR",
+	key : (action == "exit") ? "Enter" : "",
+	buttonNotKey: true
+    };
+    search(event);
+    e.preventDefault();
+    e.stopPropagation();
+    if (action == "exit")				      // turn back on regular key actions
+	$(document).on("keyup", keyPressHandler);
+	
+    return false;    
+}
+
+let SearchLiteCB = null;				      // callback to perform searchlite 
 function search(keyevent) {
     // called on keypress for search_entry, could be Search or Reverse-search,
     // key is new letter pre-added or opt-s/r (search for next) or del 
 
     let sstr = $("#search_entry").val();
     let next = false;
+    if (SearchLiteCB)					      // clear timeout if not executed
+	clearTimeout(SearchLiteCB);
 
-    // done
+    // are we done?
     if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
 	disableSearch();
-	keyevent.stopPropagation();
-	keyevent.preventDefault();			      // stop enter from runnin on selection
+	$("#search_buttons").hide();
+	keyevent.buttonNotKey || keyevent.stopPropagation();
+	keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyPressHandler from getting it
 	return false;
     }
 
-    // opt-s/r drop that char code and go to next match
+    // opt-s/r : drop that char code and go to next match
     if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
-	//sstr = sstr.slice(0, -1);
 	$("#search_entry").val(sstr);
 	next = true;
 	ReverseSearch = (keyevent.code == "KeyR");
-	keyevent.stopPropagation();
-	keyevent.preventDefault();			      // stop opt key from displaying
+	keyevent.buttonNotKey || keyevent.stopPropagation();
+	keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
     } else {
 	sstr += keyevent.key;
     }
@@ -1575,14 +1599,13 @@ function search(keyevent) {
 	// restart at top or bottom (reverse)
 	nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
 
-    // Do the search
+    // Do the search starting from nodeId
     let node = AllNodes[nodeId];
-    const reg = new RegExp(escapeRegExp(sstr), 'ig');
     while(nodeId > 0 && nodeId < AllNodes.length) {
 	node = AllNodes[nodeId];
 	nodeId = nodeId + inc;
 	if (!node) continue;				      // AllNodes is sparse
-	if (node.search(reg, sstr)) break;
+	if (node.search(sstr)) break;
 	node = null;
     }
     
@@ -1591,12 +1614,20 @@ function search(keyevent) {
 	    AllNodes[prevNodeId].redisplay();		      // remove search formating if moving on
 	$("tr.selected").removeClass('selected');
 	$(node.getDisplayNode()).addClass('selected');
-	node.showForSearch();
+	node.showForSearch();				      // unfold tree etc as needed
 	let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
 	if (highlight) highlight.scrollIntoView({'inline' : 'center'});
 	node.getDisplayNode().scrollIntoView({block: 'center'});
 	$("#search_entry").removeClass('failed');
-	console.log(`found in node# ${node.id}`);
+	SearchLiteCB = setTimeout(() => {
+	    SearchLiteCB = null;
+	    $("td").removeClass('searchLite');
+	    AllNodes.forEach((n) => {
+		if (!n) return;
+		if (n == node) return; 			      // already highlighted as selection
+		n.searchLite(sstr);
+	    })
+	}, 200);			     
     } else {
 	console.log(`"${sstr}" not found. nodeId = ${nodeId}`);
 	$("#search_entry").addClass('failed');
@@ -1611,11 +1642,14 @@ function search(keyevent) {
  * 
  ***/
 
+$(document).on("keyup", keyPressHandler);
 function keyPressHandler(e) {
+    // dispatch to appropriate command
 
 
     // searchMode takes precidence and is detected on the search box input handler
-    if ($("#search_entry").is(":focus")) return;
+    if ($("#search_entry").is(":focus"))
+	return;
     
     const alt = e.altKey;    
     const key = e.which;
@@ -1784,7 +1818,6 @@ function keyPressHandler(e) {
     }
 
 };
-$(document).on("keyup", keyPressHandler);
 
 function handleEditCardKeydown(e) {
     // subset of keydown handler applicible to card edit dialog

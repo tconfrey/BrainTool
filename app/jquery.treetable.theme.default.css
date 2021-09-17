@@ -23,6 +23,10 @@ table.treetable td.left {
     white-space: nowrap;
 }
 
+table.treetable td.searchLite {
+    background-color: lightgrey;
+}
+
 table.treetable td.search {
     text-overflow: initial;
     white-space: normal;

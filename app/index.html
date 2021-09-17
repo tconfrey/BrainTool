@@ -30,15 +30,21 @@
   <body>
     
     <div id="controls">
-      <div id="controls_header" style="cursor: pointer;" onClick="toggleMenu(event)">
-        <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png">
-        <div id="search">
+      <div id="controls_header" >
+        <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png" style="cursor: pointer;" onClick="toggleMenu(event)">
+        <div id="search"  style="cursor:default">
           <span>Search:</span>
-          <input id="search_entry" type="text" size="20" value="" onkeypress="search(event)"
-		 onkeyup="handleKeyUp(event)"
-		 onFocus="enableSearch(event)" autocomplete="off" onBlur="disableSearch(event)">
+          <input id="search_entry" type="text" size="20" value="" 
+		 onkeyup="handleKeyUp(event)" onkeypress="search(event)"
+		 onFocus="enableSearch(event)"
+		 onFocusOut="disableSearch(event)" autocomplete="off" >
+	  <span id="search_buttons" style="cursor: pointer; display:none">
+	    <span onmousedown="searchButton(event, 'down')">&darr;</span>
+	    <span onmousedown="searchButton(event, 'up')">&uarr;</span>
+	    <span onmousedown="searchButton(event, 'exit')">X</span>
+	  </span>
         </div>
-        <div id="stats_row">
+        <div id="stats_row" style="cursor:default">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                title="#Topics" height="15" width="15">
           <span id="num_topics" class="stat_span" title="#BT Cards (#links open)">: 0</span>
@@ -69,7 +75,7 @@
           <p>- This Message board overlay closes/opens by clicking the green bar at top.</p>
 	</div>
 	<p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
-        <p style="margin-bottom: 15px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
+        <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
         
         <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close" class="split_image"
@@ -189,7 +195,11 @@
                 <b>Keyboard Commands &nbsp;</b><a href="https://braintool.org/support" target="_blank" style="font-size:10px; font-style:italic">(Other Help)</a>
             </td></tr>
             <tr>
-              <td rowspan="4" class="row_divider help_vertical_td">Nav</td>
+              <td rowspan="5" class="row_divider help_vertical_td">Nav</td>
+              <td class="option_td"><span class="alt_opt">Option</span>-s/r</td>
+              <td>Search/Reverse-search</td>
+            </tr>
+            <tr>
               <td class="option_td">n,p,&uarr;&darr;</td>
               <td>Navigate to Next, Previous row</td>
             </tr>

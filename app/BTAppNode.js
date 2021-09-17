@@ -212,21 +212,21 @@ class BTAppNode extends BTNode {
 	}
     }
     
-    search(reg, sstr) {
+    search(sstr) {
 	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
+	
+	const reg = new RegExp(escapeRegExp(sstr), 'ig');
 	let match = false;
 	const node = this.getDisplayNode();
 	let titleStr;
 	if (reg.test(this.displayTag)) {
 	    titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	    $(node).find("span.btTitle").html(titleStr);
-	    $(node).find("td").addClass('search');
 	    match = true;
 	} else if (reg.test(this.url())) {
 	    const hurl = this.url().replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	    titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
 	    $(node).find("span.btTitle").html(titleStr);
-	    $(node).find("td").addClass('search');
 	    match = true;
 	}
 	if (reg.test(this._text)) {
@@ -239,10 +239,42 @@ class BTAppNode extends BTNode {
 	    textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
 	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	    $(node).find("span.btText").html(textStr);
-	    $(node).find("td").addClass('search');
 	    match = true;
 	}
+	if (match)
+	    $(node).find("td").addClass('search');
 	return match;	
+    }
+    
+    searchLite(sstr) {
+	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
+	
+	const reg = new RegExp(escapeRegExp(sstr), 'ig');
+	let lmatch, rmatch;
+	const node = this.getDisplayNode();
+	// TODO return if not displayed
+	let titleStr;
+	// Look for match in title/topic, url and note
+	if (reg.test(this.displayTag)) {
+	    titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	    $(node).find("span.btTitle").html(titleStr);
+	    lmatch = true;
+	}
+	if (reg.test(this.url())) {
+	    // nb don't add span highlighting to url
+	    lmatch = true;
+	}
+	if (reg.test(this.displayText())) {
+	    let textStr = this.displayText();
+	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	    $(node).find("span.btText").html(textStr);
+	    rmatch = true;
+	}
+//	match=false;
+	if (lmatch)
+	    $(node).find("td.left").addClass('searchLite');
+	if (rmatch)
+	    $(node).find("td.right").addClass('searchLite');
     }
 
 /***
