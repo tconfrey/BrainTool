@@ -39,9 +39,9 @@
 		 onFocus="enableSearch(event)"
 		 onFocusOut="disableSearch(event)" autocomplete="off" >
 	  <span id="search_buttons" style="cursor: pointer; display:none">
-	    <span onmousedown="searchButton(event, 'down')">&darr;</span>
-	    <span onmousedown="searchButton(event, 'up')">&uarr;</span>
-	    <span onmousedown="searchButton(event, 'exit')">X</span>
+	    <span onmousedown="searchButton(event, 'down')" title="Next Match">&darr;</span>
+	    <span onmousedown="searchButton(event, 'up')" title="Previous Match">&uarr;</span>
+	    <span onmousedown="searchButton(event, 'exit')" title="Exit Search">X</span>
 	  </span>
         </div>
         <div id="stats_row" style="cursor:default">
