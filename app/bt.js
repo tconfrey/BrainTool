@@ -90,7 +90,7 @@ async function launchApp(msg) {
             gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall});
         }
         if (InitialInstall) {
-            gtag('event', 'Install', {'event_category': 'General'});
+            gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
         }
     } else {
         addTip();
@@ -206,7 +206,7 @@ window.onfocus = warnBTFileVersion;
  ***/
 
 function toggleMenu(event) {
-    // Toggle the visibility of the intro page, auth button and open/close icon
+    // Toggle the visibility of the welcome page
     // NB controls_screen has a min height set, need to remove during animations
 
     if (event && event.target == $('#search_entry')[0]) return;	// click was on search box
@@ -216,17 +216,14 @@ function toggleMenu(event) {
         $("#controls_screen").css('min-height',0)
 	    .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('closed').removeClass('open');
-	$("#openingTips").hide();			// if not already hidden
+	if (toggleMenu.introMessageShown)
+	    $("#openingTips").hide();		     // if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
-	/*
-        if (!toggleMenu.introMessageShown)
-            toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
-        else
-	*/
-            addTip();                                    // display tip text after intro message shown
+        toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
+        addTip();                                    // display tip text after intro message shown
         $("#controls_screen").css('min-height',0)
 	    .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('open').removeClass('closed');

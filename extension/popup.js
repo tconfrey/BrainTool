@@ -17,6 +17,12 @@ var TabAction;                          // current GROUP|CLOSE|STICK action
 var Tabs;                               // tabs in current window
 var newInstall = false;			// set below, ignore some events if = true
 
+// show Alt or Option appropriately in visible text (Mac v PC)
+const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
+const altOpt = document.getElementById('alt_opt');
+altOpt.textContent = OptionKey;
+
+
 chrome.storage.local.get(['newInstall', 'newVersion'], val => {
     if (val['newInstall']) {
 	// This is a new install, show the welcome page

@@ -44,7 +44,7 @@ chrome.runtime.onUpdateAvailable.addListener(deets => {
 chrome.runtime.onInstalled.addListener(deets => {
     // special handling for first install or new version
     if (deets.reason == 'install') {
-        InitialInstall = true;
+        InitialInstall = chrome.runtime.getManifest().version;	 // let app know version
 	chrome.storage.local.set({'newInstall' : true});
         chrome.tabs.create({'url': "https://braintool.org/support/welcome"});
     }

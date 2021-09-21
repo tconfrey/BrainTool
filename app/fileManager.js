@@ -388,7 +388,8 @@ async function writeBTFile(cb) {
                       updateStatsRow();		     // update stats when we know successful save
 		      // update externalFileVersion property, timeout cos immediate check gets
 		      // the old value. We won't write again for >15 secs anyway
-		      setTimeout(updateFileVersion, 1000);	     
+		      // 9/21/21 upped to 5 sec wait, seeing lot of spurious version errors
+		      setTimeout(updateFileVersion, 5000);	     
                       if (cb) cb();
                   }).catch(function(err) {
 		      alert("BT - Error accessing GDrive.");
