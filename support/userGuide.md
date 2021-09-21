@@ -61,11 +61,11 @@ Hovering your mouse over a row in the table reveals a set of buttons that perfor
 - **Delete:** delete the row's link or topic. If it's a topic also delete all its children, in the latter case a confirmation warning will be shown.
 - **Open/Close:** open the link in a tab or all the topics links in a set of tabs or close links if open. See Options below for details on groupings - tabs for a topic can be separated into tab groups or dedicated windows.
 - **Edit:** Show the Topic card associated with each entry. This allows you to change the topic's title or a links label or url, as well as to edit the notes for the item.
-- **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
-- **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states.
+- **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states. Note also that adding :TODO after the Topic name in the Popup will mark the item as a TODO.
 - **Add Child:** Create a new child topic under this one and open its Topic card.
 - **Outdent:** Move a node up the topic hierarchy.
 - **Move:** Allow the node to be dragged elsewhere in the hierarchy and dropped into a new position. If it's a topic node all its children will be moved along with it.
+- **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
 All these tools can also be accessed using keyboard accelerators.
 
 ## Keyboard Accelerators
@@ -92,17 +92,17 @@ Hitting Enter exits search leaving you with the selected row which you can then 
 
 Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
 
-## Options, Import, Export and Syncing
+## Actions: Import/Export, Syncing and Options
 The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking into the bar will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
 
-From the Welcome card there's a button to import your bookmarks. It's a good idea to do this early in your use of BT and then to organize your bookmarked links into your topic hierarchy. After a first import the button is moved inside the Tools and Options card which is also accessible from the Welcome card.
+From the Welcome card there's a button to import your bookmarks. It's a good idea to do this early in your use of BT and then to organize your bookmarked links into your topic hierarchy. After a first import the button is moved inside the Actions card which is also accessible from the Welcome card.
 
 <div class="row">
 <div class="cell left">
 <img src="/site/welcomeCard.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
 </div>
 <div class="cell right">
-<img src="/site/OptionsCard.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
+<img src="/site/optionsCard.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
 </div>
 </div>
 
