@@ -115,38 +115,11 @@ Non-project areas of life to keep track of.
 
 ** Personal
 Maybe keep personal and work stuff separate.
-*** House
-     :PROPERTIES:
-     :VISIBILITY: folded
-     :END:
 
-**** Concord
-     :PROPERTIES:
-     :VISIBILITY: folded
-     :END:
- Handy town links
-
-***** [[https://concordma.gov/2731/_2021][Town Meeting]]
-
-***** [[https://concordma.gov/464/Municipal-Light-Plant][municipal electric]]
- outage reporting etc
-
-**** Utilities
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-  
-***** [[https://my.xfinity.com/?cid=cust][Comcast login]]
-
-**** [[https://www.hunterindustries.com/videos/node-setting-station-run-times][Control the damn sprinklers]]
-Links can be at any level of the tree
 *** Finance
     :PROPERTIES:
     :VISIBILITY: folded
     :END:
-
-**** [[https://secure.netlinksolution.com/nextgen/][Client Login]]
- Taxes tool
 
 **** [[https://www.bankofamerica.com/][Bank of America - Banking, Credit Cards, Loans and Merrill Investing]]
  BofA site
@@ -166,35 +139,6 @@ health portal
 
 **** [[https://aspireap.com/][Aspire]]
 "where strong wills become strong bodies"
-
-*** Car
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://www.minutemanvw.com/service/department-fod33-1947.htm][minuteman service]]
-
-*** Kids 
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://child-care-preschool.brighthorizons.com/ma/watertown/watertown][backup childcare]]
-
-*** Mom and Dad
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://www.rocketlawyer.com/family-and-personal/health-and-medical/healthcare-decisions/document/living-will][Living will]]
-
-*** Triathlon
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-Sports and hobby links
-
-**** [[https://sunmultisportevents.com/events/patriot-half/][Patriot Half]]
 
 *** Fun and Entertainment
   :PROPERTIES:
@@ -224,11 +168,7 @@ Areas of responsibility at work. I used to have a lot of these, now not so many.
 
 **** [[https://wikipedia][team wiki]]
 You get the idea...
-*** Team B
-
 *** Customer A
-
-*** Customer B
 
 * To Read
   :PROPERTIES:
@@ -247,6 +187,9 @@ podcast interview
 Reference Material. Create sub tags under here - eg Reference:Machine Learning
 
 ** BrainTool
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
 As another example in a recursive kind of way. This tag and its children capture resources related to BrainTool.
 
 *** [[https://braintool.org/support][BrainTool Support Page]]
@@ -324,10 +267,9 @@ More details
    :PROPERTIES:
    :VISIBILITY: folded
    :END:
+The other way to use your BrainTool file is via a text editor and emacs is the ultimate. Advanced users only!
 
 ***  [[https://www.gnu.org/software/emacs/][emacs]]
-The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
-
 *** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
 A set of articles from The Lucid Manager
 
@@ -364,16 +306,8 @@ Productivity blogger and software reviewer
 *** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
 The "self-help classic for managing work-life balance in the twenty-first century"
 
-** Machine Learning
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-*** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
- Google paper on predicting outcomes from health records
-
 * Archive
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
 Links and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.
-** [[https://www.synapse.org/#!Synapse:syn18065891/wiki/][Metadata Automation DREAM Challenge - syn18065891]]

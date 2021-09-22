@@ -305,24 +305,24 @@
             <td>
               <li style="margin-left: 10px">
                 <span style="position: relative; left: -12px; top:5px">
-                  <textarea id="topic-text" class="editNode" style="width: 93%" rows="1"></textarea>
+                  <textarea id="topic-text" class="editNode" style="width: 93%" rows="1" tabindex="0"></textarea>
                 </span>
               </li>
             </td>
           </tr> 
           <tr> 
-            <td><textarea id="title-text" class="editNode" rows="1">title</textarea></td>
+            <td><textarea id="title-text" class="editNode" rows="1" tabindex="1">title</textarea></td>
           </tr>
           <tr> 
-            <td><textarea id="title-url" class="editNode">url</textarea></td>
+            <td><textarea id="title-url" class="editNode" tabindex="2">url</textarea></td>
           </tr>
           <tr>
-            <td><textarea id="text-text" class="editNode" ></textarea></td>
+            <td><textarea id="text-text" class="editNode" tabindex="3"></textarea></td>
           </tr>
         </table>
         <div class="buttonDiv">
-          <button id="update" class="button_text general_button" onClick="updateRow()">Update</button>
-          <button id="cancel" class="button_text general_button" onClick="closeDialog()">Cancel</button>
+          <button id="update" class="button_text general_button editNode" tabindex="4" onClick="updateRow()">Update</button>
+          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog()">Cancel</button>
         </div>
       </dialog>
     </div>

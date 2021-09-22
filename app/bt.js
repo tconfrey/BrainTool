@@ -1483,6 +1483,11 @@ let ReverseSearch = false;
 let SearchOriginId = 0;
 function enableSearch(e) {
     // activate search mode
+
+    // ignore if tabbed into search box from card editor
+    const editing = ($($("#dialog")[0]).is(':visible'));
+    if (editing) return;
+    
     $("#search_entry").select();
     $("#search_buttons").show();
 
@@ -1641,8 +1646,14 @@ function search(keyevent) {
 
 $(document).on("keyup", keyPressHandler);
 function keyPressHandler(e) {
-    // dispatch to appropriate command
+    // dispatch to appropriate command. NB key up event
 
+    // ignore keys (except nav up/down) if edit dialog is open
+    const editing = ($($("#dialog")[0]).is(':visible'));
+    if (editing) {
+        handleEditCardKeydown(e);
+        return;
+    }
 
     // searchMode takes precidence and is detected on the search box input handler
     if ($("#search_entry").is(":focus"))
@@ -1650,18 +1661,11 @@ function keyPressHandler(e) {
     
     const alt = e.altKey;    
     const key = e.which;
+    const navKeys = [78, 80, 38, 40];
     // This one doesn't need a row selected, alt-z for undo last delete
     if (alt && key === 90) {
         undo();
     }
-    
-    // ignore keys (except nav up/down) if edit dialog is open
-    const editing = ($($("#dialog")[0]).is(':visible'));
-    if (editing) {
-        handleEditCardKeydown(e);
-        return;
-    }
-    const navKeys = [78, 80, 38, 40];
 
     // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
@@ -1825,26 +1829,14 @@ function handleEditCardKeydown(e) {
         // restrain tabbing to within dialog. Button gets focus and then this handler is called.
 	// so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
-        const last = $("#cancel")[0];
         const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
-	if (!e.shiftKey) {	// tabbing forward
-	    if (handleEditCardKeydown.LastKeyFocused)
-	    {
+	if (!focused || !$(focused).hasClass('editNode')) {
+	    // tabbed out of edit dialog, force back in
+	    if (!e.shiftKey)	// tabbing forward
 		$(first).focus();
-		handleEditCardKeydown.LastKeyFocused = false;
-	    }
-            if (focused == last)
-		handleEditCardKeydown.LastKeyFocused = true;
-        }
-        if (e.shiftKey) {	// tabbing backward
-	    if (handleEditCardKeydown.LastKeyFocused)
-	    {
-		$(last).focus();
-		handleEditCardKeydown.LastKeyFocused = false;
-	    }
-	    if (focused == first)
-		handleEditCardKeydown.LastKeyFocused = true;
-        }
+	    else
+		$("#cancel").focus();
+	}
         e.preventDefault();
         return;
     }
@@ -1862,7 +1854,6 @@ function handleEditCardKeydown(e) {
         closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);        
     }
 };
-handleEditCardKeydown.LastKeyFocused = false;
 
 function undo() {
     // undo last delete
