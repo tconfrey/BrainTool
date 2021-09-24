@@ -138,6 +138,12 @@ class BTNode {
         return AllNodes.find(node => (node && (node.title == title)));
     }
 
+    static findFromURL(url) {
+        return AllNodes.find(node =>
+			     (node &&
+			      (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url))));
+    }
+
     static findFromTagPath(tagPath) {
         // NB currently only handles parent:child, not more levels, will return first found match
         const components = BTNode.processTagString(tagPath);

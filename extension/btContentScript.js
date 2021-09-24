@@ -57,11 +57,11 @@ if (!window.LOCALTEST && NotLoaded) {
 
 function getFromLocalStorage(key) {
     // Promisification of storage.local.get
-  return new Promise(resolve => {
-    chrome.storage.local.get(key, function(item) {
-      resolve(item[key]);
+    return new Promise(resolve => {
+	chrome.storage.local.get(key, function(item) {
+	    resolve(item[key]);
+	});
     });
-  });
 }
 
 async function launchApp(msg) {

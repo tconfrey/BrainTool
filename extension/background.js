@@ -102,8 +102,6 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         chrome.permissions.request(
             {permissions: ['bookmarks']}, granted => {
                 if (granted) {
-                    chrome.permissions.getAll(
-                        rsp => chrome.storage.local.set({'permissions' : rsp.permissions}));
                     (msg.function == 'getBookmarks') ? getBookmarks() : exportBookmarks();
                 } else {
                     // send back denial 
@@ -193,22 +191,37 @@ chrome.runtime.onConnect.addListener((port) => {
  *
  ***/
 
-function initializeExtension(msg, sender) {
+function getOpenTabs() {
+    // return an array of [{winId:, tabId:, groupId:, url:}..] via promise
+    
+    return new Promise(resolve => {
+	let allTabs = [];
+	chrome.tabs.query({}, (tabs) => {
+	    tabs.forEach((tab) =>
+			 allTabs.push({'id': tab.id,
+				       'groupId': tab.groupId,
+				       'windowId': tab.windowId,
+				       'url': tab.url}));
+	    resolve(allTabs);
+	});
+    });
+}
+
+async function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
     BTTab = sender.tab.id;
     BTWin = sender.tab.windowId;
 
-    // make set of granted permissions available to content script
-    chrome.permissions.getAll(
-        rsp => {chrome.storage.local.set({'permissions' : rsp.permissions});});
-
+    let allTabs = await getOpenTabs();
+	
     // send over gdrive app info
     chrome.tabs.sendMessage(                        
         BTTab,
         {'function': 'launchApp', 'config': config, 'client_id': config.CLIENT_ID,
 	 'api_key': config.API_KEY, 'fb_key': config.FB_KEY,
 	 'stripe_key': config.STRIPE_KEY,
-         'initial_install': InitialInstall, 'upgrade_install': UpdateInstall});
+         'initial_install': InitialInstall, 'upgrade_install': UpdateInstall,
+	 'all_tabs': allTabs});
 
     // check to see if a welcome is called for. repeat popup setting on bt win for safety.
     if (InitialInstall || UpdateInstall) {

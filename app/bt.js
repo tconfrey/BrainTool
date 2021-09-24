@@ -132,6 +132,9 @@ async function launchApp(msg) {
     // show special offer link if not subscribed and not first run
     if (!sub && !(InitialInstall || UpgradeInstall))
 	$("#specialOffer").show();
+
+    // handle currently open tabs
+    handleInitialTabs(msg.all_tabs);
 }
 
 async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
@@ -199,6 +202,23 @@ async function warnBTFileVersion(e) {
     gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
 }
 
+function handleInitialTabs(tabs) {
+    // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
+    tabs.forEach((tab) => {
+	const node = BTNode.findFromURL(tab.url);
+	if (!node) return;
+	
+        $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+        node.tabId = tab.id;
+        node.windowId = tab.windowId;
+        if (tab.groupId > 0) node.tabGroupId = tab.groupId;
+        if (node.parentId && AllNodes[node.parentId]) {
+            AllNodes[node.parentId].windowId = node.windowId;
+            AllNodes[node.parentId].tabGroupId = node.tabGroupId;
+            $("tr[data-tt-id='"+node.parentId+"']").addClass("opened");
+        }
+    });
+}
 
 /***
  *
