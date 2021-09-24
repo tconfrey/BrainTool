@@ -181,8 +181,10 @@ function addTip() {
 }
 
 // register for focus and check then if external file has been edited
+window.onfocus = warnBTFileVersion;
 async function warnBTFileVersion(e) {
-    // warn in ui if there's a newer btfile on Drive, check on GDrive is not knownstale
+    // warn in ui if there's a newer btfile on Drive
+    if (!getMetaProp('BTGDriveConnected')) return; 	    // only if gdrive connected
     const warn = await checkBTFileVersion();
     if (!warn) {
 	$("#stats_row").css('background-color', '#7bb07b');
@@ -196,7 +198,6 @@ async function warnBTFileVersion(e) {
     console.log("Newer BTFile version on GDrive, sending gtag event and warning");
     gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
 }
-window.onfocus = warnBTFileVersion;
 
 
 /***

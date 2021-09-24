@@ -161,7 +161,7 @@ async function findOrCreateBTFile(userInitiated) {
     try {
         let response = await gapi.client.drive.files.list({
             'pageSize': 1,
-            'fields': "files(id, name, modifiedTime, version)",
+            'fields': "files(id, name, modifiedTime)",
             'q': "name='BrainTool.org' and not trashed"
         });
         
@@ -169,10 +169,10 @@ async function findOrCreateBTFile(userInitiated) {
         if (files && files.length > 0) {
             const file = files.find((f) => f.id == (Config.BTFileID || 0)) || files[0];
             BTFileID = file.id;
-            updateStatsRow(file.modifiedTime);
-	    const driveFileVersion = parseInt(file.version);
+	    const driveTimestamp = Date.parse(file.modifiedTime);
+            updateStatsRow(driveTimestamp);
 	    if (userInitiated ||
-		(Config?.BTExternalFileVersion && (driveFileVersion > Config.BTExternalFileVersion)))
+		(Config?.BTTimestamp && (driveTimestamp > Config.BTTimestamp)))
 	    {
 		// if user just initiated connection but file exists ask to import
 		// or if we have a recorded version thats older than disk, ask to import
@@ -182,13 +182,13 @@ async function findOrCreateBTFile(userInitiated) {
 		      "BrainTool.org file is newer than browser data. Use newer?";
 		if (confirm(msg)) {
 		    await refreshTable(true);
-		    Config.BTExternalFileVersion = driveFileVersion;
+		    Config.BTTimestamp = driveTimestamp;
 		    await saveBT(); // later in flow property save was overwriting w old data on upgrade, so resave here to get disk version written to memory etc.
 		}
 	    }
 	    // Update and Save Config
 	    Config.BTFileID = BTFileID;
-	    Config.BTExternalFileVersion = Config.BTExternalFileVersion || driveFileVersion;
+	    Config.BTTimestamp = Config.BTTimestamp || driveTimestamp;
 	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
 	    
         } else {
@@ -227,22 +227,21 @@ async function createStartingBT() {
         form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
         form.append('file', BTFileText);
 
-        let response = await
-        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version'
-	      , {
-		  method: 'POST',
-		  headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-		  body: form,
-              });
+        let response = await fetch(
+	    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version,modifiedTime'
+	    , {
+		method: 'POST',
+		headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+		body: form,
+            });
         let responseValue = await response.json();
         
         console.log("Created ", responseValue);
         BTFileID = responseValue.id;
-	setMetaProp('BTExternalFileVersion', parseInt(responseValue.version));
 	Config.BTFileID = BTFileID;
-	Config.BTExternalFileVersion = parseInt(responseValue.version);
+	Config.BTTimestamp = Date.parse(responseValue.modifiedTime);
 	window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-        updateStatsRow();
+        updateStatsRow(Config.BTTimestamp);
     }
     catch(err) {
         alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
@@ -258,11 +257,13 @@ async function getBTFile() {
     try {
 	let response = await gapi.client.drive.files.get({
             fileId: BTFileID,
-            alt: 'media',
-	    fields: 'version'
+            alt: 'media'
 	});
-        BTFileText  = response.body;
-	updateFileVersion();			     // get new version# and store in metadata
+        BTFileText = response.body;
+	const remoteVersion = await getBTModifiedTime();
+	Config.BTTimestamp = remoteVersion;
+	window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+        updateStatsRow(Config.BTTimestamp);
     }
     catch(error) {
 	console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
@@ -313,7 +314,7 @@ async function writeBTFile(cb) {
     // Notification of change that needs to be written
     
     // if its been 15 secs, just write out,
-    if (new Date().getTime() > (15000 + LastWriteTime.getTime()))
+    if (new Date().getTime() > (15000 + (Config.BTTimestamp || 0)))
 	try {
             return await _writeBTFile(cb);
         }
@@ -341,7 +342,6 @@ async function writeBTFile(cb) {
         gtag('event', 'Save', {'event_category': 'GDrive', 'event_label': 'Count',
                                'value': getMetaProp('BTVersion')});
         
-        LastWriteTime = new Date();
         UnwrittenChangesTimer = null;
         if (!BTFileID) {
             alert("BTFileID not set, not saving");
@@ -370,7 +370,7 @@ async function writeBTFile(cb) {
 
             await fetch('https://www.googleapis.com/upload/drive/v3/files/'
                   + encodeURIComponent(BTFileID)
-                  + '?uploadType=multipart',
+                  + '?uploadType=multipart&fields=id,version,modifiedTime',
                   {
                       method: 'PATCH', 
                       headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
@@ -385,11 +385,10 @@ async function writeBTFile(cb) {
                       return res.json();
                   }).then(function(val) {
                       console.log(val);
-                      updateStatsRow();		     // update stats when we know successful save
-		      // update externalFileVersion property, timeout cos immediate check gets
-		      // the old value. We won't write again for >15 secs anyway
-		      // 9/21/21 upped to 5 sec wait, seeing lot of spurious version errors
-		      setTimeout(updateFileVersion, 5000);	     
+		      const mt = Date.parse(val.modifiedTime);
+		      Config.BTTimestamp = mt;
+		      window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+                      updateStatsRow(mt);	     // update stats when we know successful save
                       if (cb) cb();
                   }).catch(function(err) {
 		      alert("BT - Error accessing GDrive.");
@@ -405,6 +404,32 @@ async function writeBTFile(cb) {
     }
 }
 
+async function getBTModifiedTime() {
+    // query Drive for last modified time 
+    if (!BTFileID || !GDriveConnected) return 0;
+    try {
+	let response = await gapi.client.drive.files.get({
+            fileId: BTFileID,
+            fields: 'version,modifiedTime'
+	});
+	let result = response.result;
+	return Date.parse(response.result.modifiedTime);
+    } catch (e) {
+	console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
+	return 0;
+    }
+}
+
+async function checkBTFileVersion() {
+    // is there a newer version of the btfile on Drive?
+
+    const localVersion = Config.BTTimestamp;
+    const remoteVersion = await getBTModifiedTime();
+    console.log(`Checking timestamps. local: ${localVersion}, remote: ${remoteVersion}`);
+    return (remoteVersion > localVersion);
+}
+
+/*
 async function getBTFileVersion() {
     // query Drive for file version
 
@@ -412,21 +437,34 @@ async function getBTFileVersion() {
     try {
 	let response = await gapi.client.drive.files.get({
             fileId: BTFileID,
-            fields: 'version'
+            fields: 'version, md5Checksum, modifiedTime, lastModifyingUser, headRevisionId, modifiedByMeTime'
 	});
-	console.log('remote file version:', response.result.version);
+	let result = response.result;
+	console.log(`version: ${result.version}, checksum: ${result.md5Checksum}, mTime: ${result.modifiedTime}, user: ${result.lastModifyingUser.displayName}, headRevision: ${result.headRevisionId}, modifiedByMeTime: ${result.modifiedByMeTime}`);
+	//console.log('remote file version:', response.result.version);
 	return parseInt(response.result.version);
     } catch (e) {
 	console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
 	return 0;
     }
 }
+var CHECKING=true;
+var N = 0;
+function checkV() {
+    setTimeout(() => {
+	if (!CHECKING) return;
+	if (N++ > 20) return;
+	getBTFileVersion();
+	setTimeout(()=>checkV(), 50);
+    }, 50);
+}
+    
 
 async function updateFileVersion() {
     // read bt.org file version and store to metadata
 
     const v = await getBTFileVersion();
-    setMetaProp('BTExternalFileVersion', v);
+// TODO remove    setMetaProp('BTExternalFileVersion', v);
     Config.BTExternalFileVersion = v;
     window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     updateStatsRow();
@@ -439,7 +477,7 @@ async function checkBTFileVersion() {
     const remoteVersion = await getBTFileVersion();
     return (remoteVersion > localVersion);
 }
-
+*/
 /*** 
  * 
  * Import/export file functions
