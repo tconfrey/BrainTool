@@ -917,10 +917,15 @@ function tabActivated(data) {
     
     // Set Highlight to this node if in tree. see also similar code in keyPressHandler
     let currentSelection = $("tr.selected")[0];
-    if (currentSelection) $(currentSelection).removeClass('selected');
-    if (!node) return;					    // nothing else to do
+    if (currentSelection) {
+	$(currentSelection).removeClass('selected');
+        const prev = $(currentSelection).attr("data-tt-id");
+	AllNodes[prev].unshowForSearch();
+    }
+    if (!node) return;						    // nothing else to do
     if (node) {
-	let tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	node.showForSearch();					    // unfold tree etc as needed
 	$(tableNode).addClass('selected');
 	tableNode.scrollIntoView({block: 'center'});	
 	$("#search_entry").val("");				    // clear search box on nav
@@ -1554,7 +1559,7 @@ function disableSearch(e = null) {
     if (selectedNodeId) AllNodes[selectedNodeId].redisplay(true);
 }
 
-function handleKeyUp(keyevent){
+function handleSearchKeyUp(keyevent){
     // special case handling cos keypress  does not get delete key
     // and also first key when textinput still has prev content keydown gets both, need to wait till keyup
     if ((keyevent.key == 'Backspace') || ( $("#search_entry").val().length == 1)) {
@@ -1673,6 +1678,12 @@ function search(keyevent) {
  * Keyboard event handlers
  * 
  ***/
+// prevent default arrow key scrolling
+window.addEventListener("keydown", function(e) {
+    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
+}, false);
 
 $(document).on("keyup", keyPressHandler);
 function keyPressHandler(e) {
@@ -1716,6 +1727,7 @@ function keyPressHandler(e) {
         next.scrollIntoView({block: 'nearest'});	
 	$("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
+	e.stopPropagation();
         return;
     }
 
