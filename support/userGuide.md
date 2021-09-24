@@ -92,6 +92,10 @@ Hitting Enter exits search leaving you with the selected row which you can then 
 
 Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
 
+In addition to showing the selected row, whether it was hidden or not and whether the matching text was visible or not, search will also indicate any other matches in visible rows, if the matching text is visible it will be highlighted otherwise the matching item will be shown in gray.
+
+In addition to the key commands buttons for Up, Down and eXit are shown next to the search box when it is active.
+
 ## Actions: Import/Export, Syncing and Options
 The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking into the bar will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
 
