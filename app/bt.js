@@ -899,7 +899,7 @@ function tabUpdated(data) {
 }
 
 function tabActivated(data) {
-    // user switched to a new tab or win, fill in storage for popup's use
+    // user switched to a new tab or win, fill in storage for popup's use and select in ui
 
     const tabId = data['tabId'];
     const winId = data['windowId'];
@@ -914,9 +914,18 @@ function tabActivated(data) {
     else
         m1 = {'currentTag': '', 'currentText': ''};
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
-    // TODO highlight this node in tree
+    
+    // Set Highlight to this node if in tree. see also similar code in keyPressHandler
+    let currentSelection = $("tr.selected")[0];
+    if (currentSelection) $(currentSelection).removeClass('selected');
+    if (!node) return;					    // nothing else to do
+    if (node) {
+	let tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	$(tableNode).addClass('selected');
+	tableNode.scrollIntoView({block: 'center'});	
+	$("#search_entry").val("");				    // clear search box on nav
+    }	
 }
-
 
 function tabsWindowed(data) {
     // due to grouping change tabids are now in a window w windowId
@@ -1693,7 +1702,7 @@ function keyPressHandler(e) {
     if (!alt && navKeys.includes(key)) {
         if (currentSelection)
             next = (key == 78 || key == 40) ?
-            $(currentSelection).nextAll(":visible").first()[0] :          // down
+            $(currentSelection).nextAll(":visible").first()[0] :          // down or
             $(currentSelection).prevAll(":visible").first()[0];           // up
         else
             // no selection => nav in from top or bottom
