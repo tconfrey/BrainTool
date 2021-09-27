@@ -1190,9 +1190,11 @@ function openRow(e) {
             if (!confirm(`Open ${numTabs} tabs?`))
                 return;
 
-    if (appNode.isTag())
+    if (appNode.isTag()) {
         appNode.openAll();
-    else
+        if (appNode.folded)	                  // unfold if we're opening all its pages.
+            $("table.treetable").treetable("expandNode", appNode.id);
+    } else
         appNode.openTab();
 }
 
