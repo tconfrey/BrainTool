@@ -1,0 +1,420 @@
+    
+#controls_header {
+    background-color: #7bb07b;
+    border-width: 1px;
+    border-color: #AAA;
+}
+
+.stat_span {
+    padding-right: 8px;
+    vertical-align: top;
+    font-size: 13px;
+    font-family: Roboto;
+}
+
+#stats_row {
+    height: 18px;
+    color: darkslategray;
+    position: absolute;
+    top: 1px;
+    right: 5px;
+    border-radius: 3px;
+}
+
+#brain {
+    padding-left: 4px;
+    padding-top: 1px;
+}
+
+#search {
+    height: 18px;
+    position: absolute;
+    top: 0px;
+    left: calc((100% - 250px) / 2);
+    font-family: tahoma;
+    font-size: small;
+    color: darkslategrey;
+}
+#search_entry {
+    height: 13px;
+    top: 2px;
+    font-family: Roboto;
+    margin-top: 1px;
+    border-bottom-width: 1px;
+    background-color: #bed8be;
+}
+.highlight {
+    background-color: lime;
+}
+.failed {
+    background-color: #E59A98 !important;
+}
+#open_close_image {
+    opacity: 0.6;
+    margin-top: 1px;
+    margin-left:7px;
+    transition: transform 0.75s;
+}
+
+#open_close_image.open {
+    transform: rotate(90deg);
+}
+#open_close_image.close {
+    transform: rotate(-90deg);
+}
+
+#controls {
+    position: fixed;
+    right: 8px;
+    left: 8px;
+    top: 0px;
+    border-top: 3px solid white;
+    border-left: none;
+    border-right: none;
+    z-index: 3;
+    font-family: Roboto;
+}                    
+
+
+#controls_screen::before {
+    content: "";
+    left: 0px;
+    top:0;
+    bottom:0;
+    right: 0px;
+    position: absolute;
+    z-index: -4;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0%,
+				      rgba(255, 255, 255, 0.95) 5%,
+				      rgba(255, 255, 255, 0.95) 95%,
+				      rgba(255, 255, 255, 0.1) 100%)
+}
+#controls_screen {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    border: 2px solid #7bb07b;
+    border-radius: 0px 0px 5px 5px;
+    backdrop-filter: blur(3px);
+    min-height: 280px;
+}
+
+#openingTips {
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 15px;
+    line-height: 1.4em;
+    padding: 3px;
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+}
+#openingTips p {
+    margin-block-start: 0.3em;
+    margin-block-end: 0.3em;
+}
+
+#tip {
+    margin-top: 55px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#logo_image {
+    width: 40%;
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+    margin-top: 30px;
+}
+
+#buttonRow {
+    background-color: #7bb07b; /* #cec; #aca */
+    position: absolute;
+    padding-left: 2px;
+    padding-right: 0px;
+    border-radius: 2px;
+    cursor: pointer;
+    right: 11px;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0,0.2);
+}
+
+dialog {
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
+    width: 88%;
+    padding: 10px;
+    padding-top: 2px;
+    margin-top: 0px;
+    position: fixed;
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
+    background-size: 300px 300px;
+}
+
+dialog textarea {
+    width: 91%;
+    resize: none;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    font-family: roboto;
+}
+dialog #title-text {
+    white-space: nowrap;
+    margin-left: 20px;
+}
+dialog #text-text {
+    height: 11em;
+    margin-left: 20px;
+}
+dialog #title-url {
+    height: 2em;
+    margin-left: 20px;
+    font-size: 0.6em;
+    font-style: italic;
+    whitespace: nowrap;
+}
+dialog #distinguishedName {
+    position: relative;
+    left: -10px;
+    font-family:roboto;
+    color: #3f673f;
+}
+dialog li::marker {
+    color: #3f673f;
+}
+
+#important_buttons {
+    width: 90%;
+    margin: auto;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.important_button {    
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: grey;
+    background-color: #7bb07baa;
+    width: 180px;
+    height: 40px;
+    font-size: 1.2em;
+    font-family: 'Roboto';
+}
+
+.important {
+    border-color: crimson;
+}
+
+.buttonDiv {
+    width: 95%;
+    margin: auto;
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-around;
+    position: absolute;
+    bottom: 10px;
+}
+
+.control_overlay {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    /* same as edit dialog */
+    border: 2px solid #3f673f ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
+
+    background-color: white;
+    width: 90%;
+    /*z-index: 3;*/
+    
+}
+.overlay_table {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+    border-spacing: 1px;
+}
+
+.options_table td {
+    padding-top: 18px;
+}
+
+.option_td {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.help_vertical_td {
+    writing-mode: vertical-rl;
+    text-align: center;
+    padding-right: 10px;
+}
+
+.row_divider {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: grey;
+}
+
+#optionsClose {
+    position: absolute;
+    cursor: pointer;
+    right: 3px;
+    top: 3px;
+    z-index: 4;
+}
+
+#inner {
+    width: 240px;
+    margin: 0 auto;
+}
+
+button:not([disabled]):hover {
+    color: #222;
+    background-color: #7bb07b;
+    cursor: pointer;
+}
+
+/* button for import/export */
+.button_text {
+    font-family: Roboto;
+    font-size: 15px;
+}
+.split_image {
+    opacity: 0.6;
+    margin-top: 1px;
+}
+
+.general_button {
+    width: 130px;
+    border-radius: 3px 3px 3px 3px;
+    border: 1px solid #ddd;
+    padding: 5px 5px 5px 8px;
+    font-size: 15px;
+}
+.dropdown_button {
+    border-radius: 3px 3px 0px 0px;
+}
+    
+.dropdown_text {
+    float: left;
+}
+.button_image_wrapper {
+    float: right;
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropdown_content {
+    display: none;
+    position: absolute;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 0px 4px 4px 4px;
+    z-index: 1;
+    width: 160px;
+    transform: translate(0px, -4px);
+}
+
+.dropdown_content a {
+    color: black;
+    text-decoration: none;
+    float: left;
+}
+.dropdown_content label {
+    float: left;
+    cursor: pointer;
+}
+.dropdown_content div {  
+    cursor: pointer;
+    float: left;
+    padding: 5px 0px 5px 8px;
+    width: 152px;
+}
+.dropdown_content div:hover {background-color: #7bb07b}  
+.dropdown:hover .dropdown_content {
+    display: block;
+}
+/* end split button*/
+
+span.elipse {
+     cursor:pointer;
+     color:blue;
+     text-decoration:underline;
+     padding-left: 0.1em;
+}
+
+textarea {
+    font-size: .8em;
+    line-height: 1.2;
+}
+
+/* prevents selection being scrolled off top, nb edited in toggleMenu */
+.treetable tr {
+  scroll-margin-top: 375px;
+}
+
+
+body.waiting * {
+    cursor: progress !important;
+}
+
+
+/* 3-way chooser for window mapping */
+.toggle-radio > input + label {
+    background:#eee;
+    border:solid #ddd;
+    border-width:1px; /* 0 1px 0;*/
+}
+.toggle-radio > input:first-of-type + label {
+    margin-right: -5px;
+}
+.toggle-radio > input:last-of-type + label {
+    margin-left: -5px
+}
+
+/* Rounded corners */
+.toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
+.toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
+
+.toggle-radio > input:checked + label {background: #7bb07b;}
+/* CORE STYLES */
+.toggle-radio {
+    display:inline-block;
+    vertical-align:middle;
+}
+.toggle-radio > input[type='radio'] {display:none;}
+.toggle-radio > input + label {
+    display:inline-block;
+    margin-bottom:0;
+    padding:5px 10px;
+    cursor:pointer;
+    align-items:center;}
+
+/* Transitions */
+.toggle-radio > input:checked + label {transition:background 300ms linear;}
