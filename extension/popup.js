@@ -17,6 +17,12 @@ var TabAction;                          // current GROUP|CLOSE|STICK action
 var Tabs;                               // tabs in current window
 var newInstall = false;			// set below, ignore some events if = true
 
+// show Alt or Option appropriately in visible text (Mac v PC)
+const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
+const altOpt = document.getElementById('alt_opt');
+altOpt.textContent = OptionKey;
+
+
 chrome.storage.local.get(['newInstall', 'newVersion'], val => {
     if (val['newInstall']) {
 	// This is a new install, show the welcome page
@@ -69,14 +75,16 @@ function windowOpen() {
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
+    const messageDiv = document.getElementById('message');
+    messageDiv.style.display = 'block';
     chrome.tabs.query({title: "BrainTool Side Panel"},
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
     //const url = "https://BrainTool.org/app/";
-    //const url = "http://localhost:8000/app/";
-    const url = "https://BrainTool.org/versions/"+version+'/app/';
+    const url = "http://localhost:8000/app/";
+    //const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
     var wargs = {
         'url' : url,
@@ -263,7 +271,8 @@ window.onkeyup = function(e) {
         });
         const suggestions = AwesomeWidget.isOpened ? AwesomeWidget.suggestions || [] : [];
         suggestions.forEach(function(sug) {
-            document.getElementById(sug.value).classList.add("highlight");
+	    const elt = document.getElementById(sug.value);
+            elt && elt.classList.add("highlight");
         });
         return;    // Done, unless Enter key
     }
@@ -315,7 +324,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     case 'btwindow':
         if (msg.function == 'initializeExtension') {
             console.log("BT window is ready");
-            window.close();
+           // window.close();
         }
         break;
     }

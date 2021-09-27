@@ -6,8 +6,35 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
-# Welcome to BrainTool 0.9.6
-We're almost at 1.0! See [Pricing](../pricing.md) for a limited time offer for pre 1.0 subscribers.
+# Welcome to BrainTool 0.9.7
+Inching closer to 1.0! I liked the new search feature so much that I wanted to release it asap. So instead of going straight to 1.0 I'm releasing a 0.9.7. See [Pricing](../pricing.md) for a special offer for pre 1.0 subscribers.
+
+## Search
+Yay! I added the incremental search I've wanted for a long time. See the new [User Guide](./userGuide) for details, or just try playing with it and let me know what you think.
+
+## Best effort mapping of open tabs to saved links on startup
+When you first launch BrainTool it will attempt to find any tabs which you have already saved into your braintool.org file and show them as open in the tree. Note that since some web sites do an invisible redirect, which changes the URL, some matches may not be shown.
+
+## Selection in tree now tracks highlighted tab in browser
+As you navigate tabs in the browser any matching row in the BT tree will be selected (and scrolled into view).
+
+## Minor onboarding updates and usability updates
+- I trimmed the initial BrainTool.org file contents to be less overwhelming.
+- The initial first-click popup now explains the side panel and popup.
+- When the side panel is closed the popup icon now shows an indication that BT is not running.
+
+## Bug fixes 
+- BT now saves correctly on keyboard number based folding and keyboard row moves. 
+- Topic nodes with no links are now placed correctly in the hierarchy. 
+- (BTW Thanks to Richard for detailed bug reports on these two issues.)
+- Better handling of Google Drive versioning should remove spurious warnings about a newer file version existing. These were caused by the 0.9.6 feature that warns if the synced GDrive file has been changed external to BT.
+- Tab navigation now works correctly on the topic card editor.
+
+## [New User Guide](./userGuide)
+Its a first pass I'd appreciate feedback.
+
+# BrainTool 0.9.6
+
 ## Cleaner more minimal UI
 Based on the results of a comprehensive review by a panel of designers and UX folks I've moved to a cleaner more minimal UI with bigger buttons, more spacing and clearer backgrounds. 
 ## Improved onboarding process
