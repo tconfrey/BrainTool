@@ -272,7 +272,7 @@ window.onkeyup = function(e) {
         const suggestions = AwesomeWidget.isOpened ? AwesomeWidget.suggestions || [] : [];
         suggestions.forEach(function(sug) {
 	    const elt = document.getElementById(sug.value);
-            elt.classList.add("highlight");
+            elt && elt.classList.add("highlight");
         });
         return;    // Done, unless Enter key
     }

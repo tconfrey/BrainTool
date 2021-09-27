@@ -1536,10 +1536,11 @@ function enableSearch(e) {
     e.preventDefault();
     e.stopPropagation();
 }
+
 function disableSearch(e = null) {
     // turn off search mode
-    if (e && e.currentTarget == $("#search")[0]) return;      // don't if still in search div
-    e || $("#search_entry").blur();			      // e => user drived blur
+    if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
+    e || $("#search_entry").blur();			     // e => user drived blur
     $("#search_entry").removeClass('failed');
 
     // undo display of search hits
@@ -1548,11 +1549,12 @@ function disableSearch(e = null) {
 
     // turn back on other key actions, but only after this keyup is done
     $(document).on("keyup", function() {
-	$(document).unbind('keyup');			      // get rid of this anon fn
+	$(document).unbind('keyup');			     // get rid of this anon fn
 	$(document).on("keyup", keyPressHandler);
     });
 
-    AllNodes.forEach((n) => n.unshowForSearch());	      // fold search-opened nodes back closed
+    BTAppNode.redisplaySearchedNodes();			     // fix searchLite'd nodes
+    AllNodes.forEach((n) => n.unshowForSearch());	     // fold search-opened nodes back closed
     
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
@@ -1666,7 +1668,6 @@ function search(keyevent) {
 	    })
 	}, 200);			     
     } else {
-	console.log(`"${sstr}" not found. nodeId = ${nodeId}`);
 	$("#search_entry").addClass('failed');
     }
     
@@ -1680,7 +1681,7 @@ function search(keyevent) {
  ***/
 // prevent default arrow key scrolling
 window.addEventListener("keydown", function(e) {
-    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
         e.preventDefault();
     }
 }, false);

@@ -245,7 +245,8 @@ class BTAppNode extends BTNode {
 	    $(node).find("td").addClass('search');
 	return match;	
     }
-    
+
+    static searchNodesToRedisplay = new Set();
     searchLite(sstr) {
 	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
 	
@@ -275,6 +276,15 @@ class BTAppNode extends BTNode {
 	    $(node).find("td.left").addClass('searchLite');
 	if (rmatch)
 	    $(node).find("td.right").addClass('searchLite');
+	
+	// remember which nodes need to be redisplayed when seach ends
+	if (lmatch || rmatch) BTAppNode.searchNodesToRedisplay.add(this.id);
+    }
+    static redisplaySearchedNodes() {
+	// iterate thru nodes highlighted in search and redisplay
+
+	BTAppNode.searchNodesToRedisplay.forEach((n) => AllNodes[n].redisplay());
+	BTAppNode.searchNodesToRedisplay.clear();
     }
 
 /***
