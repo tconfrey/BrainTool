@@ -11,13 +11,13 @@ audience: landingpage
 <h3>
 BrainTool organizes all your sites by Topic in a side panel.
 <br/><br/>
-No longer fear closing a tab!
+Open and close groups of tabs for a Topic with a click.
 </h3>
 <h1> Control your Browser</h1>
 <h3>
-Open and close groups of tabs for a Topic with a click.
-<br/><br/>
 Switch between contexts with ease. Keep your workspace clean.
+<br/><br/>
+No longer fear closing a tab!
 </h3>
 <br/>
 <h1>Curate your Topics</h1>
