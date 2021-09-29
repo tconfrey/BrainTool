@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <script>
+      function printKey(k) {
+      let deets = document.getElementById('deets');
+      deets.innerHTML += `<br\>${k.key} - alt: ${k.altKey}, meta: ${k.metaKey}, ctrl: ${k.ctrlKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
+      }
+    </script>
+  </head>
+  <body>
+    <input id="keys" onkeyup="printKey(event)">
+    <p id="deets">
+      Waiting for key
+    </p>
+  </body>
+</html>
