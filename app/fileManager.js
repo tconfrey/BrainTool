@@ -288,12 +288,12 @@ function getAccessToken(cb) {
 function reAuth(callback) {
     // If access to gdrive fails try a reauth
 
-	gapi.auth.authorize(
+    gapi.auth.authorize(
         {client_id: ClientID, scope: Scopes, immediate: true}
-	).then((res) => {
+    ).then((res) => {
         if (res.status && res.status.signed_in) {
             console.error("reAuth succeeded. Continuing");
-			if (callback)
+	    if (callback)
                 callback();                         // try again
             refreshRefresh();
         } else {
@@ -416,6 +416,10 @@ async function getBTModifiedTime() {
 	return Date.parse(response.result.modifiedTime);
     } catch (e) {
 	console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
+	if (e.status == 401) {
+	    console.error('Auth expired, calling reAuth and continuing');
+	    reAuth();
+	}
 	return 0;
     }
 }
@@ -429,55 +433,7 @@ async function checkBTFileVersion() {
     return (remoteVersion > localVersion);
 }
 
-/*
-async function getBTFileVersion() {
-    // query Drive for file version
 
-    if (!BTFileID || !GDriveConnected) return 0;
-    try {
-	let response = await gapi.client.drive.files.get({
-            fileId: BTFileID,
-            fields: 'version, md5Checksum, modifiedTime, lastModifyingUser, headRevisionId, modifiedByMeTime'
-	});
-	let result = response.result;
-	console.log(`version: ${result.version}, checksum: ${result.md5Checksum}, mTime: ${result.modifiedTime}, user: ${result.lastModifyingUser.displayName}, headRevision: ${result.headRevisionId}, modifiedByMeTime: ${result.modifiedByMeTime}`);
-	//console.log('remote file version:', response.result.version);
-	return parseInt(response.result.version);
-    } catch (e) {
-	console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
-	return 0;
-    }
-}
-var CHECKING=true;
-var N = 0;
-function checkV() {
-    setTimeout(() => {
-	if (!CHECKING) return;
-	if (N++ > 20) return;
-	getBTFileVersion();
-	setTimeout(()=>checkV(), 50);
-    }, 50);
-}
-    
-
-async function updateFileVersion() {
-    // read bt.org file version and store to metadata
-
-    const v = await getBTFileVersion();
-// TODO remove    setMetaProp('BTExternalFileVersion', v);
-    Config.BTExternalFileVersion = v;
-    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-    updateStatsRow();
-}
-
-async function checkBTFileVersion() {
-    // is there a newer version of the btfile on Drive?
-
-    const localVersion = Config.BTExternalFileVersion;
-    const remoteVersion = await getBTFileVersion();
-    return (remoteVersion > localVersion);
-}
-*/
 /*** 
  * 
  * Import/export file functions

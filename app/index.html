@@ -75,7 +75,8 @@
           <p>- This Message board overlay closes/opens by clicking the triangle, top left. Random tips will be shown here. All tips are in the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> </p>
 	</div>
 	<p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
-        <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>        
+        <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
+        
         <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close" class="split_image"
                src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
@@ -304,13 +305,13 @@
             <td>
               <li style="margin-left: 10px">
                 <span style="position: relative; left: -12px; top:5px">
-                  <textarea id="topic-text" class="editNode" style="width: 93%" rows="1" tabindex="0"></textarea>
+                  <input type="text" id="topic-text" class="editNode" style="width: 92%" tabindex="0">
                 </span>
               </li>
             </td>
           </tr> 
           <tr> 
-            <td><textarea id="title-text" class="editNode" rows="1" tabindex="1">title</textarea></td>
+            <td><input type="text" id="title-text" class="editNode" tabindex="1" style="width: 91%" value='title'></td>
           </tr>
           <tr> 
             <td><textarea id="title-url" class="editNode" tabindex="2">url</textarea></td>

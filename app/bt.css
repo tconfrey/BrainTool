@@ -30,7 +30,7 @@
     height: 18px;
     position: absolute;
     top: 0px;
-    left: calc((100% - 250px) / 2);
+    left: calc((100% - 300px) / 2);
     font-family: tahoma;
     font-size: small;
     color: darkslategrey;
@@ -171,6 +171,11 @@ dialog textarea {
     border-radius: 2px;
     font-family: roboto;
 }
+dialog input {
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    font-family: roboto;
+}
 dialog #title-text {
     white-space: nowrap;
     margin-left: 20px;
@@ -184,7 +189,6 @@ dialog #title-url {
     margin-left: 20px;
     font-size: 0.6em;
     font-style: italic;
-    whitespace: nowrap;
 }
 dialog #distinguishedName {
     position: relative;

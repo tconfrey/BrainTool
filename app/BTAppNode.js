@@ -186,10 +186,10 @@ class BTAppNode extends BTNode {
 	const dn = this.getDisplayNode();
 	$(dn).find("span.btTitle").html(this.displayTitle());
 	$(dn).find("span.btText").html(this.displayText());
-	$(dn).find("a").each(function() {		       // reset link click intercept
+	$(dn).find("a").each(function() {				  // reset link click intercept
 	    this.onclick = handleLinkClick;
 	});
-	show && this.showForSearch();				   // reclose if needed
+	show && this.showForSearch();					  // reclose if needed
     }
     
     showForSearch() {
@@ -243,6 +243,7 @@ class BTAppNode extends BTNode {
 	}
 	if (match)
 	    $(node).find("td").addClass('search');
+	
 	return match;	
     }
 
@@ -265,13 +266,13 @@ class BTAppNode extends BTNode {
 	    // nb don't add span highlighting to url
 	    lmatch = true;
 	}
-	if (reg.test(this.displayText())) {
-	    let textStr = this.displayText();
+	if (reg.test(this.text)) {
+	    let textStr = this.text;
 	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	    $(node).find("span.btText").html(textStr);
 	    rmatch = true;
 	}
-//	match=false;
+	
 	if (lmatch)
 	    $(node).find("td.left").addClass('searchLite');
 	if (rmatch)

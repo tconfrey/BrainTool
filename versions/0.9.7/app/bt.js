@@ -925,9 +925,10 @@ function tabActivated(data) {
     if (!node) return;						    // nothing else to do
     if (node) {
 	const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
-	node.showForSearch();					    // unfold tree etc as needed
+	if(!$(tableNode).is(':visible'))
+	    node.showForSearch();				    // unfold tree etc as needed
 	$(tableNode).addClass('selected');
-	tableNode.scrollIntoView({block: 'center'});	
+	tableNode.scrollIntoView({block: 'center'});
 	$("#search_entry").val("");				    // clear search box on nav
     }	
 }
@@ -1191,9 +1192,9 @@ function openRow(e) {
                 return;
 
     if (appNode.isTag()) {
-        appNode.openAll();
-        if (appNode.folded)	                  // unfold if we're opening all its pages.
-            $("table.treetable").treetable("expandNode", appNode.id);
+        $("table.treetable").treetable("expandNode", appNode.id);         // unfold
+	AllNodes[appNode.id].folded = false;
+        setTimeout(() => appNode.openAll(), 50);
     } else
         appNode.openTab();
 }
@@ -1293,7 +1294,6 @@ function updateRow() {
 
     // reset ui
     closeDialog();
-    $("tr.selected").removeClass('selected');
     initializeUI();
 }
 
@@ -1560,7 +1560,10 @@ function disableSearch(e = null) {
     
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
-    if (selectedNodeId) AllNodes[selectedNodeId].redisplay(true);
+    if (selectedNodeId) {
+	AllNodes[selectedNodeId].redisplay(true);
+	AllNodes[selectedNodeId].shownForSearch = false;
+    }
 }
 
 function handleSearchKeyUp(keyevent){
@@ -1683,7 +1686,7 @@ function search(keyevent) {
  ***/
 // prevent default arrow key scrolling
 window.addEventListener("keydown", function(e) {
-    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+    if(["ArrowUp","ArrowDown"].indexOf(e.code) > -1) {
         e.preventDefault();
     }
 }, false);
@@ -1695,7 +1698,7 @@ function keyPressHandler(e) {
     // ignore keys (except nav up/down) if edit dialog is open
     const editing = ($($("#dialog")[0]).is(':visible'));
     if (editing) {
-        handleEditCardKeydown(e);
+        handleEditCardKeyup(e);
         return;
     }
 
@@ -1865,8 +1868,8 @@ function keyPressHandler(e) {
 
 };
 
-function handleEditCardKeydown(e) {
-    // subset of keydown handler applicible to card edit dialog
+function handleEditCardKeyup(e) {
+    // subset of keypress handler applicible to card edit dialog, nb keyup event
 
     const key = e.which;
     const alt = e.altKey;
@@ -1884,6 +1887,12 @@ function handleEditCardKeydown(e) {
 	}
         e.preventDefault();
         return;
+    }
+    if (key == 13) {
+	// on enter move focus to text entry box
+	$("#text-text").focus();
+	e.preventDefault();
+	e.stopPropagation();
     }
     if (alt && [38,40].includes(key)) {
         // alt up/down iterates rows opening cards
