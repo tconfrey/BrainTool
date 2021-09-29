@@ -96,6 +96,8 @@ In addition to showing the selected row, whether it was hidden or not and whethe
 
 In addition to the key commands buttons for Up, Down and eXit are shown next to the search box when it is active.
 
+There's also a [brief demo](https://www.youtube.com/watch?v=TVaIQHoxxZU) on YouTube.
+
 ## Actions: Import/Export, Syncing and Options
 The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking into the bar will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
 

@@ -10,7 +10,7 @@ audience: user
 Inching closer to 1.0! I liked the new search feature so much that I wanted to release it asap. So instead of going straight to 1.0 I'm releasing a 0.9.7. See [Pricing](../pricing.md) for a special offer for pre 1.0 subscribers.
 
 ## Search
-Yay! I added the incremental search I've wanted for a long time. See the new [User Guide](./userGuide) for details, or just try playing with it and let me know what you think.
+Yay! I added the incremental search I've wanted for a long time. See the new [User Guide](./userGuide) for details, or just try playing with it and let me know what you think. There's also a [brief demo](https://www.youtube.com/watch?v=TVaIQHoxxZU) on YouTube.
 
 ## Best effort mapping of open tabs to saved links on startup
 When you first launch BrainTool it will attempt to find any tabs which you have already saved into your braintool.org file and show them as open in the tree. Note that since some web sites do an invisible redirect, which changes the URL, some matches may not be shown.
