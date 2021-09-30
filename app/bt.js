@@ -918,7 +918,6 @@ function tabActivated(data) {
     // Set Highlight to this node if in tree. see also similar code in keyPressHandler
     let currentSelection = $("tr.selected")[0];
     if (currentSelection) {
-	$(currentSelection).removeClass('selected');
         const prev = $(currentSelection).attr("data-tt-id");
 	AllNodes[prev].unshowForSearch();
     }
@@ -927,6 +926,7 @@ function tabActivated(data) {
 	const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
 	if(!$(tableNode).is(':visible'))
 	    node.showForSearch();				    // unfold tree etc as needed
+	currentSelection && $(currentSelection).removeClass('selected');
 	$(tableNode).addClass('selected');
 	tableNode.scrollIntoView({block: 'center'});
 	$("#search_entry").val("");				    // clear search box on nav
@@ -1026,7 +1026,7 @@ function buttonShow() {
     $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset();
     const height = $(this).height();
-    const rowtop = (offset.top + (height / 2) - 11);
+    const rowtop = (offset.top + (height / 2) - 12);
     if ($(this).hasClass("opened")){
         $("#expand").hide();
         $("#collapse").show();
@@ -1542,28 +1542,30 @@ function enableSearch(e) {
 function disableSearch(e = null) {
     // turn off search mode
     if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
-    e || $("#search_entry").blur();			     // e => user drived blur
     $("#search_entry").removeClass('failed');
+    $("#search_entry").val('');
 
     // undo display of search hits
     $("span.highlight").contents().unwrap();
     $("td").removeClass('search searchLite');
-
-    // turn back on other key actions, but only after this keyup is done
-    $(document).on("keyup", function() {
-	$(document).unbind('keyup');			     // get rid of this anon fn
-	$(document).on("keyup", keyPressHandler);
-    });
-
+    
     BTAppNode.redisplaySearchedNodes();			     // fix searchLite'd nodes
     AllNodes.forEach((n) => n.unshowForSearch());	     // fold search-opened nodes back closed
     
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
     if (selectedNodeId) {
-	AllNodes[selectedNodeId].redisplay(true);
-	AllNodes[selectedNodeId].shownForSearch = false;
+	const node = AllNodes[selectedNodeId];
+	node.redisplay(true);
+	node.shownForSearch = false;
+        if (!node.folded) {
+            $("table.treetable").treetable("collapseNode", node.id);
+            $("table.treetable").treetable("expandNode", node.id);
+	}
     }
+    
+    // turn back on other key actions, but only after this keyup, if any, is done
+    setTimeout(()=>$(document).on("keyup", keyPressHandler), 500);
 }
 
 function handleSearchKeyUp(keyevent){
@@ -1604,10 +1606,10 @@ function search(keyevent) {
 
     // are we done?
     if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
-	disableSearch();
 	$("#search_buttons").hide();
 	keyevent.buttonNotKey || keyevent.stopPropagation();
 	keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyPressHandler from getting it
+	$("#search_entry").blur();			      // will call disableSearch
 	return false;
     }
 
@@ -1706,24 +1708,25 @@ function keyPressHandler(e) {
     if ($("#search_entry").is(":focus"))
 	return;
     
-    const alt = e.altKey;    
-    const key = e.which;
-    const navKeys = [78, 80, 38, 40];
+    const alt = e.altKey;
+    const code = e.code;
+    const keyCode = e.keyCode;
+    const navKeys = ["KeyN", "KeyP", "ArrowUp", "ArrowDown"];
     // This one doesn't need a row selected, alt-z for undo last delete
-    if (alt && key === 90) {
+    if (alt && code == "KeyZ") {
         undo();
     }
 
     // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
-    if (!alt && navKeys.includes(key)) {
+    if (!alt && navKeys.includes(code)) {
         if (currentSelection)
-            next = (key == 78 || key == 40) ?
+            next = (code == "KeyN" || code == "ArrowDown") ?
             $(currentSelection).nextAll(":visible").first()[0] :          // down or
             $(currentSelection).prevAll(":visible").first()[0];           // up
         else
             // no selection => nav in from top or bottom
-            next = (key == 78 || key == 40) ?
+            next = (code == "KeyN" || code == "ArrowDown") ?
             $('#content').find('tr:visible:first')[0] :
             $('#content').find('tr:visible:last')[0];
         
@@ -1738,21 +1741,21 @@ function keyPressHandler(e) {
     }
 
     // s,r = Search, Reverse-search
-    if (key === 83 || key === 82) {
-	ReverseSearch = (key === 82);
+    if (code == "KeyS" || code == "KeyR") {
+	ReverseSearch = (code == "KeyR");
 	enableSearch(e);
         return;
     }
 
     // h = help
-    if (key === 72) {
+    if (code == "KeyH") {
         toggleHelp();
         e.preventDefault();
     }
 
     // digit 1-9, fold all at that level, expand to make those visible
-    if (key > 48 && key <= 57) {
-        const lvl = key - 48;   // level requested
+    if (keyCode > 48 && keyCode <= 57) {
+        const lvl = keyCode - 48;   // level requested
         const tt = $("table.treetable");
         AllNodes.forEach(function(node) {
             if (!tt.treetable("node", node.id)) return;	      // no such node
@@ -1770,12 +1773,12 @@ function keyPressHandler(e) {
     if (!node) return;
 
     // up(38) and down(40) arrows move
-    if (alt && (key === 38 || key === 40)) {
+    if (alt && (code == "ArrowUp" || code == "ArrowDown")) {
         if (node.childIds.length && !node.folded) {
             $("#content").treetable("collapseNode", nodeId);
         }
         // its already below prev so we drop below prev.prev when moving up
-        const dropTr = (key === 38) ?
+        const dropTr = (code == "ArrowUp") ?
               $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
@@ -1786,7 +1789,7 @@ function keyPressHandler(e) {
     }
 
     // enter == open or close.
-    if (!alt && key === 13) {
+    if (!alt && code == "Enter") {
         if (node.childIds.length) {
             if (node.hasUnopenDescendants())
                 openRow(e);
@@ -1801,7 +1804,7 @@ function keyPressHandler(e) {
     }
     
     // tab == expand or collapse
-    if (key === 9) {
+    if (code == "Tab") {
         if (node.folded)
             $("table.treetable").treetable("expandNode", nodeId);
         else
@@ -1811,34 +1814,34 @@ function keyPressHandler(e) {
     }
 
     // t = cycle TODO state
-    if (key === 84) {
+    if (code == "KeyT") {
         toDo(e);
     }
 
     // e = edit
-    if (key === 69) {
+    if (code == "KeyE") {
         editRow(e);
         e.preventDefault();
     }
 
     // delete || backspace = delete
     const keyString = e.key;
-    if (keyString === "Backspace" || keyString === "Delete") {
+    if (code == "Backspace" || code == "Delete") {
         deleteRow(e);
     }
 
     // opt enter = new child
-    if (alt && key === 13 && node.isTag()) {
+    if (alt && code == "Enter" && node.isTag()) {
         addChild(e);
     }
 
     // opt <- = promote
-    if (alt && key === 37) {
+    if (alt && code == "ArrowLeft") {
         promote(e);
     }
 
     // <- collapse open node, then nav up tree
-    if (key === 37) {
+    if (!alt && code == "ArrowLeft") {
         if (node.childIds.length && !node.folded) {
             $("table.treetable").treetable("collapseNode", nodeId);
             return;
@@ -1847,10 +1850,11 @@ function keyPressHandler(e) {
         next = $(`tr[data-tt-id=${node.parentId}]`)[0];
         $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
     }
 
     // -> open node, then nav down tree
-    if (key === 39) {
+    if (code == "ArrowRight") {
         if (node.folded) {
             $("table.treetable").treetable("expandNode", nodeId);
             return;
@@ -1861,7 +1865,7 @@ function keyPressHandler(e) {
     }
 
     // space = open tab/window
-    if (key === 32) {
+    if (code === "Space") {
         node.showNode();
         e.preventDefault();
     }
@@ -1871,9 +1875,9 @@ function keyPressHandler(e) {
 function handleEditCardKeyup(e) {
     // subset of keypress handler applicible to card edit dialog, nb keyup event
 
-    const key = e.which;
+    const code = e.code;
     const alt = e.altKey;
-    if (key == 9) {
+    if (code == "Tab") {
         // restrain tabbing to within dialog. Button gets focus and then this handler is called.
 	// so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
@@ -1888,16 +1892,16 @@ function handleEditCardKeyup(e) {
         e.preventDefault();
         return;
     }
-    if (key == 13) {
+    if (code == "Enter") {
 	// on enter move focus to text entry box
 	$("#text-text").focus();
 	e.preventDefault();
 	e.stopPropagation();
     }
-    if (alt && [38,40].includes(key)) {
+    if (alt && ["ArrowUp","ArrowDown"].includes(code)) {
         // alt up/down iterates rows opening cards
         const currentSelection = $("tr.selected")[0];
-        const next = (key == 40) ?
+        const next = (code == "ArrowDown") ?
               $(currentSelection).nextAll(":visible").first()[0] :          // down
               $(currentSelection).prevAll(":visible").first()[0];           // up        
         if (!next) return;

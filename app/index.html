@@ -35,7 +35,7 @@
         <div id="search"  style="cursor:default">
           <span>Search:</span>
           <input id="search_entry" type="text" size="20" value="" 
-		 onkeyup="handleSearchKeyUp(event)" onkeypress="search(event)"
+		 onkeydown="handleSearchKeyUp(event)" onkeypress="search(event)"
 		 onFocus="enableSearch(event)"
 		 onFocusOut="disableSearch(event)" autocomplete="off" >
 	  <span id="search_buttons" style="cursor: pointer; display:none">
@@ -265,27 +265,27 @@
     </div>
     <div id="buttonRow" style="display: none;">
       <img class="openClose" alt="More tools" onClick="toggleMoreButtons(event); return false;" title="More tools"
-           src="resources/openLeft.png"  height="20" width="10">
+           src="resources/openLeft.png"  height="22" width="10">
       <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" title="Fewer tools" style="display:none"
-           src="resources/closeLeft.png"  height="20" width="10">
+           src="resources/closeLeft.png"  height="22" width="10">
       <span id="otherButtons" style="display: none;">
 	<img id="move" type="image" alt="Move" title="Move"
-             src="resources/drag.png"  height="20" width="20" style="cursor: move; opacity: 0.75;">
+             src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
 	<img id="outdent" type="image" alt="Outdent" title="Outdent"
-             src="resources/outdent.png" onClick="promote(event)" height="20" width="20" style="opacity: 0.75;">
+             src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
 	<img id="addChild" type="image" alt="add Child" title="Add Child Topic"
-             src="resources/addChild.png" onClick="addChild(event)" height="20" width="20" style="opacity: 0.75;">
+             src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
 	<img id="todo" alt="ToDo" onClick="toDo(event)" title="ToDo"
-             src="resources/done.png"  height="20" width="20">
+             src="resources/done.png"  height="22" width="22">
       </span>
       <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
-           src="resources/edit.png"  height="20" width="20">
+           src="resources/edit.png"  height="22" width="22">
       <img id="expand" alt="Open" onClick="openRow(event)" title="Open" style="opacity: 0.75;"
-           src="resources/open.png" height="20" width="20">
+           src="resources/open.png" height="22" width="22">
       <img id="collapse" alt="Close" onClick="closeRow(event)" title="Close" style="opacity: 0.75;"
-           src="resources/closeNode.png" height="20" width="20">
-      <img id="delete" alt="Delete"  onClick="deleteRow(event)" title="Delete" style="opacity: 0.75;"
-           src="resources/delete.png" height="20" width="20">
+           src="resources/closeNode.png" height="22" width="22">
+      <img id="delete" alt="Delete"  onClick="deleteRow(event)" title="Delete" style="opacity: 0.75; margin-left:8px"
+           src="resources/delete.png" height="22" width="22">
     </div>
     
     <table id="content" >
