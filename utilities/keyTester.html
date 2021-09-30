@@ -3,16 +3,22 @@
   <head>
 
     <script>
-      function printKey(k) {
-      let deets = document.getElementById('deets');
-      deets.innerHTML += `<br\>${k.key} - alt: ${k.altKey}, meta: ${k.metaKey}, ctrl: ${k.ctrlKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
+      function printKeyUp(k) {
+      const deets = document.getElementById('ku');
+      //if (k.key=='Alt') return;        // drop the alt key up
+         deets.innerHTML += `<br/>${k.key} - alt: ${k.altKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
+	    };
+      function printKeyPress(k) {
+      const deets = document.getElementById('kp');
+         deets.innerHTML += `<br/>${k.key} - alt: ${k.altKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
       }
     </script>
   </head>
   <body>
-    <input id="keys" onkeyup="printKey(event)">
-    <p id="deets">
-      Waiting for key
-    </p>
+    <input id="keys" onkeyup="printKeyUp(event)" onkeypress="printKeyPress(event)">
+    <table>
+      <td id="kp">KeyPress</td><td id="ku">KeyUp</td>
+    </table>
+    
   </body>
 </html>
