@@ -141,7 +141,7 @@ table.treetable span.btTitle {
 }
 
 table.treetable tr.hovered {
-    background-color: #BED8BE;
+    background-color: #E0ECE0; /*#BED8BE;*/
 }
 
 table.treetable tr.selected {
@@ -159,7 +159,7 @@ table.treetable td.dropOver {
 
 /* show indicator open if selected */
 tr.selected.opened td.left {
-    border-left-width: 5px;
-    border-left-style: solid;
-    border-left-color: #BED8BE;
+    border-right-width: 20px;
+    border-right-style: solid;
+    border-right-color: #BED8BE;
 }
