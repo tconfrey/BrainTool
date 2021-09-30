@@ -1571,7 +1571,8 @@ function disableSearch(e = null) {
 function handleSearchKeyUp(keyevent){
     // special case handling cos keypress  does not get delete key
     // and also first key when textinput still has prev content keydown gets both, need to wait till keyup
-    if ((keyevent.key == 'Backspace') || ( $("#search_entry").val().length == 1)) {
+    if ((keyevent.code == 'Delete') || (keyevent.code == 'Backspace')) // || ( $("#search_entry").val().length == 1))
+    {
 	search({'key':'', 'startId': SearchOriginId});
     }
 }
