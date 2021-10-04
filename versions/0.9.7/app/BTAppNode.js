@@ -190,6 +190,8 @@ class BTAppNode extends BTNode {
 	    this.onclick = handleLinkClick;
 	});
 	show && this.showForSearch();					  // reclose if needed
+	if (this.childIds.length)					  // set correctly
+	    $(dn).children('.left').removeClass('childlessTop');
     }
     
     showForSearch() {

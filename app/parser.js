@@ -85,8 +85,13 @@ function orgaSection(section, parentAppNode) {
 }
 
 function orgaLinkOrgText(node) {
-    // work around - orga.js includes protocol on http links but not file:
-    const url = (node.protocol == 'file') ? 'file:' + node.value : node.value;
+    // work around - orga.js includes protocol on http(s) links but not file, chrome-extension etc
+    const valIncludesProtocol = node.value.search('://');
+    let url = node.value;
+    if (valIncludesProtocol > 0)
+	// peel off any leading 'http(s):'  NB node.value contains any leading //
+	url = node.value.substring(valIncludesProtocol + 1);
+    url = node.protocol + ':' + url;
     return "[[" + url + "][" + node.description + "]]";
 }
 

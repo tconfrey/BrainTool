@@ -792,7 +792,7 @@ function storeTabs(data) {
     const tabsData = data.tabsData.reverse();
     let newNodes = [];
 
-    // remember tag/time for potential pre-fill next time
+    // remember tag/time for potential pre-fill in popup next time
     window.postMessage({'function': 'localStore', 'data': {'mruTopic': tagPath, 'mruTime': new Date().toJSON()}});
 
     tabsData.forEach(tabData => {
@@ -810,6 +810,7 @@ function storeTabs(data) {
     });
 
     // sort tree based on position in parents child array
+    parentNode.redisplay();				     // in case changed by adding children
     const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
     const childIds = parentNode.childIds;
     $("table.treetable").treetable(
