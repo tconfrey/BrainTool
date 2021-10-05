@@ -167,9 +167,6 @@ async function subscribe(productPrice) {
 	    // We have a session, let's redirect to Checkout
 	    // Init Stripe
 	    const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-
-	    // before leaving bt grab newly written bt.org file version #
-	    updateFileVersion();
 	    stripe.redirectToCheckout({ sessionId });
 	}
     });
