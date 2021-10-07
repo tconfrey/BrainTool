@@ -11,6 +11,6 @@ The latest version of BrainTool added the ability to search across all your topi
 
 See what I mean by listening through the brief (< 1min) demo video below.
 
-<video width="100%" controls style="border:solid; border-width:1px">
+<video width="95%" controls style="border:solid; border-width:1px">
   <source src="../../../media/BrainTool-keyboard-demo.mp4" type="video/mp4">
 </video>
