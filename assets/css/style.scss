@@ -54,7 +54,17 @@ h3 {
 }
 .logo {
     height: 80px;
+    border-radius:4px;
+    padding:2px;
 }
+.logo:hover {
+    box-shadow: 1px 1px #eee;
+    padding-top: 2px;
+    border: solid;
+    border-width: 1px;
+    border-color: #eee;
+}
+
 .store-button {
     width: 65%;
     float: right;

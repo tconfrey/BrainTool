@@ -80,13 +80,12 @@ One thing to note here is that BT has the notion of a 'selection', which is the 
 </div>
 </div>
 ## Search
-*Search will be available soon*
 
-Alt/Opt-s is the Search accelerator, or just click into the search box. As you type the next matching row will be selected and shown with matching text highlighted, searching downward from the current selected row (or the top row is there is no selection).
+S is the Search accelerator, or just click into the search box. As you type the next matching row will be selected and shown with matching text highlighted, searching downward from the current selected row (or the top row is there is no selection).
 
-Hitting Alt/Opt-s again will select the next matching row. If search hits the bottom row without a match the search box will show in pale red. Hitting Opt-s again will loop the search around to the top row.
+Hitting Alt/Opt-s will select the next matching row. If search hits the bottom row without a match the search box will show in pale red. Hitting Opt-s again will loop the search around to the top row.
 
-Alt/Opt-r is Reverse search, it works like search but searches upward from the selection (or from the bottom row). At any point you can use -s or -r to find the next or previous match.
+R is Reverse search, it works like search but searches upward from the selection (or from the bottom row). At any point you can use -s or -r to find the next or previous match.
 
 Hitting Enter exits search leaving you with the selected row which you can then operate on (eg open in a browser window by hitting enter again, or edit by typing 'e').
 
@@ -96,7 +95,7 @@ In addition to showing the selected row, whether it was hidden or not and whethe
 
 In addition to the key commands buttons for Up, Down and eXit are shown next to the search box when it is active.
 
-There's also a [brief demo](https://www.youtube.com/watch?v=TVaIQHoxxZU) on YouTube.
+There's also a brief demo video on [this recent blog post]({% post_url 2021-10-06-Control-Your-Browser-with-the-Keyboard%}).
 
 ## Actions: Import/Export, Syncing and Options
 The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking into the bar will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
