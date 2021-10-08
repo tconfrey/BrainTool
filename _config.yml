@@ -17,6 +17,10 @@ google_analytics: UA-184551494-1
 defaults:
   -
     scope:
-      path:            "versions/*", "app/*", "extension/*", "utilities/*", "tests/*"
+      path:            "versions/*"
+    values:
+      sitemap:         false
+    scope:
+      path:            "app/*"
     values:
       sitemap:         false
