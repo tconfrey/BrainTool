@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Observations on the Chrome Store Launch"
-description: "Backstory and Observations on the first 2000 BrainTool users."
+title:  "Observations on the BrainTool Chrome Store Launch"
+description: "Backstory and Observations on the first 2000 BrainTool users. Click through to level up your browser workflow for free!"
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "First Two Thousand BrainTool Users"
-description: "Backstory and BrainTool launch"
+title:  "How BrainTool got its first Two Thousand Users"
+description: "Backstory and BrainTool launch. It was a wild ride. Learn more here!"
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

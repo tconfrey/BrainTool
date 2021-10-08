@@ -14,3 +14,9 @@ url: https://braintool.org
 logo: /site/logo.png
 # Google Analytics
 google_analytics: UA-184551494-1
+defaults:
+  -
+    scope:
+      path:            "versions/*"
+    values:
+      sitemap:         false

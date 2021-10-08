@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Managing your Browser with BrainTool"
-description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool"
+description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool. No longer fear closing a tab!"
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

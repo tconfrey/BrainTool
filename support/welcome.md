@@ -2,7 +2,7 @@
 title: BrainTool Welcome page
 layout: default
 tagline: The Topic Manager for your Online Life
-description: Welcome to BrainTool - a way of organizing things you want to remember and get back to, using notes and nested tags. Its also a better way to control your browser.
+description: Welcome to BrainTool - Organize the things you want to remember and get back to, control your browser, focus your attention.
 audience: user
 ---
 

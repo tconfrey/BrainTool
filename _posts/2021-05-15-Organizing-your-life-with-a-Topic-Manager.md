@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Organizing your life with a Topic Manager"
-description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool"
+title:  "BrainTool - Organizing your life with a Topic Manager"
+description: "Your browser is a mess of tabs! The BrainTool Topic Manager is a new kind of organizational and productivity tool to help you clean it up. Free and Easy."
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

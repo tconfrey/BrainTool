@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Control Your Browser with the Keyboard"
-description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool"
+title:  "Control Your Browser with the Keyboard in BrainTool"
+description: "The BrainTool Topic Manager is a new kind of organizational and productivity tool. You won't believe how it revolutionizes your browser workflow."
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

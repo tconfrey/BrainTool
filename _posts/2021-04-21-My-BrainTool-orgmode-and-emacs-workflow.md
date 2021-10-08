@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "My BrainTool, org-mode and emacs workflow"
-description: "How I personally fit BrainTool into my text-based process."
+description: "How I personally fit BrainTool into my text-based process. Learn how to integrate emacs and orgmode with your browser."
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"

@@ -1,8 +1,8 @@
 ---
-title: BrainTool pricing
+title: BrainTool Pricing and Offers
 layout: default
 tagline: The Topic Manager for your Online Life
-description: BrainTool is a way of organizing things you want to remember and get back to, using notes and a nested topic tree. Its also a better way to control your browser.
+description: Go beyond bookmarks with BrainTool, a better way of organizing things you want to remember and get back to in your browser. Special offer here!
 audience: nonuser
 ---
 
