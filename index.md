@@ -25,20 +25,22 @@ No longer fear closing a tab!
 <div class="cell right" >
 
 	  <div class="store-button" style="float:none; margin:auto; ">
-	    <a id="store-link" href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
-              <div id="store-text" style="margin-bottom:1rem; margin-top:0rem">
+              <div id="store-text" style="margin-bottom:1rem; margin-top:0rem" onclick = "gotoStore()">
 		Add to Chrome
               </div>
-            </a>
 	  </div>
-	  <script>
+      <script>
 	    // if edge change button to point to edge store
+        let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
 	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
-	    let link = document.getElementById('store-link');
-	    let text = document.getElementById('store-text').firstChild;
-	    link.href = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
-	    text.nodeValue = "Add to Edge";
+            storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
+	        let text = document.getElementById('store-text').firstChild;
+	        text.nodeValue = "Add to Edge";
 	    }
+        function gotoStore() {
+        (typeof gtag_report_conversion !== 'undefined') && gtag_report_conversion();
+        window.location = storeLink;
+        }
 	  </script>
 	  
 <img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin;">

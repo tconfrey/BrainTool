@@ -2,14 +2,31 @@
 <html lang="{{ site.lang | default: "en-US" }}">
   <head>
 
-    {% if site.google_analytics %}
+    {% if site.google_analytics and jekyll.environment == 'production' %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', '{{ site.google_analytics }}');
+      gtag('config', 'AW-466335240');
     </script>
+    <!-- Event snippet for Install conversion page. Call gtag_report_conversion when someone clicks on the Add button. -->
+    <script>
+      function gtag_report_conversion(url) {
+      var callback = function () {
+      if (typeof(url) != 'undefined') {
+      window.location = url;
+      }
+      };
+      gtag('event', 'conversion', {
+      'send_to': 'AW-466335240/yfr-CJ3Aj_sCEIjsrt4B',
+      'event_callback': callback
+      });
+      return false;
+      }
+    </script>
+
     {% endif %}
     <meta charset="UTF-8">
     {% seo %}
@@ -49,18 +66,20 @@
 	{% if page.audience == "nonuser" %}
 	<div class="header-right">
 	  <div class="store-button">
-	    <a id="store-link" href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
-              <div id="store-text">Add to Chrome</div>
-            </a>
+        <div id="store-text" onclick = "gotoStore()">Add to Chrome</div>
 	  </div>
 	  <script>
 	    // if edge change button to point to edge store
+        let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
 	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
-	    let link = document.getElementById('store-link');
-	    let text = document.getElementById('store-text').firstChild;
-	    link.href = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
-	    text.nodeValue = "Add to Edge";
+            storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
+	        let text = document.getElementById('store-text').firstChild;
+	        text.nodeValue = "Add to Edge";
 	    }
+        function gotoStore() {
+        (typeof gtag_report_conversion !== 'undefined') && gtag_report_conversion();
+        window.location = storeLink;
+        }
 	  </script>
 	</div>
 	{% endif %}
