@@ -38,8 +38,8 @@ No longer fear closing a tab!
 	        text.nodeValue = "Add to Edge";
 	    }
         function gotoStore() {
-        (typeof gtag_report_conversion !== 'undefined') && gtag_report_conversion();
-        window.location = storeLink;
+            (typeof gtag !== 'undefined') && gtag('event', 'Add_to_Click', {'event_category': 'Website', 'event_label': '{% page.audience %}', 'value': 1.0});
+            window.location = storeLink;
         }
 	  </script>
 	  
