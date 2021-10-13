@@ -29,7 +29,7 @@ It turns out I only need a few files to track everything. I keep a single long d
 
 All of my org-mode files live in a folder on my Google Drive. I use the Google Backup and Sync app to map the GDrive folder onto my local machine.  I generally keep BrainTool.org open in emacs so I can search it or add content. Since the BrainTool app writes to it when I'm working in the browser I turn on [auto-revert-mode](https://www.gnu.org/software/emacs/manual/html_node/emacs/Auto-Revert.html) so that emacs keeps the file up to date. I make a habit of hitting BrainTool's 'Refresh from GDrive' button whenever I swap out of emacs and into Chrome.
 
-_Note that the latest version of BrainTool (BT) is not dependent on a GDrive link and lets you import from and save to a local .org file, so if your corporate network does not allow GDrive  access you can still use this process_.
+_Note that recent versions of BrainTool (BT) both warn if the file is out of sync and are not dependent on a GDrive link at all. You can import from and save to a local .org file, so if your corporate network does not allow GDrive  access you can still use this process_.
 
 BT supports adding a TODO status to topics and links, so org-agenda can show a unified TODO list across all my files. As noted, I'm not (yet) a heavy user of many org features. If you are, you are not limited in your use of org features, BT is pretty good about copying through all the org markup so you can add lists, tables, blocks etc to the BrainTool.org file. BT does use drawers and properties for some meta-data (eg the folded state of the topic tree). I don't like seeing those in my notes so I have an elisp function to completely hide them on demand (hit me up if you want the code).
 
