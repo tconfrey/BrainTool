@@ -653,13 +653,22 @@ function positionNode(dragNode, dropParentId, dropBelow) {
 
 // Handle callbacks on node folding, update backing store
 function rememberFold() {
-    // Don't want to write file too often so wait a minute after last change
+    // Don't want to write file too often so wait a minute after last change for full save
+    // and a second for local/fast save
+    
+    if (!rememberFold.fastWriteTimer)
+	    rememberFold.fastWriteTimer =
+	    setTimeout(() => {
+	        saveBT(true);                 // passing in saveLocal=true to just remember fold locally
+	        rememberFold.fastWriteTimer = null
+	    }, 1000);
+    
     if (!rememberFold.writeTimer)
-	rememberFold.writeTimer =
-	setTimeout(() => {
-	    saveBT();
-	    rememberFold.writeTimer = null
-	}, 1*60*1000);
+	    rememberFold.writeTimer =
+	    setTimeout(() => {
+	        saveBT();
+	        rememberFold.writeTimer = null
+	    }, 1*60*1000);
 }
 
 function nodeExpand() {
@@ -1767,7 +1776,7 @@ function keyPressHandler(e) {
             if (node?.level == lvl)
                 tt.treetable("collapseNode", node.id);
         });
-	rememberFold();					      // save to storage
+	    rememberFold();                                       // save to storage
     }
 
     if (!currentSelection) return;

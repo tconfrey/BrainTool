@@ -4,8 +4,9 @@
  * 
  ***/
 
-async function saveBT() {
-    // Save org version of BT Tree to local storage and potentially gdrive
+async function saveBT(localOnly = false) {
+    // Save org version of BT Tree to local storage and potentially gdrive.
+    // localOnly => don't save to GDrive backing and don't send gtag stat. Used when folding/unfolding
 
     console.log("Writing BT to Storage");
     BTFileText = BTAppNode.generateOrgFile();
@@ -13,7 +14,9 @@ async function saveBT() {
 
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     brainZoom();                                 // swell the brain
-    
+    if (localOnly) return;                       // return if we're just remember folded state
+
+    console.log("Recording save event and writing to any backing store");
     gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
 
     // also save to GDrive if connected
