@@ -89,17 +89,18 @@ function windowOpen() {
     var wargs = {
         'url' : url,
         'type' : "panel",
-	'state' : "normal",
+	    'state' : "normal",
+        'focused' : true,
         'top' : 10, 'left' : 5,
         'width' : 500, 'height' : screen.height
     };
     
     chrome.windows.getCurrent(mainwin => {
-	// open BT win
-	chrome.windows.create(wargs);
-	// resize current win to accomodate side-panel. nb state can't be 'maximized'
-	chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-					   left: 500, width: (screen.width - 500)});
+	    // resize current win to accomodate side-panel. nb state can't be 'maximized'
+	    chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
+					                       left: 500, width: (screen.width - 500)});
+	    // open BT win
+	    chrome.windows.create(wargs);
     });
 }
 
