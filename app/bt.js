@@ -340,7 +340,7 @@ async function refreshTable(fromGDrive = false) {
     // Clear current state and redraw table. Used after an import or on a manual GDrive refresh request
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
-    if (unwrittenChangesP()) {
+    if (savePendingP()) {
         alert('A save is currently in process, please wait a few seconds and try again');
         return;
     }
@@ -358,9 +358,15 @@ async function refreshTable(fromGDrive = false) {
     AllNodes = [];
 
     // Either get BTFileText from gDrive or use local copy. If GDrive then await its return
-    if (fromGDrive)
-        await getBTFile();
-    processBTFile(BTFileText);
+    try {
+        if (fromGDrive)
+            await getBTFile();
+        processBTFile(BTFileText);
+    }
+    catch (e) {
+        console.warn('error in refreshTable: ', e.toString());
+        throw(e);
+    }
 }
 
 
@@ -379,13 +385,19 @@ function generateTable() {
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile(fileText) {
     // turn the org-mode text into an html table, extract Topics
-    BTFileText = fileText;      // store for future editing
 
     // First clean up from any previous state
     BTNode.topIndex = 1;
     AllNodes = [];
     
-    parseBTFile(fileText);
+    try {
+        parseBTFile(fileText);
+    }
+    catch(e) {
+        alert('Could not process BT file. Please check it for errors and restart');
+        $('body').removeClass('waiting');
+        throw(e);
+    }
 
     var table = generateTable();
     /*  for some reason w big files jquery was creating <table><table>content so using pure js
@@ -395,8 +407,9 @@ function processBTFile(fileText) {
     var container = document.querySelector('#content');
     container.innerHTML = table;
 
-    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10, animationTime: 250,
-                    onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
+    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10,
+                             animationTime: 250, onNodeCollapse: nodeCollapse,
+                             onNodeExpand: nodeExpand}, true);
 
     BTAppNode.generateTags();
 
