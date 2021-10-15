@@ -494,7 +494,8 @@ class BTAppNode extends BTNode {
         if (this.childIds.length && this.folded && (!this.drawers || !this.drawers.PROPERTIES))
             //need to add in the PROPERTIES drawer if we need to store the nodes folded state
             drawerText += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
-        return drawerText;
+        // finally, check to see if props is empty, otherwise return
+        return (drawerText == '  :PROPERTIES:\n  :END:\n') ? "" : drawerText;
     }
 
     orgTags(current) {
