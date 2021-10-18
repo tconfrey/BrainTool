@@ -93,7 +93,7 @@ function authorizeGapi(userInitiated = false) {
     if (userInitiated) {
         // implies from button click
         gtag('event', 'AuthInitiatedByUser', {'event_category': 'GDrive'});
-	alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
+	    alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
     }
     if (typeof gapi !== 'undefined')
         gapi.load('client:auth2', initClient(userInitiated));             // initialize gdrive app
@@ -138,7 +138,13 @@ async function initClient(userInitiated = false) {
         
         // connect w (or create) BTfile on GDrive and carry on
         setMetaProp('BTGDriveConnected', 'true');
-        await findOrCreateBTFile(userInitiated);
+        try {
+            await findOrCreateBTFile(userInitiated);
+        }
+        catch (e){
+            console.warn("Error in initClient:", e.toString());
+            return;
+        }
         updateSigninStatus(AuthObject.isSignedIn.get(), false, userInitiated);
 	}
     catch (err) {
@@ -161,51 +167,60 @@ function checkLoginReturned() {
 var BTFileID;
 async function findOrCreateBTFile(userInitiated) {
     // on launch or explicit user 'connect to Gdrive' action (=> userInitiated)
+    let response;
     try {
-        let response = await gapi.client.drive.files.list({
+        response = await gapi.client.drive.files.list({
             'pageSize': 1,
             'fields': "files(id, name, modifiedTime)",
             'q': "name='BrainTool.org' and not trashed"
-        });
-        
-        const files = response?.result?.files;
-        if (files && files.length > 0) {
-            const file = files.find((f) => f.id == (Config.BTFileID || 0)) || files[0];
-            BTFileID = file.id;
+        });   
+    }
+    catch (err) {   
+        let msg = "BT - error reading file list from GDrive. Check permissions and retry";
+	    if (err?.result?.error?.message)
+	        msg += "\nGoogle says:" + err.result.error.message;
+	    alert(msg);
+        console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
+	    AuthObject.signOut();
+        return;
+    }
+    const files = response?.result?.files;
+    if (files && files.length > 0) {
+        const file = files.find((f) => f.id == (Config.BTFileID || 0)) || files[0];
+        BTFileID = file.id;
 	    const driveTimestamp = Date.parse(file.modifiedTime);
-            updateStatsRow(driveTimestamp);
+        updateStatsRow(driveTimestamp);
 	    if (userInitiated ||
-		(Config?.BTTimestamp && (driveTimestamp > Config.BTTimestamp)))
+		    (Config?.BTTimestamp && (driveTimestamp > Config.BTTimestamp)))
 	    {
-		// if user just initiated connection but file exists ask to import
-		// or if we have a recorded version thats older than disk, ask to import
-		warnBTFileVersion();
-		const msg = userInitiated ?
-		      "BrainTool.org file already exists. Use it's contents?" :
-		      "BrainTool.org file is newer than browser data. Use newer?";
-		if (confirm(msg)) {
-		    await refreshTable(true);
-		    Config.BTTimestamp = driveTimestamp;
-		    await saveBT(); // later in flow property save was overwriting w old data on upgrade, so resave here to get disk version written to memory etc.
-		}
+		    // if user just initiated connection but file exists ask to import
+		    // or if we have a recorded version thats older than disk, ask to import
+		    warnBTFileVersion();
+		    const msg = userInitiated ?
+		          "BrainTool.org file already exists. Use it's contents?" :
+		          "BrainTool.org file is newer than browser data. Use newer?";
+		    if (confirm(msg)) {
+                try {
+		            await refreshTable(true);
+		            Config.BTTimestamp = driveTimestamp;
+                }
+                catch (err) {
+                    alert("Error parsing BrainTool.org file from GDrive:\n" + JSON.stringify(err));
+                    throw(err);
+                }
+		    }
+            // later in flow property save was overwriting w old data on upgrade,
+            // so resave here to get disk version written to memory etc.
+		    await saveBT(); 
 	    }
 	    // Update and Save Config
 	    Config.BTFileID = BTFileID;
 	    Config.BTTimestamp = Config.BTTimestamp || driveTimestamp;
 	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
 	    
-        } else {
-            console.log('BrainTool.org file not found.');
-            await createStartingBT();
-        }
-     }
-    catch (err) {   
-        let msg = "BT - error reading file list from GDrive. Check permissions and retry";
-	if (err?.result?.error?.message)
-	    msg += "\nGoogle says:" + err.result.error.message;
-	alert(msg);
-        console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
-	AuthObject.signOut();
+    } else {
+        console.log('BrainTool.org file not found, creating..');
+        await createStartingBT();
     }
 }
 
@@ -231,19 +246,19 @@ async function createStartingBT() {
         form.append('file', BTFileText);
 
         let response = await fetch(
-	    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version,modifiedTime'
-	    , {
-		method: 'POST',
-		headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-		body: form,
+	        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version,modifiedTime'
+	        , {
+		        method: 'POST',
+		        headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+		        body: form,
             });
         let responseValue = await response.json();
         
         console.log("Created ", responseValue);
         BTFileID = responseValue.id;
-	Config.BTFileID = BTFileID;
-	Config.BTTimestamp = Date.parse(responseValue.modifiedTime);
-	window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    Config.BTFileID = BTFileID;
+	    Config.BTTimestamp = Date.parse(responseValue.modifiedTime);
+	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         updateStatsRow(Config.BTTimestamp);
     }
     catch(err) {
@@ -254,22 +269,22 @@ async function createStartingBT() {
 async function getBTFile() {
     console.log('Retrieving BT file');
     if (!BTFileID) {
-	alert("Something went wrong. BTFileID not set. Try restarting BrainTool");
-	return;
+	    alert("Something went wrong. BTFileID not set. Try restarting BrainTool");
+	    return;
     }
     try {
-	let response = await gapi.client.drive.files.get({
+	    let response = await gapi.client.drive.files.get({
             fileId: BTFileID,
             alt: 'media'
-	});
+	    });
         BTFileText = response.body;
-	const remoteVersion = await getBTModifiedTime();
-	Config.BTTimestamp = remoteVersion;
-	window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    const remoteVersion = await getBTModifiedTime();
+	    Config.BTTimestamp = remoteVersion;
+	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         updateStatsRow(Config.BTTimestamp);
     }
     catch(error) {
-	console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
+	    console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
         reAuth(getBTFile);
     }
 }
@@ -296,7 +311,7 @@ function reAuth(callback) {
     ).then((res) => {
         if (res.status && res.status.signed_in) {
             console.error("reAuth succeeded. Continuing");
-	    if (callback)
+	        if (callback)
                 callback();                         // try again
             refreshRefresh();
         } else {
@@ -306,56 +321,61 @@ function reAuth(callback) {
 }
 
 window.LOCALTEST = false; // overwritten in test harness
-var LastWriteTime = new Date();
 var UnwrittenChangesTimer = null;
-function unwrittenChangesP() {
-    // if there's an outstanding timer we're waiting to bundle up changes
-    return UnwrittenChangesTimer;
+var SaveUnderway = false;
+function savePendingP() {
+    // Are we in the middle of saving, or just finished and bundling any subsequent changes
+    return SaveUnderway || UnwrittenChangesTimer;
 }
 
-async function writeBTFile(cb) {
-    // Notification of change that needs to be written
+async function writeBTFile() {
+    // Notification of change to save. Don't write more than once every 15 secs.
+    // If timer is already set then we're waiting for 15 secs so just return.
+    // If a save is not underway and its been 15 secs call _write to save
+    // Else set a timer if not already set
     
-    // if its been 15 secs, just write out,
-    if (new Date().getTime() > (15000 + (Config.BTTimestamp || 0)))
-	try {
-            return await _writeBTFile(cb);
+    if (UnwrittenChangesTimer) {
+        console.log("writeBTFile: change already outstanding, just exiting");
+        return;
+    }
+    if (!SaveUnderway && new Date().getTime() > (15000 + (Config.BTTimestamp || 0))) {
+	    try {
+            return await _writeBTFile();
         }
         catch(err) {
             //alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
             console.log("Error in writeBTFile: ", JSON.stringify(err));
-	    throw(err);
+	        throw(err);
         }
-    else
+    } else {
         // else set a timer, if one hasn't already been set
         if (!UnwrittenChangesTimer) {
-            UnwrittenChangesTimer = setTimeout(_writeBTFile, 15000, cb);
+            UnwrittenChangesTimer = setTimeout(_writeBTFile, 15000);
             console.log("Holding BT file write");
         }
+    }
 
-    async function _writeBTFile(cb) {
+    async function _writeBTFile() {
         // Write file contents into BT.org file on GDrive
+        // NB Have to be careful to keep SaveUnderway up to date on all exit paths
         console.log("Writing BT file");
-
-	// check we're not overwriting remote file
-	const warn = await checkBTFileVersion();
-	if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite?\nNB changes have been made locally either way."))
-	    return -1;
-        
-        gtag('event', 'Save', {'event_category': 'GDrive', 'event_label': 'Count',
-                               'value': getMetaProp('BTVersion')});
-        
         UnwrittenChangesTimer = null;
+
+        if (window.LOCALTEST) return;
         if (!BTFileID) {
             alert("BTFileID not set, not saving");
             return -1;
         }
-        
-        if (window.LOCALTEST) return;
         if (typeof gapi === "undefined") {           // Should not happen
-	    alert("BT - Error in writeBTFile. Google API not available.");
-	    return -1;
+	        alert("BT - Error in writeBTFile. Google API not available.");
+	        return -1;
         }
+                
+	    // check we're not overwriting remote file
+	    const warn = await checkBTFileVersion();
+	    if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite?\nNB changes have been made locally either way."))
+	        return -1;
+
         const metadata = {
             'name': 'BrainTool.org',                 // Filename at Google Drive
             'mimeType': 'text/plain'                 // mimeType at Google Drive
@@ -368,41 +388,48 @@ async function writeBTFile(cb) {
 
             let form = new FormData();
             console.log("writing BT file. accessToken = ", accessToken);
-            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('metadata', new Blob([JSON.stringify(metadata)],
+                                             { type: 'application/json' }));
             form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
 
+            SaveUnderway = true;
+            gtag('event', 'Save', {'event_category': 'GDrive', 'event_label': 'Count',
+                                   'value': getMetaProp('BTVersion')});
+
             await fetch('https://www.googleapis.com/upload/drive/v3/files/'
-                  + encodeURIComponent(BTFileID)
-                  + '?uploadType=multipart&fields=id,version,modifiedTime',
-                  {
-                      method: 'PATCH', 
-                      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                      body: form
-                  }).then((res) => {
-	              if (!res.ok) {
-		          console.error("BT - error writing to GDrive, reauthenticating...");
-		          console.log("GAPI response:\n", JSON.stringify(res));
-                          reAuth(writeBTFile);
-		          return -1;
-	              }
-                      return res.json();
-                  }).then(function(val) {
-                      console.log(val);
-		      const mt = Date.parse(val.modifiedTime);
-		      Config.BTTimestamp = mt;
-		      window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-                      updateStatsRow(mt);	     // update stats when we know successful save
-                      if (cb) cb();
-                  }).catch(function(err) {
-		      alert("BT - Error accessing GDrive.");
-		      console.log("Error in writeBTFile: ", JSON.stringify(err));
-		      return -1;
-		  });
+                        + encodeURIComponent(BTFileID)
+                        + '?uploadType=multipart&fields=id,version,modifiedTime',
+                        {
+                            method: 'PATCH', 
+                            headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                            body: form
+                        }).then((res) => {
+                            SaveUnderway = false;
+	                        if (!res.ok) {
+		                        console.error("BT - error writing to GDrive, reauthenticating...");
+		                        console.log("GAPI response:\n", JSON.stringify(res));
+                                reAuth(writeBTFile);
+		                        return -1;
+	                        }
+                            return res.json();
+                        }).then(function(val) {
+                            console.log(val);
+		                    const mt = Date.parse(val.modifiedTime);
+		                    Config.BTTimestamp = mt;
+		                    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+                            updateStatsRow(mt);	     // update stats when we know successful save
+                        }).catch(function(err) {
+                            SaveUnderway = false;
+		                    alert("BT - Error accessing GDrive.");
+		                    console.log("Error in writeBTFile: ", JSON.stringify(err));
+		                    return -1;
+		                });
         }
         catch(err) {
+            SaveUnderway = false;
             alert("BT - Error saving to GDrive.");
             console.log("Error in _writeBTFile: ", JSON.stringify(err));
-	    return -1;
+	        return -1;
         }
     }
 }
@@ -411,19 +438,19 @@ async function getBTModifiedTime() {
     // query Drive for last modified time 
     if (!BTFileID || !GDriveConnected) return 0;
     try {
-	let response = await gapi.client.drive.files.get({
+	    let response = await gapi.client.drive.files.get({
             fileId: BTFileID,
             fields: 'version,modifiedTime'
-	});
-	let result = response.result;
-	return Date.parse(response.result.modifiedTime);
+	    });
+	    let result = response.result;
+	    return Date.parse(response.result.modifiedTime);
     } catch (e) {
-	console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
-	if (e.status == 401) {
-	    console.error('Auth expired, calling reAuth and continuing');
-	    reAuth();
-	}
-	return 0;
+	    console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
+	    if (e.status == 401) {
+	        console.error('Auth expired, calling reAuth and continuing');
+	        reAuth();
+	    }
+	    return 0;
     }
 }
 

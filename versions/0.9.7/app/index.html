@@ -5,7 +5,9 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-184551494-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){
+      if (location.hostname == "localhost") return;  // tony add to avoid polluting analytics
+      dataLayer.push(arguments);}
       gtag('js', new Date());
 
       gtag('config', 'UA-184551494-1');

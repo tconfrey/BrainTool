@@ -10,8 +10,15 @@ var Lines= [];
 
 function parseBTFile(fileText) {
     // create and recursively walk orga parse tree to create bt model
-    
-    const parseTree = orgaparse(fileText);
+
+    let parseTree;
+    try {
+        parseTree = orgaparse(fileText);
+    }
+    catch(e) {
+        alert('Error in parsing BrainTool.org file:\n', JSON.stringify(e));
+        throw(e);
+    }
     Lines = generateLinesAndColumns(fileText);                 // used to pull out text content
     for (const orgaNode of parseTree.children) {
         if (orgaNode.type == "section")
