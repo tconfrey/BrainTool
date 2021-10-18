@@ -53,9 +53,9 @@ async function launchApp(msg) {
     STRIPE_PUBLISHABLE_KEY = msg.stripe_key;
     Config = msg.Config || {};
     InitialInstall = msg.initial_install;
-    UpgradeInstall = msg.upgrade_install;		    // null or value of 'previousVersion'
+    UpgradeInstall = msg.upgrade_install;                     // null or value of 'previousVersion'
     BTFileText = msg.BTFileText;
-    processBTFile(BTFileText);				    // create table etc
+    processBTFile();                                          // create table etc
 
     // Get BT sub id => premium 
     // BTId in local store and from org data should be the same. local store is primary
@@ -118,20 +118,20 @@ async function launchApp(msg) {
     // If subscription exists and not expired then user is premium
     let sub = null;
     if (BTId) {
-	sub = await getSub();
-	if (sub) {
-	    console.log('Premium subscription exists, good til:', new Date(sub.current_period_end.seconds * 1000));
-	    if ((sub.current_period_end.seconds * 1000) > Date.now()) {
-		// valid subscription, toggle from sub buttons to portal link
-		$(".subscription_buttons").hide();
-		$("#portal_row").show();
+	    sub = await getSub();
+	    if (sub) {
+	        console.log('Premium subscription exists, good til:', new Date(sub.current_period_end.seconds * 1000));
+	        if ((sub.current_period_end.seconds * 1000) > Date.now()) {
+		        // valid subscription, toggle from sub buttons to portal link
+		        $(".subscription_buttons").hide();
+		        $("#portal_row").show();
+	        }
 	    }
-	}
     }
 
     // show special offer link if not subscribed and not first run
     if (!sub && !(InitialInstall || UpgradeInstall))
-	$("#specialOffer").show();
+	    $("#specialOffer").show();
 
     // handle currently open tabs
     handleInitialTabs(msg.all_tabs);
@@ -361,7 +361,7 @@ async function refreshTable(fromGDrive = false) {
     try {
         if (fromGDrive)
             await getBTFile();
-        processBTFile(BTFileText);
+        processBTFile();
     }
     catch (e) {
         console.warn('error in refreshTable: ', e.toString());
@@ -383,7 +383,7 @@ function generateTable() {
 
 
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
-function processBTFile(fileText) {
+function processBTFile() {
     // turn the org-mode text into an html table, extract Topics
 
     // First clean up from any previous state
@@ -391,7 +391,7 @@ function processBTFile(fileText) {
     AllNodes = [];
     
     try {
-        parseBTFile(fileText);
+        parseBTFile(BTFileText);
     }
     catch(e) {
         alert('Could not process BT file. Please check it for errors and restart');
@@ -1807,7 +1807,7 @@ function keyPressHandler(e) {
               $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
-	const dropNode = AllNodes[dropId];
+	    const dropNode = AllNodes[dropId];
         if (dropNode) moveNode(node, dropNode, node.parentId);
         e.preventDefault();
         return;
