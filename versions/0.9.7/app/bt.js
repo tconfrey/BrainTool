@@ -1024,7 +1024,7 @@ function addNewTag(tag, parentTag = null, parentNode = null) {
     // 3) Update tree
     const n = $("table.treetable").treetable("node", parentTagId);
     $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
-    parentTagNode.redisplay();				     // in case changed by adding children
+    parentTagNode && parentTagNode.redisplay();				     // in case changed by adding children
     return newNode;
 }
 
