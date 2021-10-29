@@ -12,12 +12,16 @@
       const deets = document.getElementById('kp');
          deets.innerHTML += `<br/>${k.key} - alt: ${k.altKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
       }
+      function printKeyDown(k) {
+      const deets = document.getElementById('kd');
+         deets.innerHTML += `<br/>${k.key} - alt: ${k.altKey}, code: ${k.code}, keyCode: ${k.keyCode}`;
+      }
     </script>
   </head>
   <body>
-    <input id="keys" onkeyup="printKeyUp(event)" onkeypress="printKeyPress(event)">
+    <input id="keys" onkeyup="printKeyUp(event)" onkeypress="printKeyPress(event)" onkeydown="printKeyDown(event)" autocomplete="off">
     <table>
-      <td id="kp">KeyPress</td><td id="ku">KeyUp</td>
+      <td id="kd">KeyDown</td><td id="kp">KeyPress</td><td id="ku">KeyUp</td>
     </table>
     
   </body>

@@ -3,58 +3,82 @@
   <head>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="awesomplete.css" />
-    <script src="awesomplete.js" async></script>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
+    <!-- Regular launch -->
     <div id="message" style="white-space: pre"><i>Starting BrainTool...</i></div>
 
-    <div id="welcome" style="display:none; width:400px;">
-      <h2>Welcome to BrainTool</h2>
-      <p>There are two parts to BrainTool:<br/>
-	- The separate Side Panel window shows your Topics and controls your tabs.<br/>
-	- The toolbar Popup adds new links into your Topic tree.</p>
-      <img src="images/Overview.png" width="350"/>
-      <p>To get you started I'm going to:<br/>
-	- Open the BrainTool Side Panel window on the left of this screen.<br/>
-	- Resize this window to accommodate. (Feel free to undo that later.)<br/>
-	- Open a tab showing the BrainTool welcome screen with new user information.<br/>
-	  <br/>
-	  Remember:<br/>
-	  - Click the BrainTool icon (or use the <span id="alt_opt">Alt</span>-b key) to open the Popup and save the current tab.<br/>
-	  - Use the Side Panel to open and close browser tabs, singly or as a group.
-      </p>
-      <button id="ok">OK</button>
-    </div>
     
-    <div id="tag" style="display:none">
-      <div align="center">
-        <h2 id="heading">Choose Topic</h2>
-        <input type="text" id="newtag" size="40" autofocus></input>
-        <textarea id="note" rows="3" cols="45" disabled>Note (or hit Return):</textarea>
-        <div id="forms" >
-          <form id="tabAction" class="horizontal">
-            <label class="radio_inline" id="groupLabel" title="Group w open tabs for topic">
-              <input type="radio" name="bta" value="GROUP" id="GROUP" checked>Group
-            </label>
-            <label class="radio_inline" title="Keep tab open in this window">
-              <input type="radio" name="bta" value="STICK" id="STICK">Stick
-            </label>
-            <label class="radio_inline" title="Close tab after saving it">
-              <input type="radio" name="bta" value="CLOSE" id="CLOSE">Close
-            </label>
-          </form>
-          <hr class="horizontal" width="1" size="15" style="vertical-align: sub">
-          <div class="horizontal" id="chk">
-            <input type="checkbox" style="vertical-align: sub" id="all" name="all" value="All">
-            <label for="all" id="allLabel">All unsaved tabs</label>
-          </div>
-          <button id="submit">Save</button>
-        </div>
-      </div>
-      <h3>Existing Topics:</h3>
-      <div id="currentTags"></div>
+    <!-- Initial launch Welcome screen-->
+    <div id="welcome" style="display:none;">
+      <h1>Welcome to BrainTool</h1>
+      <p>There are two parts to BrainTool:<br/>
+	- The <b>Topic Manager</b> window where you manage your topics and control your browser.<br/>
+	- The <b>Bookmarker</b> where you add new pages into your topic tree.</p>
+      <img src="images/Overview.png" width="400"/>
+      <p>
+	    Click the BrainTool icon (or use <span id="alt_opt">Alt</span>-b) to open the Bookmarker to save the current page. Use the Topic Manager to open and close saved browser pages, singly or as a group.<br/>
+        To get you started I'm going to:<br/>
+	- Open the Topic Manager on the left of this screen.<br/>
+	- Resize this window to accommodate. (Feel free to undo that later.)<br/>
+	- Open the BrainTool welcome page with new user information.<br/>
+      </p>
+      <button id="okButton" onClick="(e) => windowOpen()">OK</button>
     </div>
-    <script src="popup.js"></script>
+
+
+    <h1 id="heading" style="display:none">BrainTool Bookmarker</h1>
+    
+    <!-- Topic selector screen -->
+    <div id="topicSelector" style="display:none">
+      <label for="topic">Topic:</label>
+      <input type="text" id="topic" size="36" autofocus>
+
+      <h2 style="margin-top:2rem">Topic Tree:</h2>
+      <div id="currentTopics"></div>
+    </div>
+
+
+    <!-- Topic Card editor -->
+    <div id="topicCard" style="display:none">
+      <img id="cardClose" type="image" alt="Close" title="Close" class="split_image"
+               src="resources/close.png"  height="17" width="20">
+
+      <table>
+        <tr id="dn">
+          <td style="padding-bottom: 2px">
+              <span id="distinguishedName"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>            
+            <div id="all" >
+              <input type="checkbox" id="selectAll" name="selectAll" value="All">
+              <label for="selectAll" id="allLabel">Apply to all unsaved pages in window</label>
+            </div>
+          </td>
+        </tr> 
+        <tr> 
+          <td><input type="text" id="title-text" class="inactive" tabindex="1" value='title'></td>
+        </tr>
+        <tr> 
+          <td><textarea id="title-url" tabindex="2" disabled >url</textarea></td>
+        </tr>
+        <tr>
+          <td><textarea id="text-text" tabindex="3" class="inactive">Note (or just hit Enter)</textarea></td>
+        </tr>
+      </table>
+      <div class="buttonDiv">
+        <button id="save" tabindex="4" style="width:30%">Save Page(s)</button>
+        <button id="saveAndClose" tabindex="5">Save & Close</button>
+      </div>
+    </div>
+
+    <!- Scripts to load -->
+    <script src="awesomplete.js"></script>
+    <script src="topicSelector.js"></script>
+    <script src="topicCard.js"></script>
+    <script defer src="popup.js"></script>
   </body>
 </html>

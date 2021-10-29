@@ -184,13 +184,13 @@ podcast interview
 
 
 * Resource
-Reference Material. Create sub tags under here - eg Reference:Machine Learning
+Reference Material. Create sub topics under here - eg Reference:Machine Learning
 
 ** BrainTool
     :PROPERTIES:
     :VISIBILITY: folded
     :END:
-As another example in a recursive kind of way. This tag and its children capture resources related to BrainTool.
+As another example in a recursive kind of way. This topic and its children capture resources related to BrainTool.
 
 *** [[https://braintool.org/support][BrainTool Support Page]]
 
@@ -228,7 +228,7 @@ As another example in a recursive kind of way. This tag and its children capture
  Full text search on all your browser history. Very Cool!
 
 **** [[https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl][Tabs Outliner - Chrome Web Store]]
- Similar L&F to BT but no tags or textfile access and in my case led to a proliferation of stuff I didn't care about.
+ Similar L&F to BT but no topics or textfile access and in my case led to a proliferation of stuff I didn't care about.
 
 *** Contributions
     :PROPERTIES:
@@ -276,7 +276,7 @@ A set of articles from The Lucid Manager
 *** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
 
 *** [[https://orgmode.org/][Org mode for Emacs - Your Life in Plain Text]]
-The structure of your tags and links is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
+The structure of your topics and pages is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
 
 *** [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode beginning at the basics]]
 
@@ -310,4 +310,4 @@ The "self-help classic for managing work-life balance in the twenty-first centur
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Links and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.
+Pages and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.

@@ -85,8 +85,7 @@
 	}
 	
 	.awesomplete > ul > li[aria-selected="true"] {
-		background: hsl(205, 40%, 40%);
-		color: white;
+		background:  #7bb07b; 
 	}
 	
 		.awesomplete mark {
@@ -100,6 +99,6 @@
 		
 		.awesomplete li[aria-selected="true"] mark {
 			background: hsl(86, 100%, 21%);
-			color: inherit;
+			color: white; 
 		}
 /*# sourceMappingURL=awesomplete.css.map */
