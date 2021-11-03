@@ -311,3 +311,6 @@ The "self-help classic for managing work-life balance in the twenty-first centur
   :VISIBILITY: folded
   :END:
 Pages and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.
+
+* Scratch
+Pages that you save in the Bookmarker without a Topic will be filed under Scratch

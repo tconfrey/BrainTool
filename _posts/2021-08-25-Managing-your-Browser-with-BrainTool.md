@@ -24,7 +24,7 @@ BrainTool is an extension that sits inside your browser. It helps you keep track
 <div class="cell left">
 A Topic is a category or grouping, anything from "Kitchen Renovation" to "Productivity Tool Research". In BrainTool nested topics help keep things organized (e.g. Projects&#8594;Kitchen renovation&#8594;Lighting options&#8594;Under-counter lights).
 <br/><br/>
-The BrainTool Popup (right) is where you attach a note to a web page and save it into your topic tree.
+The BrainTool Bookmarker (right) is where you attach a note to a web page and save it into your topic tree.
 </div>
 <div class="cell right">
 <img src="/site/BT-popup.gif" alt="BrainTool popup" style="border:solid; border-width:thin; float:right; margin-top: -1rem">
@@ -35,7 +35,7 @@ The BrainTool Topic Manager holds your topic hierarchy. The Topic Manager makes 
 All the pages for a topic are grouped within a visible tab group or a separate window to keep them organized and together.
 
 ## How you should use BrainTool
-Import and organize your existing bookmarks. Or just start assigning topics to your open tabs via the Clipper. (Then you can finally close them out!)
+Import and organize your existing bookmarks. Or just start assigning topics to your open tabs via the Bookmarker. (Then you can finally close them out!)
 
 Work proactively, create topics before you start a new piece of research. Or re-actively - as you leave each tab just assign a topic and close it out.
 

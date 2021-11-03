@@ -2,7 +2,7 @@
 title: BrainTool Philosophy
 layout: default
 tagline: The Topic Manager for your Online Life
-description: BrainTool organizes things you want to remember and get back to. Its also a better way to control your browser. Free and private. Download now!
+description: BrainTool goes beyond bookmarks to organize the things you want to remember and get back to. Free and private. Download now!
 audience: nonuser
 ---
 
@@ -14,11 +14,11 @@ Information discovery these days generally takes place in a browser tab, creatio
 The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing with the exchange of curated informational [Topic Maps]({% post_url 2021-05-15-Organizing-your-life-with-a-Topic-Manager%})
 
 # Overview
-The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing you assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
+The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing use the Bookmarker assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
 
-Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool side-panel, and within Chrome by a dedicated window or tab group with tabs for saved links. 
+Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool Topic Manager, and within Chrome by a dedicated window or tab group with tabs for saved links. 
 
-The side-panel is your central controller. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
+The Topic Manager is your central controller. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
 
 <br/>
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
@@ -55,10 +55,11 @@ There will always be a fully functional, free and open source version of BrainTo
 Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.
 
 ## Release 1.0
-- **Search** : In 1.0 BrainTool search will be modeled on emacs forward and backward incremental text search across the full contents of your braintool file, perhaps with narrowing to rows containing the search term.
+- **Search** : In BrainTool search is modeled on emacs forward and backward incremental text search looking across the full contents of your braintool file.
+- **Topic Files** : Any Topic and its subtopics can be saved to a file by one user and then imported by a second user into their topic tree.
 
 ## Post 1.0
-- **Preferences** : Factors such as font size and side panel location will be made configurable asap.
+- **Preferences** : Factors such as font size and side panel location will be made configurable, a dark mode will be added.
 - **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced file on a Google Drive, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
 - **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool will provide an intuitive overlay for a subset of orgs most important functionality - TODO lists, journaling, agendas etc.
 - **Session Save and Live Sessions**: While you can already save all the tabs in a window to a topic with a couple of clicks, there would be value in being able to save a snapshot of the whole browser session for later recovery. Relatedly, continuously capturing all activity in a browser window into a topic could be useful while researching.
