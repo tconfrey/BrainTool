@@ -370,7 +370,7 @@ async function writeBTFile() {
 	        alert("BT - Error in writeBTFile. Google API not available.");
 	        return -1;
         }
-                
+        
 	    // check we're not overwriting remote file
 	    const warn = await checkBTFileVersion();
 	    if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite?\nNB changes have been made locally either way."))

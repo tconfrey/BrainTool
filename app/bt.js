@@ -60,26 +60,26 @@ async function launchApp(msg) {
     // Get BT sub id => premium 
     // BTId in local store and from org data should be the same. local store is primary
     if (msg.bt_id) {
-	BTId = msg.bt_id;
-	if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
-	else if (BTId != getMetaProp('BTId'))
-	    alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
+	    BTId = msg.bt_id;
+	    if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
+	    else if (BTId != getMetaProp('BTId'))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
     } else {
-	// get from file if not in local storage and save locally (will allow for recovery if lost)
-	if (getMetaProp('BTId')) {
-	    BTId = getMetaProp('BTId');
-	    Config.bt_id = BTId;
-	    window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
-	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-	}
+	    // get from file if not in local storage and save locally (will allow for recovery if lost)
+	    if (getMetaProp('BTId')) {
+	        BTId = getMetaProp('BTId');
+	        Config.bt_id = BTId;
+	        window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
+	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    }
     }
     
     gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
 
     // Update ui for new users
     if (InitialInstall || UpgradeInstall) {
-	$("#tip").hide();
-	$("#openingTips").show();
+	    $("#tip").hide();
+	    $("#openingTips").show();
         $("#openingTips").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         if (UpgradeInstall) {
             // Need to make a one time assumption that an upgrade from before 0.9 is already connected
@@ -108,8 +108,8 @@ async function launchApp(msg) {
     
     // If bookmarks have been imported remove button from controls screen (its still under options)
     if (!getMetaProp('BTLastBookmarkImport')) {
-	$("#importBookmarkButton").show();
-	$("#openOptionsButton").text("Other Actions");
+	    $("#importBookmarkButton").show();
+	    $("#openOptionsButton").text("Other Actions");
     }
 
     // show Alt or Option appropriately in visible text (Mac v PC)
@@ -165,11 +165,11 @@ async function updateSigninStatus(signedIn, error=false, userInitiated = false) 
             await refreshTable(true);                       // Read previous org from GDrive
             saveBT();					    // save to record it's now synced
         }
-	if (userInitiated) saveBT();			    // also save if newly authorized
+	    if (userInitiated) saveBT();			    // also save if newly authorized
     } else {
         alert("GDrive connection lost");
         $("#gdrive_save").hide();
-	$("#refresh").hide();
+	    $("#refresh").hide();
         $("#gdrive_auth").show();
         $("#autoSaveLabel").text("Auto-saving is off");
         GDriveConnected = false;
@@ -190,8 +190,8 @@ async function warnBTFileVersion(e) {
     if (!getMetaProp('BTGDriveConnected')) return; 	    // only if gdrive connected
     const warn = await checkBTFileVersion();
     if (!warn) {
-	$("#stats_row").css('background-color', '#7bb07b');
-	return;
+	    $("#stats_row").css('background-color', '#7bb07b');
+	    return;
     }
     const savesText = $("#num_saves").text();
     if (!savesText.includes('!')) $("#num_saves").text(savesText + '!'); 
@@ -205,9 +205,9 @@ async function warnBTFileVersion(e) {
 function handleInitialTabs(tabs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
     tabs.forEach((tab) => {
-	const node = BTNode.findFromURL(tab.url);
-	if (!node) return;
-	
+	    const node = BTNode.findFromURL(tab.url);
+	    if (!node) return;
+	    
         $("tr[data-tt-id='"+node.id+"']").addClass("opened");
         node.tabId = tab.id;
         node.windowId = tab.windowId;
@@ -235,10 +235,10 @@ function toggleMenu(event) {
     const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {
         $("#controls_screen").css('min-height',0)
-	    .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
+	        .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('closed').removeClass('open');
-	if (toggleMenu.introMessageShown)
-	    $("#openingTips").hide();		     // if not already hidden
+	    if (toggleMenu.introMessageShown)
+	        $("#openingTips").hide();		     // if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
@@ -246,7 +246,7 @@ function toggleMenu(event) {
         toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
         addTip();                                    // display tip text after intro message shown
         $("#controls_screen").css('min-height',0)
-	    .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
+	        .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
         $("#open_close_image").addClass('open').removeClass('closed');
         $(".treetable tr").css("scroll-margin-top", "375px");
     }
@@ -306,7 +306,7 @@ function updateStatsRow(modifiedTime = null) {
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
     {
         $("#saves").attr("src", "resources/drive_icon.png");
-	$("#stats_row").css('background-color', '#7bb07b');
+	    $("#stats_row").css('background-color', '#7bb07b');
     }
 }
 
@@ -401,8 +401,8 @@ function processBTFile() {
 
     var table = generateTable();
     /*  for some reason w big files jquery was creating <table><table>content so using pure js
-    var container = $("#content");
-    container.html(table);
+        var container = $("#content");
+        container.html(table);
     */
     var container = document.querySelector('#content');
     container.innerHTML = table;
@@ -453,7 +453,7 @@ function refreshRefresh() {
     $("#refresh").prop("disabled", false);
     $('body').removeClass('waiting');
 }
-    
+
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
@@ -483,9 +483,9 @@ function initializeUI() {
     // single click - select row
     $("table.treetable tr").off("click");              // remove any previous handler
     $("table.treetable tr").on("click", function (e) {
-	// first check this is not openclose button, can't stop propagation
-	if (e?.originalEvent?.target?.classList?.contains('openClose')) return;
-	
+	    // first check this is not openclose button, can't stop propagation
+	    if (e?.originalEvent?.target?.classList?.contains('openClose')) return;
+	    
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
     });
@@ -494,11 +494,11 @@ function initializeUI() {
     $("table.treetable tr").draggable({
         helper: function() {
             buttonHide();
-	    
+	        
             const clone = $(this).clone();
-	    $(clone).find('.btTitle').html('');		   // empty clone of contents, for some reason
-	    $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
-	    
+	        $(clone).find('.btTitle').html('');		   // empty clone of contents, for some reason
+	        $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
+	        
             $("table.treetable tr").off('mouseenter');     // turn off hover behavior during drag
             $("table.treetable tr").off('mouseleave');
             return clone;
@@ -662,7 +662,7 @@ function positionNode(dragNode, dropParentId, dropBelow) {
                             return (compare ($("tr").index(aa), $("tr").index(bb)));
                         });
 }
-    
+
 
 // Handle callbacks on node folding, update backing store
 function rememberFold() {
@@ -707,7 +707,7 @@ function nodeCollapse() {
     // Update File, if collapse is not a result of a drag start
     if (update && !node.dragging) rememberFold();
 }
-   
+
 
 function handleLinkClick(e) {
     const nodeId = $(this).closest("tr").attr('data-tt-id');
@@ -874,14 +874,14 @@ function storeTabs(data) {
                 newNodes.forEach(node => node.group());
             newNodes[0] && newNodes[0].showNode();
         }
-        else {
-            // Tell bg to create a new TG for Topic
-            const tabIds = newNodes.map(node => node.tabId);
-            const nodeIds = newNodes.map(node => node.id);
-            window.postMessage(
-                {'function': 'moveToTabGroup', 'tabIds': tabIds,
-                 'nodeIds': nodeIds, 'windowId': windowId});
-        }
+    else {
+        // Tell bg to create a new TG for Topic
+        const tabIds = newNodes.map(node => node.tabId);
+        const nodeIds = newNodes.map(node => node.id);
+        window.postMessage(
+            {'function': 'moveToTabGroup', 'tabIds': tabIds,
+             'nodeIds': nodeIds, 'windowId': windowId});
+    }
 }
 
 function tabUpdated(data) {
@@ -891,7 +891,7 @@ function tabUpdated(data) {
     const tabUrl = data.tabURL;
     const groupId = data.groupId;
     const windowId = data.windowId;
-        
+    
     const tabNode = BTAppNode.findFromTab(tabId);
     if (tabNode) {
         // Either completion of opening of BT tab *or* nav away of an open BT tab
@@ -940,7 +940,7 @@ function tabActivated(data) {
     const winNode = BTAppNode.findFromWindow(winId);
     const groupNode = BTAppNode.findFromGroup(groupId);
     let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
-                   'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
+                  'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
     if (node) 
         m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
     else
@@ -951,17 +951,17 @@ function tabActivated(data) {
     let currentSelection = $("tr.selected")[0];
     if (currentSelection) {
         const prev = $(currentSelection).attr("data-tt-id");
-	AllNodes[prev].unshowForSearch();
+	    AllNodes[prev].unshowForSearch();
     }
     if (!node) return;						    // nothing else to do
     if (node) {
-	const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
-	if(!$(tableNode).is(':visible'))
-	    node.showForSearch();				    // unfold tree etc as needed
-	currentSelection && $(currentSelection).removeClass('selected');
-	$(tableNode).addClass('selected');
-	tableNode.scrollIntoView({block: 'center'});
-	$("#search_entry").val("");				    // clear search box on nav
+	    const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	    if(!$(tableNode).is(':visible'))
+	        node.showForSearch();				    // unfold tree etc as needed
+	    currentSelection && $(currentSelection).removeClass('selected');
+	    $(tableNode).addClass('selected');
+	    tableNode.scrollIntoView({block: 'center'});
+	    $("#search_entry").val("");				    // clear search box on nav
     }	
 }
 
@@ -1165,7 +1165,7 @@ function editRow(e) {
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
         .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
                  function () {
-		     e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();});
+		             e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();});
 }
 
 $(".editNode").on('input', function() {
@@ -1196,7 +1196,7 @@ function closeDialog(cb = null, duration = 250) {
     });
     $("#content").removeClass('editOverlaid');
 }
-    
+
 function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
     const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
@@ -1226,7 +1226,7 @@ function openRow(e) {
 
     if (appNode.isTag()) {
         $("table.treetable").treetable("expandNode", appNode.id);         // unfold
-	AllNodes[appNode.id].folded = false;
+	    AllNodes[appNode.id].folded = false;
         setTimeout(() => appNode.openAll(), 50);
     } else
         appNode.openTab();
@@ -1409,7 +1409,7 @@ function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
     window.postMessage({'function': 'getBookmarks'});
-//    toggleOptions(1500);
+    //    toggleOptions(1500);
 }
 
 function loadBookmarks(msg) {
@@ -1478,7 +1478,7 @@ function animateNewImport(name) {
                          }});
     RefreshCB = null;
 }
-    
+
 
 function exportBookmarks() {
     // generate minimal AllNodes for background to operate on
@@ -1588,13 +1588,13 @@ function disableSearch(e = null) {
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
     if (selectedNodeId) {
-	const node = AllNodes[selectedNodeId];
-	node.redisplay(true);
-	node.shownForSearch = false;
+	    const node = AllNodes[selectedNodeId];
+	    node.redisplay(true);
+	    node.shownForSearch = false;
         if (!node.folded) {
             $("table.treetable").treetable("collapseNode", node.id);
             $("table.treetable").treetable("expandNode", node.id);
-	}
+	    }
     }
     
     // turn back on other key actions, but only after this keyup, if any, is done
@@ -1606,7 +1606,7 @@ function handleSearchKeyUp(keyevent){
     // and also first key when textinput still has prev content keydown gets both, need to wait till keyup
     if ((keyevent.code == 'Delete') || (keyevent.code == 'Backspace')) // || ( $("#search_entry").val().length == 1))
     {
-	search({'key':'', 'startId': SearchOriginId});
+	    search({'key':'', 'startId': SearchOriginId});
     }
 }
 
@@ -1614,16 +1614,16 @@ function searchButton(e, action) {
     // called from next/prev search buttons. construct event and pass to search
     
     let event = {
-	altKey : true,
-	code : (action == "down") ? "KeyS" : "KeyR",
-	key : (action == "exit") ? "Enter" : "",
-	buttonNotKey: true
+	    altKey : true,
+	    code : (action == "down") ? "KeyS" : "KeyR",
+	    key : (action == "exit") ? "Enter" : "",
+	    buttonNotKey: true
     };
     search(event);
     e.preventDefault();
     e.stopPropagation();
     if (action == "exit")				      // turn back on regular key actions
-	$(document).on("keyup", keyPressHandler);
+	    $(document).on("keyup", keyPressHandler);
 	
     return false;    
 }
@@ -1636,26 +1636,26 @@ function search(keyevent) {
     let sstr = $("#search_entry").val();
     let next = false;
     if (SearchLiteCB)					      // clear timeout if not executed
-	clearTimeout(SearchLiteCB);
+	    clearTimeout(SearchLiteCB);
 
     // are we done?
     if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
-	$("#search_buttons").hide();
-	keyevent.buttonNotKey || keyevent.stopPropagation();
-	keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyPressHandler from getting it
-	$("#search_entry").blur();			      // will call disableSearch
-	return false;
+	    $("#search_buttons").hide();
+	    keyevent.buttonNotKey || keyevent.stopPropagation();
+	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyPressHandler from getting it
+	    $("#search_entry").blur();			      // will call disableSearch
+	    return false;
     }
 
     // opt-s/r : drop that char code and go to next match
     if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
-	$("#search_entry").val(sstr);
-	next = true;
-	ReverseSearch = (keyevent.code == "KeyR");
-	keyevent.buttonNotKey || keyevent.stopPropagation();
-	keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
+	    $("#search_entry").val(sstr);
+	    next = true;
+	    ReverseSearch = (keyevent.code == "KeyR");
+	    keyevent.buttonNotKey || keyevent.stopPropagation();
+	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
     } else {
-	sstr += keyevent.key;
+	    sstr += keyevent.key;
     }
     const inc = ReverseSearch ? -1 : 1;			      // forward or reverse
 
@@ -1672,44 +1672,44 @@ function search(keyevent) {
     
     let prevNodeId = nodeId;
     if (next) {
-	AllNodes[nodeId].redisplay();
-	nodeId = nodeId + inc;				      // find next hit, forward/reverse
+	    AllNodes[nodeId].redisplay();
+	    nodeId = nodeId + inc;				      // find next hit, forward/reverse
     }
     if ($("#search_entry").hasClass('failed'))
-	// restart at top or bottom (reverse)
-	nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
+	    // restart at top or bottom (reverse)
+	    nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
 
     // Do the search starting from nodeId
     let node = AllNodes[nodeId];
     while(nodeId > 0 && nodeId < AllNodes.length) {
-	node = AllNodes[nodeId];
-	nodeId = nodeId + inc;
-	if (!node) continue;				      // AllNodes is sparse
-	if (node.search(sstr)) break;
-	node = null;
+	    node = AllNodes[nodeId];
+	    nodeId = nodeId + inc;
+	    if (!node) continue;				      // AllNodes is sparse
+	    if (node.search(sstr)) break;
+	    node = null;
     }
     
     if (node) {
-	if (prevNodeId != node.id)
-	    AllNodes[prevNodeId].redisplay();		      // remove search formating if moving on
-	$("tr.selected").removeClass('selected');
-	$(node.getDisplayNode()).addClass('selected');
-	node.showForSearch();				      // unfold tree etc as needed
-	let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
-	if (highlight) highlight.scrollIntoView({'inline' : 'center'});
-	node.getDisplayNode().scrollIntoView({block: 'center'});
-	$("#search_entry").removeClass('failed');
-	SearchLiteCB = setTimeout(() => {
-	    SearchLiteCB = null;
-	    $("td").removeClass('searchLite');
-	    AllNodes.forEach((n) => {
-		if (!n) return;
-		if (n == node) return; 			      // already highlighted as selection
-		n.searchLite(sstr);
-	    })
-	}, 200);			     
+	    if (prevNodeId != node.id)
+	        AllNodes[prevNodeId].redisplay();		      // remove search formating if moving on
+	    $("tr.selected").removeClass('selected');
+	    $(node.getDisplayNode()).addClass('selected');
+	    node.showForSearch();				      // unfold tree etc as needed
+	    let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
+	    if (highlight) highlight.scrollIntoView({'inline' : 'center'});
+	    node.getDisplayNode().scrollIntoView({block: 'center'});
+	    $("#search_entry").removeClass('failed');
+	    SearchLiteCB = setTimeout(() => {
+	        SearchLiteCB = null;
+	        $("td").removeClass('searchLite');
+	        AllNodes.forEach((n) => {
+		        if (!n) return;
+		        if (n == node) return; 			      // already highlighted as selection
+		        n.searchLite(sstr);
+	        })
+	    }, 200);			     
     } else {
-	$("#search_entry").addClass('failed');
+	    $("#search_entry").addClass('failed');
     }
     
     return (!next);					      // ret false to prevent entry
@@ -1740,7 +1740,7 @@ function keyPressHandler(e) {
 
     // searchMode takes precidence and is detected on the search box input handler
     if ($("#search_entry").is(":focus"))
-	return;
+	    return;
     
     const alt = e.altKey;
     const code = e.code;
@@ -1768,16 +1768,16 @@ function keyPressHandler(e) {
         if (currentSelection) $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
         next.scrollIntoView({block: 'nearest'});	
-	$("#search_entry").val("");			      // clear search box on nav
+	    $("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
-	e.stopPropagation();
+	    e.stopPropagation();
         return;
     }
 
     // s,r = Search, Reverse-search
     if (code == "KeyS" || code == "KeyR") {
-	ReverseSearch = (code == "KeyR");
-	enableSearch(e);
+	    ReverseSearch = (code == "KeyR");
+	    enableSearch(e);
         return;
     }
 
@@ -1913,24 +1913,24 @@ function handleEditCardKeyup(e) {
     const alt = e.altKey;
     if (code == "Tab") {
         // restrain tabbing to within dialog. Button gets focus and then this handler is called.
-	// so we redirect focus iff the previous focused element was first/last
+	    // so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
         const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
-	if (!focused || !$(focused).hasClass('editNode')) {
-	    // tabbed out of edit dialog, force back in
-	    if (!e.shiftKey)	// tabbing forward
-		$(first).focus();
-	    else
-		$("#cancel").focus();
-	}
+	    if (!focused || !$(focused).hasClass('editNode')) {
+	        // tabbed out of edit dialog, force back in
+	        if (!e.shiftKey)	// tabbing forward
+		        $(first).focus();
+	        else
+		        $("#cancel").focus();
+	    }
         e.preventDefault();
         return;
     }
     if (code == "Enter") {
-	// on enter move focus to text entry box
-	$("#text-text").focus();
-	e.preventDefault();
-	e.stopPropagation();
+	    // on enter move focus to text entry box
+	    $("#text-text").focus();
+	    e.preventDefault();
+	    e.stopPropagation();
     }
     if (alt && ["ArrowUp","ArrowDown"].includes(code)) {
         // alt up/down iterates rows opening cards

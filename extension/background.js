@@ -45,7 +45,7 @@ chrome.runtime.onInstalled.addListener(deets => {
     // special handling for first install or new version
     if (deets.reason == 'install') {
         InitialInstall = chrome.runtime.getManifest().version;	 // let app know version
-	chrome.storage.local.set({'newInstall' : true});
+	    chrome.storage.local.set({'newInstall' : true});
         chrome.tabs.create({'url': "https://braintool.org/support/welcome"});
     }
     if (deets.reason == 'update') {
@@ -177,7 +177,7 @@ chrome.runtime.onConnect.addListener((port) => {
     const connectTime = Date.now();
     port.onDisconnect.addListener(() => {
         const disconnectTime = Date.now();
-	if (!BTWin) return;	                                 // might have been closed
+	    if (!BTWin) return;	                                 // might have been closed
         if ((disconnectTime - connectTime) < 500)
             chrome.windows.update(BTWin, {'focused': true}, () => check());
     });
@@ -195,15 +195,15 @@ function getOpenTabs() {
     // return an array of [{winId:, tabId:, groupId:, url:}..] via promise
     
     return new Promise(resolve => {
-	let allTabs = [];
-	chrome.tabs.query({}, (tabs) => {
-	    tabs.forEach((tab) =>
-			 allTabs.push({'id': tab.id,
-				       'groupId': tab.groupId,
-				       'windowId': tab.windowId,
-				       'url': tab.url}));
-	    resolve(allTabs);
-	});
+	    let allTabs = [];
+	    chrome.tabs.query({}, (tabs) => {
+	        tabs.forEach((tab) =>
+			             allTabs.push({'id': tab.id,
+				                       'groupId': tab.groupId,
+				                       'windowId': tab.windowId,
+				                       'url': tab.url}));
+	        resolve(allTabs);
+	    });
     });
 }
 
@@ -218,10 +218,10 @@ async function initializeExtension(msg, sender) {
     chrome.tabs.sendMessage(                        
         BTTab,
         {'function': 'launchApp', 'config': config, 'client_id': config.CLIENT_ID,
-	 'api_key': config.API_KEY, 'fb_key': config.FB_KEY,
-	 'stripe_key': config.STRIPE_KEY,
+	     'api_key': config.API_KEY, 'fb_key': config.FB_KEY,
+	     'stripe_key': config.STRIPE_KEY,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall,
-	 'all_tabs': allTabs});
+	     'all_tabs': allTabs});
 
     // check to see if a welcome is called for. repeat popup setting on bt win for safety.
     if (InitialInstall || UpdateInstall) {
@@ -229,14 +229,14 @@ async function initializeExtension(msg, sender) {
               'https://braintool.org/support/welcome' :
               'https://braintool.org/support/releaseNotes';
         chrome.tabs.create({'url': welcomePage},
-			   () => {
-			       chrome.windows.update(BTWin,
-						     {'focused' : true,
-						      'state' : "normal",
-						      'top' : 10, 'left' : 5,
-						      'width' : 500, 'height' : screen.height},
-						     () => check());
-			   });
+			               () => {
+			                   chrome.windows.update(BTWin,
+						                             {'focused' : true,
+						                              'state' : "normal",
+						                              'top' : 10, 'left' : 5,
+						                              'width' : 500, 'height' : screen.height},
+						                             () => check());
+			               });
         InitialInstall = null; UpdateInstall = null;
     }
     updateBTIcon('', 'BrainTool', '#5E954E');
@@ -251,13 +251,13 @@ function suspendExtension() {
     chrome.browserAction.setIcon({'path': 'images/BrainToolGray.png'});
     
     chrome.tabs.query({'currentWindow': true, 'active': true}, (tabs) => {
-	if (!tabs.length || !tabs[0].id) return;		 // sometimes theres no active tab
-	const tabId = tabs[0].id;	
-	setTimeout(() => {
-	    // wait for updateBTIcon to finish then show 'OFF' on top tab for 3 secs
-	    chrome.browserAction.setBadgeText({'text' : 'OFF', 'tabId': tabId});
-	    setTimeout(() => chrome.browserAction.setBadgeText({'text' : '', 'tabId': tabId}), 3000);
-	}, 500);
+	    if (!tabs.length || !tabs[0].id) return;		 // sometimes theres no active tab
+	    const tabId = tabs[0].id;	
+	    setTimeout(() => {
+	        // wait for updateBTIcon to finish then show 'OFF' on top tab for 3 secs
+	        chrome.browserAction.setBadgeText({'text' : 'OFF', 'tabId': tabId});
+	        setTimeout(() => chrome.browserAction.setBadgeText({'text' : '', 'tabId': tabId}), 3000);
+	    }, 500);
     });
 }
 
@@ -265,16 +265,16 @@ function updateBTIcon(text, title, color) {
     // utility fn called when BT is opened or closed to update icon appropriately
 
     chrome.tabs.query({}, (tabs) =>
-		      {
-			  tabs.forEach((tab) => {
-			      chrome.browserAction.setBadgeText(
-				  {'text' : text, 'tabId': tab.id}, () => check());
-			      chrome.browserAction.setTitle(
-				  {'title' : title, 'tabId': tab.id});
-			      chrome.browserAction.setBadgeBackgroundColor(
-				  {'color' : color, 'tabId': tab.id});
-			  });
-		      });
+		              {
+			              tabs.forEach((tab) => {
+			                  chrome.browserAction.setBadgeText(
+				                  {'text' : text, 'tabId': tab.id}, () => check());
+			                  chrome.browserAction.setTitle(
+				                  {'title' : title, 'tabId': tab.id});
+			                  chrome.browserAction.setBadgeBackgroundColor(
+				                  {'color' : color, 'tabId': tab.id});
+			              });
+		              });
 }
 
 function openTab(msg, sender, tries=0) {
@@ -286,7 +286,7 @@ function openTab(msg, sender, tries=0) {
     if (!url || !nodeId) return;                         // nothing to be done
     try {
         chrome.tabs.create({'url': url}, tab => {
-                              check();
+            check();
             chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
             chrome.tabs.sendMessage(
                 BTTab, {'function': 'tabOpened', 'nodeId': nodeId,
@@ -313,7 +313,7 @@ function positionTab(msg, sender) {
     chrome.tabs.move(tabId, {'index': index}, () => {
         check();});
 }
-    
+
 function openInWindow(msg, sender) {
     // open url(s) in specific window, msg.tabs is [{url, nodeId},..]
 
@@ -325,7 +325,7 @@ function openInWindow(msg, sender) {
         chrome.windows.update(windowId, {'focused' : true}, () => check());
         tabs.forEach(tabData => {
             chrome.tabs.create({'url': tabData.URL, 'windowId': windowId}, tab => {
-                              check();
+                check();
                 chrome.tabs.sendMessage(
                     BTTab,
                     {'function': 'tabOpened', 'nodeId': tabData.nodeId,
@@ -338,7 +338,7 @@ function openInWindow(msg, sender) {
         chrome.windows.create({'url': urls, 'left': 500}, function(win) {
             // Send back message per tab
             let id, url, tab;
-	    check();
+	        check();
             for (const elt of tabs) {
                 id = elt.nodeId;
                 url = elt.URL;
@@ -381,12 +381,12 @@ function openInTabGroup(msg, sender) {
                         check();
                         chrome.tabs.group(
                             {'groupId': tabGroupId, 'tabIds': tab.id}, () => {
-                              check();
+                                check();
                                 if (firstTab) {
                                     // highlight one tab in case TG window is buried
                                     firstTab = false;
                                     chrome.windows.update(windowId, {'focused' : true},
-							  () => check());
+							                              () => check());
                                 }
                                 chrome.tabs.sendMessage(
                                     BTTab,
@@ -439,7 +439,7 @@ function moveToWindow(msg, sender) {
     if (windowId)
         chrome.tabs.move(tabId, {'windowId': windowId, 'index': index},
                          tab => {
-                              check();
+                             check();
                              chrome.tabs.sendMessage(
                                  BTTab,
                                  {'function': 'tabOpened', 'nodeId': nodeId, 'tabId': tabId,
@@ -513,7 +513,7 @@ function showNode(msg, sender) {
 
     if (msg.tabId) {
         chrome.tabs.get(msg.tabId, function(tab) {
-                              check();
+            check();
             chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
             chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index},
                                   () => check());
@@ -569,7 +569,7 @@ function setBadge(tabId) {
     chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
         if (!data.currentTag) {
             chrome.browserAction.setBadgeText({'text' : "", 'tabId' : tabId},
-					      () => check('Resetting badge text:'));
+					                          () => check('Resetting badge text:'));
             chrome.browserAction.setTitle({'title' : 'BrainTool'});
         } else {
             marquee(data.currentTag, 0);
@@ -646,15 +646,15 @@ function exportBookmarks() {
 
 
 /*  TODO KEEP UNTIL TAB LOCK figureed out
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Two cases
     // - BT tabs navigating away
     // - Tab finishing loading, want to set tab badge. 
     //       Workaround for some kind of issues where I set the badge but it gets cleared somewhere else as the tab is initializing.
 
     if (AllNodes && changeInfo.status && changeInfo.status == 'complete') {
-        const node = BTChromeNode.findFromTab(tabId);
-        if (node) setBadgeTab(node.windowId, tabId);
+    const node = BTChromeNode.findFromTab(tabId);
+    if (node) setBadgeTab(node.windowId, tabId);
     }
     
     // Handle a BT tab being migrated to a new url
@@ -662,12 +662,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     const url = changeInfo.url;
     const node = BTChromeNode.findFromTab(tabId);
     if (!node) {
-        handlePotentialBTNode(url, tab);                    // might be a BTNode opened from elsewhere
-        return;
+    handlePotentialBTNode(url, tab);                    // might be a BTNode opened from elsewhere
+    return;
     }
     if ((!node.URL) || compareURLs(node.URL, url)) {          // 'same' url so ignore 
-	    console.log("Node:" + JSON.stringify(node) + "\nNavigated to url:" + url + "\nSeems ok!");
-	    return;
+	console.log("Node:" + JSON.stringify(node) + "\nNavigated to url:" + url + "\nSeems ok!");
+	return;
     }
 
     // Don't let BT tabs escape! Open any navigation in a new tab
@@ -677,33 +677,33 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (node.sentBackTime && ((t - node.sentBackTime) < 3000)) return;
     node.sentBackTime = t;                        // very hokey!
     try {
-        console.log("Sending back Tab #", tabId);
-        chrome.tabs.goBack(
-            node.tabId,            // send original tab back to the BT url
-	    function() {
-		// on success open url in new tab,
-		// if error its probably a server redirect url manipulation so capture redirected url
-		if (chrome.runtime.lastError) {
-                    node.title = `[[${url}][${node.displayTag}]]`;
-                    const err = JSON.stringify(chrome.runtime.lastError.message);
-                    console.log("BT Failed to go back: " + err) ;
-                }
-                else {
-                    chrome.tabs.create(
-                        // index is 'clamped', use 99 to put new tab to the right of any BT tabs
-                        {'windowId': node.windowId, 'url': url, 'index': 99},
-                        function () {
-			    if (chrome.runtime.lastError) {
-                                const err = JSON.stringify(chrome.runtime.lastError.message);
-                                console.log("Failed to open tab, err:" + err, "\nTrying in current window");
-                                chrome.tabs.create({'url': url});
-                            }
-			});
-                }
-	    });
+    console.log("Sending back Tab #", tabId);
+    chrome.tabs.goBack(
+    node.tabId,            // send original tab back to the BT url
+	function() {
+	// on success open url in new tab,
+	// if error its probably a server redirect url manipulation so capture redirected url
+	if (chrome.runtime.lastError) {
+    node.title = `[[${url}][${node.displayTag}]]`;
+    const err = JSON.stringify(chrome.runtime.lastError.message);
+    console.log("BT Failed to go back: " + err) ;
+    }
+    else {
+    chrome.tabs.create(
+    // index is 'clamped', use 99 to put new tab to the right of any BT tabs
+    {'windowId': node.windowId, 'url': url, 'index': 99},
+    function () {
+	if (chrome.runtime.lastError) {
+    const err = JSON.stringify(chrome.runtime.lastError.message);
+    console.log("Failed to open tab, err:" + err, "\nTrying in current window");
+    chrome.tabs.create({'url': url});
+    }
+	});
+    }
+	});
     }
     catch (err) {
-        console.log("Failed to go back from url: " + url + ", to: " + node.URL);
+    console.log("Failed to go back from url: " + url + ", to: " + node.URL);
     }
-});
+    });
 */

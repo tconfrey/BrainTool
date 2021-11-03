@@ -34,7 +34,7 @@ function parseBTFile(fileText) {
     const propValRegex = /PROPERTY: (.*?) (.*)/g;
     let m;
     while ((m = propValRegex.exec(match[0])) !== null) {
-	if (m[1] == "BTExternalFileVersion") continue;	       // confusing and not used. remove
+	    if (m[1] == "BTExternalFileVersion") continue;	       // confusing and not used. remove
         AllNodes.metaProperties.push({'name' : m[1], 'value' : m[2]});
     }
 }
@@ -96,8 +96,8 @@ function orgaLinkOrgText(node) {
     const valIncludesProtocol = node.value.search('://');
     let url = node.value;
     if (valIncludesProtocol > 0)
-	// peel off any leading 'http(s):'  NB node.value contains any leading //
-	url = node.value.substring(valIncludesProtocol + 1);
+	    // peel off any leading 'http(s):'  NB node.value contains any leading //
+	    url = node.value.substring(valIncludesProtocol + 1);
     url = node.protocol + ':' + url;
     return "[[" + url + "][" + node.description + "]]";
 }
@@ -202,5 +202,5 @@ function generateLinesAndColumns(filetext) {
     let lines = [];
     filetext.split(/\r?\n/).forEach(line => lines.push(line));
     return lines;
-                                     
+    
 }

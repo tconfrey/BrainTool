@@ -180,37 +180,37 @@ function saveCardCB(e) {
 }
 
 /*
-function tabAdded() {
-    // Call out to BT app which handles everything
+  function tabAdded() {
+  // Call out to BT app which handles everything
 
-    // value from text entry field may be tag, parent:tag, tag:keyword, parent:tag:keyword
-    // where tag may be new, new under parent, or existing but under parent to disambiguate
-    const newTag = document.getElementById('newtag').value;          
-    if (newTag == "") return;
-    let noteText = Note.value.replace(/\s+$/g, '');       // remove trailing newlines/validate
-    if (noteText.startsWith('Note (or hit Return):')) noteText = '';
-    const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
-    const cb = document.getElementById('all');
-    const allTabs = cb.checked;                           // is the All Tabs checked
-    const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
+  // value from text entry field may be tag, parent:tag, tag:keyword, parent:tag:keyword
+  // where tag may be new, new under parent, or existing but under parent to disambiguate
+  const newTag = document.getElementById('newtag').value;          
+  if (newTag == "") return;
+  let noteText = Note.value.replace(/\s+$/g, '');       // remove trailing newlines/validate
+  if (noteText.startsWith('Note (or hit Return):')) noteText = '';
+  const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
+  const cb = document.getElementById('all');
+  const allTabs = cb.checked;                           // is the All Tabs checked
+  const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
 
-    let message = {'function': 'storeTabs', 'tag': newTag, 'note': noteText,
-                   'windowId': CurrentTab.windowId, 'tabAction': TabAction};
-    let tabsData = [];
-    tabsToStore.forEach(tab => {
-        // Send msg per tab to BT app for processing w text and tag info
-        const tabData = {'url': tab.url, 'title': tab.title, 'tabId': tab.id};
-        tabsData.push(tabData);
-    });
-    message.tabsData = tabsData;
-    chrome.tabs.sendMessage(BTTabId, message);
-    
-    // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
-    if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
-        chrome.runtime.sendMessage(
-            {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
-    window.close();
-}
+  let message = {'function': 'storeTabs', 'tag': newTag, 'note': noteText,
+  'windowId': CurrentTab.windowId, 'tabAction': TabAction};
+  let tabsData = [];
+  tabsToStore.forEach(tab => {
+  // Send msg per tab to BT app for processing w text and tag info
+  const tabData = {'url': tab.url, 'title': tab.title, 'tabId': tab.id};
+  tabsData.push(tabData);
+  });
+  message.tabsData = tabsData;
+  chrome.tabs.sendMessage(BTTabId, message);
+  
+  // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
+  if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
+  chrome.runtime.sendMessage(
+  {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
+  window.close();
+  }
 */
 
 // Listen for messages from other components. Currently just to know to close BT popup.
@@ -219,10 +219,10 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     case 'btwindow':
         if (msg.function == 'initializeExtension') {
             console.log("BT window is ready");
-           // window.close();
+            // window.close();
         }
         break;
     }
     console.count("IN:"+msg.type);
 });
-    
+

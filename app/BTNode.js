@@ -71,16 +71,16 @@ class BTNode {
             this._childIds.splice(index, 0, parseInt(id));
     }
     removeChild(id) {
-	let index = this._childIds.indexOf(parseInt(id));
+	    let index = this._childIds.indexOf(parseInt(id));
         if (index > -1)
             this._childIds.splice(index, 1);
     }
 
     // only used in isTag
     _hasWebLinks() {
-	// Calculate on demand since it may change based on node creation/deletion
-	if (this.URL) return true;
-	return this.childIds.some(id => AllNodes[id]._hasWebLinks);
+	    // Calculate on demand since it may change based on node creation/deletion
+	    if (this.URL) return true;
+	    return this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
 
     isTag() {
@@ -112,7 +112,7 @@ class BTNode {
     static displayTagFromTitle(title) {
         // Visible tag for this node. Pull tags out, use url if no tag
         let outputStr = title.replace(/\[\[(.*?)\]\[(.*?)\]\]/gm, (match, $1, $2) =>
-				      {return $2 || $1;});
+				                      {return $2 || $1;});
         return outputStr;
     }
 
@@ -140,8 +140,8 @@ class BTNode {
 
     static findFromURL(url) {
         return AllNodes.find(node =>
-			     (node &&
-			      (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url))));
+			                 (node &&
+			                  (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url))));
     }
 
     static findFromTagPath(tagPath) {
@@ -210,7 +210,7 @@ class BTNode {
         }
         return topNode;
     }
-            
+    
     fullTagPath() {
         // distinguished name for this node
         const myTag = this.isTag() ? this.displayTag : '';
@@ -230,7 +230,7 @@ class BTNode {
                 this._tagPath = this._displayTag;
             return;
         }
-                
+        
         if (this.displayTag == "") {
             this._tagPath = this._displayTag;
             return;
@@ -246,7 +246,7 @@ class BTNode {
             nn._tagPath = parentTag + ":" + nn.displayTag;
         });
     }
-        
+    
     static generateUniqueTagPaths() {
         // same tag can be under multiple parents, generate a unique tagPath for each node
         AllNodes.forEach(function(n) {
@@ -256,5 +256,5 @@ class BTNode {
     }
 
 
-            
+    
 }

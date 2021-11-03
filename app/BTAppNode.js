@@ -9,11 +9,11 @@
 
 class BTAppNode extends BTNode {
 
-/***
- *
- * Basic node accessor functions w associated logic
- *
- ***/
+    /***
+     *
+     * Basic node accessor functions w associated logic
+     *
+     ***/
     constructor(title, parent, text, level) {
         super(title, parent);
         this._text = text;
@@ -116,11 +116,11 @@ class BTAppNode extends BTNode {
                 this.childIds.some(id => AllNodes[id].hasUnopenDescendants()));
     }
 
-/***
- *
- * UI Management
- *
- ***/
+    /***
+     *
+     * UI Management
+     *
+     ***/
 
     HTML() {
         // Generate HTML for this nodes table row
@@ -170,131 +170,131 @@ class BTAppNode extends BTNode {
     }
     
     url() {
-	// Node title as seen when its a search result
-	const reg = new RegExp("\\[\\[(.*?)\\]\\[(.*?)\\]\\]");           // NB non greedy
-	const match = this.title.match(reg);
-	return match ? match[1] : "";
+	    // Node title as seen when its a search result
+	    const reg = new RegExp("\\[\\[(.*?)\\]\\[(.*?)\\]\\]");           // NB non greedy
+	    const match = this.title.match(reg);
+	    return match ? match[1] : "";
     }
 
     getDisplayNode() {
-	// return jquery table row for node
-	return $(`tr[data-tt-id='${this.id}']`)[0];
+	    // return jquery table row for node
+	    return $(`tr[data-tt-id='${this.id}']`)[0];
     }
 
     redisplay(show=false) {
-	// regenerate content
-	const dn = this.getDisplayNode();
-	$(dn).find("span.btTitle").html(this.displayTitle());
-	$(dn).find("span.btText").html(this.displayText());
-	$(dn).find("a").each(function() {				  // reset link click intercept
-	    this.onclick = handleLinkClick;
-	});
-	show && this.showForSearch();					  // reclose if needed
-	if (this.childIds.length)					  // set correctly
-	    $(dn).children('.left').removeClass('childlessTop');
+	    // regenerate content
+	    const dn = this.getDisplayNode();
+	    $(dn).find("span.btTitle").html(this.displayTitle());
+	    $(dn).find("span.btText").html(this.displayText());
+	    $(dn).find("a").each(function() {				  // reset link click intercept
+	        this.onclick = handleLinkClick;
+	    });
+	    show && this.showForSearch();					  // reclose if needed
+	    if (this.childIds.length)					  // set correctly
+	        $(dn).children('.left').removeClass('childlessTop');
     }
     
     showForSearch() {
-	// show this node in the tree cos its the search hit (might be folded)
-	const disp = this.getDisplayNode();
-	if(!$(disp).is(':visible')) {
-	    if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
-	    $(disp).show();						   // jquery node show
-	    this.shownForSearch = true;
-	} 
+	    // show this node in the tree cos its the search hit (might be folded)
+	    const disp = this.getDisplayNode();
+	    if(!$(disp).is(':visible')) {
+	        if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
+	        $(disp).show();						   // jquery node show
+	        this.shownForSearch = true;
+	    } 
     }
 
     unshowForSearch() {
-	// if this node was shown as a search result, now unshow it to get tree back to where it was
-	if (this.shownForSearch) {
-	    const disp = this.getDisplayNode();
-	    if (this.parentId) AllNodes[this.parentId].unshowForSearch();
-	    $(disp).hide();
-	    this.shownForSearch = false;
-	}
+	    // if this node was shown as a search result, now unshow it to get tree back to where it was
+	    if (this.shownForSearch) {
+	        const disp = this.getDisplayNode();
+	        if (this.parentId) AllNodes[this.parentId].unshowForSearch();
+	        $(disp).hide();
+	        this.shownForSearch = false;
+	    }
     }
     
     search(sstr) {
-	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
-	
-	const reg = new RegExp(escapeRegExp(sstr), 'ig');
-	let match = false;
-	const node = this.getDisplayNode();
-	let titleStr;
-	if (reg.test(this.displayTag)) {
-	    titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
-	    $(node).find("span.btTitle").html(titleStr);
-	    match = true;
-	} else if (reg.test(this.url())) {
-	    const hurl = this.url().replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
-	    titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
-	    $(node).find("span.btTitle").html(titleStr);
-	    match = true;
-	}
-	if (reg.test(this._text)) {
-	    // show 125 chars before and after any match 
-	    const index = this._text.search(reg);
-	    const start = Math.max(index - 125, 0);
-	    const len = this._text.length;
-	    const end = Math.min(index + 125, len);
-	    let textStr = this._text.substring(start, end);
-	    textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
-	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
-	    $(node).find("span.btText").html(textStr);
-	    match = true;
-	}
-	if (match)
-	    $(node).find("td").addClass('search');
-	
-	return match;	
+	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
+	    
+	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
+	    let match = false;
+	    const node = this.getDisplayNode();
+	    let titleStr;
+	    if (reg.test(this.displayTag)) {
+	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        $(node).find("span.btTitle").html(titleStr);
+	        match = true;
+	    } else if (reg.test(this.url())) {
+	        const hurl = this.url().replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
+	        $(node).find("span.btTitle").html(titleStr);
+	        match = true;
+	    }
+	    if (reg.test(this._text)) {
+	        // show 125 chars before and after any match 
+	        const index = this._text.search(reg);
+	        const start = Math.max(index - 125, 0);
+	        const len = this._text.length;
+	        const end = Math.min(index + 125, len);
+	        let textStr = this._text.substring(start, end);
+	        textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
+	        textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        $(node).find("span.btText").html(textStr);
+	        match = true;
+	    }
+	    if (match)
+	        $(node).find("td").addClass('search');
+	    
+	    return match;	
     }
 
     static searchNodesToRedisplay = new Set();
     searchLite(sstr) {
-	// search node for regex of /sstr/ig. update its display to show a hit (title or text)
-	
-	const reg = new RegExp(escapeRegExp(sstr), 'ig');
-	let lmatch, rmatch;
-	const node = this.getDisplayNode();
-	// TODO return if not displayed
-	let titleStr;
-	// Look for match in title/topic, url and note
-	if (reg.test(this.displayTag)) {
-	    titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
-	    $(node).find("span.btTitle").html(titleStr);
-	    lmatch = true;
-	}
-	if (reg.test(this.url())) {
-	    // nb don't add span highlighting to url
-	    lmatch = true;
-	}
-	if (reg.test(this.text)) {
-	    let textStr = this.text;
-	    textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
-	    $(node).find("span.btText").html(textStr);
-	    rmatch = true;
-	}
-	
-	if (lmatch)
-	    $(node).find("td.left").addClass('searchLite');
-	if (rmatch)
-	    $(node).find("td.right").addClass('searchLite');
-	
-	// remember which nodes need to be redisplayed when seach ends
-	if (lmatch || rmatch) BTAppNode.searchNodesToRedisplay.add(this.id);
+	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
+	    
+	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
+	    let lmatch, rmatch;
+	    const node = this.getDisplayNode();
+	    // TODO return if not displayed
+	    let titleStr;
+	    // Look for match in title/topic, url and note
+	    if (reg.test(this.displayTag)) {
+	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        $(node).find("span.btTitle").html(titleStr);
+	        lmatch = true;
+	    }
+	    if (reg.test(this.url())) {
+	        // nb don't add span highlighting to url
+	        lmatch = true;
+	    }
+	    if (reg.test(this.text)) {
+	        let textStr = this.text;
+	        textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        $(node).find("span.btText").html(textStr);
+	        rmatch = true;
+	    }
+	    
+	    if (lmatch)
+	        $(node).find("td.left").addClass('searchLite');
+	    if (rmatch)
+	        $(node).find("td.right").addClass('searchLite');
+	    
+	    // remember which nodes need to be redisplayed when seach ends
+	    if (lmatch || rmatch) BTAppNode.searchNodesToRedisplay.add(this.id);
     }
     static redisplaySearchedNodes() {
-	// iterate thru nodes highlighted in search and redisplay
+	    // iterate thru nodes highlighted in search and redisplay
 
-	BTAppNode.searchNodesToRedisplay.forEach((n) => AllNodes[n].redisplay());
-	BTAppNode.searchNodesToRedisplay.clear();
+	    BTAppNode.searchNodesToRedisplay.forEach((n) => AllNodes[n].redisplay());
+	    BTAppNode.searchNodesToRedisplay.clear();
     }
 
-/***
- *
- * Extension outbound interactions - calls to have extension do stuff
- *
- ***/
+    /***
+     *
+     * Extension outbound interactions - calls to have extension do stuff
+     *
+     ***/
 
     showNode() {
         // highlight this nodes associated tab or window
@@ -364,7 +364,7 @@ class BTAppNode extends BTNode {
             // no grouping implemented for this case, 
         }
     }
-        
+    
 
     openAll() {
         // open this node and any children. NB indexing taken care of in repositionTabs
@@ -461,12 +461,12 @@ class BTAppNode extends BTNode {
         });
     }
 
-  
-/***
- *
- * Org suppport
- *
- ***/
+    
+    /***
+     *
+     * Org suppport
+     *
+     ***/
 
     orgDrawers() {
         // generate any required drawer text
@@ -509,7 +509,7 @@ class BTAppNode extends BTNode {
         const padding = Math.max(width - current.length - tags.length, 1);
         return " ".repeat(padding) + tags;
     }
-        
+    
 
     orgText() {
         // Generate org text for this node
@@ -521,7 +521,7 @@ class BTAppNode extends BTNode {
         outputOrg += this.planning;                                     // add in any planning rows
         outputOrg += this.orgDrawers();                                 // add in any drawer text
         outputOrg += this._text ? (this._text + "\n") : "";
-            
+        
         return outputOrg;
     }
 
@@ -564,7 +564,7 @@ class BTAppNode extends BTNode {
      *
      ***/
 
-        
+    
     static _orgTextToHTML(txt) {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
@@ -700,15 +700,15 @@ class BTAppNode extends BTNode {
 
 
 class BTLinkNode extends BTAppNode {
-/***
- *
- *  Specific link type node for links embedded in para text, not as BT created headlines.
- *  they show as children in the tree but don't generate a new node when the org file is written out,
- *  unless they are edited and given descriptive text, 
- *  in which case they are written out as nodes and will be promoted to BTNodes 
- *  the next time the file is read.
- *
- ***/
+    /***
+     *
+     *  Specific link type node for links embedded in para text, not as BT created headlines.
+     *  they show as children in the tree but don't generate a new node when the org file is written out,
+     *  unless they are edited and given descriptive text, 
+     *  in which case they are written out as nodes and will be promoted to BTNodes 
+     *  the next time the file is read.
+     *
+     ***/
 
     
     constructor(title, parent, text, level, protocol) {
@@ -732,9 +732,9 @@ class BTLinkNode extends BTAppNode {
 
     HTML() {
         // was limited to http links, internal org links will not work but file links do
-       // if (this.protocol.match('http'))
-            return super.HTML();
-       // return "";
+        // if (this.protocol.match('http'))
+        return super.HTML();
+        // return "";
     }
 
     isTag() {
@@ -743,11 +743,11 @@ class BTLinkNode extends BTAppNode {
     }
 
     /*
-    get displayTag() {
-        // No display tag for linknodes cos they should never be a tag
-        return "";
-    }
-*/
+      get displayTag() {
+      // No display tag for linknodes cos they should never be a tag
+      return "";
+      }
+    */
 }
 
 
@@ -780,4 +780,4 @@ window.addEventListener('message', event => {
         Handlers[event.data.function](event.data);
     }
 });
-    
+
