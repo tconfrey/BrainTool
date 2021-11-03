@@ -125,12 +125,12 @@ class BTAppNode extends BTNode {
     HTML() {
         // Generate HTML for this nodes table row
         let outputHTML = "";
-	let childlessTop = "";
+	    let childlessTop = "";
         outputHTML += `<tr data-tt-id='${this.id}`;
         if (this.parentId || this.parentId === 0)
             outputHTML += `' data-tt-parent-id='${this.parentId}`;
-	else if ((this.level == 1) && (this.childIds.length == 0))
-	    childlessTop = 'childlessTop';
+	    else if ((this.level == 1) && (this.childIds.length == 0))
+	        childlessTop = 'childlessTop';
 	    
         outputHTML += `'><td class='left ${childlessTop}'><span class='btTitle'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;

@@ -100,8 +100,9 @@ function windowOpen() {
     });
 }
 
+let Guess, Topics, SaveAndClose;
 function popupOpen(tab) {
-    // Get data from storage and launch popup. Topic Selector if new page, Card editor if not
+    // Get data from storage and launch popup w card editor, either existing node or new
     CurrentTab = tab;
     const messageElt = document.getElementById('message');
     const headingElt = document.getElementById("heading");
@@ -110,45 +111,41 @@ function popupOpen(tab) {
     
     // Pull data from local storage, prepopulate and open selector or card
     chrome.storage.local.get(
-        ['tags', 'currentTabId', 'currentTag', 'currentText',
-         'windowTopic', 'groupTopic', 'mruTopic', 'mruTime'],
+        ['tags', 'currentTabId', 'currentTag', 'currentText', 'currentTitle',
+         'windowTopic', 'groupTopic', 'mruTopic', 'mruTime', 'saveAndClose'],
         data => {
 
             // BT Page, just open card
             if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
-                TopicCard.setup(data.currentTag, data.currentTag, tab, data.currentText, saveCB);
+                TopicCard.setupExisting(data.currentTag, tab, data.currentText, data.currentTitle, saveCardCB);
                 return;
             }
 
-            // New page. Guess at topic and open selector 
-            let guess = null;
+            // New page. Guess at topic and open card
+            Topics = data.tags;
             if (data.windowTopic || data.groupTopic || data.mruTopic) {
                 // pre-fill to Window or Group topic, or mru if less than 3 mins old
                 const now = new Date();
                 const mruAge = data.mruTime ? (now - new Date(data.mruTime)) : 0;
-                guess = (data.groupTopic || data.windowTopic ||
+                Guess = (data.groupTopic || data.windowTopic ||
                          ((mruAge < 180000) ? data.mruTopic : ''));
             }
-            TopicSelector.setup(guess, data.tags, selectedCB);
+            SaveAndClose = data.saveAndClose;                 // remembered default for selector
+            TopicCard.setupNew(tab, cardCompletedCB);
         });
 }
 
-function selectedCB(e) {
-    // topic has been selected. Close selector and open topic card
-    TopicSelector.close();
-    let dn = e?.selectorData?.dn || "";
-    const textEntered = e?.selectorData?.topicText || "";
-
-    if (!dn)
-        dn = textEntered;                                         // new topic so no dn
-    else {
-        const colonIndex = textEntered.indexOf(":");
-        if (colonIndex > 0) dn += textEntered.substr(colonIndex); // show new subtopic and/or TODO
-    }
-    TopicCard.setup(textEntered, dn, CurrentTab, "", saveCB);
+let CardData;
+function cardCompletedCB(e) {
+    // card filled in, now open topic selector. NB wait for key up so as to not autoselect
+    CardData = e.data;
+    document.addEventListener('keyup', function handler(e) {
+        this.removeEventListener('keyup', handler);
+        TopicSelector.setup(Guess, Topics, CardData, SaveAndClose, saveCardCB);
+    });
 }
 
-function saveCB(e, saveAndClose = false) {
+function saveCardCB(e) {
     // save topic card for page
     // Call out to BT app which handles everything
     const data = e.data;
@@ -157,18 +154,18 @@ function saveCB(e, saveAndClose = false) {
     const url = data.url;
     const newTopic = data.newTopic;
     const allTabs = data.saveAll;
-    const tabsToStore = allTabs ? Tabs : new Array(CurrentTab); // dropping AllTabs for now
-    const action = saveAndClose ? 'CLOSE' : 'GROUP';            // dropping STICK
+    const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
+    const action = data.close ? 'CLOSE' : 'GROUP';              // dropping STICK
     const BTTabId = BackgroundPage.BTTab;                       // extension global for bttab
-    if (newTopic && (allTabs || (url && title))) {
-        // neww a topic and either an applied url/title or alltabs
+    if (allTabs || (url && title)) {
+        // need a topic and either an applied url/title or alltabs
         
         let message = {'function': 'storeTabs', 'tag': newTopic, 'note': text,
                        'windowId': CurrentTab.windowId, 'tabAction': action};
         let tabsData = [];
         tabsToStore.forEach(tab => {
-            // Send msg per tab to BT app for processing w text and tag info
-            const tabData = {'url': tab.url, 'title': tab.title, 'tabId': tab.id};
+            // Send msg per tab to BT app for processing w text, topic and title info
+            const tabData = {'url': tab.url, 'title': allTabs ? tab.title : title, 'tabId': tab.id};
             tabsData.push(tabData);
         });
         message.tabsData = tabsData;

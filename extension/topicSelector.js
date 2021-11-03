@@ -10,19 +10,28 @@ const TopicSelector = (() => {
     const TopicsElt = document.getElementById('currentTopics');
     const TopicElt = document.getElementById('topic');
     const SelectorElt = document.getElementById("topicSelector");
+    const CardElt = document.getElementById("topicCard");
+    const ButtonDiv = SelectorElt.querySelector('#buttonDiv');
+//    const SaveBtn = SelectorElt.querySelector("#save");
+//    const SaveCloseBtn = SelectorElt.querySelector("#saveAndClose");
     let AwesomeWidget;
     let Defaulted = false;                  // capture whether the topic was defaulted to window topic
     let KeyCount = 0;
     let SelectionCB;
+    let CardData;
+    let SaveAndClose = true;
 
 
-    function setup (guess, topicsMap, selectionCB) {
+    function setup (guess, topicsMap, cardData, saveAndClose, selectionCB) {
         // configure topic selector display. main entry point to component
         TopicsElt.innerHTML = generateTopicMap(topicsMap);
+        SaveAndClose = saveAndClose;
+        if (saveAndClose)
+            document.getElementById("saveOption").checked = true;
         const topics = topicsMap.map(t => t.name);
 
         if (guess) {
-            TopicElt.textContent = guess;
+            TopicElt.value = guess;
             Defaulted = true;
         }
         AwesomeWidget = new Awesomplete(TopicElt, {
@@ -30,7 +39,12 @@ const TopicSelector = (() => {
         });
         TopicElt.addEventListener('awesomplete-highlight', updateSelection);
         TopicElt.addEventListener('awesomplete-close', widgetClose);
+        TopicElt.addEventListener('keydown', handleTopicKeyDown);
+        TopicElt.addEventListener('keyup', handleTopicKeyUp);
+//        SaveBtn.addEventListener('click', (event) => topicSelected(event));
+//        SaveCloseBtn.addEventListener('click', (event) => topicSelected(event, true));
         SelectionCB = selectionCB;                   // save for later
+        CardData = cardData;
         
         const topicElts = document.querySelectorAll('.topic');
         topicElts.forEach(elt => elt.addEventListener('click', e => selectTopic(e)));
@@ -38,14 +52,12 @@ const TopicSelector = (() => {
         const caretElts = document.querySelectorAll('.caret.closed');
         caretElts.forEach(elt => elt.addEventListener('click', e => toggleOpen(e)));
 
+        CardElt.style.display = 'none';
         SelectorElt.style.display = 'block';
+//        ButtonDiv.style.display = 'Flex';
+        TopicElt.focus();
     }
 
-    function close() {
-        // close this widget
-        SelectorElt.style.display = 'none';
-    }
-    
     function generateTopicMap(topicsArray) {
         // given array of {name:"tag", level:2} generate the display string (name "tag1:tag1" allowed)
         const openCaret = `<span class='caret open' style='cursor: auto; opacity: 25%'>&nbsp;</span>`;
@@ -102,12 +114,10 @@ const TopicSelector = (() => {
         // select this row based on click. copy into widget and trigger appropriate events
         const topic = e.target;
         const text = topic.textContent;
-        const widget = document.getElementById('topic');
-        widget && (widget.value = text);
-        widget.focus();
+        TopicElt && (TopicElt.value = text);
+        TopicElt.focus();
         AwesomeWidget.evaluate();
         AwesomeWidget.select();
-        topicSelected(e);
     }
 
     function toggleOpen(e) {
@@ -131,7 +141,7 @@ const TopicSelector = (() => {
         }
     }
 
-    TopicElt.onkeydown = function(e) {
+    function handleTopicKeyDown(e) {
         // special key handling and resetting that selection not yet made
         if (e.key == ":") {
             AwesomeWidget.select();
@@ -145,15 +155,16 @@ const TopicSelector = (() => {
 
     function topicSelected(e) {
         // topic selected in widget
-        const text = TopicElt.value;
+        const topic = TopicElt.value;
         const selectedRow = TopicsElt.querySelector('.selected');
         const dn = selectedRow?.getAttribute('dn');
-        const data = {topicText : text, dn : dn};
-        e.selectorData = data;
+        CardData.newTopic = topic; CardData.dn = dn;
+        CardData.close = SaveAndClose;
+        e.data = CardData;
         SelectionCB(e);
     }
 
-    TopicElt.onkeyup = function(e) {
+    function handleTopicKeyUp(e) {
         // update table as user types to show option and its parents, or be done
         
         if (e.key == "Enter") {
@@ -177,6 +188,8 @@ const TopicSelector = (() => {
         // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
         if (Defaulted && (KeyCount < 2) && (e.key == "Backspace")) {
             TopicElt.value = "";
+            AwesomeWidget.evaluate();
+            return;
         }
         KeyCount++;
 
@@ -205,8 +218,26 @@ const TopicSelector = (() => {
             showParent(prev);
     }
 
+    function saveOptionChanged(e) {
+        // Save & Group <-> Save & Close
+
+        SaveAndClose = e.currentTarget.checked;
+        TopicElt.focus();
+        chrome.storage.local.set({'saveAndClose': SaveAndClose});
+    }
+    
+    document.getElementById('saveOption').addEventListener('change', e => saveOptionChanged(e));
+    document.getElementById('selectorClose').addEventListener('click', e => window.close());
+
+    // This messy stuff is cos the slider widget i used didn't show focus properly
+    document.getElementById('saveOption')
+        .addEventListener('focus', e =>
+                          document.getElementById('saveOptionDiv').classList.add('focused'));
+    document.getElementById('saveOption')
+        .addEventListener('blur', e =>
+                          document.getElementById('saveOptionDiv').classList.remove('focused'));
+
     return {
-        setup: setup,
-        close: close
+        setup: setup
     }
 })();

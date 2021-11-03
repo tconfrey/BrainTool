@@ -32,11 +32,25 @@
     
     <!-- Topic selector screen -->
     <div id="topicSelector" style="display:none">
-      <label for="topic">Topic:</label>
-      <input type="text" id="topic" size="36" autofocus>
+      <img id="selectorClose" type="image" alt="Close" title="Close" class="split_image"
+               src="resources/close.png"  height="17" width="20">
+      
+      <div class="switch-button2" id="saveOptionDiv">
+        <input class="switch-button2-checkbox" id="saveOption" type="checkbox"></input>
+        <label class="switch-button2-label" for=""><span class="switch-button2-label-span">Save & Group</span></label>
+      </div>
 
-      <h2 style="margin-top:2rem">Topic Tree:</h2>
-      <div id="currentTopics"></div>
+      <label for="topic" id="topicSelectorLabel">Topic:</label>
+      <input type="text" id="topic" size="38" autofocus>
+      <!--
+          <div id="buttonDiv">
+            <button id="saveAndClose" tabindex="5">Save & Close Pages(s)</button>
+            <button id="save" tabindex="4" style="width:30%">Save & Group</button>
+          </div>
+          -->
+          <hr/>
+          <h2 id="topicLabel">Topic Tree:</h2>
+          <div id="currentTopics"></div>
     </div>
 
 
@@ -47,31 +61,35 @@
 
       <table>
         <tr id="dn">
-          <td style="padding-bottom: 2px">
+          <td style="width:40px">Topic:</td>
+          <td>
               <span id="distinguishedName"></span>
           </td>
         </tr>
-        <tr>
-          <td>            
-            <div id="all" >
-              <input type="checkbox" id="selectAll" name="selectAll" value="All">
-              <label for="selectAll" id="allLabel">Apply to all unsaved pages in window</label>
+        <tr id="allTabs">
+          <td style="width:40px"></td>
+          <td style="padding-bottom: 1.6em" >
+            <div class="switch-button1" id="selectAllDiv">
+              <input class="switch-button1-checkbox" id="selectAll" type="checkbox" tabIndex="1"></input>
+              <label class="switch-button1-label" for=""><span class="switch-button1-label-span">Save this page</span></label>
             </div>
           </td>
         </tr> 
-        <tr> 
-          <td><input type="text" id="title-text" class="inactive" tabindex="1" value='title'></td>
-        </tr>
-        <tr> 
-          <td><textarea id="title-url" tabindex="2" disabled >url</textarea></td>
+        <tr >
+          <td style="width:40px">Title:</td>
+          <td><input type="text" id="title-text" class="inactive" tabindex="2" value='title'></td>
         </tr>
         <tr>
-          <td><textarea id="text-text" tabindex="3" class="inactive">Note (or just hit Enter)</textarea></td>
+          <td style="width:40px">URL:</td>
+          <td><textarea id="title-url"  disabled >url</textarea></td>
+        </tr>
+        <tr>
+          <td colspan="2"><textarea id="text-text" tabindex="3" class="inactive">Note (or just hit Enter)</textarea></td>
         </tr>
       </table>
-      <div class="buttonDiv">
-        <button id="save" tabindex="4" style="width:30%">Save Page(s)</button>
-        <button id="saveAndClose" tabindex="5">Save & Close</button>
+      <div id="buttonDiv">
+        <button id="saveAndClose" tabindex="4">Save & Close</button>
+        <button id="save" tabindex="5" style="width:30%">Save & Group</button>
       </div>
     </div>
 

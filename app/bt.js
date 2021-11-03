@@ -666,7 +666,7 @@ function positionNode(dragNode, dropParentId, dropBelow) {
 
 // Handle callbacks on node folding, update backing store
 function rememberFold() {
-    // Don't want to write file too often so wait a minute after last change for full save
+    // Don't want to write file too often so wait a minute before saving
     // and a second for local/fast save
     
     if (!rememberFold.fastWriteTimer)
@@ -808,7 +808,7 @@ function storeTabs(data) {
     const tabAction = data.tabAction;
 
     // process tag and add new if doesn't exist    
-    const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString);
+    const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString || "Scratch");
     const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
     const ttParent = $("table.treetable").treetable("node", parentNode.id);
     const tabsData = data.tabsData.reverse();
@@ -822,13 +822,22 @@ function storeTabs(data) {
         const url = tabData.url;
         const title = cleanTitle(tabData.title);
         const tabId = tabData.tabId;
-        if (BTAppNode.findFromTab(tabId)) return;            // ignore tabs we already have assigned
-        const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
-                                      note || "", parentNode.level + 1);
-        newNodes.push(newNode);
-        if (keyword) newNode.keyword = keyword;
-        newNode.tabId = tabId;
-        $("table.treetable").treetable("loadBranch", ttParent, newNode.HTML());
+        let node = BTAppNode.findFromTab(tabId);
+        if (!node) {
+            node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
+                                 note || "", parentNode.level + 1);
+            node.tabId = tabId;
+            if (keyword) node.keyword = keyword;
+            $("table.treetable").treetable("loadBranch", ttParent, node.HTML());
+        } else {
+            node.title = `[[${url}][${title}]]`;
+            node.text = note || "";
+            if (keyword) node.keyword = keyword;
+            node.redisplay();
+            let tabData = {tabId: tabId, windowId: windowId, groupId: 0};
+            tabActivated(tabData);    // set local storage correctly for any subsequent popup open
+        }
+        newNodes.push(node);
     });
 
     // sort tree based on position in parents child array
@@ -851,7 +860,7 @@ function storeTabs(data) {
         // w window grouping either move to existing assigned window or just remember this one
         if (parentNode.windowId || newNodes.length == 1) {
             newNodes.forEach(node => node.group());
-            newNodes[0].showNode();
+            newNodes[0] && newNodes[0].showNode();
         }
         else
             parentNode.windowId = windowId;
@@ -863,7 +872,7 @@ function storeTabs(data) {
             if (tabAction == 'GROUP' || (windowId == parentNode.windowId))
                 // even if 'stick' should group when in same window, confusing otherwise.
                 newNodes.forEach(node => node.group());
-            newNodes[0].showNode();
+            newNodes[0] && newNodes[0].showNode();
         }
         else {
             // Tell bg to create a new TG for Topic
@@ -933,9 +942,9 @@ function tabActivated(data) {
     let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
                    'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
     if (node) 
-        m1 = {'currentTag': node.tagPath, 'currentText': node.text};
+        m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
     else
-        m1 = {'currentTag': '', 'currentText': ''};
+        m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
     
     // Set Highlight to this node if in tree. see also similar code in keyPressHandler
