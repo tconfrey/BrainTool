@@ -250,13 +250,14 @@ class BTAppNode extends BTNode {
     }
 
     static searchNodesToRedisplay = new Set();
-    searchLite(sstr) {
+    extendedSearch(sstr) {
 	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
 	    
 	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
 	    let lmatch, rmatch;
 	    const node = this.getDisplayNode();
-	    // TODO return if not displayed
+        if (!$(node).is(":visible")) return;                 // return if not displayed
+        
 	    let titleStr;
 	    // Look for match in title/topic, url and note
 	    if (reg.test(this.displayTag)) {
@@ -264,7 +265,7 @@ class BTAppNode extends BTNode {
 	        $(node).find("span.btTitle").html(titleStr);
 	        lmatch = true;
 	    }
-	    if (reg.test(this.url())) {
+	    if (!lmatch && reg.test(this.url())) {
 	        // nb don't add span highlighting to url
 	        lmatch = true;
 	    }

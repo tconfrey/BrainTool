@@ -36,15 +36,12 @@
         <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png" style="cursor: pointer;" onClick="toggleMenu(event)">
         <div id="search"  style="cursor:default">
           <span>Search:</span>
-          <input id="search_entry" type="text" size="20" value="" 
-		 onkeyup="handleSearchKeyUp(event)" onkeypress="search(event)"
-		 onFocus="enableSearch(event)"
-		 onFocusOut="disableSearch(event)" autocomplete="off" >
-	  <span id="search_buttons" style="cursor: pointer; display:none">
-	    <span onmousedown="searchButton(event, 'down')" title="Next Match">&darr;</span>
-	    <span onmousedown="searchButton(event, 'up')" title="Previous Match">&uarr;</span>
-	    <span onmousedown="searchButton(event, 'exit')" title="Exit Search">X</span>
-	  </span>
+          <input id="search_entry" type="text" size="20" value="" autocomplete="off" >
+	      <span id="search_buttons" style="cursor: pointer; display:none">
+	        <span onmousedown="searchButton(event, 'down')" title="Next Match">&darr;</span>
+	        <span onmousedown="searchButton(event, 'up')" title="Previous Match">&uarr;</span>
+	        <span onmousedown="searchButton(event, 'exit')" title="Exit Search">X</span>
+	      </span>
         </div>
         <div id="stats_row" style="cursor:default">
           <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
@@ -65,17 +62,17 @@
           <button id="importBookmarkButton" class="important_button" style="display:none" onClick="importBookmarks()">Import Bookmarks</button>
           <button id="openOptionsButton" class="important_button" onClick="toggleOptions()">Options</button>
         </div>
-	<div id="specialOffer" style="display:none; text-align: center; font-size:18px; margin-top: -10px; font-weight: bold;">
-	  <a href="https://braintool.org/pricing" style="color: #518651" target="_blank">Special subscription offer!</a>
-	</div>
-	<div id="openingTips" style="display:none">
+	    <div id="specialOffer" style="display:none; text-align: center; font-size:18px; margin-top: -10px; font-weight: bold;">
+	      <a href="https://braintool.org/pricing" style="color: #518651" target="_blank">Special subscription offer!</a>
+	    </div>
+	    <div id="openingTips" style="display:none">
           <p>- Save any web page by clicking the BT icon or with <span class="alt_opt">Option</span>-b.</p>
           <p>- NB The icon may hide under the jigsaw icon - browser top right.</p>
 	      <p>- Start by importing and organizing your bookmarks or go through open tabs and assign them to Topics.</p>
           <p>- The initial tree shows some example Topics. Build on those or delete anything you don't want by selecting it and hitting the trash button.</p>
           <p>- This Message board overlay closes/opens by clicking the triangle, top left. Random tips will be shown here. All tips are in the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> </p>
-	</div>
-	<p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
+	    </div>
+	    <p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
         <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
         
         <div id="options" class="control_overlay" style="display: none">
@@ -84,14 +81,14 @@
           <table class="overlay_table options_table" style="font-size:15px; text-align:center">
             <tr><td colspan="1">
                 <div class="dropdown">
-		  
+		          
                   <button class="button_text general_button dropdown_button">
-		    <span class="dropdown_text">Import From:</span>
-		    <span class="button_image_wrapper">
+		            <span class="dropdown_text">Import From:</span>
+		            <span class="button_image_wrapper">
                       <img class="split_image" height="12" width="12" src="resources/expanded.png">
-		    </span>		    
+		            </span>		    
                   </button>
-		  
+		          
                   <div class="dropdown_content">                    
                     <div onClick="importBookmarks()">
                       <label for="bookmark_upload" class="button_text">Browser Bookmarks</label>
@@ -112,23 +109,23 @@
                   </div>
                 </div>
 
-            </td>
+              </td>
               <td colspan="1">
                 <div class="dropdown">
-		  
+		          
                   <button class="button_text general_button dropdown_button">
-		    <span class="dropdown_text">Export To:</span>
-		    <span class="button_image_wrapper">
+		            <span class="dropdown_text">Export To:</span>
+		            <span class="button_image_wrapper">
                       <img class="split_image" height="12" width="12" src="resources/expanded.png">
-		    </span>		    
+		            </span>		    
                   </button>
-		  
-		  <div class="dropdown_content">
+		          
+		          <div class="dropdown_content">
                     <div onClick="exportBookmarks()">
-		      <label class="button_text">Browser Bookmarks</label>
+		              <label class="button_text">Browser Bookmarks</label>
                     </div>
 
-		    <div style="border-top: solid 1px #ddd">
+		            <div style="border-top: solid 1px #ddd">
                       <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left;" onclick="exportOrgFile()">Local Org-mode file</a>
                     </div>
                   </div>
@@ -136,7 +133,7 @@
 
             </td></tr>
             <tr><td style="text-align:left">BT Topics map to:</td>
-            <td colspan="1">
+              <td colspan="1">
                 <div class="toggle-radio">
                   <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
                   <label class="button_text" for="default_Option1">Windows</label>
@@ -159,29 +156,29 @@
               </td>
             </tr>          
             <tr class="subscription_buttons">
-	      <td>
+	          <td>
                 <p style="margin:0px; float:left; padding-bottom:0px">Upgrade to <a href="https://braintool.org/pricing" target="_blank">Premium</a>:</p>		
-            </td><td></td></tr>
+              </td><td></td></tr>
             <tr class="subscription_buttons">
-	      <td style="padding-top:0px; padding-bottom:0px">
+	          <td style="padding-top:0px; padding-bottom:0px">
                 <button id="annual_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="createSubscription(Annual)">$40/Yr</button>
               </td>
-	      <td style="padding-top:0px; padding-bottom:0px">
+	          <td style="padding-top:0px; padding-bottom:0px">
                 <button id="monthly_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="createSubscription(Monthly)">$3.99/Mo</button>
-	      </td>
-	    </tr>
-	    <tr id="portal_row" style="display:none">
-	      <td colspan="2">
-		<a id="portal_link" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
-	      </td>
-	    </tr>
+	          </td>
+	        </tr>
+	        <tr id="portal_row" style="display:none">
+	          <td colspan="2">
+		        <a id="portal_link" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
+	          </td>
+	        </tr>
             <tr class="subscription_buttons" ><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
                 <i>Coupons applied at checkout</i>
             </td></tr>
             <tr><td colspan="2" style="padding-top:0px">
                 <hr style="margin-bottom: 0px"/>
             </td></tr>
-	    
+	        
             <tr><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
                 <i>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</i>
             </td></tr>
@@ -270,13 +267,13 @@
       <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" title="Fewer tools" style="display:none"
            src="resources/closeLeft.png"  height="22" width="10">
       <span id="otherButtons" style="display: none;">
-	<img id="move" type="image" alt="Move" title="Move"
+	    <img id="move" type="image" alt="Move" title="Move"
              src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
-	<img id="outdent" type="image" alt="Outdent" title="Outdent"
+	    <img id="outdent" type="image" alt="Outdent" title="Outdent"
              src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
-	<img id="addChild" type="image" alt="add Child" title="Add Child Topic"
+	    <img id="addChild" type="image" alt="add Child" title="Add Child Topic"
              src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
-	<img id="todo" alt="ToDo" onClick="toDo(event)" title="ToDo"
+	    <img id="todo" alt="ToDo" onClick="toDo(event)" title="ToDo"
              src="resources/done.png"  height="22" width="22">
       </span>
       <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
