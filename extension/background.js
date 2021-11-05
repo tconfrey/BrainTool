@@ -264,6 +264,7 @@ function suspendExtension() {
 function updateBTIcon(text, title, color) {
     // utility fn called when BT is opened or closed to update icon appropriately
 
+    // set for each tab to override previous tab-specific setting
     chrome.tabs.query({}, (tabs) =>
 		              {
 			              tabs.forEach((tab) => {
@@ -275,6 +276,14 @@ function updateBTIcon(text, title, color) {
 				                  {'color' : color, 'tabId': tab.id});
 			              });
 		              });
+
+    // set across all tabs
+	chrome.browserAction.setBadgeText(
+		{'text' : text}, () => check());
+	chrome.browserAction.setTitle(
+		{'title' : title});
+	chrome.browserAction.setBadgeBackgroundColor(
+		{'color' : color});
 }
 
 function openTab(msg, sender, tries=0) {
