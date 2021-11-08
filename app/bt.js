@@ -1559,6 +1559,7 @@ function groupingUpdate(from, to) {
 let ReverseSearch = false;
 let SearchOriginId = 0;
 $("#search_entry").on("keyup", search);
+$("#search_entry").on("keydown", searchOptionKey);
 $("#search_entry").on("focus", enableSearch);
 $("#search_entry").on("focusout", disableSearch);
 function enableSearch(e) {
@@ -1636,10 +1637,20 @@ function searchButton(e, action) {
 	
     return false;    
 }
+function searchOptionKey(event) {
+    // swallow keydown events for opt-s/r so they don't show in input. NB keyup is still
+    // triggered and caught by search below
+
+    if (event.altKey && (event.code == "KeyS" || event.code == "KeyR")) {
+        let sstr = $("#search_entry").val();
+        event.stopPropagation();
+        event.preventDefault();
+    }
+}
 
 let ExtendedSearchCB = null;                                  // callback to perform searchlite 
 function search(keyevent) {
-    // called on keypress for search_entry, could be Search or Reverse-search,
+    // called on keyup for search_entry, could be Search or Reverse-search,
     // key is new letter or opt-s/r (search for next) or del 
 
     if (keyevent.code == "Escape") {
@@ -1664,8 +1675,6 @@ function search(keyevent) {
 
     // opt-s/r : drop that char code and go to next match
     if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
-        sstr = sstr.slice(0, -1);
-	    $("#search_entry").val(sstr);
 	    next = true;
 	    ReverseSearch = (keyevent.code == "KeyR");
 	    keyevent.buttonNotKey || keyevent.stopPropagation();
@@ -1712,9 +1721,10 @@ function search(keyevent) {
 	    let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
 	    if (highlight) highlight.scrollIntoView({'inline' : 'center'});
 	    node.getDisplayNode().scrollIntoView({block: 'center'});
+        
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
-	    ExtendedSearchCB = setTimeout(() => extendedSearch(0, 50, 50, sstr, node), 200);
+	    ExtendedSearchCB = setTimeout(() => extendedSearch(0, sstr, node), 200);
     } else {
 	    $("#search_entry").addClass('failed');
 	    $("tr.selected").removeClass('selected');
@@ -1723,10 +1733,24 @@ function search(keyevent) {
     return (!next);                                           // ret false to prevent entry
 }
 
-function extendedSearch(start, batchSize, delay, sstr, selectedNode) {
+function extendedSearch(start, sstr, selectedNode) {
     // do extended search in batches which can be stopped on the next key press
-    const end = start + batchSize;
-	AllNodes.slice(start, end).forEach((n) => {
+    const batchSize = parseInt(AllNodes.length / 40);
+    const delay = 50;                                         // mSec delay between batches
+    let nodesToSearch, end;
+    if (start == 0) {
+        // on first pass search visible nodes. make array of BTNodes
+        nodesToSearch = $("#content tr:visible")
+            .map(function (){return $(this).attr("data-tt-id");})
+            .get().map((e) => AllNodes[parseInt(e)]);
+        end = 1;
+    } else {
+        // else carve out the next batch from AllNodes
+        end = start + batchSize;
+        nodesToSearch = AllNodes.slice(start, end);
+    }
+
+	nodesToSearch.forEach((n) => {
 		if (!n) return;
 		if (n == selectedNode) return;                        // already highlighted as selection
 		n.extendedSearch(sstr);
@@ -1735,8 +1759,7 @@ function extendedSearch(start, batchSize, delay, sstr, selectedNode) {
     // set up next batch if we're not done
     if (end < AllNodes.length) {
 	    ExtendedSearchCB = setTimeout(() =>
-            extendedSearch(end, batchSize, delay, sstr, selectedNode),
-            delay);
+            extendedSearch(end, sstr, selectedNode), delay);
     }
     else
         ExtendedSearchCB = null;
@@ -1930,7 +1953,7 @@ function keyUpHandler(e) {
 
     // space = open tab/window
     if (code === "Space") {
-        node.showNode();
+        node.openTab();
         e.preventDefault();
     }
 

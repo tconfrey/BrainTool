@@ -123,7 +123,10 @@
         this.settings.onNodeExpand.apply(this);
       }
 
-      if ($(this.row).is(":visible")) {
+        // Tony - was
+        // if ($(this.row).is(":visible")) {
+        // see https://github.com/ludo/jquery-treetable/issues/144
+      if (!this.row[0].hidden) {
         this._showChildren();
       }
 
