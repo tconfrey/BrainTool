@@ -84,8 +84,17 @@ function initializeFirebase() {
 	    return;
     }
     firebaseConfig.apiKey = FBKey;
-    const firebaseApp = firebase.initializeApp(firebaseConfig);
-    FBDB = firebaseApp.firestore();
+
+    try {
+        const firebaseApp = firebase.initializeApp(firebaseConfig);
+        FBDB = firebaseApp.firestore();
+    }
+    catch(error) {
+	    var errorCode = error.code;
+	    var errorMessage = error.message;
+        console.log("ERROR in initializeFirebase:");
+	    console.log(errorCode, errorMessage);
+    }
 }
 
 async function signIn() {
@@ -151,25 +160,30 @@ async function subscribe(productPrice) {
 	    success_url: window.location.href,
 	    cancel_url: window.location.href
     };
-    const docRef = await FBDB
-	      .collection('customers')
-	      .doc(BTId)
-	      .collection('checkout_sessions')
-	      .add(checkoutSession);
-    
-    // Wait for the CheckoutSession to get attached by the fb extension
-    docRef.onSnapshot((snap) => {
-	    const { error, sessionId } = snap.data();
-	    if (error) {
-	        alert(`An error occured: ${error.message}`);
-	    }
-	    if (sessionId) {
-	        // We have a session, let's redirect to Checkout
-	        // Init Stripe
-	        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-	        stripe.redirectToCheckout({ sessionId });
-	    }
-    });
+    try {
+        const docRef = await FBDB
+	          .collection('customers')
+	          .doc(BTId)
+	          .collection('checkout_sessions')
+	          .add(checkoutSession);
+        
+        // Wait for the CheckoutSession to get attached by the fb extension
+        docRef.onSnapshot((snap) => {
+	        const { error, sessionId } = snap.data();
+	        if (error) {
+	            alert(`An error occured: ${error.message}`);
+	        }
+	        if (sessionId) {
+	            // We have a session, let's redirect to Checkout
+	            // Init Stripe
+	            const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+	            stripe.redirectToCheckout({ sessionId });
+	        }
+        });
+    } catch(e) {
+        console.error("Error in subscribe w ", productPrice);
+        console.log(JSON.stringify(e));
+    }
 }
 
 async function getStripePortalURL() {
