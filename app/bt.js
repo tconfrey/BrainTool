@@ -97,6 +97,9 @@ async function launchApp(msg) {
         setTimeout(closeMenu, 3000);
     }
 
+    // scroll to top
+    $('html, body').animate({scrollTop: '0px'}, 300);
+
     // If GDrive connection was previously established, re-set it up on this startup
     if (getMetaProp('BTGDriveConnected') == 'true') {
         GDriveConnected = true;
@@ -1609,6 +1612,7 @@ function disableSearch(e = null) {
         node = AllNodes[SearchOriginId || 1];
         displayNode = node.getDisplayNode();
         $(displayNode).addClass('selected');
+	    displayNode.scrollIntoView({block: 'center'});
     }
     
     if (ExtendedSearchCB)                                     // clear timeout if not executed
