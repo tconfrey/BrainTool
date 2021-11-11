@@ -1774,9 +1774,11 @@ function extendedSearch(start, sstr, selectedNode) {
  * Keyboard event handlers
  * 
  ***/
-// prevent default space/arrow key scrolling
+// prevent default space/arrow key scrolling on table (not in card edit fields)
 window.addEventListener("keydown", function(e) {
-    if ($("#search_entry").is(":focus"))
+    if ($("#search_entry").is(":focus") ||
+        $("#title-text").is(":focus") ||
+        $("#text-text").is(":focus"))
 	    return;
     if(["ArrowUp","ArrowDown","Space"].indexOf(e.code) > -1) {
         e.preventDefault();
@@ -1964,7 +1966,7 @@ function keyUpHandler(e) {
 };
 
 function handleEditCardKeyup(e) {
-    // subset of keypress handler applicible to card edit dialog, nb keyup event
+    // subset of keyUpHandler applicible to card edit dialog, nb keyup event
 
     const code = e.code;
     const alt = e.altKey;
