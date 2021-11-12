@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="awesomplete.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Regular launch -->
+    <div id="message" style="white-space: pre"><i>Starting BrainTool...</i></div>
+
+    
+    <!-- Initial launch Welcome screen-->
+    <div id="welcome" style="display:none;">
+      <h1>Welcome to BrainTool</h1>
+      <p>There are two parts to BrainTool:<br/>
+	- The <b>Topic Manager</b> window where you manage your topics and control your browser.<br/>
+	- The <b>Bookmarker</b> where you add new pages into your topic tree.</p>
+      <img src="images/Overview.png" width="400"/>
+      <p>
+	    Click the BrainTool icon (or use <span id="alt_opt">Alt</span>-b) to open the Bookmarker to save the current page. Use the Topic Manager to open and close saved browser pages, singly or as a group.<br/>
+        To get you started I'm going to:<br/>
+	- Open the Topic Manager on the left of this screen.<br/>
+	- Resize this window to accommodate. (Feel free to undo that later.)<br/>
+	- Open the BrainTool welcome page with new user information.<br/>
+      </p>
+      <button id="okButton">OK</button>
+    </div>
+
+
+    <h1 id="heading" style="display:none">BrainTool Bookmarker</h1>
+    
+    <!-- Topic selector screen -->
+    <div id="topicSelector" style="display:none">
+      <img id="selectorClose" type="image" alt="Close" title="Close" class="split_image"
+               src="resources/close.png"  height="17" width="20">
+      
+      <div class="switch-button2" id="saveOptionDiv">
+        <input class="switch-button2-checkbox" id="saveOption" type="checkbox"></input>
+        <label class="switch-button2-label" for=""><span class="switch-button2-label-span">Save & Group</span></label>
+      </div>
+
+      <label for="topic" id="topicSelectorLabel">Topic:</label>
+      <input type="text" id="topic" size="38" autofocus>
+      <!--
+          <div id="buttonDiv">
+            <button id="saveAndClose" tabindex="5">Save & Close Pages(s)</button>
+            <button id="save" tabindex="4" style="width:30%">Save & Group</button>
+          </div>
+          -->
+          <hr/>
+          <h2 id="topicLabel">Topic Tree:</h2>
+          <div id="currentTopics"></div>
+    </div>
+
+
+    <!-- Topic Card editor -->
+    <div id="topicCard" style="display:none">
+      <img id="cardClose" type="image" alt="Close" title="Close" class="split_image"
+               src="resources/close.png"  height="17" width="20">
+
+      <table>
+        <tr id="dn">
+          <td style="width:40px">Topic:</td>
+          <td>
+              <span id="distinguishedName"></span>
+          </td>
+        </tr>
+        <tr id="allTabs">
+          <td style="width:40px"></td>
+          <td style="padding-bottom: 1.6em" >
+            <div class="switch-button1" id="selectAllDiv">
+              <input class="switch-button1-checkbox" id="selectAll" type="checkbox" tabIndex="1"></input>
+              <label class="switch-button1-label" for=""><span class="switch-button1-label-span">Save this page</span></label>
+            </div>
+          </td>
+        </tr> 
+        <tr >
+          <td style="width:40px">Title:</td>
+          <td><input type="text" id="title-text" class="inactive" tabindex="2" value='title'></td>
+        </tr>
+        <tr>
+          <td style="width:40px">URL:</td>
+          <td><textarea id="title-url"  disabled >url</textarea></td>
+        </tr>
+        <tr>
+          <td colspan="2"><textarea id="text-text" tabindex="3" class="inactive">Note (or just hit Enter)</textarea></td>
+        </tr>
+      </table>
+      <div id="buttonDiv">
+        <button id="saveAndClose" tabindex="4">Save & Close</button>
+        <button id="save" tabindex="5" style="width:30%">Save & Group</button>
+      </div>
+    </div>
+
+    <!- Scripts to load -->
+    <script src="awesomplete.js"></script>
+    <script src="topicSelector.js"></script>
+    <script src="topicCard.js"></script>
+    <script defer src="popup.js"></script>
+  </body>
+</html>
