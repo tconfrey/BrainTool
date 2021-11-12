@@ -35,6 +35,7 @@ const storageKeys = ["BTFileText",                // golden source of BT .org te
                      "newInstall",                // true/false, for popup display choice
                      "newVersion",                // used for popup to indicate an update to user
                      "permissions",               // perms granted
+                     "ManagerHome",               // open in Panel or Tab
                      "tags"];                     // used for popup display
 
 chrome.runtime.onUpdateAvailable.addListener(deets => {
@@ -179,7 +180,10 @@ chrome.runtime.onConnect.addListener((port) => {
         const disconnectTime = Date.now();
 	    if (!BTWin) return;	                                 // might have been closed
         if ((disconnectTime - connectTime) < 500)
-            chrome.windows.update(BTWin, {'focused': true}, () => check());
+            chrome.windows.update(BTWin, {'focused': true}, () => {
+                check();
+                chrome.tabs.update(BTTab, {'active': true});
+            });
     });
 });
 

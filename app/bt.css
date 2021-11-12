@@ -422,3 +422,16 @@ body.waiting * {
 
 /* Transitions */
 .toggle-radio > input:checked + label {transition:background 300ms linear;}
+
+
+/* tweaks to above for panel|tab 2-way selector */
+#panel_toggle {
+    float: left;
+}
+
+.toggle-radio2 > input:first-of-type + label {
+    margin-right: 0px;
+}
+.toggle-radio2 > input + label {
+    padding:5px 25px;
+}

@@ -18,7 +18,8 @@ const altOpt = document.getElementById('alt_opt');
 altOpt.textContent = OptionKey;
 
 
-chrome.storage.local.get(['newInstall', 'newVersion'], val => {
+chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome'], val => {
+    console.log(`local storage: ${JSON.stringify(val)}`);
     if (val['newInstall']) {
 	    // This is a new install, show the welcome page
 	    const welcomeDiv = document.getElementById('welcome');
@@ -45,13 +46,15 @@ chrome.storage.local.get(['newInstall', 'newVersion'], val => {
 	    return;
     }
 
-    // Else just normal popup
-    popupAction();
+    // Else just normal popup either in tab or side panel
+    const home = val['ManagerHome'] || 'PANEL';
+    console.log(`home = ${home}`);
+    popupAction(home);
     chrome.runtime.connect();           // tell background popup is open
     return;
 });
 
-function popupAction () {
+function popupAction (home) {
     // Activate popup -> populate form if app is open, otherwise open app
     
     if (BackgroundPage.BTTab)
@@ -62,12 +65,13 @@ function popupAction () {
                 popupOpen(activeTab);
             });
     else
-        windowOpen();
+        windowOpen(home);
 }
 
 document.getElementById("okButton").addEventListener('click', e => windowOpen());
-function windowOpen() {
+function windowOpen(home) {
     // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
+    // home == tab => create manager in a tab, PANEL => in a side panel
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
@@ -82,22 +86,31 @@ function windowOpen() {
     const url = "http://localhost:8000/app/";
     //const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
-    var wargs = {
-        'url' : url,
-        'type' : "panel",
-	    'state' : "normal",
-        'focused' : true,
-        'top' : 10, 'left' : 5,
-        'width' : 500, 'height' : screen.height
-    };
-    
-    chrome.windows.getCurrent(mainwin => {
-	    // resize current win to accomodate side-panel. nb state can't be 'maximized'
-	    chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-					                       left: 500, width: (screen.width - 500)});
-	    // open BT win
-	    chrome.windows.create(wargs);
-    });
+
+    // Default open in side panel
+    if (home == "PANEL") {
+        console.log('opening in panel');
+        var wargs = {
+            'url' : url,
+            'type' : "panel",
+	        'state' : "normal",
+            'focused' : true,
+            'top' : 10, 'left' : 5,
+            'width' : 500, 'height' : screen.height
+        };
+        
+        chrome.windows.getCurrent(mainwin => {
+	        // resize current win to accomodate side-panel. nb state can't be 'maximized'
+	        chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
+					                           left: 500, width: (screen.width - 500)});
+	        // open BT win
+	        chrome.windows.create(wargs);
+        });
+    } else {
+        // open in tab
+        console.log('opening in tab');
+        chrome.tabs.create({'url': url});
+    }
 }
 
 let Guess, Topics, SaveAndClose;
@@ -219,7 +232,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     case 'btwindow':
         if (msg.function == 'initializeExtension') {
             console.log("BT window is ready");
-            // window.close();
+            window.close();
         }
         break;
     }

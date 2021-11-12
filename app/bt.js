@@ -1511,21 +1511,28 @@ function updatePrefs() {
     // update prefrences based on data read into AllNodes.metaProperties
 
     const groupMode = getMetaProp('BTGroupingMode');
-    const $radio = $('input:radio[name=grouping]');
     if (groupMode) {
+        const $radio = $('#tabgroup_selector :radio[name=grouping]');
         $radio.filter(`[value=${groupMode}]`).prop('checked', true);
         GroupingMode = groupMode;
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
-	}		       
+	}
+
+    const managerHome = getMetaProp('BTManagerHome');
+    if (managerHome) {
+        const $radio = $('#panel_toggle :radio[name=grouping2]');
+        $radio.filter(`[value=${managerHome}]`).prop('checked', true);
+        window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
+    }
 }
 
-// Register listener for grouping mode change
+// Register listener for radio button changes in Options
 $(document).ready(function () {
     if (typeof WaitingForKeys !== 'undefined') {
         // Defined in btContentScript so undefined => some issue
         alert("Something went wrong. The BrainTool app is not connected to its Browser Extension!");
     }
-    $(':radio').click(function () {
+    $('#tabgroup_selector :radio').click(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
         GroupingMode = GroupOptions[newVal];
@@ -1535,6 +1542,13 @@ $(document).ready(function () {
 
         saveBT();
         groupingUpdate(oldVal, newVal);
+    });
+    $('#panel_toggle :radio').click(function () {
+        const newHome = $(this).val();
+        setMetaProp('BTManagerHome', newHome);
+        // Let extension know
+        window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+        saveBT();
     });
 });
 
