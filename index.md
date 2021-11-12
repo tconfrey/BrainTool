@@ -9,13 +9,13 @@ audience: landingpage
 <div class="cell left" >
 <h1> Tame your Tabs</h1>
 <h3>
-BrainTool organizes all your sites by Topic in a side panel.
+BrainTool organizes all your tabs and topics in the Topic Manager
 <br/><br/>
 Open and close groups of tabs for a Topic with a click.
 </h3>
 <h1> Control your Browser</h1>
 <h3>
-Switch between contexts with ease. Keep your workspace clean.
+Switch between contexts and tab groups with ease. Keep your workspace clean.
 <br/><br/>
 No longer fear closing a tab!
 </h3>
@@ -50,13 +50,14 @@ No longer fear closing a tab!
 
 <div class="cell left">
 <h3>
+<br/>
 Trivially add a page into your Topic tree and close it out.
-<br/><br/><br/>
+<br/><br/><br/><br/>
 </h3>
 <img src="/media/edit-card.png" alt="Card editor" style="border:solid; border-width:thin; ">
 </div>
 <div class="cell right">
-<img src="/site/BT-popup-landing.png" alt="Autocomplete topics" style="border:solid; border-width:thin;">
+<img src="/media/topic-selector.png" alt="Autocomplete topics" style="border:solid; border-width:thin;">
 <br/><br/>
 <h3>
 Or keep detailed notes on the Topic card associated with every item.

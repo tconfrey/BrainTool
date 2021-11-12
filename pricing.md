@@ -90,6 +90,6 @@ $3.99/mo or $40/yr
 </div>
 </div>
 # BrainTool Pricing and Data Philosophy
-There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and stuff to do so, so it seems nice to share!
+There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and resources to do so, so it seems nice to share!
 
 There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription you are paying for those tools and their continued improvement, and keeping your data to yourself.
