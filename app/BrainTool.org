@@ -57,41 +57,7 @@ Cool 3d modeling software
 NRBs coordination app
 
 
-** Sample Project - Moms surprise party
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-An example party planning project
-
-*** Caterers
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://www.concordcheeseshop.com/][Peter's got it covered!]]
-
-*** Venues
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://www.tajmahal.gov.in/][Maybe here?]]
-
-*** Communication
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-
-**** [[https://web.whatsapp.com/][Group Chat]]
-Special group w mom excluded!
-
-**** [[https://mail.google.com/mail/u/1/#inbox/FMfcgzGkZGfRLCtJkHDvfDSGkGMxQgSJ][Aunt Marge travel logistics email]]
-links to emails work just fine
-
 ** Sample Project - My work project
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
 An example professional project
 
 *** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
@@ -117,24 +83,20 @@ Non-project areas of life to keep track of.
 Maybe keep personal and work stuff separate.
 
 *** Finance
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
-
 **** [[https://www.bankofamerica.com/][Bank of America - Banking, Credit Cards, Loans and Merrill Investing]]
  BofA site
 
 **** [[https://login.northwesternmutual.com/login][Login | Northwestern Mutual]]
  NMIS investments site
 
-**** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Income Tracking - Google Sheets]]
+**** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Expense tracking]]
 
 *** Health and Wellness
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
 
-**** [[https://myhealth.atriushealth.org/][MyHealth Online - Log Into Your Atrius Health Medical Record]]
+**** [[https://myhealth.atriushealth.org/][MyHealth Online Portal]]
 health portal
 
 **** [[https://aspireap.com/][Aspire]]
@@ -151,7 +113,10 @@ Also keep track of the fun stuff!
 **** [[https://www.youtube.com/watch?v=4BvjYabSl5A&list=PLhaw8BE1kin1LF6tfn8MU1zUFgiPNc29Y&index=1][Coding playlists]]
 
 ** Professional
-Areas of responsibility at work. I used to have a lot of these, now not so many.
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Areas of responsibility at work.
 *** Admin, HR, Budget
   :PROPERTIES:
   :VISIBILITY: folded
@@ -161,14 +126,14 @@ Areas of responsibility at work. I used to have a lot of these, now not so many.
 
 **** [[https://www.adp.com/][payroll]]
 
-*** Team A
+*** Team Info
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
 
 **** [[https://wikipedia][team wiki]]
 You get the idea...
-*** Customer A
+*** Customer Tracking
 
 * To Read
   :PROPERTIES:
@@ -176,21 +141,19 @@ You get the idea...
   :END:
 Long form essays and videos to get back to
 
-** [[https://distill.pub/2017/aia/][Using Artificial Intelligence to Augment Human Intelligence]]
-Long tutorial on tools and techniques
 ** [[https://untools.co/][Tools for better thinking | Untools]]
 ** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
 podcast interview
 
 
 * Resource
-Reference Material. Create sub topics under here - eg Reference:Machine Learning
+Reference Material. Create sub topics under here - eg Reference:BrainTool
 
 ** BrainTool
     :PROPERTIES:
     :VISIBILITY: folded
     :END:
-As another example in a recursive kind of way. This topic and its children capture resources related to BrainTool.
+As an example in a recursive kind of way. This topic and its children capture resources related to BrainTool.
 
 *** [[https://braintool.org/support][BrainTool Support Page]]
 
@@ -218,18 +181,6 @@ As another example in a recursive kind of way. This topic and its children captu
 **** [[https://org-roam.readthedocs.io/en/master/][Org-roam]]
  A non-hierarchal org model
 
-*** Similar Tools
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
- Other tools to solve the BrainTool problem.
-
-**** [[https://getmemex.com/][WorldBrain's Memex]]
- Full text search on all your browser history. Very Cool!
-
-**** [[https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl][Tabs Outliner - Chrome Web Store]]
- Similar L&F to BT but no topics or textfile access and in my case led to a proliferation of stuff I didn't care about.
-
 *** Contributions
     :PROPERTIES:
     :VISIBILITY: folded
@@ -249,25 +200,27 @@ Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand a
  Graphic design and project artwork by Jack Confrey
 
 
-*** Web Pages
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
-**** [[https://braintool.org][Homepage]]
-Its a static site served from GitHub.
-**** [[https://github.com/tconfrey/BrainTool][tconfrey/BrainTool: Initial experiments with a Chrome plug-in / emacs .org file mashup]]
-Here's the repo
+** Personal Productivity
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+BrainTool is a Topic Manager. A new category of personal productivity tool! Here are some other personal productivity resources.
+*** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
+the inspiration for the general structure of this sample set of BrainTool Topics
 
-**** [[https://braintool.org/overview][BrainTool Philosophy | Tony Confrey]]
-More details
+*** [[https://www.reddit.com/r/productivity/][reddit forum]]
 
-**** [[https://braintool.org/posts][Blog]]
+*** [[https://francescod.medium.com/][Francesco D]]
+Productivity blogger and software reviewer
+
+*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
+The "self-help classic for managing work-life balance in the twenty-first century"
 
 ** emacs and org-mode
    :PROPERTIES:
    :VISIBILITY: folded
    :END:
-The other way to use your BrainTool file is via a text editor and emacs is the ultimate. Advanced users only!
+Another way to use your BrainTool file is via a text editor and emacs is the ultimate. Advanced users only!
 
 ***  [[https://www.gnu.org/software/emacs/][emacs]]
 *** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
@@ -289,28 +242,11 @@ Jethro Kuan's workflow
 *** [[https://www.youtube.com/c/SystemCrafters][System Crafters Videos]]
 See particularly the intro series
 
-
-** Personal Productivity
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-BrainTool is a Topic Manager. A new category of personal productivity tool!
-*** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
-the inspiration for the general structure of this sample set of BrainTool Topics
-
-*** [[https://www.reddit.com/r/productivity/][reddit forum]]
-
-*** [[https://francescod.medium.com/][Francesco D]]
-Productivity blogger and software reviewer
-
-*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
-The "self-help classic for managing work-life balance in the twenty-first century"
-
 * Archive
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Pages and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.
+Pages and notes you are no longer actively using but don't want to delete. EG you could move completed projects here.
 
 * Scratch
 Pages that you save in the Bookmarker without a Topic will be filed under Scratch

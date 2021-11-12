@@ -69,9 +69,9 @@ function popupAction (home) {
 }
 
 document.getElementById("okButton").addEventListener('click', e => windowOpen());
-function windowOpen(home) {
+function windowOpen(home = 'PANEL') {
     // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
-    // home == tab => create manager in a tab, PANEL => in a side panel
+    // home == tab => create manager in a tab, PANEL => in a side panel, default
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
@@ -88,7 +88,7 @@ function windowOpen(home) {
     console.log('loading from ', url);
 
     // Default open in side panel
-    if (home == "PANEL") {
+    if (home != "TAB") {
         console.log('opening in panel');
         var wargs = {
             'url' : url,
