@@ -74,14 +74,28 @@
       {{ content }}
 
       <footer class="site-footer">
-        {% if site.github.is_project_page %}
-        <span class="site-footer-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</span>
-        {% endif %}
-        <div class="hvp-footer" style="text-align:center; display:flex; justify-content: space-between">
-          <a href="{{ site.url  }}/index.html" style="margin-left:0px;">Home</a>
-          <a href="{{ site.url  }}/support.html" >Help</a>
-          <a href="{{ site.url  }}/pricing.html" >Pricing</a>
-          <a href="{{ site.url  }}/posts.html" style="margin-right:0px;">About</a>
+        <div class="bt-footer">
+          <div class="bt-footer-column">
+            <h3>About</h3>
+            <div><a href="{{ site.url  }}/overview.html#philosophy">Philosophy</a></div>
+            <div><a href="{{ site.url  }}/overview.html#concepts">Concepts</a></div>
+            <div><a href="{{ site.url  }}/overview.html#roadmap">Roadmap</a></div>
+            <div><a href="{{ site.url  }}/pricing.html">Pricing</a></div>
+            <div><a href="{{ site.url  }}/BrainToolPrivacyPolicy.pdf">Privacy Policy</a></div>
+          </div>
+          <div class="bt-footer-column">
+            <h3>Support</h3>
+            <div><a href="{{ site.url  }}/support/userGuide.html">User Guide</a></div>
+            <div><a href="{{ site.url  }}/support.html">Help</a></div>
+            <div><a href="{{ site.url  }}/support/releaseNotes.html">Release Notes</a></div>
+          </div>
+          <div class="bt-footer-column">
+            <h3>Community</h3>
+            <div><a href="{{ site.url  }}/posts.html">Blog</a></div>
+            <div><a href="https://groups.google.com/u/0/g/braintool-discussion">Discussion Group</a></div>
+            <div><a href="https://twitter.com/abraintool">Twitter</a></div>
+            <div><a href="https://github.com/tconfrey/BrainTool">Source code</a></div>
+          </div>
         </div>
       </footer>
     </main>
