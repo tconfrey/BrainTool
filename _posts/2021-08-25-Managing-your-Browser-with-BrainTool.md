@@ -11,13 +11,13 @@ audience: "nonuser"
 ## The Problem
 - You have hundreds of sites and pages and apps that you visit regularly in a browser.
 - You keep dozens of tabs open and can't find the one you want. 
+<!--more-->
 - You're afraid to close a tab because you won't be able to find it again.
 - You have no good way to track all your online stuff.
 
 Bookmarks just don't cut it. Pinned tabs, tab groups and vertical tabs only help a little.
 
 **BrainTool gives you a better way to work in your browser.**
-<!--more-->
 ## The Solution
 BrainTool is an extension that sits inside your browser. It helps you keep track of pages and manage your tabs. It works by letting you assign a topic to any tab and then use those topics to control the browser. 
 <div class="row" style="margin-top:1rem">
