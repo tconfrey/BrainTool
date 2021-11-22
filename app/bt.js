@@ -1389,8 +1389,14 @@ function addChild(e) {
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
     $("tr.selected").removeClass('selected');
     $(tr).addClass("selected");
-    const clientY = tr[0].getBoundingClientRect().top + 25;
-    const dummyEvent = {'clientY': clientY, 'target': tr[0], 'newTopic': true};
+
+    // might not be scrolled into view
+    const displayNode = tr[0];
+	displayNode.scrollIntoView({block: 'center'});
+
+    // open card editor
+    const clientY = displayNode.getBoundingClientRect().top + 25;
+    const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
     editRow(dummyEvent);
 
     // Stop the event from selecting the row and line up a save
@@ -1792,6 +1798,7 @@ function extendedSearch(start, sstr, selectedNode) {
 window.addEventListener("keydown", function(e) {
     if ($("#search_entry").is(":focus") ||
         $("#title-text").is(":focus") ||
+        $("#topic-text").is(":focus") ||
         $("#text-text").is(":focus"))
 	    return;
     if(["ArrowUp","ArrowDown","Space"].indexOf(e.code) > -1) {
