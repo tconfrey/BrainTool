@@ -24,9 +24,11 @@
     <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
     <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
     <link href="bt.css" rel="stylesheet" type="text/css" />
+    <link href="wenk.css" rel="stylesheet" />
     <script src="jquery.treetable.js"></script>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+
     
   </head>
   <body>
@@ -44,12 +46,16 @@
 	      </span>
         </div>
         <div id="stats_row" style="cursor:default">
-          <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
-               title="#Topics" height="15" width="15">
-          <span id="num_topics" class="stat_span" title="#BT Cards (#links open)">: 0</span>
-          <img id="saves" type="image" alt="#File Saves" title="File Saves"
-               src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
-          <span id="num_saves" class="stat_span" title="#File Saves"> : 0</span>
+          <span id="brain_span" class="wenk--bottom">
+            <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
+                 height="15" width="15" >
+            <span id="num_topics" class="stat_span">: 0</span>
+          </span>
+          <span id="saves_span" class="wenk--bottom">
+            <img id="saves" type="image" alt="#File Saves"
+                 src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
+            <span id="num_saves" class="stat_span" >: 0</span>
+          </span>
         </div>
         
       </div>
@@ -273,28 +279,48 @@
         <br/>Loading your BrainTool file<br/>...</p>
     </div>
     <div id="buttonRow" style="display: none;">
-      <img class="openClose" alt="More tools" onClick="toggleMoreButtons(event); return false;" title="More tools"
-           src="resources/openLeft.png"  height="22" width="10">
-      <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" title="Fewer tools" style="display:none"
-           src="resources/closeLeft.png"  height="22" width="10">
-      <span id="otherButtons" style="display: none;">
-	    <img id="move" type="image" alt="Move" title="Move"
-             src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
-	    <img id="outdent" type="image" alt="Outdent" title="Outdent"
-             src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
-	    <img id="addChild" type="image" alt="add Child" title="Add Child Topic"
-             src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
-	    <img id="todo" alt="ToDo" onClick="toDo(event)" title="ToDo"
-             src="resources/done.png"  height="22" width="22">
+      <span data-wenk="More tools">
+        <img class="openClose" onClick="toggleMoreButtons(event); return false;"
+             src="resources/openLeft.png"  height="22" width="10">
       </span>
-      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
-           src="resources/edit.png"  height="22" width="22">
-      <img id="expand" alt="Open" onClick="openRow(event)" title="Open" style="opacity: 0.75;"
-           src="resources/open.png" height="22" width="22">
-      <img id="collapse" alt="Close" onClick="closeRow(event)" title="Close" style="opacity: 0.75;"
-           src="resources/closeNode.png" height="22" width="22">
-      <img id="delete" alt="Delete"  onClick="deleteRow(event)" title="Delete" style="opacity: 0.75; margin-left:8px"
-           src="resources/delete.png" height="22" width="22">
+      <span data-wenk="Fewer tools" >
+        <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" style="display:none"
+             src="resources/closeLeft.png"  height="22" width="10">
+      </span>
+      <span id="otherButtons" style="display: none;">
+        <span data-wenk="Drag elsewhere">
+	      <img id="move" type="image" alt="Move"
+               src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
+        </span>
+        <span data-wenk="Outdent" >
+	      <img id="outdent" type="image" alt="Outdent"
+               src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
+        </span>
+        <span data-wenk="Add child">
+	      <img id="addChild" type="image" alt="add Child"
+               src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
+        </span>
+        <span data-wenk="ToDo" >
+	      <img id="todo" alt="ToDo" onClick="toDo(event)"
+               src="resources/done.png"  height="22" width="22">
+        </span>
+      </span>
+      <span data-wenk="Edit card">
+        <img id="edit" alt="Edit" onClick="editRow(event)" style="opacity: 0.75;"
+             src="resources/edit.png"  height="22" width="22">
+      </span>
+      <span data-wenk="Open tab" >
+        <img id="expand" alt="Open" onClick="openRow(event)" style="opacity: 0.75;"
+             src="resources/open.png" height="22" width="22">
+      </span>
+      <span data-wenk="Close tab" >
+        <img id="collapse" alt="Close" onClick="closeRow(event)" style="opacity: 0.75;"
+             src="resources/closeNode.png" height="22" width="22">
+      </span>
+      <span data-wenk="Delete" >
+        <img id="delete" alt="Delete"  onClick="deleteRow(event)" style="opacity: 0.75; margin-left:8px"
+             src="resources/delete.png" height="22" width="22">
+      </span>
     </div>
     
     <table id="content" >

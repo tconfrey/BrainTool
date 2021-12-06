@@ -303,15 +303,14 @@ function updateStatsRow(modifiedTime = null) {
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
     const numSaves = getMetaProp('BTVersion');
+    const tagText = `${numTags + numLinks} Topic Cards\n(${numOpenLinks} open tabs)`;
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
-    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tabs`);
-    $("#brain").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tabs`);
+    $("#brain_span").attr('data-wenk', tagText);
     
-    const saveTime = getDateString(modifiedTime);	    // null => current time
+    const saveTime = getDateString(modifiedTime);           // null => current time
     $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
     $('#num_saves').text(':'+numSaves);
-    $("#num_saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
-    $("#saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
+    $("#saves_span").attr('data-wenk', `${numSaves} Saves\nSaved: ${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
     {
@@ -1465,10 +1464,12 @@ function loadBookmarkNode(node, parent) {
         btNode.folded = true;
 
     // handle link children, reverse cos new links go on top
-    node.children.reverse().forEach(node => {
-        if (node.childen) return;
-        if (node?.url?.startsWith('javascript:')) return; // can't handle JS bookmarklets
-        const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
+    node.children.reverse().forEach(n => {
+        let hasKids = n?.children?.length || 0;
+        let isJS = n?.url?.startsWith('javascript:') || false; // can't handle JS bookmarklets
+        if (hasKids || isJS) return;
+        
+        const title = n.url ? `[[${n.url}][${n.title}]]` : n.title;
         new BTAppNode(title, btNode.id, "", btNode.level + 1);
     });
     
