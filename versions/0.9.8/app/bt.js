@@ -204,9 +204,9 @@ async function warnBTFileVersion(e) {
 	    return;
     }
     const savesText = $("#num_saves").text();
-    if (!savesText.includes('!')) $("#num_saves").text(savesText + '!'); 
-    $("#num_saves").attr('title', 'Remote file is newer, consider refreshing'); 
-    $("#saves").attr('title', 'Remote file is newer, consider refreshing');
+    if (!savesText.includes('!')) $("#num_saves").text(savesText + '!');
+    
+    $("#saves_span").attr('data-wenk', 'Remote file is newer,\nconsider refreshing');
     $("#stats_row").css('background-color', '#ffcc00');
     console.log("Newer BTFile version on GDrive, sending gtag event and warning");
     gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
