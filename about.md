@@ -9,6 +9,6 @@ In one way or other I've been working on BrainTool my whole life. It's an evolut
 
 These days knowledge workers spend most of their time in a browser. Today's browsers are amazing tools, but they don't provide support for organizing and managing all of your online stuff. BrainTool provides that support. 
 
-See the posts and essays [here](./posts) give more details and background.
+See the posts and essays [here](./posts) give more details and background. Follow along on [Twitter](https://twitter.com/ABraintool), [Instagram](https://www.instagram.com/abraintool) or [FaceBook](https://facebook.com/ABrainTool)
 
 -- Tony
