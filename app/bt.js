@@ -1208,7 +1208,7 @@ function closeDialog(cb = null, duration = 250) {
 
 function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
-    const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
+    const tr = (e.type === 'click') ? $(e.target).closest('tr')[0] : $("tr.selected")[0];
     if (!tr) return null;
     const nodeId = $(tr).attr('data-tt-id') || 0;
     return AllNodes[nodeId];
@@ -1255,10 +1255,10 @@ function escapeRegExp(string) {
 
 function deleteRow(e) {
     // Delete selected node/row.
-    buttonHide();
     const appNode = getActiveNode(e);
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
+    buttonHide();
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete whole subtree?')) {
