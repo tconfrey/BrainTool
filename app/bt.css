@@ -1,6 +1,41 @@
-    
+/* First define the basic theme variables */
+:root {
+    --btMainHighlight: #3f673f;
+    --btMainHighlightShadow: #3f673f90;
+    --btBackground: #7bb07b;
+    --btBackgroundLight: #bed8be;
+    --btBackgroundHovered: #e0ece0;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: darkslategrey;
+
+    --btTreeForeground: #000000;
+    --btTreeBackground: #ffffff;
+    --btTreeBranchBackground: #f9f9f9;
+    --btTreeFont: tahoma;
+    --btTreeFontSize: 0.7em;
+    --btTreeLineHeight: 1;
+}
+
+[data-theme="dark"] {
+    --btMainHighlight: #7bb07b;
+    --btMainHighlightShadow: #7bb07b90;
+    --btBackground: #bed8be;
+    --btBackgroundLight: #3f673f;
+    --btBackgroundHovered: #3f673f;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: darkslategrey;
+
+    --btTreeForeground: #ffffff;
+    --btTreeBackground: #333333;
+    --btTreeBranchBackground: #444444;
+    --btTreeFont: roboto;
+    --btTreeFontSize: 0.9em;
+    --btTreeLineHeight: 1.5;
+}
+
+
 #controls_header {
-    background-color: #7bb07b;
+    background-color: var(--btBackground);
     border-width: 1px;
     border-color: #AAA;
 }
@@ -9,12 +44,12 @@
     padding-right: 8px;
     vertical-align: top;
     font-size: 13px;
-    font-family: Roboto;
+    font-family: var(--btControlsFont);
 }
 
 #stats_row {
     height: 18px;
-    color: darkslategray;
+    color: var(--btHeaderFontColor);
     position: absolute;
     top: 1px;
     right: 5px;
@@ -31,17 +66,17 @@
     position: absolute;
     top: 0px;
     left: calc((100% - 300px) / 2);
-    font-family: tahoma;
+    font-family: var(--btControlsFont);
     font-size: small;
-    color: darkslategrey;
+    color: var(--btHeaderFontColor);
 }
 #search_entry {
     height: 13px;
     top: 2px;
-    font-family: Roboto;
+    font-family: var(--btControlsFont);
     margin-top: 1px;
     border-bottom-width: 1px;
-    background-color: #bed8be;
+    background-color: var(--btBackgroundLight); 
 }
 .highlight {
     background-color: lime;
@@ -72,7 +107,7 @@
     border-left: none;
     border-right: none;
     z-index: 3;
-    font-family: Roboto;
+    font-family: var(--btControlsFont);
 }                    
 
 
@@ -93,7 +128,7 @@
     position: relative;
     overflow: hidden;
     display: block;
-    border: 2px solid #7bb07b;
+    border: 2px solid var(--btBackground);
     border-radius: 0px 0px 5px 5px;
     backdrop-filter: blur(3px);
     min-height: 280px;
@@ -105,7 +140,7 @@
     font-size: 15px;
     line-height: 1.4em;
     padding: 3px;
-    border: 2px solid #3f673f ;
+    border: 2px solid var(--btMainHighlight) ;
     border-radius: 3px;
 }
 #openingTips p {
@@ -130,7 +165,7 @@
 }
 
 #buttonRow {
-    background-color: #7bb07b; /* #cec; #aca */
+    background-color: var(--btBackground);
     position: absolute;
     padding-left: 2px;
     padding-right: 0px;
@@ -148,13 +183,13 @@
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0,0.2);
+  background-color: #00000020;
 }
 
 dialog {
-    border: 2px solid #3f673f ;
+    border: 2px solid var(--btMainHighlight) ;
     border-radius: 3px;
-    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
+    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
     width: 88%;
     padding: 10px;
     padding-top: 2px;
@@ -169,12 +204,12 @@ dialog textarea {
     resize: none;
     border: 1px solid #ddd;
     border-radius: 2px;
-    font-family: roboto;
+    font-family: var(--btControlsFont);
 }
 dialog input {
     border: 1px solid #ddd;
     border-radius: 2px;
-    font-family: roboto;
+    font-family: var(--btControlsFont);
 }
 dialog #title-text {
     white-space: nowrap;
@@ -193,11 +228,11 @@ dialog #title-url {
 dialog #distinguishedName {
     position: relative;
     left: -10px;
-    font-family:roboto;
-    color: #3f673f;
+    font-family:var(--btControlsFont);
+    color: var(--btMainHighlight);
 }
 dialog li::marker {
-    color: #3f673f;
+    color: var(--btMainHighlight);
 }
 
 #important_buttons {
@@ -215,15 +250,11 @@ dialog li::marker {
     border-style: solid;
     border-radius: 5px;
     border-color: grey;
-    background-color: #7bb07baa;
+    background-color: var(--btBackgroundLight);
     width: 180px;
     height: 40px;
     font-size: 1.2em;
-    font-family: 'Roboto';
-}
-
-.important {
-    border-color: crimson;
+    font-family: var(--btControlsFont);
 }
 
 .buttonDiv {
@@ -245,15 +276,14 @@ dialog li::marker {
     transform: translate(-50%, -50%);
 
     /* same as edit dialog */
-    border: 2px solid #3f673f ;
+    border: 2px solid var(--btMainHighlight) ;
     border-radius: 3px;
-    box-shadow: 7px 7px 5px rgb(63, 103, 63, 90);
+    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
 
     background-color: white;
-    width: 90%;
-    /*z-index: 3;*/
-    
+    width: 90%;    
 }
+
 .overlay_table {
     margin-left: auto;
     margin-right: auto;
@@ -298,13 +328,13 @@ dialog li::marker {
 
 button:not([disabled]):hover {
     color: #222;
-    background-color: #7bb07b;
+    background-color: var(--btBackground);
     cursor: pointer;
 }
 
 /* button for import/export */
 .button_text {
-    font-family: Roboto;
+    font-family: var(--btControlsFont);
     font-size: 15px;
 }
 .split_image {
@@ -360,7 +390,7 @@ button:not([disabled]):hover {
     padding: 5px 0px 5px 8px;
     width: 152px;
 }
-.dropdown_content div:hover {background-color: #7bb07b}  
+.dropdown_content div:hover {background-color: var(--btBackground)}  
 .dropdown:hover .dropdown_content {
     display: block;
 }
@@ -406,7 +436,7 @@ body.waiting * {
 .toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
 .toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
 
-.toggle-radio > input:checked + label {background: #7bb07b;}
+.toggle-radio > input:checked + label {background: var(--btBackground);}
 /* CORE STYLES */
 .toggle-radio {
     display:inline-block;

@@ -15,9 +15,9 @@
     border-radius: .2rem;
     content: attr(data-wenk);
     padding: .4rem;
-    background-color:  #7bb07b;
-    -webkit-box-shadow: 0 0 10px rgba(63, 103, 63);
-            box-shadow: 0 0 10px rgba(63, 103, 63);
+    background-color:  var(--btBackground);
+    -webkit-box-shadow: 0 0 10px var(--btMainHighlight);
+    box-shadow: 0 0 10px var(--btMainHighlight);
     color: #111;
     line-height: 20px;
     line-height: 1.25rem;
@@ -35,7 +35,7 @@
             transform: translate(-25%, 3px);
     white-space: pre;
     width: auto;
-    border: 1px solid #3f673f ;
+    border: 1px solid var(--btMainHighlight);
 }
 
 [data-wenk]:after {
