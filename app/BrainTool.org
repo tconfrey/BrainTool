@@ -2,8 +2,27 @@
 #+PROPERTY: BTVersion 1
 #+PROPERTY: BTGroupingMode TABGROUP
 
+* [[https://braintool.org/welcome][Welcome, lets get started]]
+Follow these steps to get up and running quickly.
+** TODO Review the Topic Hierarchy
+BrainTool is organized as a hierarchy of topics. 
+The structure is yours to define, this is just an example.
+** TODO Import Bookmarks
+Click the button above to import your bookmarks. 
+** TODO Organize your Topics
+- Now is a good time to define your personal set of topics and organize your imported links. 
+- Discard liberally! 
+- No need to do it all at once, just leave this TODO open to remind you.
+** TODO Close out your tabs
+With BrainTool you need fewer tabs open. Use the BrainTool Bookmarker to file tabs away into BT where you can find them again.
+** TODO Now use the tool!
+- Keep the Topic Manager open while you work.
+- File stuff away liberally.
+- Experiment with different workflows (eg 'Finish Today' or 'Next Action' topics).
+- Re-organize your topic tree as it evolves.
+
 * Project
-Keep all your links and notes for each project in one place. These are examples to use or delete. Open them to see sample sub topics.
+Keep all your links and notes for each project in one place. Expand these example projects to see sample sub topics.
 
 ** Sample Project - Kitchen Renovation
   :PROPERTIES:
@@ -37,7 +56,6 @@ NH based. NRB recommendation.
   :VISIBILITY: folded
   :END:
 **** [[https://clarkeliving.com/][demo showroom in Boston]]
-Note that the link text can be anything, it doesn't need to be the url. Use the Edit button on a row to open the Topic Card and experiment.
 *** Lighting
   :PROPERTIES:
   :VISIBILITY: folded
@@ -58,6 +76,9 @@ NRBs coordination app
 
 
 ** Sample Project - My work project
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
 An example professional project
 
 *** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
@@ -83,6 +104,9 @@ Non-project areas of life to keep track of.
 Maybe keep personal and work stuff separate.
 
 *** Finance
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
 **** [[https://www.bankofamerica.com/][Bank of America - Banking, Credit Cards, Loans and Merrill Investing]]
  BofA site
 
@@ -147,7 +171,10 @@ podcast interview
 
 
 * Resource
-Reference Material. Create sub topics under here - eg Reference:BrainTool
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+Reference materials and other resources. Create sub topics under here - eg Resource:BrainTool
 
 ** BrainTool
     :PROPERTIES:
@@ -246,7 +273,7 @@ See particularly the intro series
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Pages and notes you are no longer actively using but don't want to delete. EG you could move completed projects here.
+Pages and notes you are no longer actively using but don't want to delete. Move completed projects here.
 
 * Scratch
 Pages that you save in the Bookmarker without a Topic will be filed under Scratch
