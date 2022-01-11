@@ -92,9 +92,10 @@ async function launchApp(msg) {
         if (InitialInstall) {
             gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
         }
+        setTimeout(closeMenu, 5000);
     } else {
         addTip();
-        setTimeout(closeMenu, 3000);
+        setTimeout(closeMenu, 1500);
     }
 
     // scroll to top
@@ -244,20 +245,28 @@ function toggleMenu(event) {
     
     const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {
+        // Close
         $("#controls_screen").css('min-height',0)
-	        .slideUp(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
-        $("#open_close_image").addClass('closed').removeClass('open');
+	        .slideUp(400, 'easeInCirc', () => {
+                $(this).css('min-height', minHeight);
+                $("#open_close_span").addClass("wenk--right");
+                $("#open_close_image").addClass("animate_more");
+            });
 	    if (toggleMenu.introMessageShown)
 	        $("#openingTips").hide();		     // if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
+        // Open
         toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
         addTip();                                    // display tip text after intro message shown
         $("#controls_screen").css('min-height',0)
-	        .slideDown(400, 'easeInCirc', () => $(this).css('min-height', minHeight));
-        $("#open_close_image").addClass('open').removeClass('closed');
+	        .slideDown(400, 'easeInCirc', () => {
+                $(this).css('min-height', minHeight);
+                $("#open_close_span").removeClass("wenk--right");
+                $("#open_close_image").removeClass("animate_more");
+            });
         $(".treetable tr").css("scroll-margin-top", "375px");
     }
 }
@@ -1070,12 +1079,22 @@ function buttonShow() {
     const height = $(this).height();
     const rowtop = (offset.top + (height / 2) - 12);
     if ($(this).hasClass("opened")){
+        $("#expand1").hide();
         $("#expand").hide();
         $("#collapse").show();
     }
     else {
-        if ($(this).find('a').length)
-            $("#expand").show();
+        // show appropriate icon if there's something to open. (one tab or many)
+        if ($(this).find('a').length) {
+            if ($(this).hasClass("branch")) {
+                $("#expand1").hide();
+                $("#expand").show();
+            }
+            else {
+                $("#expand").hide();
+                $("#expand1").show();
+            }
+        }
         $("#collapse").hide();
     }
     // show expand/collapse if some kids of branch are not open/closed
@@ -1129,14 +1148,7 @@ function editRow(e) {
     const top = $(row).position().top - $(document).scrollTop();
     const bottom = top + $(row).height();
     const dialog = $("#dialog")[0];
-    const dialogHeight = $(dialog).height() || 300;	    // before initial display it's 0
-
-    if ((top + dialogHeight + 60) < $(window).height())
-        $(dialog).css("top", bottom+30);
-    else
-        // position above row to avoid going off bottom of screen (or the top)
-        $(dialog).css("top", Math.max(10, top - dialogHeight - 20));
-
+    
     // populate dialog
     const dn = node.fullTagPath();
     if (dn == node.displayTag)
@@ -1165,16 +1177,27 @@ function editRow(e) {
     $("#update").prop("disabled", true);
 
     // overlay grays everything out, dialog animates open on top.
-    // NB setting margin-left auto needed to expand from center, but -left 8px looks better when expanded
     $("#content").addClass('editOverlaid');
     $("#editOverlay").css("display", "block");
-    const width = $(dialog).width();
-    const height = width / 1.618;                           // golden!
-    $("#text-text").height(height - 140);                   // notes field fits but as big as possible
+    const fullWidth = $($("#editOverlay")[0]).width();
+    const dialogWidth = Math.min(fullWidth - 60, 600);
+    const height = dialogWidth / 1.618;                 // golden!
+    const marginLeft = (fullWidth - dialogWidth) / 2 - 10;
+    $("#text-text").height(height - 140);               // notes field fits but as big as possible
+
+    if ((top + height + 60) < $(window).height())
+        $(dialog).css("top", bottom+30);
+    else
+        // position above row to avoid going off bottom of screen (or the top)
+        $(dialog).css("top", Math.max(10, top - height - 20));
+
+    // Animate opening w calculated size
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
-        .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
+        .animate({width: dialogWidth, height: height, opacity: 1.0, 'margin-left': marginLeft},
+                 duration, 'easeInCirc',
                  function () {
-		             e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();});
+		             e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();
+                 });
 }
 
 $(".editNode").on('input', function() {
@@ -1795,14 +1818,14 @@ function extendedSearch(start, sstr, selectedNode) {
  * Keyboard event handlers
  * 
  ***/
-// prevent default space/arrow key scrolling on table (not in card edit fields)
+// prevent default space/arrow key scrolling and element tabbing on table (not in card edit fields)
 window.addEventListener("keydown", function(e) {
     if ($("#search_entry").is(":focus") ||
         $("#title-text").is(":focus") ||
         $("#topic-text").is(":focus") ||
         $("#text-text").is(":focus"))
 	    return;
-    if(["ArrowUp","ArrowDown","Space"].indexOf(e.code) > -1) {
+    if(["ArrowUp","ArrowDown","Space", "Tab"].indexOf(e.code) > -1) {
         e.preventDefault();
     }
 }, false);

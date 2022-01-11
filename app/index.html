@@ -6,10 +6,10 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){
-      if (location.hostname == "localhost") return;  // tony add to avoid polluting analytics
-      dataLayer.push(arguments);}
+        if (location.hostname == "localhost") return;  // tony add to avoid polluting analytics
+        dataLayer.push(arguments);
+      }
       gtag('js', new Date());
-
       gtag('config', 'UA-184551494-1');
     </script>
 
@@ -19,23 +19,26 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous">
     </script>
+
+    <link href="bt.css" rel="stylesheet" type="text/css" />
+    
     <script type="text/javascript"
             src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
     <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
-    <link href="bt.css" rel="stylesheet" type="text/css" />
+
     <link href="wenk.css" rel="stylesheet" />
     <script src="jquery.treetable.js"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
-
-    
   </head>
   <body>
     
     <div id="controls">
       <div id="controls_header" >
-        <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png" style="cursor: pointer;" onClick="toggleMenu(event)">
+        <span id="open_close_span" class="wenk--right" data-wenk="Options, Actions, Info">
+          <img id="open_close_image" src="resources/more.svg" onClick="toggleMenu(event)">
+        </span>
         <div id="search"  style="cursor:default">
           <span>Search:</span>
           <input id="search_entry" type="text" size="20" value="" autocomplete="off" >
@@ -48,12 +51,12 @@
         <div id="stats_row" style="cursor:default">
           <span id="brain_span" class="wenk--bottom">
             <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
-                 height="15" width="15" >
+                 height="20" width="20" >
             <span id="num_topics" class="stat_span">: 0</span>
           </span>
           <span id="saves_span" class="wenk--bottom">
             <img id="saves" type="image" alt="#File Saves"
-                 src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
+                 src="resources/fileSave.png" height="20" width="20" style="opacity: 0.8;">
             <span id="num_saves" class="stat_span" >: 0</span>
           </span>
         </div>
@@ -76,7 +79,7 @@
           <p>- NB The icon may hide under the jigsaw icon - browser top right.</p>
 	      <p>- Start by importing and organizing your bookmarks or go through open tabs and assign them to Topics.</p>
           <p>- Build on the example Topics. Delete anything you don't want.</p>
-          <p>- This Message board closes by clicking the triangle, top left. A tip will be shown here on startup. See the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> for all tips.</p>
+          <p>- This Message board opens and closes via the 3 dots button, top left. A tip will be shown here on startup. See the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> for all tips.</p>
 	    </div>
 	    <p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
         <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
@@ -310,6 +313,10 @@
              src="resources/edit.png"  height="22" width="22">
       </span>
       <span data-wenk="Open tab" >
+        <img id="expand1" alt="Open" onClick="openRow(event)" style="opacity: 0.75; margin-bottom:3px"
+             src="resources/open1.png" height="18" width="18">
+      </span>
+      <span data-wenk="Open tabs" >
         <img id="expand" alt="Open" onClick="openRow(event)" style="opacity: 0.75;"
              src="resources/open.png" height="22" width="22">
       </span>

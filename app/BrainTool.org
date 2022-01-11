@@ -8,7 +8,7 @@ Follow these steps to get up and running quickly.
 BrainTool is organized as a hierarchy of topics. 
 The structure is yours to define, this is just an example.
 ** TODO Import Bookmarks
-Click the button above to import your bookmarks. 
+Open the Options/Actions menu (top left) and click Import Bookmarks. 
 ** TODO Organize your Topics
 - Now is a good time to define your personal set of topics and organize your imported links. 
 - Discard liberally! 
@@ -155,7 +155,7 @@ Areas of responsibility at work.
   :VISIBILITY: folded
   :END:
 
-**** [[https://wikipedia][team wiki]]
+**** [[https://wikipedia.org][team wiki]]
 You get the idea...
 *** Customer Tracking
 

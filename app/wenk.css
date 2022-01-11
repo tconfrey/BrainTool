@@ -57,7 +57,7 @@
 [data-wenk].wenk--bottom:after, [data-wenk][data-wenk-pos="bottom"]:after {
     bottom: auto;
     top: 100%;
-    left: -60%;
+    left: -100%;
     font-size: 12px;
     -webkit-transform: translate(-25%, -5px);
             transform: translate(-25%, -5px);
@@ -84,7 +84,7 @@
 
 [data-wenk].wenk--right:after, [data-wenk][data-wenk-pos="right"]:after {
     bottom: auto;
-    top: 25%;
+    top: 50%;
     left: 100%;
     -webkit-transform: translate(-5px, -25%);
             transform: translate(-5px, -25%);

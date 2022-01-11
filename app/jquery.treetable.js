@@ -235,12 +235,14 @@
         this.indenter.html(this.expander);
         target = settings.clickableNodeNames === true ? this.treeCell : this.expander;
 
-        target.off("click.treetable").on("click.treetable", handler);
+          target.off("click.treetable").on("click.treetable", handler);
+          /* don't want treetable interfering w BT's key commands 
         target.off("keydown.treetable").on("keydown.treetable", function(e) {
           if (e.keyCode == 13) {
             handler.apply(this, [e]);
           }
         });
+          */
       }
         
         // Tony Edit: shift siblings of parents left so all a parents children are equal,

@@ -6,7 +6,7 @@
     --btBackgroundLight: #bed8be;
     --btBackgroundHovered: #e0ece0;
     --btControlsFont: Roboto;
-    --btHeaderFontColor: darkslategrey;
+    --btHeaderFontColor: #000; /* was darkslategrey; */
 
     --btTreeForeground: #000000;
     --btTreeBackground: #ffffff;
@@ -36,13 +36,15 @@
 
 #controls_header {
     background-color: var(--btBackground);
-    border-width: 1px;
-    border-color: #AAA;
+    border-left: 1px solid #DDD;
+    border-right: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
 }
 
 .stat_span {
+    position: relative;
+    bottom: 5px;
     padding-right: 8px;
-    vertical-align: top;
     font-size: 13px;
     font-family: var(--btControlsFont);
 }
@@ -58,25 +60,33 @@
 
 #brain {
     padding-left: 4px;
-    padding-top: 1px;
+    padding-top: 3px;
 }
 
 #search {
-    height: 18px;
+    height: 25px;
     position: absolute;
-    top: 0px;
+    top: 4px;
     left: calc((100% - 300px) / 2);
     font-family: var(--btControlsFont);
-    font-size: small;
+    font-size: 1rem;
     color: var(--btHeaderFontColor);
 }
 #search_entry {
-    height: 13px;
-    top: 2px;
+    line-height: 1;
     font-family: var(--btControlsFont);
     margin-top: 1px;
+    border: solid;
+    border-width: thin;
+    border-color: var(--btMainHighlight);
     border-bottom-width: 1px;
     background-color: var(--btBackgroundLight); 
+}
+/* style when input is active */
+:focus-visible {
+    outline-width: 1px;
+    outline-color: var(--btMainHighlight);
+    outline-style: groove;
 }
 .highlight {
     background-color: lime;
@@ -84,18 +94,30 @@
 .failed {
     background-color: #E59A98 !important;
 }
-#open_close_image {
-    opacity: 0.6;
-    margin-top: 1px;
-    margin-left:7px;
-    transition: transform 0.75s;
-}
 
-#open_close_image.open {
-    transform: rotate(90deg);
+#open_close_image {
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
 }
-#open_close_image.close {
-    transform: rotate(-90deg);
+/* Animation on More SVG image to draw attention when closing. 
+https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
+#open_close_image.animate_more {
+  animation: filter-animation 1.5s 2;
+}
+@keyframes filter-animation {
+    0% {
+        filter: invert(0%) sepia(4%) saturate(7484%)
+                hue-rotate(171deg) brightness(95%) contrast(105%);
+    }
+    50% {
+        filter: invert(93%) sepia(2%) saturate(5452%)
+                hue-rotate(63deg) brightness(116%) contrast(69%);
+    }
+    100% {
+        filter: invert(0%) sepia(4%) saturate(7484%)
+                hue-rotate(171deg) brightness(95%) contrast(105%);
+    }
 }
 
 #controls {
@@ -103,9 +125,7 @@
     right: 8px;
     left: 8px;
     top: 0px;
-    border-top: 3px solid white;
-    border-left: none;
-    border-right: none;
+    border: none;
     z-index: 3;
     font-family: var(--btControlsFont);
 }                    
@@ -132,6 +152,9 @@
     border-radius: 0px 0px 5px 5px;
     backdrop-filter: blur(3px);
     min-height: 280px;
+    top: -2px;
+    margin-left: 1px;
+    margin-right: 1px;
 }
 
 #openingTips {
@@ -171,7 +194,7 @@
     padding-right: 0px;
     border-radius: 2px;
     cursor: pointer;
-    right: 11px;
+    right: 9px;
 }
 
 .modal {
@@ -190,7 +213,6 @@ dialog {
     border: 2px solid var(--btMainHighlight) ;
     border-radius: 3px;
     box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
-    width: 88%;
     padding: 10px;
     padding-top: 2px;
     margin-top: 0px;
