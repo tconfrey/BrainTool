@@ -1095,6 +1095,10 @@ function buttonShow() {
                 $("#expand1").show();
             }
         }
+        else {
+            $("#expand").hide();
+            $("#expand1").hide();
+        }
         $("#collapse").hide();
     }
     // show expand/collapse if some kids of branch are not open/closed
