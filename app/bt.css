@@ -50,7 +50,7 @@
 }
 
 #stats_row {
-    height: 18px;
+    height: 27px;
     color: var(--btHeaderFontColor);
     position: absolute;
     top: 1px;
