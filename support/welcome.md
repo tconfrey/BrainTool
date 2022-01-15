@@ -10,6 +10,12 @@ audience: user
 
 We're very glad to have you as a new user. This page should help you get up and running on some things that might not be immediately obvious.
 
+## Installation and Organization. Step by step video
+Here's a 3 minute video of the process.
+<video width="95%" controls style="border:solid; border-width:1px">
+  <source src="../../../media/BTInstall.mp4" type="video/mp4">
+</video>
+
 ## Launching BrainTool
 
 Chrome hides new extensions under the jigsaw piece icon on the top right of its window. You can pin the BrainTool icon to your browser toolbar by clicking the puzzle piece and hitting the pin next to the BT icon. 

@@ -24,6 +24,8 @@ With BrainTool you need fewer tabs open. Use the BrainTool Bookmarker to file ta
 * Project
 Keep all your links and notes for each project in one place. Expand these example projects to see sample sub topics.
 
+** TODO Create your projects
+Maybe while importing from bookmarks and other sources.
 ** Sample Project - Kitchen Renovation
   :PROPERTIES:
   :VISIBILITY: folded
@@ -99,6 +101,9 @@ Project document
 
 * Area
 Non-project areas of life to keep track of. 
+
+** TODO Create your Areas
+Maybe while importing from bookmarks and other sources.
 
 ** Personal
 Maybe keep personal and work stuff separate.
