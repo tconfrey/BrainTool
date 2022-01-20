@@ -179,100 +179,19 @@ podcast interview
     :PROPERTIES:
     :VISIBILITY: folded
     :END:
-Reference materials and other resources. Create sub topics under here - eg Resource:BrainTool
+Reference materials and other resources you want to organize and get back to.
 
-** BrainTool
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
-As an example in a recursive kind of way. This topic and its children capture resources related to BrainTool.
+** Public Topic Trees
+BrainTool Topic hierarchies can be saved separately and shared. Open here to see the current set of public resources or click to open any of the example set below.
 
-*** [[https://braintool.org/support][BrainTool Support Page]]
+*** [[https://braintool.org/topicTrees/BrainTool.org][BrainTool]]
+BrainTool related links and topics. Click to download and browse.
 
-*** [[https://braintool.org/posts.html][Blog]]
+*** [[https://braintool.org/topicTrees/PersonalProductivity.org][Productivity and PKM]]
+BrainTool is part of a general class of personal productivity and personal knowledge management tools that are increasing in popularity. This link opens a set of relevant resources for further exploration.
 
-*** [[https://braintool.org/overview.html][Vision]]
-
-*** [[https://groups.google.com/u/0/g/braintool-discussion][Discussion Group]]
-
-*** Complementary Tools
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
- Useful tools in an BrainTool/org-mode based workflow.
-
-**** [[https://organice.200ok.ch/][organice]]
- Cloud based editor for your BrainTool file.
-
-**** [[https://play.google.com/store/apps/details?id=com.orgzly][Orgzly | Notes & To-Do Lists]]
- Orgzly is a mobile todo app on top of org. Use it to get your BrainTool on your phone.
-
-**** [[https://chrome.google.com/webstore/detail/quick-tabs/jnjfeinjfmenlddahdjdmgpbokiacbbb?hl=en][Quick Tabs - Chrome Web Store]]
- keyboard search for tabs
-
-**** [[https://org-roam.readthedocs.io/en/master/][Org-roam]]
- A non-hierarchal org model
-
-*** Contributions
-    :PROPERTIES:
-    :VISIBILITY: folded
-    :END:
- Thanks to the people behind these tools and resources for letting me stand on their shoulders.
-
-**** [[https://projects.verou.me/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
- JavaScript autocomplete library
-
-**** [[https://github.com/orgapp/orgajs][orgapp/orgajs: parse org-mode content into AST]]
- JS parser for org mode
-
-**** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
-Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by Farias and Done by Praveen.
-
-**** [[http://jackconfrey.com/work][jconfrey Art]]
- Graphic design and project artwork by Jack Confrey
-
-
-** Personal Productivity
-  :PROPERTIES:
-  :VISIBILITY: folded
-  :END:
-BrainTool is a Topic Manager. A new category of personal productivity tool! Here are some other personal productivity resources.
-*** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
-the inspiration for the general structure of this sample set of BrainTool Topics
-
-*** [[https://www.reddit.com/r/productivity/][reddit forum]]
-
-*** [[https://francescod.medium.com/][Francesco D]]
-Productivity blogger and software reviewer
-
-*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
-The "self-help classic for managing work-life balance in the twenty-first century"
-
-** emacs and org-mode
-   :PROPERTIES:
-   :VISIBILITY: folded
-   :END:
-Another way to use your BrainTool file is via a text editor and emacs is the ultimate. Advanced users only!
-
-***  [[https://www.gnu.org/software/emacs/][emacs]]
-*** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
-A set of articles from The Lucid Manager
-
-*** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
-
-*** [[https://orgmode.org/][Org mode for Emacs - Your Life in Plain Text]]
-The structure of your topics and pages is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
-
-*** [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode beginning at the basics]]
-
-*** [[https://orgmodeforbeginners.com/overview/][Org mode for beginners]]
-another set of tutorials
-
-*** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
-Jethro Kuan's workflow
-
-*** [[https://www.youtube.com/c/SystemCrafters][System Crafters Videos]]
-See particularly the intro series
+*** [[https://BrainTool.org/topicTrees/EmacsAndOrg.org][Emacs and org-mode]]
+Emacs is a venerable text editor, org-mode is a plain text format used within emacs to capture outlines, notes, TODO's, calendar items, links and more. Your BrainTool data is stored in org format and so can integrate with an org-based workflow. Technically savvy users only!
 
 * Archive
   :PROPERTIES:

@@ -1,14 +1,34 @@
-#+PROPERTY: BTParentTopic Resource
+#+PROPERTY: BTParentTopic Resource:Productivity and PKM
 
-** Personal Productivity
+* Productivity
 BrainTool is a Topic Manager. A new category of personal productivity tool! Here are some other personal productivity resources.
-*** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
-the inspiration for the general structure of this sample set of BrainTool Topics
+** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
+The inspiration for the general structure of the sample set of BrainTool Topics. 
 
-*** [[https://www.reddit.com/r/productivity/][reddit forum]]
+** [[https://www.reddit.com/r/productivity/][reddit forum]]
+Like minds.
 
-*** [[https://francescod.medium.com/][Francesco D]]
-Productivity blogger and software reviewer
+** [[https://francescod.medium.com/][Francesco D]]
+Productivity blogger and software reviewer.
 
-*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
+** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
 The "self-help classic for managing work-life balance in the twenty-first century"
+
+* Personal Knowledge Management
+BrainTool is also a PKM tool! PKM is undergoing somewhat of a renaissance. Tools in the space include the following.
+
+** [[https://roamresearch.com/][Roam Research.]]
+A note taking tool for networked thought. Bi directional linking. Expensive, lots of buzz but fallen off lately.
+
+** [[https://obsidian.md/][Obsidian]]
+Second brain note taking app. Free for individuals w paid services.
+
+** [[https://logseq.com][Logseq]]
+Like Roam but writes to local file in markdown or org. Pay what you want. Integrates with BrainTool by just pointing them both to the same file.
+
+** [[https://expandedramblings.com/index.php/evernote-statistics/][Evernote]]
+The 800lb gorilla. [[https://expandedramblings.com/index.php/evernote-statistics/][250M users]] 
+
+** [[https://www.dendron.so/][Dendron - Dendron]]
+Hierarchal plus backlinks like Roam. Built on VScode, writes to local markdown file
+

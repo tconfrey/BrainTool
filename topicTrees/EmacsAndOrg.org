@@ -1,0 +1,30 @@
+#+PROPERTY: BTParentTopic Resource:Emacs and org-mode
+
+
+* emacs
+The OG editor tool. Another way to use your BrainTool file is via a text editor and emacs is the ultimate. Advanced users only!
+
+** [[https://www.gnu.org/software/emacs/][emacs]]
+Emacs homepage on the gnu site.
+
+** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
+A set of articles from The Lucid Manager
+
+** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
+
+* org-mode
+The OG productivity tool. Org is the underlying data format used by BrainTool to capture your data, but this 20 year old productivity tool can do so much more!
+
+** [[https://orgmode.org/][Org mode for Emacs - Your Life in Plain Text]]
+The structure of your topics and pages is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
+
+** [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode beginning at the basics]]
+
+** [[https://orgmodeforbeginners.com/overview/][Org mode for beginners]]
+another set of tutorials
+
+** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
+Jethro Kuan's workflow
+
+** [[https://www.youtube.com/c/SystemCrafters][System Crafters Videos]]
+See particularly the intro series
