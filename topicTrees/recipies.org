@@ -1,5 +1,5 @@
-#+PROPERTY: BTParentTopic Resource
-* recipes.org
+#+PROPERTY: BTParentTopic Resource:Recipes
+* Dinners
 
 ** [[https://www.wellplated.com/sauteed-cabbage/][Sauteed Cabbage | Easy, Healthy Recipe]]
 sauted cabbage, easy and good.
@@ -19,9 +19,6 @@ Made for Dublin Confrey's Saturday
 
 ** [[https://www.foodandwine.com/recipes/kale-and-white-bean-stew][Kale and White-Bean Stew Recipe - ]]
 Added some broth, green spices, chipotle. 2 Chorizo's
-
-** [[https://www.geniuskitchen.com/recipe/spicy-garlic-hummus-90910][Spicy garlic hummus]]
-used habanero pepper instead of chili, also added some hot sesame oil. Parsley on top. Very hot but very good.
 
 ** [[https://photos.app.goo.gl/Jw5iHWqWxTeREQkT9][Chicken and rice]]
 
@@ -43,11 +40,7 @@ haven't made but looks good
 ** [[http://makingthymeforhealth.com/white-bean-zucchini-burgers/][white bean zucchini burgers]]
 bit messy, took a long time to cook but not bad. (w oven fries)
 
-** Grilled Lemon chicken 
-   :PROPERTIES:
-   :VISIBILITY: folded
-   :END:
-[[https://www.bonappetit.com/recipe/grilled-chicken-with-lemon-and-thyme][undefined]]
+** [[https://www.bonappetit.com/recipe/grilled-chicken-with-lemon-and-thyme][Grilled Lemon chicken]]
 
 ** [[https://shewearsmanyhats.com/white-bean-chicken-chili/][White Bean Chili]]
 made w Jacks turkey broth. Sauted everything in one pot before adding beans/liquid. Very delicious.
@@ -59,6 +52,10 @@ Tried to make a big batch. Came out way too hot! Lesson - add Cayenne (or any sp
 
 ** [[https://www.food.com/recipe/lentil-and-pea-soup-ham-hocks-12232][Ham and split pea]]
 only used 2 ham hooks plus bacon and 2xchorizo. Hooks have no meat and could use several hours of simmering, or cut them up midway. pretty good stuff.
+
+* Other
+** [[https://www.geniuskitchen.com/recipe/spicy-garlic-hummus-90910][Spicy garlic hummus]]
+used habanero pepper instead of chili, also added some hot sesame oil. Parsley on top. Very hot but very good.
 
 ** [[https://www.fifteenspatulas.com/chocolate-cupcakes-with-peanut-butter-buttercream/][Chocolate Peanut Butter Cupcakes - Best Chocolate Cupcakes from Scratch]]
 Made em!!!
