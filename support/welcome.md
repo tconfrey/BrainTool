@@ -16,6 +16,8 @@ Here's a 3 minute video of the process.
   <source src="../../../media/BTInstall.mp4" type="video/mp4">
 </video>
 
+There's also a [YouTube Playlist](https://www.youtube.com/watch?v=6JGdPIenO38&list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP&index=1) with a few more examples of BT in use.
+
 ## Launching BrainTool
 
 Chrome hides new extensions under the jigsaw piece icon on the top right of its window. You can pin the BrainTool icon to your browser toolbar by clicking the puzzle piece and hitting the pin next to the BT icon. 

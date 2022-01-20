@@ -1,4 +1,4 @@
-#+PROPERTY: BTParentTopic Resource:Emacs and org-mode
+#+PROPERTY: BTParentTopic Resource:Public Topic Trees:Emacs and org-mode
 
 
 * emacs
