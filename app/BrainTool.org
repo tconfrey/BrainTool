@@ -181,8 +181,8 @@ podcast interview
     :END:
 Reference materials and other resources you want to organize and get back to.
 
-** [[https://braintool.org/topictrees][Public Topic Trees]]
-BrainTool Topic hierarchies can be saved separately and shared. Open here to see the current set of public resources or click to open any of the example set below.
+** [[https://braintool.org/topicTrees][Public Topic Trees]]
+BrainTool Topic hierarchies can be saved separately and shared. Open the examples below to import them or click here to see others available on the BrainTool.org site.
 
 *** [[https://braintool.org/topicTrees/BrainTool.org][BrainTool]]
 BrainTool related links and topics. Click to download and browse.
