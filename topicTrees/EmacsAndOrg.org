@@ -23,6 +23,9 @@ The structure of your topics and pages is captured in an org-mode format. Probab
 ** [[https://orgmodeforbeginners.com/overview/][Org mode for beginners]]
 another set of tutorials
 
+** [[https://karl-voit.at/2020/01/20/start-using-orgmode/][How to start with Emacs Org Mode]]
+@publicVoits take on getting started, and a gateway into many resources.
+
 ** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
 Jethro Kuan's workflow
 
