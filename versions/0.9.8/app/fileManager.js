@@ -8,7 +8,7 @@ async function saveBT(localOnly = false) {
     // Save org version of BT Tree to local storage and potentially gdrive.
     // localOnly => don't save to GDrive backing and don't send gtag stat. Used when folding/unfolding
 
-    console.log("Writing BT to Storage");
+    console.log(`Writing BT to ${localOnly ? 'local' : 'remote'} Storage`);
     BTFileText = BTAppNode.generateOrgFile();
     if (window.LOCALTEST) return;
 
@@ -478,11 +478,24 @@ function importOrgFile() {
     if (!uploader.files.length) return;
     const file = uploader.files[0];
     fr.onload = function(){
-        insertOrgFile(file.name, fr.result);                 // call parser to insert
+        insertOrgFile(file.name, fr.result);     // call parser to insert
         gtag('event', 'OrgImport', {'event_category': 'Import'});
     };
     fr.readAsText(file);
-    this.value = null;                                       // needed to re-trigger if same file selected again
+    this.value = null;                           // needed to re-trigger if same file selected again
+}
+
+async function loadOrgFile(url) {
+    // load topic tree from web resource
+    
+    let response = await fetch(url);
+    if (response.ok) {
+        const btdata = await response.text();
+        insertOrgFile("Import", btdata);
+    } else {            
+        alert('Error loading Topic file');
+    }
+    return;
 }
 
 

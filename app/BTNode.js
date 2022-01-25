@@ -49,7 +49,6 @@ class BTNode {
     get tagPath() {
         return this._tagPath;
     }
-
     set parentId(i) {
         this._parentId = i;
     }
@@ -76,6 +75,12 @@ class BTNode {
             this._childIds.splice(index, 1);
     }
 
+    findChild(childTopic) {
+        // does this topic node have this sub topic
+        const childId = this.childIds.find(id => AllNodes[id].displayTag == childTopic);
+        return childId ? AllNodes[childId] : null;
+    }
+
     // only used in isTag
     _hasWebLinks() {
 	    // Calculate on demand since it may change based on node creation/deletion
@@ -86,6 +91,13 @@ class BTNode {
     isTag() {
         // Is this node used as a tag => has webLinked children
         return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
+    }
+    
+    isTopicTree() {
+        // Does this nodes url match a pointer to a web .org resource that can be loaded
+        // NB only use on bt urls for now. any kind oof page can end in .org.
+        const reg = /.*:\/\/.*braintool.*\/.*\.org/i;
+        return reg.exec(this._URL) ? true : false;
     }
     
     reparentNode(newP, index = -1) {
@@ -108,7 +120,7 @@ class BTNode {
         const hits  = reg.exec(title);
         return hits ? hits[1] : "";        
     }
-
+    
     static displayTagFromTitle(title) {
         // Visible tag for this node. Pull tags out, use url if no tag
         let outputStr = title.replace(/\[\[(.*?)\]\[(.*?)\]\]/gm, (match, $1, $2) =>
@@ -143,36 +155,18 @@ class BTNode {
 			                 (node &&
 			                  (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url))));
     }
-
-    static findFromTagPath(tagPath) {
-        // NB currently only handles parent:child, not more levels, will return first found match
-        const components = BTNode.processTagString(tagPath);
-        const tag = components[0];
-        const parent = components[1];
-        if (!parent)
-            return AllNodes.find(node => node && node.displayTag == tag);
-        const potentialMatches = AllNodes.filter(node => node.displayTag == tag);
-        return potentialMatches.find(node => node.parentId && AllNodes[node.parentId].displayTag == parent);
-    }
     
     static topIndex = 1;    // track the index of the next node to create, static class variable.
     
-    static processTagString(tag) {
+    static processTopicString(topic) {
         // Tag string passed from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
-        // return array[tag, parent, TODO, tagpath]
+        // return array[tagpath, TODO]
 
-        tag = tag.trim();
-        let match = tag.match(/(.*):(.*):TODO/);
-        if (match)                                // parent:tag:TODO form
-            return [match[2], match[1], "TODO", match[1]+':'+match[2]];
-        match = tag.match(/(.*):TODO/);
-        if (match)                                // tag:TODO form
-            return [match[1], null, "TODO", match[1]];
-        match = tag.match(/(.*):(.*)/);
-        if (match)                                // parent:tag form
-            return [match[2], match[1], null, match[1]+':'+match[2]];
-        
-        return [tag, null, null, tag];
+        topic = topic.trim();
+        let match = topic.match(/(.*):TODO/);
+        if (match)                                // topicDN:TODO form
+            return [match[1], "TODO"];
+        return[topic, ""];
     }
 
     static undoStack = [];
@@ -222,6 +216,7 @@ class BTNode {
     
     generateUniqueTagPath() {
         // same tag can be under multiple parents, generate a unique tagPath
+        // only called from ctor. suplanted by below. can't really amke uniquee without looking at all topics
 
         if (!this.isTag()) {
             if (this.parentId && AllNodes[this.parentId])
@@ -247,14 +242,66 @@ class BTNode {
         });
     }
     
-    static generateUniqueTagPaths() {
-        // same tag can be under multiple parents, generate a unique tagPath for each node
-        AllNodes.forEach(function(n) {
+    
+    static generateUniqueTopicPaths() {
+        // same topic can be under multiple parents, generate a unique topic Path for each node
+
+        // First create a map from topics to array of node ids w that topic name
+        let topics = {};
+        let flat = true;
+        let level = 1;
+        AllNodes.forEach((n) => {
             if (!n) return;
-            n.generateUniqueTagPath();
+            if (n.isTag()) {
+                if (topics[n.displayTag]) {
+                    topics[n.displayTag].push(n.id);
+                    flat = false;
+                }
+                else
+                    topics[n.displayTag] = Array(1).fill(n.id);
+            }});
+
+        // !flat => dup topic names (<99 to prevent infinite loop
+        while(!flat && level < 99) {
+            level++; flat = true;
+            Object.entries(topics).forEach(([topic, ids]) => {
+                if (ids.length > 1) {
+                    // replace dups w DN of increasing levels until flat
+                    delete topics[topic];
+                    ids.forEach(id => {
+                        let tpath = AllNodes[id].displayTag;
+                        let parent = AllNodes[id].parentId;
+                        for (let i = 1; i < level; i++) {
+                            if (parent) {
+                                tpath = AllNodes[parent].displayTag + ":" + tpath;
+                                parent = AllNodes[parent].parentId;
+                            }
+                        }                        
+                        if (topics[tpath]) {
+                            topics[tpath].push(id);
+                            flat = false;
+                        }
+                        else
+                            topics[tpath] = Array(1).fill(id);
+                    });
+                }
+            });
+        }
+
+        // Now walk thru map and assign unique DN to topic nodes
+        Object.entries(topics).forEach(([topic, id]) => {
+            AllNodes[id[0]]._tagPath = topic;
+        });
+        
+        // Finally set topic for link nodes to parent
+        AllNodes.forEach(node => {
+            if (!node.isTag()) {
+                if (this.parentId && AllNodes[this.parentId])
+                    this._tagPath = AllNodes[this.parentId].tagPath;
+                else
+                    this._tagPath = this._displayTag;
+            }
         });
     }
-
-
     
 }

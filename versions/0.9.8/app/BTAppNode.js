@@ -14,8 +14,8 @@ class BTAppNode extends BTNode {
      * Basic node accessor functions w associated logic
      *
      ***/
-    constructor(title, parent, text, level) {
-        super(title, parent);
+    constructor(title, parentId, text, level) {
+        super(title, parentId);
         this._text = text;
         this._level = level;
         this._folded = false;
@@ -181,6 +181,20 @@ class BTAppNode extends BTNode {
 	    return $(`tr[data-tt-id='${this.id}']`)[0];
     }
 
+    getTTNode() {
+        // return treetable node (nb not jquery node)
+        return $("table.treetable").treetable("node", this.id);
+    }
+    
+    createDisplayNode(displayParent = null) {
+        // call out to treetable w nodes html, really its create or return
+        if (this.getTTNode()) return this.getTTNode();
+        if (this.parentId && !displayParent)
+            displayParent = AllNodes[this.parentId].createDisplayNode();
+        $("table.treetable").treetable("loadBranch", displayParent || null, this.HTML());
+        return this.getTTNode();
+    }
+
     redisplay(show=false) {
 	    // regenerate content
 	    const dn = this.getDisplayNode();
@@ -190,7 +204,7 @@ class BTAppNode extends BTNode {
 	        this.onclick = handleLinkClick;
 	    });
 	    show && this.showForSearch();					  // reclose if needed
-	    if (this.childIds.length)					  // set correctly
+	    if (this.childIds.length)                         // set correctly
 	        $(dn).children('.left').removeClass('childlessTop');
     }
     
@@ -199,7 +213,7 @@ class BTAppNode extends BTNode {
 	    const disp = this.getDisplayNode();
 	    if(!$(disp).is(':visible')) {
 	        if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
-	        $(disp).show();						   // jquery node show
+	        $(disp).show();                                                // jquery node show
 	        this.shownForSearch = true;
 	    } 
     }
@@ -221,7 +235,11 @@ class BTAppNode extends BTNode {
 	    let match = false;
 	    const node = this.getDisplayNode();
 	    let titleStr;
-	    if (reg.test(this.displayTag)) {
+        if (reg.test(this.keyword)) {
+            titleStr = `<b class='highlight'>${this.keyword}</b> ${this.displayTag}`;
+	        $(node).find("span.btTitle").html(titleStr);
+            match = true;
+        } else if (reg.test(this.displayTag)) {
 	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	        $(node).find("span.btTitle").html(titleStr);
 	        match = true;
@@ -307,9 +325,21 @@ class BTAppNode extends BTNode {
                 {'function' : 'showNode', 'windowId': this.windowId});
     }
 
-    openTab() {
+    async openTopicTree() {
+        // this node points to a topic tree, have fileManager open and insert it
+        await loadOrgFile(this.URL);
+
+    }
+    
+    openURL() {
         // open this nodes url
         if (!this.URL || this._opening) return;
+
+        // if this node is a link to a topic tree load it up
+        if (this.isTopicTree()) {
+            this.openTopicTree();
+            return;
+        }
 
         // if already open, tell bg to show it
         if (this.tabId) {
@@ -372,8 +402,8 @@ class BTAppNode extends BTNode {
 
         // if we don't care about windowing just open each tab
         if (GroupingMode == GroupOptions.NONE) {
-            this.openTab();
-            this.childIds.forEach(nodeId => AllNodes[nodeId].openTab());
+            this.openURL();
+            this.childIds.forEach(nodeId => AllNodes[nodeId].openURL());
         }
         else {                      // need to open all urls in single (possibly new) window
             let urls = [];
@@ -655,7 +685,7 @@ class BTAppNode extends BTNode {
         }
         
         // first make sure each node has a unique tagPath
-        BTNode.generateUniqueTagPaths();
+        BTNode.generateUniqueTopicPaths();
         Tags = new Array();
         for (const node of AllNodes) {
             if (node && node.level == 1)
@@ -697,6 +727,44 @@ class BTAppNode extends BTNode {
         // find topic from tab group
         return AllNodes.find(node => node && node.isTag() && node.tabGroupId == groupId);
     }
+    
+    static findOrCreateFromTopicDN(topicDN) {
+        // Walk down tree of topics from top, finding or creating nodes & tt display nodes
+        let components = topicDN.match(/.*?:/g);
+        if (components) components = components.map(c => c.slice(0, -1));          // remove :
+        const topic = topicDN.match(/:/) ? topicDN.match(/.*:(.*?$)/)[1] : topicDN;
+        const topTopic = (components && components.length) ? components[0] : topic;
+
+        // Find or create top node
+        let topNode = AllNodes.find(node => node && node.displayTag == topTopic);
+        if (!topNode) {
+            topNode = new BTAppNode(topTopic, null, "", 1);
+            topNode.createDisplayNode();
+        }
+            
+        if (!components) return topNode;
+        
+        // Remove, now handled first elt, Walk down rest creating as needed
+        let currentNode = topNode;
+        components.shift();
+        components.forEach((t) => {
+            let node = currentNode;
+            currentNode = currentNode.findChild(t);
+            if (!currentNode) {
+                currentNode = new BTAppNode(t, node.id, "", node.level + 1);
+                currentNode.createDisplayNode();
+            }
+        });
+
+        // finally find or create the leaf node
+        if (currentNode.findChild(topic))
+            return currentNode.findChild(topic);
+        let newLeaf = new BTAppNode(topic, currentNode.id, "", currentNode.level + 1);
+        newLeaf.createDisplayNode();
+        topNode.redisplay();                              // since new nodes created
+        return newLeaf;
+    }
+    
 }
 
 
@@ -742,15 +810,7 @@ class BTLinkNode extends BTAppNode {
         // Link nodes are never tags
         return false;
     }
-
-    /*
-      get displayTag() {
-      // No display tag for linknodes cos they should never be a tag
-      return "";
-      }
-    */
-}
-
+}   
 
 /***
  *

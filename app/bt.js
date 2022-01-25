@@ -187,12 +187,12 @@ function addTip() {
     $("#tip").show();
 }
 
-// register for focus and check then if external file has been edited
+// register for focus
 window.onfocus = handleFocus;
 function handleFocus(e) {
-    // Topic Manager got focus, do the needful
-    if (document.activeElement.id == "search_entry")
-        $("#search_entry").blur();
+    // Links w focus interfere w BTs selection so remove
+    document.activeElement.blur();
+    // check file version, potentially warn no staleness
     warnBTFileVersion(e);
 }
 
@@ -729,7 +729,7 @@ function nodeCollapse() {
 
 function handleLinkClick(e) {
     const nodeId = $(this).closest("tr").attr('data-tt-id');
-    AllNodes[nodeId].openTab();
+    AllNodes[nodeId].openURL();
     e.preventDefault();
 }
 
@@ -774,7 +774,7 @@ function tabOpened(data, highlight = false) {
                           row.removeClass("hovered", 1000);
                       }});
     }
-    
+
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
     if (GroupingMode != GroupOptions.WINDOW) return;
     const expectedIndex = node.indexInParent();
@@ -817,23 +817,27 @@ function tabClosed(data) {
 }
 
 function storeTabs(data) {
-    // put tab(s) under storage w given tag. tabsData is a list, could be one or all tabs in window
-    // NB tagString may be tag, parent:tag, tag:keyword, parent:tag:keyword
-    // where tag may be new, new under parent, or existing but under parent to disambiguate
-    const tagString = data.tag;
+    // put tab(s) under storage w given topic. tabsData is a list, could be one or all tabs in window
+    // NB topicString may be topic, topic:hierarchy:nodes etc and may have a terminating :TODO
+    // Topic may be a new path, new path under parent, or existing but under parent to disambiguate
+    const topicString = data.tag;
     const note = data.note;
     const windowId = data.windowId;
     const tabAction = data.tabAction;
 
-    // process tag and add new if doesn't exist    
-    const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString || "Scratch");
-    const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
-    const ttParent = $("table.treetable").treetable("node", parentNode.id);
+    // process topic info create topic hierarchy as needed. no topic => scratch
+    const [topicDN, keyword] = BTNode.processTopicString(topicString || "Scratch");
+    const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
+    const ttNode = topicNode.getTTNode();
+
+    // update shared memory for popup
+    BTAppNode.generateTags();                       // NB should really only do this iff needed
+    window.postMessage({'function': 'localStore', 'data':
+                        {'tags': Tags, 'mruTopic': topicDN, 'mruTime': new Date().toJSON()}});
+
+    // process tabs to store
     const tabsData = data.tabsData.reverse();
     let newNodes = [];
-
-    // remember tag/time for potential pre-fill in popup next time
-    window.postMessage({'function': 'localStore', 'data': {'mruTopic': tagPath, 'mruTime': new Date().toJSON()}});
 
     tabsData.forEach(tabData => {
         // create each new node and add to tree
@@ -842,11 +846,11 @@ function storeTabs(data) {
         const tabId = tabData.tabId;
         let node = BTAppNode.findFromTab(tabId);
         if (!node) {
-            node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
-                                 note || "", parentNode.level + 1);
+            node = new BTAppNode(`[[${url}][${title}]]`, topicNode.id,
+                                 note || "", topicNode.level + 1);
             node.tabId = tabId;
             if (keyword) node.keyword = keyword;
-            $("table.treetable").treetable("loadBranch", ttParent, node.HTML());
+            $("table.treetable").treetable("loadBranch", ttNode, node.HTML());
         } else {
             node.title = `[[${url}][${title}]]`;
             node.text = note || "";
@@ -859,12 +863,12 @@ function storeTabs(data) {
     });
 
     // sort tree based on position in parents child array
-    parentNode.redisplay();				     // in case changed by adding children
+    topicNode.redisplay();                                  // in case changed by adding children
     const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
-    const childIds = parentNode.childIds;
+    const childIds = topicNode.childIds;
     $("table.treetable").treetable(
-        "sortBranch", ttParent, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
-    
+        "sortBranch", ttNode, (a, b) => (compare(childIds.indexOf(a.id),
+                                                      childIds.indexOf(b.id))));
     initializeUI();
     saveBT();
 
@@ -876,29 +880,29 @@ function storeTabs(data) {
     newNodes.forEach(node => setNodeOpen(node));            // if not closing then show as open
     if (GroupingMode == 'WINDOW') {
         // w window grouping either move to existing assigned window or just remember this one
-        if (parentNode.windowId || newNodes.length == 1) {
+        if (topicNode.windowId || newNodes.length == 1) {
             newNodes.forEach(node => node.group());
             newNodes[0] && newNodes[0].showNode();
         }
         else
-            parentNode.windowId = windowId;
+            topicNode.windowId = windowId;
         return;
     }
     
-    if (GroupingMode == 'TABGROUP')
-        if (parentNode.tabGroupId) {
-            if (tabAction == 'GROUP' || (windowId == parentNode.windowId))
-                // even if 'stick' should group when in same window, confusing otherwise.
+    if (GroupingMode == 'TABGROUP') {
+        if (topicNode.tabGroupId) {
+            if (tabAction == 'GROUP' || (windowId == topicNode.windowId))
                 newNodes.forEach(node => node.group());
             newNodes[0] && newNodes[0].showNode();
         }
-    else {
-        // Tell bg to create a new TG for Topic
-        const tabIds = newNodes.map(node => node.tabId);
-        const nodeIds = newNodes.map(node => node.id);
-        window.postMessage(
-            {'function': 'moveToTabGroup', 'tabIds': tabIds,
-             'nodeIds': nodeIds, 'windowId': windowId});
+        else {
+            // Tell bg to create a new TG for Topic
+            const tabIds = newNodes.map(node => node.tabId);
+            const nodeIds = newNodes.map(node => node.id);
+            window.postMessage(
+                {'function': 'moveToTabGroup', 'tabIds': tabIds,
+                 'nodeIds': nodeIds, 'windowId': windowId});
+        }
     }
 }
 
@@ -1029,30 +1033,6 @@ function setNodeOpen(node) {
     $("tr[data-tt-id='"+node.id+"']").addClass("opened");
     $("tr[data-tt-id='"+parentId+"']").addClass("opened");
     propogateOpened(parentId);
-}
-
-function addNewTag(tag, parentTag = null, parentNode = null) {
-    // New tag - create node and add to tree, parentNode might be known (if local creation)
-
-    // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
-    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
-    if (parentTag && !parentTagNode) {
-        parentTagNode = new BTAppNode(parentTag, null, "", 1);
-        $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
-    }
-
-    // 2) Create new tag and update extension
-    const parentTagLevel = parentTagNode ? parentTagNode.level : 0;
-    const parentTagId = parentTagNode ? parentTagNode.id : null;
-    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1); // name, parent, note, lvl
-    BTAppNode.generateTags();
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-
-    // 3) Update tree
-    const n = $("table.treetable").treetable("node", parentTagId);
-    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
-    parentTagNode && parentTagNode.redisplay();				     // in case changed by adding children
-    return newNode;
 }
 
 
@@ -1265,7 +1245,7 @@ function openRow(e) {
 	    AllNodes[appNode.id].folded = false;
         setTimeout(() => appNode.openAll(), 50);
     } else
-        appNode.openTab();
+        appNode.openURL();
 }
 
 function closeRow(e) {
@@ -1409,7 +1389,8 @@ function addChild(e) {
     if (!node) return;
     const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Topic'));
     const newName = newnodes.length ? 'New Topic'+newnodes.length : 'New Topic';
-    const newNode = addNewTag(newName, node.tagPath, node);
+    const newNode = new BTAppNode(newName, node.id, "", node.level + 1);
+    newNode.createDisplayNode();
 
     // and highlight it for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
@@ -1824,12 +1805,9 @@ function extendedSearch(start, sstr, selectedNode) {
  ***/
 // prevent default space/arrow key scrolling and element tabbing on table (not in card edit fields)
 window.addEventListener("keydown", function(e) {
-    if ($("#search_entry").is(":focus") ||
-        $("#title-text").is(":focus") ||
-        $("#topic-text").is(":focus") ||
-        $("#text-text").is(":focus"))
-	    return;
-    if(["ArrowUp","ArrowDown","Space", "Tab"].indexOf(e.code) > -1) {
+    if ($("#dialog").find(':focus').length) return;
+    if ($("#search_entry").is(":focus")) return;
+    if(["ArrowUp","ArrowDown","Space", "Tab", "Enter"].indexOf(e.code) > -1) {
         e.preventDefault();
     }
 }, false);
@@ -1945,12 +1923,14 @@ function keyUpHandler(e) {
         }
     }
     
-    // tab == expand or collapse
+    // tab == expand or collapse if node has children
     if (code == "Tab") {
-        if (node.folded)
-            $("table.treetable").treetable("expandNode", nodeId);
-        else
-            $("table.treetable").treetable("collapseNode", nodeId);
+        if (node.isTag()) {
+            if (node.folded)
+                $("table.treetable").treetable("expandNode", nodeId);
+            else
+                $("table.treetable").treetable("collapseNode", nodeId);
+        }
         e.preventDefault();
         return;
     }
@@ -2008,7 +1988,7 @@ function keyUpHandler(e) {
 
     // space = open tab/window
     if (code === "Space") {
-        node.openTab();
+        node.openURL();
         e.preventDefault();
     }
 

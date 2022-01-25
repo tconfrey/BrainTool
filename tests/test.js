@@ -494,7 +494,7 @@ QUnit.module("Extension tests", function() {
         window.addEventListener('message', handler);
         const doer = function() {
             if (readyForTests) {
-                AllNodes[3].openTab();
+                AllNodes[3].openURL();
             }
             else {
                 setTimeout(doer, 250);

@@ -39,10 +39,26 @@ function parseBTFile(fileText) {
     }
 }
 
+function findOrCreateParentTopic(fileName, fileText) {
+    // pull any BTParentTopic out of file props and get/create, otherrwise create at top level
+
+    const filePropertyRegex = /(^#\+PROPERTY: .*$\n)+/m;       // multi-line match prop statements
+    const match = filePropertyRegex.exec(fileText);
+    
+    const propValRegex = /PROPERTY: (.*?) (.*)/g;
+    let m;
+    while (match && (m = propValRegex.exec(match[0])) !== null) {
+        if (m[1] == "BTParentTopic")
+            return BTAppNode.findOrCreateFromTopicDN(m[2]);
+    }
+
+    return new BTAppNode(fileName, null, `Imported ${getDateString()}`, 1);
+}
+
 function insertOrgFile(fileName, fileText) {
     // Insert contents of this org filetext under the provided parent
 
-    const parentNode = new BTAppNode(fileName, null, `Imported ${getDateString()}`, 1);
+    const parentNode = findOrCreateParentTopic(fileName, fileText);
     const parseTree = orgaparse(fileText);
     Lines = generateLinesAndColumns(fileText);
     for (const orgaNode of parseTree.children) {

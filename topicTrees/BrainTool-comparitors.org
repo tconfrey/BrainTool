@@ -1,0 +1,81 @@
+#+PROPERTY: BTParentTopic Resource:Public Topic Trees
+* BrainTool Comparatives
+Lots of activity in the space across the 3 billion Chromium users, implying a significant demand but its very frothy, hard to rise above the noise. 
+
+** Tabs/Session Managers
+ Lots of users, mostly free tools. They address the symptoms of too many tabs by filing them away as links in a single tab or suspending them after a timeout. Issues w data ownership/privacy.
+*** [[https://chrome.google.com/webstore/detail/tab-suspender/fiabciakcmgepblmdkmemdbbkilneeeh][Tab Suspender]]
+ After timeout replaces tab w static image. just a browser enhancer. 100K users
+*** [[https://www.one-tab.com/][OneTab]]
+ Turns all your tabs into one tab w links. Free, not actively developed. 2M users. 95% memory reduction?
+*** [[https://chrome.google.com/webstore/detail/session-buddy/edacconmaakjimmfgnblocblbcdcpbko][Session Buddy]]
+ Free/donations. 900K users. No backing store. Saves window sessions (one at a time?)
+*** [[https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl][Tabs Outliner]]
+ BT like tree showing windows and tabs and allowing moving/saving. 100K users, mostly abandoned by disgruntled dev. Big source of new BT users. Similar L&F to BT but no tags or textfile access and in my case led to a proliferation of stuff I didn't care about.
+
+** Bookmark managers
+Apps for people grappling w keeping track of and refinding their stuff. Lots of angles: reading lists, sharing etc. Mostly freemium, #paid users are unknowns. Generally proprietary formats and server-based (which is falling out of fashion).
+*** [[https://getpocket.com/premium?ep=1][Pocket]]
+ Read later type app. Mobile And reading views. Search, tags, highlights. 2M+ users $45/yr
+*** [[https://getliner.com/upgrade][LINER]]
+ Highlighter extension and app. $100/yr. 500K users. Enhances search results
+*** [[https://www.diigo.com/index][Diigo]]
+ Annotation, highlighter, sticky notes, archiving, bookmarking, tags, annotations, sharing. PDF markup. Outline hierarchy. 100K users. Ads/500 limit or $40/yr
+*** [[https://raindrop.io/pro/buy][raindrop]]
+ Freemium, bookmarks w searching. Visual and mobile. $28/yr 100K users.
+*** [[https://www.tabextend.com/pricing][tabExtend ]]
+ Clear and save your tabs in an efficient way. Direct BT competitor. Notes, todo's, icons. mobile app. $6/mo. 8K users
+*** [[https://bookmarkos.com/][Bookmark OS]]
+ Bookmark manager, tab manager, task manager, note taking, and file manager bookmarks task and notes combined. desktop app L&F in a browser window. 6K extension users, freemium $36/yr
+*** [[https://tagpacker.com/][Tagpacker]]
+ Tag packs to share. Free w ads. 3k users
+*** [[https://bkmark.io/pricing][Bkmark]]
+ Link collections, search, sharing. social. Pinterest like collection pages. $5/mo single, team pricing. v small < 200 users
+*** [[https://linkish.io/][Linkish]]
+ Manage links collaboratively, automatically tagged for productivity. Nested collections, highlights, visual cards. $50/yr. 500 users
+
+** Team Tools
+ Really just a targeted subset of bookmark tools emphasizing team features.
+*** [[https://www.gettoby.com/product][Toby]]
+ team-focused w free for individuals (maybe not forever?) DnD tab icons into collections. 300K+ users. pricing unclear.
+*** [[https://workona.com/][Workona | Flexible workspaces for any project]]
+ shared team-based workspaces. Search, notes, todos, shared files. $7/mo. 100K users
+
+** PKM Tools
+ Personal knowledge management is having a moment. Lots of people building a second brain. Bidirectional linking is the new hotness. Only worth it for heavy users and true believers but BT could be a bridge from the browser.
+*** [[https://obsidian.md/][Obsidian]]
+ second brain note taking app. Free for individuals but w $8-16/mo sync and publish services. Biz users $50/yr
+*** [[https://logseq.com][Logseq]]
+ like roam but writes to local file in markdown or org. Pay what you want. Could be an easy integration.
+*** [[https://expandedramblings.com/index.php/evernote-statistics/][Evernote]]
+The OG. [[https://expandedramblings.com/index.php/evernote-statistics/][250M users]] $8/mo
+*** [[https://roamresearch.com/][Roam Research.]]
+ A note taking tool for networked thought. Bi directional linking. lots of buzz but fallen off lately. [[https://www.theinformation.com/articles/a-200-million-seed-valuation-for-roam-shows-investor-frenzy-for-note-taking-apps][raised money at a $200M valuation]]. $100-$165 yr.
+*** [[https://www.dendron.so/][Dendron]]
+ hierarchal plus backlinks like Roam. built on VScode, writes to local markdown file
+
+** Browsers
+Cloud-based Browser replacements are catching on to solve some of the same problems of difficulty working in the browser but also security, privacy, performance, maintenance etc.
+*** [[https://thebrowser.company/][The Browser Company]]
+ $17M raised
+*** [[https://sigmaos.com/][SigmaOS]]
+ apple only? yc funded, aimed at founders. $10/mo
+*** [[https://synth.app/][Synth | Browser From The Future]]
+ 'Flow' Yet another organize all your info tools. AI-based search etc
+
+** BrainTool Adjacent
+ Examples of other tools in the space.
+*** [[https://mymind.com/][mymind is the extension for your mind.]]
+ Pinterest like. Privacy and aesthetically focused. no tagging, ai does the work. $120/yr, 10k users
+*** [[https://getmemex.com/][WorldBrain's Memex]]
+ Full text search on all your browser history. Very Cool! 3Eu/mo
+*** [[https://idenati.com/about][Idenati | Declutter The Internet]]
+ Idenati*** organize, save, share cards. More of a password manager. Was $5/mo, as of Jan 2022 $3/mo
+*** [[https://www.activeinboxhq.com/][ActiveInbox: Gmail task and email management]]
+ $4/mo for gmail to-do plugin
+*** [[https://web.hypothes.is/about/][About Us : Hypothesis]]
+ Annotation layer over whole internet. FOSS. corporate sponsors.
+*** [[https://workflowy.com/hi/?2][WorkFlowy]]
+ Just lists within lists but its all about the ui. $5/mo
+*** [[https://www.bublup.com/][(Bublup) Organization Project Management App]]
+ Visual, shareable, suggestions. collaborative. mobile app. $3/mo 6K users
