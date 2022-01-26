@@ -1620,6 +1620,7 @@ function disableSearch(e = null) {
     if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
     $("#search_entry").removeClass('failed');
     $("#search_entry").val('');
+	$("#search_buttons").hide();
 
     // undo display of search hits
     $("span.highlight").contents().unwrap();
@@ -1699,7 +1700,6 @@ function search(keyevent) {
 
     // are we done?
     if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
-	    $("#search_buttons").hide();
 	    keyevent.buttonNotKey || keyevent.stopPropagation();
 	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyHandler from getting it
 	    $("#search_entry").blur();                            // will call disableSearch

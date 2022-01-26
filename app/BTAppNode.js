@@ -235,7 +235,7 @@ class BTAppNode extends BTNode {
 	    let match = false;
 	    const node = this.getDisplayNode();
 	    let titleStr;
-        if (reg.test(this.keyword)) {
+        if (this.keyword && reg.test(this.keyword)) {
             titleStr = `<b class='highlight'>${this.keyword}</b> ${this.displayTag}`;
 	        $(node).find("span.btTitle").html(titleStr);
             match = true;
