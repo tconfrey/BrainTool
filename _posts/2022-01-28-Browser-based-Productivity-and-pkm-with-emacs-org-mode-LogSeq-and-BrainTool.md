@@ -23,5 +23,7 @@ All three tools are automatically kept in sync by virtue of using the same org m
 
 If you are new to BrainTool the [other videos in this playlist]( https://youtube.com/playlist?list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP) give a short introduction. 
 
+To comment on the post reply to [this tweet](https://twitter.com/ABraintool/status/1487190355208507400?s=20&t=ZWuOkiyA2WR-26vKElz-QQ)
+
 <br/>
 <div style="display:block; font-size:80%; line-height:1.25rem; margin-bottom:0.5rem;"><super>*</super><small>LogSeq is an open source alternative to tools like Roam Research, Obsidian and Notion. Like Obsidian (and BrainTool), LogSeq saves your data in accessible plain text files, unlike Obsidian Logseq was originally built to use org mode. <br/></small></div>
