@@ -13,7 +13,7 @@ BrainTool is a free and open source browser bookmark tool that makes it easy to 
 
 It achieves this interoperability by saving your data into an accessible plain text file written in the emacs standard org-mode format. Org mode is a set of plain text tools used to manage tasks, to do lists, notes, links, journal entries and almost any form of text-based information. 
 
-Most org mode users interact with it via the emacs text editor but it can be used in any text editor and is increasingly used as a format by other tools such as the [LogSeq](https://logseq.com)<super>*</super> personal knowledge manager and the [Flat Habits](https://flathabits.com/) iOS ToDo manager.
+Most org mode users interact with it via the emacs text editor but it can be used in any text editor and is increasingly used as a format by other tools such as the [LogSeq](https://logseq.com)<super>*</super> personal knowledge manager, the [Flat Habits](https://flathabits.com/) iOS ToDo manager and [Plain Org](https://plainorg.com/) an iOS org-mode editor.
 
 <iframe width="560" height="315" style="border: 1px solid grey" src="https://www.youtube.com/embed/U9kg9yVMMAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
