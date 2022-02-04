@@ -2,7 +2,7 @@
 #+PROPERTY: BTVersion 1
 #+PROPERTY: BTGroupingMode TABGROUP
 
-* [[https://braintool.org/support/welcome][Welcome, lets get started]
+* [[https://braintool.org/support/welcome][Welcome, lets get started]]
 Follow these steps to get up and running quickly.
 ** TODO Review the Topic Hierarchy
 BrainTool is organized as a hierarchy of topics. 
