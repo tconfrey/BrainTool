@@ -28,7 +28,7 @@ Orgzly is a mobile todo app on top of org. Use it to get your BrainTool on your 
 ** [[https://chrome.google.com/webstore/detail/quick-tabs/jnjfeinjfmenlddahdjdmgpbokiacbbb?hl=en][Quick Tabs - Chrome Web Store]]
 keyboard search for tabs
 
-** [[https://org-roam.readthedocs.io/en/master/][Org-roam]]
+** [[https://github.com/org-roam/org-roam][Org-roam]]
 A non-hierarchal org model
 
 * Contributions
