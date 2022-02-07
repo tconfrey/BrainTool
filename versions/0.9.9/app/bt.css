@@ -1,0 +1,489 @@
+/* First define the basic theme variables */
+:root {
+    --btMainHighlight: #3f673f;
+    --btMainHighlightShadow: #3f673f90;
+    --btBackground: #7bb07b;
+    --btBackgroundLight: #bed8be;
+    --btBackgroundHovered: #e0ece0;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: #000; /* was darkslategrey; */
+
+    --btTreeForeground: #000000;
+    --btTreeBackground: #ffffff;
+    --btTreeBranchBackground: #f9f9f9;
+    --btTreeFont: tahoma;
+    --btTreeFontSize: 0.7em;
+    --btTreeLineHeight: 1;
+}
+
+[data-theme="dark"] {
+    --btMainHighlight: #7bb07b;
+    --btMainHighlightShadow: #7bb07b90;
+    --btBackground: #bed8be;
+    --btBackgroundLight: #3f673f;
+    --btBackgroundHovered: #3f673f;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: darkslategrey;
+
+    --btTreeForeground: #ffffff;
+    --btTreeBackground: #333333;
+    --btTreeBranchBackground: #444444;
+    --btTreeFont: roboto;
+    --btTreeFontSize: 0.9em;
+    --btTreeLineHeight: 1.5;
+}
+
+
+#controls_header {
+    background-color: var(--btBackground);
+    border-left: 1px solid #DDD;
+    border-right: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+}
+
+.stat_span {
+    position: relative;
+    bottom: 5px;
+    padding-right: 8px;
+    font-size: 13px;
+    font-family: var(--btControlsFont);
+}
+
+#stats_row {
+    height: 27px;
+    color: var(--btHeaderFontColor);
+    position: absolute;
+    top: 1px;
+    right: 5px;
+    border-radius: 3px;
+}
+
+#brain {
+    padding-left: 4px;
+    padding-top: 3px;
+}
+
+#search {
+    height: 25px;
+    position: absolute;
+    top: 4px;
+    left: calc((100% - 300px) / 2);
+    font-family: var(--btControlsFont);
+    font-size: 1rem;
+    color: var(--btHeaderFontColor);
+}
+#search_entry {
+    line-height: 1;
+    font-family: var(--btControlsFont);
+    margin-top: 1px;
+    border: solid;
+    border-width: thin;
+    border-color: var(--btMainHighlight);
+    border-bottom-width: 1px;
+    background-color: var(--btBackgroundLight); 
+}
+/* style when input is active */
+:focus-visible {
+    outline-width: 1px;
+    outline-color: var(--btMainHighlight);
+    outline-style: groove;
+}
+.highlight {
+    background-color: lime;
+}
+.failed {
+    background-color: #E59A98 !important;
+}
+
+#open_close_image {
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+}
+/* Animation on More SVG image to draw attention when closing. 
+https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
+#open_close_image.animate_more {
+  animation: filter-animation 1.5s 2;
+}
+@keyframes filter-animation {
+    0% {
+        filter: invert(0%) sepia(4%) saturate(7484%)
+                hue-rotate(171deg) brightness(95%) contrast(105%);
+    }
+    50% {
+        filter: invert(93%) sepia(2%) saturate(5452%)
+                hue-rotate(63deg) brightness(116%) contrast(69%);
+    }
+    100% {
+        filter: invert(0%) sepia(4%) saturate(7484%)
+                hue-rotate(171deg) brightness(95%) contrast(105%);
+    }
+}
+
+#controls {
+    position: fixed;
+    right: 8px;
+    left: 8px;
+    top: 0px;
+    border: none;
+    z-index: 3;
+    font-family: var(--btControlsFont);
+}                    
+
+
+#controls_screen::before {
+    content: "";
+    left: 0px;
+    top:0;
+    bottom:0;
+    right: 0px;
+    position: absolute;
+    z-index: -4;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0%,
+				      rgba(255, 255, 255, 0.95) 5%,
+				      rgba(255, 255, 255, 0.95) 95%,
+				      rgba(255, 255, 255, 0.1) 100%)
+}
+#controls_screen {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    border: 2px solid var(--btBackground);
+    border-radius: 0px 0px 5px 5px;
+    backdrop-filter: blur(3px);
+    min-height: 280px;
+    top: -2px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+#openingTips {
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 15px;
+    line-height: 1.4em;
+    padding: 3px;
+    border: 2px solid var(--btMainHighlight) ;
+    border-radius: 3px;
+}
+#openingTips p {
+    margin-block-start: 0.3em;
+    margin-block-end: 0.3em;
+}
+
+#tip {
+    margin-top: 55px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#logo_image {
+    width: 40%;
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+    margin-top: 30px;
+}
+
+#buttonRow {
+    background-color: var(--btBackground);
+    position: absolute;
+    padding-left: 2px;
+    padding-right: 0px;
+    border-radius: 2px;
+    cursor: pointer;
+    right: 9px;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: #00000020;
+}
+
+dialog {
+    border: 2px solid var(--btMainHighlight) ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
+    padding: 10px;
+    padding-top: 2px;
+    margin-top: 0px;
+    position: fixed;
+    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
+    background-size: 300px 300px;
+}
+
+dialog textarea {
+    width: 91%;
+    resize: none;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    font-family: var(--btControlsFont);
+}
+dialog input {
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    font-family: var(--btControlsFont);
+}
+dialog #title-text {
+    white-space: nowrap;
+    margin-left: 20px;
+}
+dialog #text-text {
+    height: 11em;
+    margin-left: 20px;
+}
+dialog #title-url {
+    height: 2em;
+    margin-left: 20px;
+    font-size: 0.6em;
+    font-style: italic;
+}
+dialog #distinguishedName {
+    position: relative;
+    left: -10px;
+    font-family:var(--btControlsFont);
+    color: var(--btMainHighlight);
+}
+dialog li::marker {
+    color: var(--btMainHighlight);
+}
+
+#important_buttons {
+    width: 90%;
+    margin: auto;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.important_button {    
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: grey;
+    background-color: var(--btBackgroundLight);
+    width: 180px;
+    height: 40px;
+    font-size: 1.2em;
+    font-family: var(--btControlsFont);
+}
+
+.buttonDiv {
+    width: 95%;
+    margin: auto;
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-around;
+    position: absolute;
+    bottom: 10px;
+}
+
+.control_overlay {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    /* same as edit dialog */
+    border: 2px solid var(--btMainHighlight) ;
+    border-radius: 3px;
+    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
+
+    background-color: white;
+    width: 90%;    
+}
+
+.overlay_table {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+    border-spacing: 1px;
+}
+
+.options_table td {
+    padding-top: 18px;
+}
+
+.option_td {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.help_vertical_td {
+    writing-mode: vertical-rl;
+    text-align: center;
+    padding-right: 10px;
+}
+
+.row_divider {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: grey;
+}
+
+#optionsClose {
+    position: absolute;
+    cursor: pointer;
+    right: 3px;
+    top: 3px;
+    z-index: 4;
+}
+
+#inner {
+    width: 240px;
+    margin: 0 auto;
+}
+
+button:not([disabled]):hover {
+    color: #222;
+    background-color: var(--btBackground);
+    cursor: pointer;
+}
+
+/* button for import/export */
+.button_text {
+    font-family: var(--btControlsFont);
+    font-size: 15px;
+}
+.split_image {
+    opacity: 0.6;
+    margin-top: 1px;
+}
+
+.general_button {
+    width: 130px;
+    border-radius: 3px 3px 3px 3px;
+    border: 1px solid #ddd;
+    padding: 5px 5px 5px 8px;
+    font-size: 15px;
+}
+.dropdown_button {
+    border-radius: 3px 3px 0px 0px;
+}
+    
+.dropdown_text {
+    float: left;
+}
+.button_image_wrapper {
+    float: right;
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropdown_content {
+    display: none;
+    position: absolute;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 0px 4px 4px 4px;
+    z-index: 1;
+    width: 160px;
+    transform: translate(0px, -4px);
+}
+
+.dropdown_content a {
+    color: black;
+    text-decoration: none;
+    float: left;
+}
+.dropdown_content label {
+    float: left;
+    cursor: pointer;
+}
+.dropdown_content div {  
+    cursor: pointer;
+    float: left;
+    padding: 5px 0px 5px 8px;
+    width: 152px;
+}
+.dropdown_content div:hover {background-color: var(--btBackground)}  
+.dropdown:hover .dropdown_content {
+    display: block;
+}
+/* end split button*/
+
+span.elipse {
+     cursor:pointer;
+     color:blue;
+     text-decoration:underline;
+     padding-left: 0.1em;
+}
+
+textarea {
+    font-size: .8em;
+    line-height: 1.2;
+}
+
+/* prevents selection being scrolled off top, nb edited in toggleMenu */
+.treetable tr {
+  scroll-margin-top: 375px;
+}
+
+
+body.waiting * {
+    cursor: progress !important;
+}
+
+
+/* 3-way chooser for window mapping */
+.toggle-radio > input + label {
+    background:#eee;
+    border:solid #ddd;
+    border-width:1px; /* 0 1px 0;*/
+}
+.toggle-radio > input:first-of-type + label {
+    margin-right: -5px;
+}
+.toggle-radio > input:last-of-type + label {
+    margin-left: -5px
+}
+
+/* Rounded corners */
+.toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
+.toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
+
+.toggle-radio > input:checked + label {background: var(--btBackground);}
+/* CORE STYLES */
+.toggle-radio {
+    display:inline-block;
+    vertical-align:middle;
+}
+.toggle-radio > input[type='radio'] {display:none;}
+.toggle-radio > input + label {
+    display:inline-block;
+    margin-bottom:0;
+    padding:5px 10px;
+    cursor:pointer;
+    align-items:center;}
+
+/* Transitions */
+.toggle-radio > input:checked + label {transition:background 300ms linear;}
+
+
+/* tweaks to above for panel|tab 2-way selector */
+#panel_toggle {
+    float: left;
+}
+
+.toggle-radio2 > input:first-of-type + label {
+    margin-right: 0px;
+}
+.toggle-radio2 > input + label {
+    padding:5px 25px;
+}

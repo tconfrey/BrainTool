@@ -1,0 +1,203 @@
+#+PROPERTY: BTCohort 2000-5000
+#+PROPERTY: BTVersion 1
+#+PROPERTY: BTGroupingMode TABGROUP
+
+* [[https://braintool.org/support/welcome][Welcome, lets get started]]
+Follow these steps to get up and running quickly.
+** TODO Review the Topic Hierarchy
+BrainTool is organized as a hierarchy of topics. 
+The structure is yours to define, this is just an example.
+** TODO Import Bookmarks
+Open the Options/Actions menu (top left) and click Import Bookmarks. 
+** TODO Organize your Topics
+- Now is a good time to define your personal set of topics and organize your imported links. 
+- Discard liberally! 
+- No need to do it all at once, just leave this TODO open to remind you.
+** TODO Close out your tabs
+With BrainTool you need fewer tabs open. Use the BrainTool Bookmarker to file tabs away into BT where you can find them again.
+** TODO Now use the tool!
+- Keep the Topic Manager open while you work.
+- File stuff away liberally.
+- Experiment with different workflows (eg 'Finish Today' or 'Next Action' topics).
+- Re-organize your topic tree as it evolves.
+
+* Project
+Keep all your links and notes for each project in one place. Expand these example projects to see sample sub topics.
+
+** TODO Create your projects
+Maybe while importing from bookmarks and other sources.
+** Sample Project - Kitchen Renovation
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+An example home improvement type project.
+
+*** Contractors
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Keep notes on the contenders as you research
+**** [[https://braintool.org/posts][The Expensive guys]]
+Lots of Back Bay and Cambridge high end renovations. If you have to ask you can't afford it!
+
+**** [[https://braintool.org/posts][The cheap guy]]
+Interested in the design problem with some good ideas. Sounded kind of seat of the pants. Was unsure about scheduling.
+
+**** [[https://northriverbuilders.com/][North River Builders]]
+Just right! Nile was great to talk to. Really engaged with the project. Good project management software, great portfolio.
+
+*** Cabinetry
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[http://www.crown-point.com/][Crown Point Cabinetry]]
+NH based. NRB recommendation.
+
+*** Appliances
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[https://clarkeliving.com/][demo showroom in Boston]]
+*** Lighting
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://catalog.wolfers.com/landing][Lighting and Home Accent Categories | Wolfers Lighting]]
+Follow up on questions about controllers
+
+*** Other Resources
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[https://www.livehome3d.com/mac/live-home-3d][Live Home 3D Home Design Software for Mac]]
+Cool 3d modeling software
+
+**** [[https://coconstruct.com/app/skins/Default/][CoConstruct app]]
+NRBs coordination app
+
+
+** Sample Project - My work project
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+An example professional project
+
+*** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
+Project Confluence page
+
+*** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software | Atlassian]]
+Jira board
+
+*** [[https://github.com/][GitHub]]
+Git repo
+
+*** [[https://slack.com/][Where work happens | Slack]]
+Slack channel
+
+*** [[https://docs.google.com/document/u/0/][Google Docs]]
+Project document
+
+
+* Area
+Non-project areas of life to keep track of. 
+
+** TODO Create your Areas
+Maybe while importing from bookmarks and other sources.
+
+** Personal
+Maybe keep personal and work stuff separate.
+
+*** Finance
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+**** [[https://www.bankofamerica.com/][Bank of America - Banking, Credit Cards, Loans and Merrill Investing]]
+ BofA site
+
+**** [[https://login.northwesternmutual.com/login][Login | Northwestern Mutual]]
+ NMIS investments site
+
+**** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Expense tracking]]
+
+*** Health and Wellness
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://myhealth.atriushealth.org/][MyHealth Online Portal]]
+health portal
+
+**** [[https://aspireap.com/][Aspire]]
+"where strong wills become strong bodies"
+
+*** Fun and Entertainment
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Also keep track of the fun stuff!
+
+**** [[https://netflix.com][Netflix queue]]
+
+**** [[https://www.youtube.com/watch?v=4BvjYabSl5A&list=PLhaw8BE1kin1LF6tfn8MU1zUFgiPNc29Y&index=1][Coding playlists]]
+
+** Professional
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Areas of responsibility at work.
+*** Admin, HR, Budget
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.workday.com/][Workday annual review stuff]]
+
+**** [[https://www.adp.com/][payroll]]
+
+*** Team Info
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://wikipedia.org][team wiki]]
+You get the idea...
+*** Customer Tracking
+
+* To Read
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Long form essays and videos to get back to
+
+** [[https://untools.co/][Tools for better thinking | Untools]]
+** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
+podcast interview
+
+
+* Resource
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+Reference materials and other resources you want to organize and get back to.
+
+** [[https://braintool.org/topicTrees][Public Topic Trees]]
+BrainTool Topic hierarchies can be saved separately and shared. Open the examples below to import them or click here to see others available on the BrainTool.org site.
+
+*** [[https://braintool.org/topicTrees/BrainTool.org][BrainTool]]
+BrainTool related links and topics. Click to download and browse.
+
+*** [[https://braintool.org/topicTrees/PersonalProductivity.org][Productivity and PKM]]
+BrainTool is part of a general class of personal productivity and personal knowledge management tools that are increasing in popularity. This link opens a set of relevant resources for further exploration.
+
+*** [[https://BrainTool.org/topicTrees/EmacsAndOrg.org][Emacs and org-mode]]
+Emacs is a venerable text editor, org-mode is a plain text format used within emacs to capture outlines, notes, TODO's, calendar items, links and more. Your BrainTool data is stored in org format and so can integrate with an org-based workflow. Technically savvy users only!
+
+* Archive
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Pages and notes you are no longer actively using but don't want to delete. Move completed projects here.
+
+* Scratch
+Pages that you save in the Bookmarker without a Topic will be filed under Scratch
