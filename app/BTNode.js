@@ -296,10 +296,10 @@ class BTNode {
         // Finally set topic for link nodes to parent
         AllNodes.forEach(node => {
             if (!node.isTag()) {
-                if (this.parentId && AllNodes[this.parentId])
-                    this._tagPath = AllNodes[this.parentId].tagPath;
+                if (node.parentId && AllNodes[node.parentId])
+                    node._tagPath = AllNodes[node.parentId].tagPath;
                 else
-                    this._tagPath = this._displayTag;
+                    node._tagPath = node._displayTag;
             }
         });
     }

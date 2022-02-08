@@ -963,8 +963,10 @@ function tabActivated(data) {
     const groupNode = BTAppNode.findFromGroup(groupId);
     let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
                   'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
-    if (node) 
+    if (node) {
+        node.tagPath || node.generateUniqueTagPath();
         m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
+    }
     else
         m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
