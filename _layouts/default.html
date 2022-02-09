@@ -2,14 +2,14 @@
 <html lang="{{ site.lang | default: "en-US" }}">
   <head>
 
-    {% if site.google_analytics %}
-      <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ site.google_analytics }}');
-      </script>
+    {% if site.google_analytics and jekyll.environment == 'production' %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ site.google_analytics }}');
+    </script>
     {% endif %}
     <meta charset="UTF-8">
     {% seo %}
@@ -23,55 +23,82 @@
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-    <style>
-      /* header is responsive (style.css) so link div needs to be also to keep links on top */
-      @media screen and (min-width: 64em) {
-      .header-links {
-      margin-top: -4.75rem; } }
-      @media screen and (min-width: 42em) and (max-width: 64em) {
-      .header-links {
-      margin-top: -2.75rem; } }
-      @media screen and (max-width: 42em) {
-      .header-links {
-      margin-top: -1.75rem; } }
-    </style>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+
   </head>
   <body>
-    <header class="page-header" role="banner"
-            style="background-image: url('/site/AppStoreCollatoral/BraintoolMarqueeLarge.png');
-                   background-repeat: round; height: 40vh">
-      <div class="header-links" style="text-align:center;"><b>
-        <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left; background-color:rgba(165,199,73,0.8); border-radius:4px">Discuss</a>
-        <a href="{{ site.url  }}/posts.html" style="float:right; background-color:rgba(165,199,73,0.1); border-radius:4px">Blog</a>
-        <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block; background-color:rgba(165,199,73,0.6); border-radius:4px;">Home</a></b>
-      </div>    
+    <header class="page-header" role="banner">
+      <div class="header-top">
+	<a href="{{ site.url }}/index.html">
+	  <img class="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" alt='logo'/>
+	</a>
+	<p class="beyond-bookmarks"><i>Beyond Bookmarks</i></p>
+	</div>
+      </div>
       
-      <!--
-          <h1 class="project-name" style="opacity:0.0;">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
-          <h2 class="project-tagline" style="opacity:0.0;">{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
-          -->
-          <a href="https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio">
-            <div style="position:absolute; bottom: 61vh; left:45vw; background-color: #1a73e8; color: #fff; margin-left:auto; margin-right: auto; width: 150px; height: 36px; cursor: pointer; border-radius: 4px; font-size:16px; padding-top:5px">
-              Add to Chrome
-            </div>
-          </a>
+      {% if page.audience != "landingpage" %}
+      <div style="display:flex">
+	<div class="header-left">
+	  <div class="header-buttons">
+            <a href="{{ site.url  }}/overview.html" >Vision</a>
+            <a href="{{ site.url  }}/support.html" >Help</a>
+            <a href="{{ site.url  }}/posts.html" >Blog</a>
+	  </div>
+	</div>  
+	{% if page.audience == "nonuser" %}
+	<div class="header-right">
+	  <div class="store-button">
+        <div id="store-text" onclick = "gotoStore()">Add to Chrome</div>
+	  </div>
+	  <script>
+	    // if edge change button to point to edge store
+        let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
+	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
+            storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
+	        let text = document.getElementById('store-text').firstChild;
+	        text.nodeValue = "Add to Edge";
+	    }
+        function gotoStore() {
+        (typeof gtag !== 'undefined') && gtag('event', 'Add_to_Click', {'event_category': 'Website', 'event_label': document.title, 'value': 1.0});
+        window.location = storeLink;
+        }
+	  </script>
+	</div>
+	{% endif %}
+      </div>
+      {% endif %}
     </header>
 
     <main id="content" class="main-content" role="main">
       {{ content }}
 
       <footer class="site-footer">
-        {% if site.github.is_project_page %}
-        <span class="site-footer-owner"><a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a> is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</span>
-        {% endif %}
-        <div class="hvp-footer" style="text-align:center">
-          <a href="https://groups.google.com/u/2/g/braintool-discussion" style="float:left">Discuss</a>
-          <a href="{{ site.url  }}/posts.html" style="float:right">Blog</a>
-          <a href="{{ site.url  }}/index.html" style="margin-left:auto; margin:0 auto; display:inline-block">Home</a>
+        <div class="bt-footer">
+          <div class="bt-footer-column">
+            <h3>Overview</h3>
+            <div><a href="{{ site.url }}">Home</a></div>
+            <div><a href="{{ site.url  }}/overview.html#philosophy">Philosophy</a> |
+            <a href="{{ site.url  }}/overview.html#concepts">Concepts</a></div>
+            <div><a href="{{ site.url  }}/overview.html#roadmap">Roadmap</a> |
+            <a href="{{ site.url  }}/pricing.html">Pricing</a></div>
+            <div><a href="{{ site.url  }}/about.html">About</a></div>
+          </div>
+          <div class="bt-footer-column">
+            <h3>Support</h3>
+            <div><a href="{{ site.url  }}/support/userGuide.html">User Guide</a></div>
+            <div><a href="{{ site.url  }}/support.html">Help</a></div>
+            <div><a href="{{ site.url  }}/support/releaseNotes.html">Release Notes</a></div>
+            <div><a href="{{ site.url  }}/BrainToolPrivacyPolicy.pdf">Privacy Policy</a></div>
+          </div>
+          <div class="bt-footer-column">
+            <h3>Community</h3>
+            <div><a href="{{ site.url  }}/posts.html">Blog</a></div>
+            <div><a href="https://groups.google.com/u/0/g/braintool-discussion">Discussion Group</a></div>
+            <div><a href="https://twitter.com/abraintool">Twitter</a></div>
+            <div><a href="https://github.com/tconfrey/BrainTool">Source code</a></div>
+          </div>
         </div>
-        <!--
-            <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
-            -->
       </footer>
     </main>
   </body>

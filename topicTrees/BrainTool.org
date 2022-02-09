@@ -1,0 +1,51 @@
+#+PROPERTY: BTParentTopic Resource:Public Topic Trees:BrainTool
+* BrainTool Resources
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+As an example in a recursive kind of way. This topic and its children capture resources related to BrainTool.
+
+** [[https://braintool.org/support][BrainTool Support Page]]
+
+** [[https://braintool.org/posts.html][Blog]]
+
+** [[https://braintool.org/overview.html][Vision]]
+
+** [[https://groups.google.com/u/0/g/braintool-discussion][Discussion Group]]
+
+* Complementary Tools
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Useful tools in an BrainTool/org-mode based workflow.
+
+** [[https://organice.200ok.ch/][organice]]
+Cloud based editor for your BrainTool file.
+
+** [[https://play.google.com/store/apps/details?id=com.orgzly][Orgzly | Notes & To-Do Lists]]
+Orgzly is a mobile todo app on top of org. Use it to get your BrainTool on your phone.
+
+** [[https://chrome.google.com/webstore/detail/quick-tabs/jnjfeinjfmenlddahdjdmgpbokiacbbb?hl=en][Quick Tabs - Chrome Web Store]]
+keyboard search for tabs
+
+** [[https://github.com/org-roam/org-roam][Org-roam]]
+A non-hierarchal org model
+
+* Contributions
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Thanks to the people behind these tools and resources for letting me stand on their shoulders.
+
+** [[https://projects.verou.me/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
+JavaScript autocomplete library
+
+** [[https://github.com/orgapp/orgajs][orgapp/orgajs: parse org-mode content into AST]]
+JS parser for org mode
+
+** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
+Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by Farias and Done by Praveen.
+
+** [[http://jackconfrey.com/work][jconfrey Art]]
+Graphic design and project artwork by Jack Confrey
+

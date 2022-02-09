@@ -1,0 +1,42 @@
+{
+    "manifest_version": 2,
+    "name": "__MSG_appName__",
+    "description": "__MSG_appDesc__",
+    "default_locale": "en",
+    "version": "0.9.7",
+    "permissions": ["tabs", "storage", "bookmarks"],
+    "background": {
+        "scripts": ["background.js", "config.js"],
+        "persistent": true
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://BrainTool.org/versions/*"],
+            "run_at" : "document_idle",
+            "js": ["btContentScript.js"]
+        }
+    ],
+    "browser_action": {
+        "default_icon": {
+            "16": "images/BrainTool16.png",
+            "32": "images/BrainTool32.png",
+            "48": "images/BrainTool48.png",
+            "128": "images/BrainTool128.png"
+        },
+        "default_title" : "BrainTool!",
+        "default_popup" : "popup.html"
+    },
+    "icons": {
+      "16": "images/BrainTool16.png",
+      "32": "images/BrainTool32.png",
+      "48": "images/BrainTool48.png",
+      "128": "images/BrainTool128.png"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Alt+B"
+            }
+        }
+    }
+}

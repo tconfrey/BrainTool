@@ -1,0 +1,10 @@
+{
+    "appName": {
+        "message": "BrainTool - Mieux que les Signets",
+        "description": "The title of the application, displayed in the web store."
+    },
+    "appDesc": {
+        "message": "BrainTool est un Gestionnaire de Sujet pour votre vie en ligne",
+        "description": "The description of the application, displayed in the web store."
+    }
+}

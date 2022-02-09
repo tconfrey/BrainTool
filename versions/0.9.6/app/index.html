@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-184551494-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-184551494-1');
+    </script>
+
+    <title>BrainTool Side Panel</title>
+    <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
+    <link href="bt.css" rel="stylesheet" type="text/css" />
+    <script src="jquery.treetable.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+    
+  </head>
+  <body>
+    
+    <div id="controls">
+      <div id="controls_header" style="cursor: pointer;" onClick="toggleMenu()">
+        <img id="open_close_image" class="open" title="Close Options" height="15" width="15" src="resources/collapsed.png">
+        <div id="search">
+          <span>Search:</span>
+          <input id="search_entry" type="text" size="20" value="coming soon..." disabled>
+        </div>
+        <div id="stats_row">
+          <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
+               title="#Topics" height="15" width="15">
+          <span id="num_topics" class="stat_span" title="#BT Cards (#links open)">: 0</span>
+          <img id="saves" type="image" alt="#File Saves" title="File Saves"
+               src="resources/fileSave.png" height="15" width="15" style="opacity: 0.8;">
+          <span id="num_saves" class="stat_span" title="#File Saves"> : 0</span>
+        </div>
+        
+      </div>
+      <div id="controls_screen">
+        <img id="logo_image" src="resources/logo.png"/>
+        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool 0.9.6!</p>
+        <p style="text-align: center; font-style: italic; font-size: 12px; margin-top:0px">Type h for help. Check back here for random tips. (<a href="https://braintool.org/overview" target="_blank">More Info</a>, <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a>)
+        </p>
+        <div id="important_buttons">
+          <button id="importBookmarkButton" class="important_button" style="display:none" onClick="importBookmarks()">Import Bookmarks</button>
+          <button id="openOptionsButton" class="important_button" onClick="toggleOptions()">Options</button>
+        </div>
+	<div id="specialOffer" style="display:none; text-align: center; font-size:14px; margin-top: -10px;">
+	  <a href="https://braintool.org/pricing" target="_blank">Special subscription offer!</a>
+	</div>
+	<div id="openingTips" style="display:none">
+          <p>- Activate BT to save any web page via the icon or with Opt/Alt-b.</p>
+          <p>- The icon may hide under the jigsaw icon - browser top right.</p>
+	  <p>- Get started by importing and organizing your bookmarks or go through your open tabs and assign them to Topics.
+	  <p>- See 'Other Actions' for imports, exports and GDrive syncing.</p>
+          <p>- The initial tree shows some examples of how to use Topics. Feel free to build on it. Delete anything you don't want by hovering over it and hitting the trash button.</p>
+          <p>- This Message board overlay closes/opens by clicking the green bar at top.</p>
+	</div>
+	<p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
+        <p style="margin-bottom: 15px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.</p>
+        
+        <div id="options" class="control_overlay" style="display: none">
+          <img id="optionsClose" type="image" alt="Close" title="Close" class="split_image"
+               src="resources/close.png"  height="17" width="20" onClick="toggleOptions()">
+          <table class="overlay_table options_table" style="font-size:15px; text-align:center">
+            <tr><td colspan="1">
+                <div class="dropdown">
+		  
+                  <button class="button_text general_button dropdown_button">
+		    <span class="dropdown_text">Import From:</span>
+		    <span class="button_image_wrapper">
+                      <img class="split_image" height="12" width="12" src="resources/expanded.png">
+		    </span>		    
+                  </button>
+		  
+                  <div class="dropdown_content">                    
+                    <div onClick="importBookmarks()">
+                      <label for="bookmark_upload" class="button_text">Browser Bookmarks</label>
+                    </div>
+                    
+                    <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">
+                      <label for="org_upload" class="button_text">An Org-mode file</label>
+                      <input type="file" id="org_upload" name="org_upload" accept=".org"
+                             style="display:none" onchange="importOrgFile()">
+                    </div>
+                    
+                    <div style="border-top: solid 1px #ddd" onClick="$('#to_upload').val('');">
+                      <label for="to_upload" class="button_text">A TabsOutliner export</label>
+                      <input type="file" id="to_upload" name="to_upload" accept=".tree"
+                             style="display:none" onchange="importTabsOutliner()">
+                    </div>
+                    
+                  </div>
+                </div>
+
+            </td>
+              <td colspan="1">
+                <div class="dropdown">
+		  
+                  <button class="button_text general_button dropdown_button">
+		    <span class="dropdown_text">Export To:</span>
+		    <span class="button_image_wrapper">
+                      <img class="split_image" height="12" width="12" src="resources/expanded.png">
+		    </span>		    
+                  </button>
+		  
+		  <div class="dropdown_content">
+                    <div onClick="exportBookmarks()">
+		      <label class="button_text">Browser Bookmarks</label>
+                    </div>
+
+		    <div style="border-top: solid 1px #ddd">
+                      <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left;" onclick="exportOrgFile()">Local Org-mode file</a>
+                    </div>
+                  </div>
+                </div>
+
+            </td></tr>
+            <tr><td style="text-align:left">BT Topics map to:</td>
+            <td colspan="1">
+                <div class="toggle-radio">
+                  <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
+                  <label class="button_text" for="default_Option1">Windows</label>
+
+                  <input type="radio" name="grouping" id="default_Option2" value="TABGROUP">
+                  <label class="button_text" for="default_Option2">Tab Groups</label>
+
+                  <input type="radio" name="grouping" id="default_Option3" value="NONE">
+                  <label class="button_text" for="default_Option3">Nothing</label>
+                </div>
+            </td></tr>
+            <tr >
+              <td style="text-align:left">
+                <span id="autoSaveLabel">GDrive Auto-save:</span><br/>
+                <p id="gdrive_save" style="display:none; margin: 0px; font-size:11px;"/>
+              </td>
+              <td style="text-align:left">
+                <button id="gdrive_auth" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="authorizeGapi(true)">Authorize</button>
+                <button id="refresh" class="button_text general_button" onclick="refreshTable(true)" style="display:none">Refresh from File</button>
+              </td>
+            </tr>          
+            <tr class="subscription_buttons">
+	      <td>
+                <p style="margin:0px; float:left; padding-bottom:0px">Upgrade to <a href="https://braintool.org/pricing" target="_blank">Premium</a>:</p>		
+            </td><td></td></tr>
+            <tr class="subscription_buttons">
+	      <td style="padding-top:0px; padding-bottom:0px">
+                <button id="annual_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="createSubscription(Annual)">$40/Yr</button>
+              </td>
+	      <td style="padding-top:0px; padding-bottom:0px">
+                <button id="monthly_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="createSubscription(Monthly)">$3.99/Mo</button>
+	      </td>
+	    </tr>
+	    <tr id="portal_row" style="display:none">
+	      <td colspan="2">
+		<a id="portal_link" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
+	      </td>
+	    </tr>
+            <tr class="subscription_buttons" ><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
+                <i>Coupons applied at checkout</i>
+            </td></tr>
+            <tr><td colspan="2" style="padding-top:0px">
+                <hr style="margin-bottom: 0px"/>
+            </td></tr>
+	    
+            <tr><td class="option_td" style="text-align: left; padding-top:0px; font-size:11px" colspan="2">
+                <i>More info <a href="https://braintool.org/support" target="_blank">here</a>. Email braintool.extension@gmail.com with input</i>
+            </td></tr>
+          </table>
+        </div>
+
+        <div id="help" class="control_overlay" style="display: none; z-index:4;">
+          <img id="optionsClose" type="image" class="split_image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20" onClick="toggleHelp()">
+          <table class="overlay_table" style="border-spacing:4px;">
+            <tr><td class="option_td" colspan="3" style="font-size:15px; text-align:center">
+                <b>Keyboard Commands &nbsp;</b><a href="https://braintool.org/support" target="_blank" style="font-size:10px; font-style:italic">(Other Help)</a>
+            </td></tr>
+            <tr>
+              <td rowspan="4" class="row_divider help_vertical_td">Nav</td>
+              <td class="option_td">n,p,&uarr;&darr;</td>
+              <td>Navigate to Next, Previous row</td>
+            </tr>
+            <tr>
+              <td class="option_td">&larr; &rarr;</td>
+              <td>Navigate up/down hierarchy</td>
+            </tr>
+            <tr>
+              <td class="option_td">1-9</td>
+              <td>Show tree nodes up to level N</td>
+            </tr>
+            <tr >
+              <td class="option_td, row_divider">Tab</td>
+              <td class="row_divider">Expand/Collapse the sub tree</td>
+            </tr>
+            <tr>
+              <td rowspan="2" class="row_divider help_vertical_td">Browse&nbsp;</td>
+              <td class="option_td">Space</td>
+              <td>Surface the associated tab or window</td>
+            </tr>
+            <tr>
+              <td class="option_td, row_divider">Enter</td>
+              <td class="row_divider">Open/Close in the browser</td>
+            </tr>
+            <tr>
+              <td rowspan="6" class="row_divider help_vertical_td">Edit</td>
+              <td class="option_td"><span class="alt_opt">Option</span>-z</td>
+              <td >Undo last deletion</td>
+            </tr>
+            <tr>
+              <td class="option_td"><span class="alt_opt">Option</span> &uarr;&darr;</td>
+              <td >Move selection (or card) up/down</td>
+            </tr>
+            <tr>
+              <td class="option_td"><span class="alt_opt">Option</span> &larr;</td>
+              <td>Promote selection up a level</td>
+            </tr>
+            <tr>
+              <td class="option_td">t, e</td>
+              <td>t cycle TODO state, e Edit</td>
+            </tr>
+            <tr>
+              <td class="option_td">Delete</td>
+              <td>Delete selection</td>
+            </tr>
+            <tr>
+              <td class="option_td, row_divider"><span class="alt_opt">Option</span>-Enter</td>
+              <td class="row_divider">Create a new sub Topic</td>
+            </tr>
+            <tr>
+              <td/>
+              <td class="option_td"><span class="alt_opt">Option</span>-b-b</td>
+              <td>Open BT SidePanel (this window)</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div id="loading">
+      <p id="loadingMessage" style="text-align: center; margin-top:500px">
+        <br/>Loading your BrainTool file<br/>...</p>
+    </div>
+    <div id="buttonRow" style="display: none;">
+      <img class="openClose" alt="More tools" onClick="toggleMoreButtons(event); return false;" title="More tools"
+           src="resources/openLeft.png"  height="20" width="10">
+      <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" title="Fewer tools" style="display:none"
+           src="resources/closeLeft.png"  height="20" width="10">
+      <span id="otherButtons" style="display: none;">
+	<img id="move" type="image" alt="Move" title="Move"
+             src="resources/drag.png"  height="20" width="20" style="cursor: move; opacity: 0.75;">
+	<img id="outdent" type="image" alt="Outdent" title="Outdent"
+             src="resources/outdent.png" onClick="promote(event)" height="20" width="20" style="opacity: 0.75;">
+	<img id="addChild" type="image" alt="add Child" title="Add Child Topic"
+             src="resources/addChild.png" onClick="addChild(event)" height="20" width="20" style="opacity: 0.75;">
+	<img id="todo" alt="ToDo" onClick="toDo(event)" title="ToDo"
+             src="resources/done.png"  height="20" width="20">
+      </span>
+      <img id="edit" alt="Edit" onClick="editRow(event)" title="Edit" style="opacity: 0.75;"
+           src="resources/edit.png"  height="20" width="20">
+      <img id="expand" alt="Open" onClick="openRow(event)" title="Open" style="opacity: 0.75;"
+           src="resources/open.png" height="20" width="20">
+      <img id="collapse" alt="Close" onClick="closeRow(event)" title="Close" style="opacity: 0.75;"
+           src="resources/closeNode.png" height="20" width="20">
+      <img id="delete" alt="Delete"  onClick="deleteRow(event)" title="Delete" style="opacity: 0.75;"
+           src="resources/delete.png" height="20" width="20">
+    </div>
+    
+    <table id="content" >
+    </table>
+
+    <div id="editOverlay" class="modal">
+      <dialog id="dialog" >
+        <table style="width:100%;">
+          <tr id="dn">
+            <td style="padding-bottom: 2px">
+              <li>
+                <span id="distinguishedName"></span>
+              </li>
+            </td>
+          </tr>
+          <tr id="topic"> 
+            <td>
+              <li style="margin-left: 10px">
+                <span style="position: relative; left: -12px; top:5px">
+                  <textarea id="topic-text" class="editNode" style="width: 93%" rows="1"></textarea>
+                </span>
+              </li>
+            </td>
+          </tr> 
+          <tr> 
+            <td><textarea id="title-text" class="editNode" rows="1">title</textarea></td>
+          </tr>
+          <tr> 
+            <td><textarea id="title-url" class="editNode">url</textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="text-text" class="editNode" ></textarea></td>
+          </tr>
+        </table>
+        <div class="buttonDiv">
+          <button id="update" class="button_text general_button" onClick="updateRow()">Update</button>
+          <button id="cancel" class="button_text general_button" onClick="closeDialog()">Cancel</button>
+        </div>
+      </dialog>
+    </div>
+    
+    <script src="orga-bundlev2.js"></script>
+    <script src="BTNode.js"></script>
+    <script src="fileManager.js"></script>
+    <script src="bt.js"></script>
+    <script src="BTAppNode.js"></script>
+    <script src="parser.js"></script>
+    <script src="../utilities/converters.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+            onload="this.onload=function(){};"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-functions.js"></script>
+    <!-- See https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+
+    <!-- needed?   -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
+    <!-- Add Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="subscriptionManager.js"></script>
+
+  </body>
+</html>

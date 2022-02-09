@@ -1,0 +1,378 @@
+#+PROPERTY: BTCohort 2000-5000
+#+PROPERTY: BTVersion 1
+#+PROPERTY: BTGroupingMode TABGROUP
+
+* Project
+Keep all your links and notes for each project in one place. These are examples to use or delete. Open them to see sample sub topics.
+
+** Sample Project - Kitchen Renovation
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+An example home improvement type project.
+
+*** Contractors
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Keep notes on the contenders as you research
+**** [[https://braintool.org/posts][The Expensive guys]]
+Lots of Back Bay and Cambridge high end renovations. If you have to ask you can't afford it!
+
+**** [[https://braintool.org/posts][The cheap guy]]
+Interested in the design problem with some good ideas. Sounded kind of seat of the pants. Was unsure about scheduling.
+
+**** [[https://northriverbuilders.com/][North River Builders]]
+Just right! Nile was great to talk to. Really engaged with the project. Good project management software, great portfolio.
+
+*** Cabinetry
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[http://www.crown-point.com/][Crown Point Cabinetry]]
+NH based. NRB recommendation.
+
+*** Appliances
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[https://clarkeliving.com/][demo showroom in Boston]]
+Note that the link text can be anything, it doesn't need to be the url. Use the Edit button on a row to open the Topic Card and experiment.
+*** Lighting
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://catalog.wolfers.com/landing][Lighting and Home Accent Categories | Wolfers Lighting]]
+Follow up on questions about controllers
+
+*** Other Resources
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+**** [[https://www.livehome3d.com/mac/live-home-3d][Live Home 3D Home Design Software for Mac]]
+Cool 3d modeling software
+
+**** [[https://coconstruct.com/app/skins/Default/][CoConstruct app]]
+NRBs coordination app
+
+
+** Sample Project - Moms surprise party
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+An example party planning project
+
+*** Caterers
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.concordcheeseshop.com/][Peter's got it covered!]]
+
+*** Venues
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.tajmahal.gov.in/][Maybe here?]]
+
+*** Communication
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://web.whatsapp.com/][Group Chat]]
+Special group w mom excluded!
+
+**** [[https://mail.google.com/mail/u/1/#inbox/FMfcgzGkZGfRLCtJkHDvfDSGkGMxQgSJ][Aunt Marge travel logistics email]]
+links to emails work just fine
+
+** Sample Project - My work project
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+An example professional project
+
+*** [[https://www.atlassian.com/software/confluence][Confluence -  Atlassian]]
+Project Confluence page
+
+*** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software | Atlassian]]
+Jira board
+
+*** [[https://github.com/][GitHub]]
+Git repo
+
+*** [[https://slack.com/][Where work happens | Slack]]
+Slack channel
+
+*** [[https://docs.google.com/document/u/0/][Google Docs]]
+Project document
+
+
+* Area
+Non-project areas of life to keep track of. 
+
+** Personal
+Maybe keep personal and work stuff separate.
+*** House
+     :PROPERTIES:
+     :VISIBILITY: folded
+     :END:
+
+**** Concord
+     :PROPERTIES:
+     :VISIBILITY: folded
+     :END:
+ Handy town links
+
+***** [[https://concordma.gov/2731/_2021][Town Meeting]]
+
+***** [[https://concordma.gov/464/Municipal-Light-Plant][municipal electric]]
+ outage reporting etc
+
+**** Utilities
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+  
+***** [[https://my.xfinity.com/?cid=cust][Comcast login]]
+
+**** [[https://www.hunterindustries.com/videos/node-setting-station-run-times][Control the damn sprinklers]]
+Links can be at any level of the tree
+*** Finance
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+
+**** [[https://secure.netlinksolution.com/nextgen/][Client Login]]
+ Taxes tool
+
+**** [[https://www.bankofamerica.com/][Bank of America - Banking, Credit Cards, Loans and Merrill Investing]]
+ BofA site
+
+**** [[https://login.northwesternmutual.com/login][Login | Northwestern Mutual]]
+ NMIS investments site
+
+**** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Income Tracking - Google Sheets]]
+
+*** Health and Wellness
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://myhealth.atriushealth.org/][MyHealth Online - Log Into Your Atrius Health Medical Record]]
+health portal
+
+**** [[https://aspireap.com/][Aspire]]
+"where strong wills become strong bodies"
+
+*** Car
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.minutemanvw.com/service/department-fod33-1947.htm][minuteman service]]
+
+*** Kids 
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://child-care-preschool.brighthorizons.com/ma/watertown/watertown][backup childcare]]
+
+*** Mom and Dad
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.rocketlawyer.com/family-and-personal/health-and-medical/healthcare-decisions/document/living-will][Living will]]
+
+*** Triathlon
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Sports and hobby links
+
+**** [[https://sunmultisportevents.com/events/patriot-half/][Patriot Half]]
+
+*** Fun and Entertainment
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Also keep track of the fun stuff!
+
+**** [[https://netflix.com][Netflix queue]]
+
+**** [[https://www.youtube.com/watch?v=4BvjYabSl5A&list=PLhaw8BE1kin1LF6tfn8MU1zUFgiPNc29Y&index=1][Coding playlists]]
+
+** Professional
+Areas of responsibility at work. I used to have a lot of these, now not so many.
+*** Admin, HR, Budget
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.workday.com/][Workday annual review stuff]]
+
+**** [[https://www.adp.com/][payroll]]
+
+*** Team A
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://wikipedia][team wiki]]
+You get the idea...
+*** Team B
+
+*** Customer A
+
+*** Customer B
+
+* To Read
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Long form essays and videos to get back to
+
+** [[https://distill.pub/2017/aia/][Using Artificial Intelligence to Augment Human Intelligence]]
+Long tutorial on tools and techniques
+** [[https://untools.co/][Tools for better thinking | Untools]]
+** [[https://lexfridman.com/daniel-kahneman/][Daniel Kahneman: Thinking Fast and Slow, Deep Learning, and AI | MIT | Artificial Intelligence Podcast]]
+podcast interview
+
+
+* Resource
+Reference Material. Create sub tags under here - eg Reference:Machine Learning
+
+** BrainTool
+As another example in a recursive kind of way. This tag and its children capture resources related to BrainTool.
+
+*** [[https://braintool.org/support][BrainTool Support Page]]
+
+*** [[https://braintool.org/posts.html][Blog]]
+
+*** [[https://braintool.org/overview.html][Vision]]
+
+*** [[https://groups.google.com/u/0/g/braintool-discussion][Discussion Group]]
+
+*** Complementary Tools
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+ Useful tools in an BrainTool/org-mode based workflow.
+
+**** [[https://organice.200ok.ch/][organice]]
+ Cloud based editor for your BrainTool file.
+
+**** [[https://play.google.com/store/apps/details?id=com.orgzly][Orgzly | Notes & To-Do Lists]]
+ Orgzly is a mobile todo app on top of org. Use it to get your BrainTool on your phone.
+
+**** [[https://chrome.google.com/webstore/detail/quick-tabs/jnjfeinjfmenlddahdjdmgpbokiacbbb?hl=en][Quick Tabs - Chrome Web Store]]
+ keyboard search for tabs
+
+**** [[https://org-roam.readthedocs.io/en/master/][Org-roam]]
+ A non-hierarchal org model
+
+*** Similar Tools
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+ Other tools to solve the BrainTool problem.
+
+**** [[https://getmemex.com/][WorldBrain's Memex]]
+ Full text search on all your browser history. Very Cool!
+
+**** [[https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl][Tabs Outliner - Chrome Web Store]]
+ Similar L&F to BT but no tags or textfile access and in my case led to a proliferation of stuff I didn't care about.
+
+*** Contributions
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+ Thanks to the people behind these tools and resources for letting me stand on their shoulders.
+
+**** [[https://projects.verou.me/awesomplete/][Awesomplete: Ultra lightweight, highly customizable, simple autocomplete, by Lea Verou]]
+ JavaScript autocomplete library
+
+**** [[https://github.com/orgapp/orgajs][orgapp/orgajs: parse org-mode content into AST]]
+ JS parser for org mode
+
+**** [[https://thenounproject.com/][Free Icons for Everything - Noun Project]]
+Royalty free icons from the Noun Project. I use Edit by Manish; Delete, Expand all, and Collapse all by Kevin White, Outdent by Farias and Done by Praveen.
+
+**** [[http://jackconfrey.com/work][jconfrey Art]]
+ Graphic design and project artwork by Jack Confrey
+
+
+*** Web Pages
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+**** [[https://braintool.org][Homepage]]
+Its a static site served from GitHub.
+**** [[https://github.com/tconfrey/BrainTool][tconfrey/BrainTool: Initial experiments with a Chrome plug-in / emacs .org file mashup]]
+Here's the repo
+
+**** [[https://braintool.org/overview][BrainTool Philosophy | Tony Confrey]]
+More details
+
+**** [[https://braintool.org/posts][Blog]]
+
+** emacs and org-mode
+   :PROPERTIES:
+   :VISIBILITY: folded
+   :END:
+
+***  [[https://www.gnu.org/software/emacs/][emacs]]
+The other way to use your BrainTool file is via a text editor and emacs is the ultimate. (.org/software/emacs)
+
+*** [[https://lucidmanager.org/tags/emacs/][Being productive with emacs]]
+A set of articles from The Lucid Manager
+
+*** [[http://www.jesshamrick.com/2012/09/10/absolute-beginners-guide-to-emacs/][Basic Intro]]
+
+*** [[https://orgmode.org/][Org mode for Emacs - Your Life in Plain Text]]
+The structure of your tags and links is captured in an org-mode format. Probably not worth going down this path unless you are an emacs user.
+
+*** [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode beginning at the basics]]
+
+*** [[https://orgmodeforbeginners.com/overview/][Org mode for beginners]]
+another set of tutorials
+
+*** [[https://blog.jethro.dev/posts/org_mode_workflow_preview/][Org-mode Workflow:]]
+Jethro Kuan's workflow
+
+
+
+
+** Personal Productivity
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+BrainTool is a Topic Manager. A new category of personal productivity tool!
+*** [[https://fortelabs.co/blog/para/][Forte Labs PARA model]]
+the inspiration for the general structure of this sample set of BrainTool Topics
+
+*** [[https://www.reddit.com/r/productivity/][reddit forum]]
+
+*** [[https://francescod.medium.com/][Francesco D]]
+Productivity blogger and software reviewer
+
+*** [[https://mvlc.ent.sirsi.net/client/en_US/mvlc/search/detailnonmodal/ent:$002f$002fERC_35_95$002f0$002f35_95:OVERDRIVE:36183578-6d69-4fe8-8bea-d4ea349a927e/one?qu=9781508215554&te=ERC_ST_MVLC][Getting Things Done]]
+The "self-help classic for managing work-life balance in the twenty-first century"
+
+** Machine Learning
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+*** [[https://www.nature.com/articles/s41746-018-0029-1.pdf][Scalable and accurate deep learning with electronic health records]]
+ Google paper on predicting outcomes from health records
+
+* Archive
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Links and notes you are no longer actively using but don't want to delete. EG you could drag completed projects here.
+** [[https://www.synapse.org/#!Synapse:syn18065891/wiki/][Metadata Automation DREAM Challenge - syn18065891]]

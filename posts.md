@@ -1,6 +1,8 @@
 ---
 layout: default
-title: Posts and Case Studies
+title: BrainTool Posts and Case Studies
+description: Control your browser with BrainTool, don't let it control you. Free and private. Download now!
+audience: nonuser
 ---
 <ul>
     {% for post in site.posts %}

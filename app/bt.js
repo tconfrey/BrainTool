@@ -1,31 +1,33 @@
 /*** 
  * 
  * Manages the App window UI and associated logic.
- * NB Runs in context of the BT side panel, not the background BT extension or the helper btContent scripts 
+ * NB Runs in context of the BT side panel, not background BT extension or helper btContent script
  * 
  ***/
+
 'use strict'
 
+const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
 const tipsArray = [
-    "Add ':' at the end of a topic in the popup to file under a new subtopic.",
-    "Double click on a table row to highlight its open window, if any.",
+    "Add ':' at the end of a topic in the popup to create a new subtopic.",
+    "Double click on a table row to highlight its' open window, if any.",
     "Type ':TODO' after a topic to make the item a TODO in the BT tree.",
-    "Create topics like ToRead to keep track of pages you want to come back to.",
+    "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
-    "Alt-b (aka Option-b) is the BrainTool accelerator key. You can change that in Chrome://extensions",
-    "You can save individual gmails or google docs into the BT tree",
-    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs",
-    "Save LinkedIn pages under specific topics to keep track of your contacts in context",
-    "Use the TODO button on a row to toggle between TODO, DONE and none",
-    "See BrainTool.org for the BrainTool blog and other info",
+    `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
+    "You can save individual gmails or google docs into the BT tree.",
+    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs.",
+    "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
+    "Use the TODO button on a row to toggle between TODO, DONE and none.",
+    "See BrainTool.org for the BrainTool blog and other info.",
     "Check out the Bookmark import/export functions under Options!",
-    "You can click on the topics shown in the BT popup instead of typing out the name",
+    "You can click on the topics shown in the BT popup instead of typing out the name.",
     "Close and re-open this controls overlay to get a new tip!",
-    "Double tap Alt(Option)-b, or double click the icon, to surface the BrainTool side panel",
-    "When you have an Edit card open the up/down arrows will open the next/previous card",
-    "Click on a row to select it then use keyboard commands. 'h' for a list of them",
-    "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar",
-    "Try hitting '1','2','3' etc to collapse to that level"
+    `Double tap ${OptionKey}-b, or double click the icon, to surface the BrainTool side panel.`,
+    "When you have an Edit card open, the up/down arrows will open the next/previous card.",
+    "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
+    "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
+    "Try hitting '1','2','3' etc to collapse to that level."
 ];
 
 var InitialInstall = false;
@@ -33,6 +35,8 @@ var UpgradeInstall = false;
 const GroupOptions = {WINDOW: 'WINDOW', TABGROUP: 'TABGROUP', NONE: 'NONE'};
 var GroupingMode = GroupOptions.TABGROUP;
 var GDriveConnected = false;
+var Config = {};					    // general config info holder
+
 
 /***
  *
@@ -40,22 +44,45 @@ var GDriveConnected = false;
  *
  ***/
 
-function launchApp(msg) {
-    // Launch app w data passed from extension
+async function launchApp(msg) {
+    // Launch app w data passed from extension local storage
     
     ClientID = msg.client_id;
     APIKey = msg.api_key;
+    FBKey = msg.fb_key;
+    STRIPE_PUBLISHABLE_KEY = msg.stripe_key;
+    Config = msg.Config || {};
     InitialInstall = msg.initial_install;
-    UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
+    UpgradeInstall = msg.upgrade_install;                     // null or value of 'previousVersion'
     BTFileText = msg.BTFileText;
-    processBTFile(BTFileText);
+    processBTFile();                                          // create table etc
 
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+    // Get BT sub id => premium 
+    // BTId in local store and from org data should be the same. local store is primary
+    if (msg.bt_id) {
+	    BTId = msg.bt_id;
+	    if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
+	    else if (BTId != getMetaProp('BTId'))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
+    } else {
+	    // get from file if not in local storage and save locally (will allow for recovery if lost)
+	    if (getMetaProp('BTId')) {
+	        BTId = getMetaProp('BTId');
+	        Config.bt_id = BTId;
+	        window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
+	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    }
+    }
     
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+
+    // Update ui for new users
     if (InitialInstall || UpgradeInstall) {
-        $("#tip").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
+	    $("#tip").hide();
+	    $("#openingTips").show();
+        $("#openingTips").animate({backgroundColor: '#7bb07b'}, 5000).animate({backgroundColor: 'rgba(0,0,0,0)'}, 30000);
         if (UpgradeInstall) {
-            // Need to make a one time assumption that an upgrade from prior to 0.9 is already connected
+            // Need to make a one time assumption that an upgrade from before 0.9 is already connected
             if (UpgradeInstall.startsWith('0.8') ||
                 UpgradeInstall.startsWith('0.7') ||
                 UpgradeInstall.startsWith('0.6'))
@@ -63,12 +90,16 @@ function launchApp(msg) {
             gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall});
         }
         if (InitialInstall) {
-            gtag('event', 'Install', {'event_category': 'General'});
+            gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
         }
+        setTimeout(closeMenu, 5000);
     } else {
         addTip();
-        setTimeout(closeMenu, 10000);
+        setTimeout(closeMenu, 1500);
     }
+
+    // scroll to top
+    $('html, body').animate({scrollTop: '0px'}, 300);
 
     // If GDrive connection was previously established, re-set it up on this startup
     if (getMetaProp('BTGDriveConnected') == 'true') {
@@ -78,10 +109,39 @@ function launchApp(msg) {
     } else {
         gtag('event', 'NonGDriveLaunch', {'event_category': 'General'});
     }
-        
+    
+    // If bookmarks have been imported remove button from controls screen (its still under options)
+    if (!getMetaProp('BTLastBookmarkImport')) {
+	    $("#importBookmarkButton").show();
+	    $("#openOptionsButton").text("Other Actions");
+    }
+
+    // show Alt or Option appropriately in visible text (Mac v PC)
+    $(".alt_opt").text(OptionKey);
+
+    // If subscription exists and not expired then user is premium
+    let sub = null;
+    if (BTId) {
+	    sub = await getSub();
+	    if (sub) {
+	        console.log('Premium subscription exists, good til:', new Date(sub.current_period_end.seconds * 1000));
+	        if ((sub.current_period_end.seconds * 1000) > Date.now()) {
+		        // valid subscription, toggle from sub buttons to portal link
+		        $(".subscription_buttons").hide();
+		        $("#portal_row").show();
+	        }
+	    }
+    }
+
+    // show special offer link if not subscribed and not first run
+    if (!sub && !(InitialInstall || UpgradeInstall))
+	    $("#specialOffer").show();
+
+    // handle currently open tabs
+    handleInitialTabs(msg.all_tabs);
 }
 
-async function updateSigninStatus(signedIn, error=false) {
+async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
     // CallBack on GDrive signin state change
     if (error) {
         let msg = "Error Authenticating with Google. Google says:\n'";
@@ -106,14 +166,16 @@ async function updateSigninStatus(signedIn, error=false) {
              UpgradeInstall.startsWith('0.6')))
         {
             alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
-            await refreshTable(true);                       // force read sync from GDrive
-            saveBT();                                       // and force save back into storage
+            await refreshTable(true);                       // Read previous org from GDrive
+            saveBT();					    // save to record it's now synced
         }
-        
+	    if (userInitiated) saveBT();			    // also save if newly authorized
     } else {
         alert("GDrive connection lost");
         $("#gdrive_save").hide();
+	    $("#refresh").hide();
         $("#gdrive_auth").show();
+        $("#autoSaveLabel").text("Auto-saving is off");
         GDriveConnected = false;
     }
 }
@@ -122,8 +184,52 @@ function addTip() {
     // add random entry from the tipsArray
     let indx = Math.floor(Math.random() * tipsArray.length);
     $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
+    $("#tip").show();
 }
 
+// register for focus
+window.onfocus = handleFocus;
+function handleFocus(e) {
+    // Links w focus interfere w BTs selection so remove
+    document.activeElement.blur();
+    // check file version, potentially warn no staleness
+    warnBTFileVersion(e);
+}
+
+async function warnBTFileVersion(e) {
+    // warn in ui if there's a newer btfile on Drive
+    if (!getMetaProp('BTGDriveConnected')) return; 	    // only if gdrive connected
+    const warn = await checkBTFileVersion();
+    if (!warn) {
+	    $("#stats_row").css('background-color', '#7bb07b');
+	    return;
+    }
+    const savesText = $("#num_saves").text();
+    if (!savesText.includes('!')) $("#num_saves").text(savesText + '!');
+    
+    $("#saves_span").attr('data-wenk', 'Remote file is newer,\nconsider refreshing');
+    $("#stats_row").css('background-color', '#ffcc00');
+    console.log("Newer BTFile version on GDrive, sending gtag event and warning");
+    gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
+}
+
+function handleInitialTabs(tabs) {
+    // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
+    tabs.forEach((tab) => {
+	    const node = BTNode.findFromURL(tab.url);
+	    if (!node) return;
+	    
+        $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+        node.tabId = tab.id;
+        node.windowId = tab.windowId;
+        if (tab.groupId > 0) node.tabGroupId = tab.groupId;
+        if (node.parentId && AllNodes[node.parentId]) {
+            AllNodes[node.parentId].windowId = node.windowId;
+            AllNodes[node.parentId].tabGroupId = node.tabGroupId;
+            $("tr[data-tt-id='"+node.parentId+"']").addClass("opened");
+        }
+    });
+}
 
 /***
  *
@@ -131,22 +237,37 @@ function addTip() {
  *
  ***/
 
-function toggleMenu() {
-    // Toggle the visibility of the intro page, auth button and open/close icon
+function toggleMenu(event) {
+    // Toggle the visibility of the welcome page
+    // NB controls_screen has a min height set, need to remove during animations
+
+    if (event && event.target == $('#search_entry')[0]) return;	// click was on search box
+    
+    const minHeight = $("#controls_screen").css('min-height');
     if ($("#controls_screen").is(":visible")) {
-        $("#controls_screen").slideUp(400, 'easeInCirc');
-        $("#open_close_image").addClass('closed').removeClass('open');
+        // Close
+        $("#controls_screen").css('min-height',0)
+	        .slideUp(400, 'easeInCirc', () => {
+                $(this).css('min-height', minHeight);
+                $("#open_close_span").addClass("wenk--right");
+                $("#open_close_image").addClass("animate_more");
+            });
+	    if (toggleMenu.introMessageShown)
+	        $("#openingTips").hide();		     // if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
         $(".treetable tr").css("scroll-margin-top", "25px");
     } else {
-        if (!toggleMenu.introMessageShown)
-            toggleMenu.introMessageShown = true;            // leave tip showing and remember that it showed
-        else
-            addTip();                                       // display tip text after intro message has been shown
-        $("#controls_screen").slideDown(400, 'easeInCirc');
-        $("#open_close_image").addClass('open').removeClass('closed');
-        $(".treetable tr").css("scroll-margin-top", "330px");
+        // Open
+        toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
+        addTip();                                    // display tip text after intro message shown
+        $("#controls_screen").css('min-height',0)
+	        .slideDown(400, 'easeInCirc', () => {
+                $(this).css('min-height', minHeight);
+                $("#open_close_span").removeClass("wenk--right");
+                $("#open_close_image").removeClass("animate_more");
+            });
+        $(".treetable tr").css("scroll-margin-top", "375px");
     }
 }
 function closeMenu() {
@@ -191,16 +312,20 @@ function updateStatsRow(modifiedTime = null) {
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
     const numSaves = getMetaProp('BTVersion');
+    const tagText = `${numTags + numLinks} Topic Cards\n(${numOpenLinks} open tabs)`;
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
-    $("#num_topics").attr('title', `${numTags + numLinks} Topic Cards, (${numOpenLinks}) open tab`);
+    $("#brain_span").attr('data-wenk', tagText);
     
-    const saveTime = getDateString(modifiedTime);
-    $("#gdrive_save").html(`<i><small>Saved: ${saveTime}</small></i>`);
+    const saveTime = getDateString(modifiedTime);           // null => current time
+    $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
     $('#num_saves').text(':'+numSaves);
-    $("#num_saves").attr('title', `${numSaves} Saves \nLast saved: ${saveTime}`);
+    $("#saves_span").attr('data-wenk', `${numSaves} Saves\nSaved: ${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
+    {
         $("#saves").attr("src", "resources/drive_icon.png");
+	    $("#stats_row").css('background-color', '#7bb07b');
+    }
 }
 
 function brainZoom(iteration = 0) {
@@ -217,6 +342,12 @@ function brainZoom(iteration = 0) {
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
+/***
+ *
+ * Table handling
+ *
+ ***/
+
 var ButtonRowHTML; 
 var Tags = new Array();        // track tags for future tab assignment
 var BTFileText = "";           // Global container for file text
@@ -227,7 +358,7 @@ async function refreshTable(fromGDrive = false) {
     // Clear current state and redraw table. Used after an import or on a manual GDrive refresh request
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
-    if (unwrittenChangesP()) {
+    if (savePendingP()) {
         alert('A save is currently in process, please wait a few seconds and try again');
         return;
     }
@@ -245,9 +376,15 @@ async function refreshTable(fromGDrive = false) {
     AllNodes = [];
 
     // Either get BTFileText from gDrive or use local copy. If GDrive then await its return
-    if (fromGDrive)
-        await getBTFile();
-    processBTFile(BTFileText);
+    try {
+        if (fromGDrive)
+            await getBTFile();
+        processBTFile();
+    }
+    catch (e) {
+        console.warn('error in refreshTable: ', e.toString());
+        throw(e);
+    }
 }
 
 
@@ -264,26 +401,33 @@ function generateTable() {
 
 
 var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
-function processBTFile(fileText) {
-    // turn the org-mode text into an html table, extract category tags
-    BTFileText = fileText;      // store for future editing
+function processBTFile() {
+    // turn the org-mode text into an html table, extract Topics
 
     // First clean up from any previous state
     BTNode.topIndex = 1;
     AllNodes = [];
     
-    parseBTFile(fileText);
+    try {
+        parseBTFile(BTFileText);
+    }
+    catch(e) {
+        alert('Could not process BT file. Please check it for errors and restart');
+        $('body').removeClass('waiting');
+        throw(e);
+    }
 
     var table = generateTable();
     /*  for some reason w big files jquery was creating <table><table>content so using pure js
-    var container = $("#content");
-    container.html(table);
+        var container = $("#content");
+        container.html(table);
     */
     var container = document.querySelector('#content');
     container.innerHTML = table;
 
-    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10, animationTime: 250,
-                    onNodeCollapse: nodeCollapse, onNodeExpand: nodeExpand}, true);
+    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10,
+                             animationTime: 250, onNodeCollapse: nodeCollapse,
+                             onNodeExpand: nodeExpand}, true);
 
     BTAppNode.generateTags();
 
@@ -327,7 +471,7 @@ function refreshRefresh() {
     $("#refresh").prop("disabled", false);
     $('body').removeClass('waiting');
 }
-    
+
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
@@ -357,6 +501,9 @@ function initializeUI() {
     // single click - select row
     $("table.treetable tr").off("click");              // remove any previous handler
     $("table.treetable tr").on("click", function (e) {
+	    // first check this is not openclose button, can't stop propagation
+	    if (e?.originalEvent?.target?.classList?.contains('openClose')) return;
+	    
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
     });
@@ -365,11 +512,11 @@ function initializeUI() {
     $("table.treetable tr").draggable({
         helper: function() {
             buttonHide();
-	    
+	        
             const clone = $(this).clone();
-	    $(clone).find('.btTitle').html('');		   // empty clone of contents, for some reason
-	    $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
-	    
+	        $(clone).find('.btTitle').html('');		   // empty clone of contents, for some reason
+	        $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
+	        
             $("table.treetable tr").off('mouseenter');     // turn off hover behavior during drag
             $("table.treetable tr").off('mouseleave');
             return clone;
@@ -450,23 +597,12 @@ function dropNode(event, ui) {
     const dragNode = AllNodes[dragNodeId];
     const dropNode = $($(".dropOver")[0]).parent();
     const dropNodeId = $(dropNode).attr('data-tt-id');
+    const dropBTNode = AllNodes[dropNodeId];
     const treeTable = $("#content");
 
-    if (dropNodeId) {
-
-        const dropBTNode = AllNodes[dropNodeId];
+    if (dropNodeId && dropBTNode) {
         const oldParentId = dragNode.parentId;
-        moveNode(dragNode, dropBTNode);
-        
-        saveBT();
-        BTAppNode.generateTags();        
-        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-        
-        // update tree row if oldParent is now childless
-        if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
-            const ttNode = $("#content").treetable("node", oldParentId);
-            $("#content").treetable("unloadBranch", ttNode);
-        }
+        moveNode(dragNode, dropBTNode, oldParentId);        
     }
     
     // Clean up
@@ -475,8 +611,8 @@ function dropNode(event, ui) {
     $("td").removeClass("dropOver");
 }
 
-function moveNode(dragNode, dropNode) {
-    // perform move for DnD - drop Drag over Drop
+function moveNode(dragNode, dropNode, oldParentId) {
+    // perform move for DnD and keyboard move - drop Drag over Drop
     
     const treeTable = $("#content");
     if (dropNode.isTag() && !dropNode.folded) {
@@ -500,6 +636,17 @@ function moveNode(dragNode, dropNode) {
             treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
         }
     }
+    
+    // update tree row if oldParent is now childless
+    if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
+        const ttNode = $("#content").treetable("node", oldParentId);
+        $("#content").treetable("unloadBranch", ttNode);
+    }
+
+    // update the rest of the app and backing store
+    saveBT();
+    BTAppNode.generateTags();        
+    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});        
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {
@@ -533,16 +680,26 @@ function positionNode(dragNode, dropParentId, dropBelow) {
                             return (compare ($("tr").index(aa), $("tr").index(bb)));
                         });
 }
-    
+
 
 // Handle callbacks on node folding, update backing store
 function rememberFold() {
-    // Don't want to write file too often so wait 2 minutes after last change
-    if (rememberFold.writeTimer) {
-        clearTimeout(rememberFold.writeTimer);
-        rememberFold.writeTimer = null;
-    }
-    rememberFold.writeTimer = setTimeout(saveBT, 2*60*1000);
+    // Don't want to write file too often so wait a minute before saving
+    // and a second for local/fast save
+    
+    if (!rememberFold.fastWriteTimer)
+	    rememberFold.fastWriteTimer =
+	    setTimeout(() => {
+	        saveBT(true);                 // passing in saveLocal=true to just remember fold locally
+	        rememberFold.fastWriteTimer = null
+	    }, 1000);
+    
+    if (!rememberFold.writeTimer)
+	    rememberFold.writeTimer =
+	    setTimeout(() => {
+	        saveBT();
+	        rememberFold.writeTimer = null
+	    }, 1*60*1000);
 }
 
 function nodeExpand() {
@@ -550,7 +707,7 @@ function nodeExpand() {
     AllNodes[this.id].folded = false;
 
     // set highlighting based on open child links
-    if (!AllNodes[this.id].hasOpenChildren())
+    if (!AllNodes[this.id].hasOpenDescendants())
         $(this.row).removeClass('opened');
 
     // Update File 
@@ -568,11 +725,11 @@ function nodeCollapse() {
     // Update File, if collapse is not a result of a drag start
     if (update && !node.dragging) rememberFold();
 }
-   
+
 
 function handleLinkClick(e) {
     const nodeId = $(this).closest("tr").attr('data-tt-id');
-    AllNodes[nodeId].openTab();
+    AllNodes[nodeId].openURL();
     e.preventDefault();
 }
 
@@ -617,7 +774,7 @@ function tabOpened(data, highlight = false) {
                           row.removeClass("hovered", 1000);
                       }});
     }
-    
+
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
     if (GroupingMode != GroupOptions.WINDOW) return;
     const expectedIndex = node.indexInParent();
@@ -660,44 +817,58 @@ function tabClosed(data) {
 }
 
 function storeTabs(data) {
-    // put tab(s) under storage w given tag. tabsData is a list, could be one or all tabs in window
-    // NB tagString may be tag, parent:tag, tag:keyword, parent:tag:keyword
-    // where tag may be new, new under parent, or existing but under parent to disambiguate
-    const tagString = data.tag;
+    // put tab(s) under storage w given topic. tabsData is a list, could be one or all tabs in window
+    // NB topicString may be topic, topic:hierarchy:nodes etc and may have a terminating :TODO
+    // Topic may be a new path, new path under parent, or existing but under parent to disambiguate
+    const topicString = data.tag;
     const note = data.note;
     const windowId = data.windowId;
     const tabAction = data.tabAction;
 
-    // process tag and add new if doesn't exist    
-    const [tag, parentTag, keyword, tagPath] = BTNode.processTagString(tagString);
-    const parentNode = BTNode.findFromTagPath(tagPath) || addNewTag(tag, parentTag);
-    const ttParent = $("table.treetable").treetable("node", parentNode.id);
+    // process topic info create topic hierarchy as needed. no topic => scratch
+    const [topicDN, keyword] = BTNode.processTopicString(topicString || "Scratch");
+    const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
+    const ttNode = topicNode.getTTNode();
+
+    // update shared memory for popup
+    BTAppNode.generateTags();                       // NB should really only do this iff needed
+    window.postMessage({'function': 'localStore', 'data':
+                        {'tags': Tags, 'mruTopic': topicDN, 'mruTime': new Date().toJSON()}});
+
+    // process tabs to store
     const tabsData = data.tabsData.reverse();
     let newNodes = [];
-
-    // remember tag/time for potential pre-fill next time
-    window.postMessage({'function': 'localStore', 'data': {'mruTopic': tagPath, 'mruTime': new Date().toJSON()}});
 
     tabsData.forEach(tabData => {
         // create each new node and add to tree
         const url = tabData.url;
         const title = cleanTitle(tabData.title);
         const tabId = tabData.tabId;
-        if (BTAppNode.findFromTab(tabId)) return;            // ignore tabs we already have assigned
-        const newNode = new BTAppNode(`[[${url}][${title}]]`, parentNode.id,
-                                      note || "", parentNode.level + 1);
-        newNodes.push(newNode);
-        if (keyword) newNode.keyword = keyword;
-        newNode.tabId = tabId;
-        $("table.treetable").treetable("loadBranch", ttParent, newNode.HTML());
+        let node = BTAppNode.findFromTab(tabId);
+        if (!node) {
+            node = new BTAppNode(`[[${url}][${title}]]`, topicNode.id,
+                                 note || "", topicNode.level + 1);
+            node.tabId = tabId;
+            if (keyword) node.keyword = keyword;
+            $("table.treetable").treetable("loadBranch", ttNode, node.HTML());
+        } else {
+            node.title = `[[${url}][${title}]]`;
+            node.text = note || "";
+            if (keyword) node.keyword = keyword;
+            node.redisplay();
+            let tabData = {tabId: tabId, windowId: windowId, groupId: 0};
+            tabActivated(tabData);    // set local storage correctly for any subsequent popup open
+        }
+        newNodes.push(node);
     });
 
     // sort tree based on position in parents child array
+    topicNode.redisplay();                                  // in case changed by adding children
     const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
-    const childIds = parentNode.childIds;
+    const childIds = topicNode.childIds;
     $("table.treetable").treetable(
-        "sortBranch", ttParent, (a, b) => (compare(childIds.indexOf(a.id), childIds.indexOf(b.id))));
-    
+        "sortBranch", ttNode, (a, b) => (compare(childIds.indexOf(a.id),
+                                                      childIds.indexOf(b.id))));
     initializeUI();
     saveBT();
 
@@ -709,21 +880,20 @@ function storeTabs(data) {
     newNodes.forEach(node => setNodeOpen(node));            // if not closing then show as open
     if (GroupingMode == 'WINDOW') {
         // w window grouping either move to existing assigned window or just remember this one
-        if (parentNode.windowId || newNodes.length == 1) {
+        if (topicNode.windowId || newNodes.length == 1) {
             newNodes.forEach(node => node.group());
-            newNodes[0].showNode();
+            newNodes[0] && newNodes[0].showNode();
         }
         else
-            parentNode.windowId = windowId;
+            topicNode.windowId = windowId;
         return;
     }
     
-    if (GroupingMode == 'TABGROUP')
-        if (parentNode.tabGroupId) {
-            if (tabAction == 'GROUP' || (windowId == parentNode.windowId))
-                // even if 'stick' should group when in same window, confusing otherwise.
+    if (GroupingMode == 'TABGROUP') {
+        if (topicNode.tabGroupId) {
+            if (tabAction == 'GROUP' || (windowId == topicNode.windowId))
                 newNodes.forEach(node => node.group());
-            newNodes[0].showNode();
+            newNodes[0] && newNodes[0].showNode();
         }
         else {
             // Tell bg to create a new TG for Topic
@@ -733,6 +903,7 @@ function storeTabs(data) {
                 {'function': 'moveToTabGroup', 'tabIds': tabIds,
                  'nodeIds': nodeIds, 'windowId': windowId});
         }
+    }
 }
 
 function tabUpdated(data) {
@@ -742,7 +913,7 @@ function tabUpdated(data) {
     const tabUrl = data.tabURL;
     const groupId = data.groupId;
     const windowId = data.windowId;
-        
+    
     const tabNode = BTAppNode.findFromTab(tabId);
     if (tabNode) {
         // Either completion of opening of BT tab *or* nav away of an open BT tab
@@ -782,7 +953,7 @@ function tabUpdated(data) {
 }
 
 function tabActivated(data) {
-    // user switched to a new tab or win, fill in storage for popup's use
+    // user switched to a new tab or win, fill in storage for popup's use and select in ui
 
     const tabId = data['tabId'];
     const winId = data['windowId'];
@@ -791,15 +962,32 @@ function tabActivated(data) {
     const winNode = BTAppNode.findFromWindow(winId);
     const groupNode = BTAppNode.findFromGroup(groupId);
     let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
-                   'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
-    if (node) 
-        m1 = {'currentTag': node.tagPath, 'currentText': node.text};
+                  'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
+    if (node) {
+        node.tagPath || node.generateUniqueTagPath();
+        m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
+    }
     else
-        m1 = {'currentTag': '', 'currentText': ''};
+        m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
-    // TODO highlight this node in tree
+    
+    // Set Highlight to this node if in tree. see also similar code in keyHandler
+    let currentSelection = $("tr.selected")[0];
+    if (currentSelection) {
+        const prev = $(currentSelection).attr("data-tt-id");
+	    AllNodes[prev].unshowForSearch();
+    }
+    if (!node) return;						    // nothing else to do
+    if (node) {
+	    const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	    if(!$(tableNode).is(':visible'))
+	        node.showForSearch();				    // unfold tree etc as needed
+	    currentSelection && $(currentSelection).removeClass('selected');
+	    $(tableNode).addClass('selected');
+	    tableNode.scrollIntoView({block: 'center'});
+	    $("#search_entry").val("");				    // clear search box on nav
+    }	
 }
-
 
 function tabsWindowed(data) {
     // due to grouping change tabids are now in a window w windowId
@@ -828,8 +1016,10 @@ function tabsGrouped(data) {
 // Utility functions for the above
 
 function cleanTitle(text) {
+    // NOTE: Regex is from https://stackoverflow.com/a/11598864
+    const clean_non_printable_chars_re = /[\0-\x1F\x7F-\x9F\xAD\u0378\u0379\u037F-\u0383\u038B\u038D\u03A2\u0528-\u0530\u0557\u0558\u0560\u0588\u058B-\u058E\u0590\u05C8-\u05CF\u05EB-\u05EF\u05F5-\u0605\u061C\u061D\u06DD\u070E\u070F\u074B\u074C\u07B2-\u07BF\u07FB-\u07FF\u082E\u082F\u083F\u085C\u085D\u085F-\u089F\u08A1\u08AD-\u08E3\u08FF\u0978\u0980\u0984\u098D\u098E\u0991\u0992\u09A9\u09B1\u09B3-\u09B5\u09BA\u09BB\u09C5\u09C6\u09C9\u09CA\u09CF-\u09D6\u09D8-\u09DB\u09DE\u09E4\u09E5\u09FC-\u0A00\u0A04\u0A0B-\u0A0E\u0A11\u0A12\u0A29\u0A31\u0A34\u0A37\u0A3A\u0A3B\u0A3D\u0A43-\u0A46\u0A49\u0A4A\u0A4E-\u0A50\u0A52-\u0A58\u0A5D\u0A5F-\u0A65\u0A76-\u0A80\u0A84\u0A8E\u0A92\u0AA9\u0AB1\u0AB4\u0ABA\u0ABB\u0AC6\u0ACA\u0ACE\u0ACF\u0AD1-\u0ADF\u0AE4\u0AE5\u0AF2-\u0B00\u0B04\u0B0D\u0B0E\u0B11\u0B12\u0B29\u0B31\u0B34\u0B3A\u0B3B\u0B45\u0B46\u0B49\u0B4A\u0B4E-\u0B55\u0B58-\u0B5B\u0B5E\u0B64\u0B65\u0B78-\u0B81\u0B84\u0B8B-\u0B8D\u0B91\u0B96-\u0B98\u0B9B\u0B9D\u0BA0-\u0BA2\u0BA5-\u0BA7\u0BAB-\u0BAD\u0BBA-\u0BBD\u0BC3-\u0BC5\u0BC9\u0BCE\u0BCF\u0BD1-\u0BD6\u0BD8-\u0BE5\u0BFB-\u0C00\u0C04\u0C0D\u0C11\u0C29\u0C34\u0C3A-\u0C3C\u0C45\u0C49\u0C4E-\u0C54\u0C57\u0C5A-\u0C5F\u0C64\u0C65\u0C70-\u0C77\u0C80\u0C81\u0C84\u0C8D\u0C91\u0CA9\u0CB4\u0CBA\u0CBB\u0CC5\u0CC9\u0CCE-\u0CD4\u0CD7-\u0CDD\u0CDF\u0CE4\u0CE5\u0CF0\u0CF3-\u0D01\u0D04\u0D0D\u0D11\u0D3B\u0D3C\u0D45\u0D49\u0D4F-\u0D56\u0D58-\u0D5F\u0D64\u0D65\u0D76-\u0D78\u0D80\u0D81\u0D84\u0D97-\u0D99\u0DB2\u0DBC\u0DBE\u0DBF\u0DC7-\u0DC9\u0DCB-\u0DCE\u0DD5\u0DD7\u0DE0-\u0DF1\u0DF5-\u0E00\u0E3B-\u0E3E\u0E5C-\u0E80\u0E83\u0E85\u0E86\u0E89\u0E8B\u0E8C\u0E8E-\u0E93\u0E98\u0EA0\u0EA4\u0EA6\u0EA8\u0EA9\u0EAC\u0EBA\u0EBE\u0EBF\u0EC5\u0EC7\u0ECE\u0ECF\u0EDA\u0EDB\u0EE0-\u0EFF\u0F48\u0F6D-\u0F70\u0F98\u0FBD\u0FCD\u0FDB-\u0FFF\u10C6\u10C8-\u10CC\u10CE\u10CF\u1249\u124E\u124F\u1257\u1259\u125E\u125F\u1289\u128E\u128F\u12B1\u12B6\u12B7\u12BF\u12C1\u12C6\u12C7\u12D7\u1311\u1316\u1317\u135B\u135C\u137D-\u137F\u139A-\u139F\u13F5-\u13FF\u169D-\u169F\u16F1-\u16FF\u170D\u1715-\u171F\u1737-\u173F\u1754-\u175F\u176D\u1771\u1774-\u177F\u17DE\u17DF\u17EA-\u17EF\u17FA-\u17FF\u180F\u181A-\u181F\u1878-\u187F\u18AB-\u18AF\u18F6-\u18FF\u191D-\u191F\u192C-\u192F\u193C-\u193F\u1941-\u1943\u196E\u196F\u1975-\u197F\u19AC-\u19AF\u19CA-\u19CF\u19DB-\u19DD\u1A1C\u1A1D\u1A5F\u1A7D\u1A7E\u1A8A-\u1A8F\u1A9A-\u1A9F\u1AAE-\u1AFF\u1B4C-\u1B4F\u1B7D-\u1B7F\u1BF4-\u1BFB\u1C38-\u1C3A\u1C4A-\u1C4C\u1C80-\u1CBF\u1CC8-\u1CCF\u1CF7-\u1CFF\u1DE7-\u1DFB\u1F16\u1F17\u1F1E\u1F1F\u1F46\u1F47\u1F4E\u1F4F\u1F58\u1F5A\u1F5C\u1F5E\u1F7E\u1F7F\u1FB5\u1FC5\u1FD4\u1FD5\u1FDC\u1FF0\u1FF1\u1FF5\u1FFF\u200B-\u200F\u202A-\u202E\u2060-\u206F\u2072\u2073\u208F\u209D-\u209F\u20BB-\u20CF\u20F1-\u20FF\u218A-\u218F\u23F4-\u23FF\u2427-\u243F\u244B-\u245F\u2700\u2B4D-\u2B4F\u2B5A-\u2BFF\u2C2F\u2C5F\u2CF4-\u2CF8\u2D26\u2D28-\u2D2C\u2D2E\u2D2F\u2D68-\u2D6E\u2D71-\u2D7E\u2D97-\u2D9F\u2DA7\u2DAF\u2DB7\u2DBF\u2DC7\u2DCF\u2DD7\u2DDF\u2E3C-\u2E7F\u2E9A\u2EF4-\u2EFF\u2FD6-\u2FEF\u2FFC-\u2FFF\u3040\u3097\u3098\u3100-\u3104\u312E-\u3130\u318F\u31BB-\u31BF\u31E4-\u31EF\u321F\u32FF\u4DB6-\u4DBF\u9FCD-\u9FFF\uA48D-\uA48F\uA4C7-\uA4CF\uA62C-\uA63F\uA698-\uA69E\uA6F8-\uA6FF\uA78F\uA794-\uA79F\uA7AB-\uA7F7\uA82C-\uA82F\uA83A-\uA83F\uA878-\uA87F\uA8C5-\uA8CD\uA8DA-\uA8DF\uA8FC-\uA8FF\uA954-\uA95E\uA97D-\uA97F\uA9CE\uA9DA-\uA9DD\uA9E0-\uA9FF\uAA37-\uAA3F\uAA4E\uAA4F\uAA5A\uAA5B\uAA7C-\uAA7F\uAAC3-\uAADA\uAAF7-\uAB00\uAB07\uAB08\uAB0F\uAB10\uAB17-\uAB1F\uAB27\uAB2F-\uABBF\uABEE\uABEF\uABFA-\uABFF\uD7A4-\uD7AF\uD7C7-\uD7CA\uD7FC-\uF8FF\uFA6E\uFA6F\uFADA-\uFAFF\uFB07-\uFB12\uFB18-\uFB1C\uFB37\uFB3D\uFB3F\uFB42\uFB45\uFBC2-\uFBD2\uFD40-\uFD4F\uFD90\uFD91\uFDC8-\uFDEF\uFDFE\uFDFF\uFE1A-\uFE1F\uFE27-\uFE2F\uFE53\uFE67\uFE6C-\uFE6F\uFE75\uFEFD-\uFF00\uFFBF-\uFFC1\uFFC8\uFFC9\uFFD0\uFFD1\uFFD8\uFFD9\uFFDD-\uFFDF\uFFE7\uFFEF-\uFFFB\uFFFE\uFFFF]/g;
     // clean page title text of things that can screw up BT. Currently []
-    return text.replace("[", '').replace("]", '').replace(/[^\x20-\x7E]/g, '');
+    return text.replace("[", '').replace("]", '').replace(clean_non_printable_chars_re, '');
 }
 
 function setNodeOpen(node) {
@@ -849,34 +1039,12 @@ function setNodeOpen(node) {
     propogateOpened(parentId);
 }
 
-function addNewTag(tag, parentTag = null, parentNode = null) {
-    // New tag - create node and add to tree, parentNode might be known (if local creation)
-
-    // 1) Handle case where parentTag is passed in but doesn't yet exist (ie top:bottom)
-    let parentTagNode = parentNode || parentTag ? BTNode.findFromTagPath(parentTag) : null;
-    if (parentTag && !parentTagNode) {
-        parentTagNode = new BTAppNode(parentTag, null, "", 1);
-        $("table.treetable").treetable("loadBranch", null, parentTagNode.HTML());
-    }
-
-    // 2) Create new tag and update extension
-    const parentTagLevel = parentTagNode ? parentTagNode.level : 0;
-    const parentTagId = parentTagNode ? parentTagNode.id : null;
-    const newNode = new BTAppNode(tag, parentTagId, "", parentTagLevel+1); // name, parent, note, lvl
-    BTAppNode.generateTags();
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-
-    // 3) Update tree
-    const n = $("table.treetable").treetable("node", parentTagId);
-    $("table.treetable").treetable("loadBranch", n || null, newNode.HTML());
-    return newNode;
-}
-
 
 /*** 
  * 
  * Row Operations
  * buttonShow/Hide, Edit Dialog control, Open Tab/Tag(Window), Close, Delete, ToDo
+ * NB same fns for key and mouse events. getActiveNode finds the correct node in either case from event
  * 
  ***/
 
@@ -892,14 +1060,29 @@ function buttonShow() {
     
     $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset();
-    $("#buttonRow").offset({top: offset.top});
+    const height = $(this).height();
+    const rowtop = (offset.top + (height / 2) - 12);
     if ($(this).hasClass("opened")){
+        $("#expand1").hide();
         $("#expand").hide();
         $("#collapse").show();
     }
     else {
-        if ($(this).find('a').length)
-            $("#expand").show();
+        // show appropriate icon if there's something to open. (one tab or many)
+        if ($(this).find('a').length) {
+            if ($(this).hasClass("branch")) {
+                $("#expand1").hide();
+                $("#expand").show();
+            }
+            else {
+                $("#expand").hide();
+                $("#expand1").show();
+            }
+        }
+        else {
+            $("#expand").hide();
+            $("#expand1").hide();
+        }
         $("#collapse").hide();
     }
     // show expand/collapse if some kids of branch are not open/closed
@@ -912,11 +1095,20 @@ function buttonShow() {
         if (openKids)
             $("#collapse").show();
     }
+
     // allow adding children on branches or unpopulated branches (ie no links)
     if ($(this).hasClass("branch") || !$(this).find('a').length)
         $("#addChild").show();
     else
         $("#addChild").hide();
+
+    // only show outdent on non-top level items
+    if (this.getAttribute("data-tt-parent-id"))
+        $("#outdent").show();
+    else
+        $("#outdent").hide();
+    
+    $("#buttonRow").offset({top: rowtop});
     $("#buttonRow").show();        
 }
 
@@ -925,6 +1117,14 @@ function buttonHide() {
     $(this).removeClass("hovered");
     $("#buttonRow").hide();
     $("#buttonRow").detach().appendTo($("#dialog"));
+}
+
+function toggleMoreButtons(e) {
+    // show/hide non essential buttons
+    $("#otherButtons").toggle(250, 'easeInCirc', () => $(".openClose").toggle());
+    e = e || window.event;
+    e.preventDefault();		                        // don't propogate click
+    return false;
 }
 
 function editRow(e) {
@@ -936,13 +1136,7 @@ function editRow(e) {
     const top = $(row).position().top - $(document).scrollTop();
     const bottom = top + $(row).height();
     const dialog = $("#dialog")[0];
-
-    if ((top + $(dialog).height() + 60) < $(window).height())
-        $(dialog).css("top", bottom+30);
-    else
-        // position above row to avoid going off bottom of screen
-        $(dialog).css("top", top - $(dialog).height() - 20);
-
+    
     // populate dialog
     const dn = node.fullTagPath();
     if (dn == node.displayTag)
@@ -971,15 +1165,27 @@ function editRow(e) {
     $("#update").prop("disabled", true);
 
     // overlay grays everything out, dialog animates open on top.
-    // NB setting margin-left auto needed to expand from center, but -left 8px looks better when expanded
     $("#content").addClass('editOverlaid');
     $("#editOverlay").css("display", "block");
-    const width = $(dialog).width();
-    const height = width / 1.618;                           // golden!
-    $("#text-text").height(height - 140);                   // notes field fits but as big as possible
+    const fullWidth = $($("#editOverlay")[0]).width();
+    const dialogWidth = Math.min(fullWidth - 60, 600);
+    const height = dialogWidth / 1.618;                 // golden!
+    const marginLeft = (fullWidth - dialogWidth) / 2 - 10;
+    $("#text-text").height(height - 140);               // notes field fits but as big as possible
+
+    if ((top + height + 60) < $(window).height())
+        $(dialog).css("top", bottom+30);
+    else
+        // position above row to avoid going off bottom of screen (or the top)
+        $(dialog).css("top", Math.max(10, top - height - 20));
+
+    // Animate opening w calculated size
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
-        .animate({width: width, height: height, opacity: 1.0, 'margin-left': 10}, duration, 'easeInCirc',
-                 function () {$("#text-text").focus();});
+        .animate({width: dialogWidth, height: height, opacity: 1.0, 'margin-left': marginLeft},
+                 duration, 'easeInCirc',
+                 function () {
+		             e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();
+                 });
 }
 
 $(".editNode").on('input', function() {
@@ -1010,25 +1216,14 @@ function closeDialog(cb = null, duration = 250) {
     });
     $("#content").removeClass('editOverlaid');
 }
-    
-
-function getSelectedNode() {
-    // Return the node currently highlighted or selected
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    if (!tr) return null;
-    const nodeId = $(tr).attr('data-tt-id');
-    if (!nodeId) return null;
-    return AllNodes[nodeId];
-}
 
 function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
-    const tr = (e.type === 'click') ? $("tr.hovered")[0] : $("tr.selected")[0];
+    const tr = (e.type === 'click') ? $(e.target).closest('tr')[0] : $("tr.selected")[0];
     if (!tr) return null;
     const nodeId = $(tr).attr('data-tt-id') || 0;
     return AllNodes[nodeId];
 }
-    
 
 function openRow(e) {
     // Open all links under this row in windows per tag
@@ -1049,10 +1244,12 @@ function openRow(e) {
             if (!confirm(`Open ${numTabs} tabs?`))
                 return;
 
-    if (appNode.isTag())
-        appNode.openAll();
-    else
-        appNode.openTab();
+    if (appNode.isTag()) {
+        $("table.treetable").treetable("expandNode", appNode.id);         // unfold
+	    AllNodes[appNode.id].folded = false;
+        setTimeout(() => appNode.openAll(), 50);
+    } else
+        appNode.openURL();
 }
 
 function closeRow(e) {
@@ -1069,10 +1266,10 @@ function escapeRegExp(string) {
 
 function deleteRow(e) {
     // Delete selected node/row.
-    buttonHide();
     const appNode = getActiveNode(e);
     if (!appNode) return false;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
+    buttonHide();
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete whole subtree?')) {
@@ -1121,8 +1318,10 @@ function deleteNode(id) {
 function updateRow() {
     // Update this node/row after edit.
     const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    const node = getSelectedNode();
-    if (!node) return;
+    if (!tr) return null;
+    const nodeId = $(tr).attr('data-tt-id');
+    if (!nodeId) return null;
+    const node = AllNodes[nodeId];
 
     // Update Model
     const url = $("#title-url").val();
@@ -1148,7 +1347,6 @@ function updateRow() {
 
     // reset ui
     closeDialog();
-    $("tr.selected").removeClass('selected');
     initializeUI();
 }
 
@@ -1193,16 +1391,23 @@ function addChild(e) {
     // create child element
     const node = getActiveNode(e);
     if (!node) return;
-    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Tag'));
-    const newName = newnodes.length ? 'New Tag'+newnodes.length : 'New Tag';
-    const newNode = addNewTag(newName, node.tagPath, node);
+    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Topic'));
+    const newName = newnodes.length ? 'New Topic'+newnodes.length : 'New Topic';
+    const newNode = new BTAppNode(newName, node.id, "", node.level + 1);
+    newNode.createDisplayNode();
 
     // and highlight it for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
     $("tr.selected").removeClass('selected');
     $(tr).addClass("selected");
-    const clientY = tr[0].getBoundingClientRect().top + 25;
-    const dummyEvent = {'clientY': clientY, 'target': tr[0]};
+
+    // might not be scrolled into view
+    const displayNode = tr[0];
+	displayNode.scrollIntoView({block: 'center'});
+
+    // open card editor
+    const clientY = displayNode.getBoundingClientRect().top + 25;
+    const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
     editRow(dummyEvent);
 
     // Stop the event from selecting the row and line up a save
@@ -1231,7 +1436,7 @@ function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
     window.postMessage({'function': 'getBookmarks'});
-    toggleOptions(1500);
+    //    toggleOptions(1500);
 }
 
 function loadBookmarks(msg) {
@@ -1244,7 +1449,8 @@ function loadBookmarks(msg) {
         return;
     }
 
-    const importName = "Imported Bookmarks (" + getDateString() + ")";
+    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
+    const importName = "Imported Bookmarks (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
     msg.data.bookmarks.children.forEach(node => {
@@ -1252,6 +1458,10 @@ function loadBookmarks(msg) {
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
+    // remmember this import and remove button from main control screen
+    setMetaProp('BTLastBookmarkImport', dateString);
+    $("#importBookmarkButton").hide();
+    $("#openOptionsButton").text("Options");
     processImport(importName);                             // see above
 }
 
@@ -1266,10 +1476,12 @@ function loadBookmarkNode(node, parent) {
         btNode.folded = true;
 
     // handle link children, reverse cos new links go on top
-    node.children.reverse().forEach(node => {
-        if (node.childen) return;
-        if (node?.url?.startsWith('javascript:')) return; // can't handle JS bookmarklets
-        const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
+    node.children.reverse().forEach(n => {
+        let hasKids = n?.children?.length || 0;
+        let isJS = n?.url?.startsWith('javascript:') || false; // can't handle JS bookmarklets
+        if (hasKids || isJS) return;
+        
+        const title = n.url ? `[[${n.url}][${n.title}]]` : n.title;
         new BTAppNode(title, btNode.id, "", btNode.level + 1);
     });
     
@@ -1295,7 +1507,7 @@ function animateNewImport(name) {
                          }});
     RefreshCB = null;
 }
-    
+
 
 function exportBookmarks() {
     // generate minimal AllNodes for background to operate on
@@ -1303,9 +1515,10 @@ function exportBookmarks() {
         if (!n) return null;
         return {'displayTag': n.displayTag, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
     });
+    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
     window.postMessage({'function': 'localStore',
                         'data': {'AllNodes': nodeList,
-                                 title: 'BrainTool Export ' + getDateString()}});
+                                 title: 'BrainTool Export ' + dateString}});
 
     // wait briefly to allow local storage too be written before background tries to access
     setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);
@@ -1317,21 +1530,28 @@ function updatePrefs() {
     // update prefrences based on data read into AllNodes.metaProperties
 
     const groupMode = getMetaProp('BTGroupingMode');
-    const $radio = $('input:radio[name=grouping]');
     if (groupMode) {
+        const $radio = $('#tabgroup_selector :radio[name=grouping]');
         $radio.filter(`[value=${groupMode}]`).prop('checked', true);
         GroupingMode = groupMode;
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
-	}		       
+	}
+
+    const managerHome = getMetaProp('BTManagerHome');
+    if (managerHome) {
+        const $radio = $('#panel_toggle :radio[name=grouping2]');
+        $radio.filter(`[value=${managerHome}]`).prop('checked', true);
+        window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
+    }
 }
 
-// Register listener for grouping mode change
+// Register listener for radio button changes in Options
 $(document).ready(function () {
     if (typeof WaitingForKeys !== 'undefined') {
         // Defined in btContentScript so undefined => some issue
-        alert("Something went wrong. The BrainTool app is not connected to its Chrome Extension!");
+        alert("Something went wrong. The BrainTool app is not connected to its Browser Extension!");
     }
-    $(':radio').click(function () {
+    $('#tabgroup_selector :radio').click(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
         GroupingMode = GroupOptions[newVal];
@@ -1341,6 +1561,13 @@ $(document).ready(function () {
 
         saveBT();
         groupingUpdate(oldVal, newVal);
+    });
+    $('#panel_toggle :radio').click(function () {
+        const newHome = $(this).val();
+        setMetaProp('BTManagerHome', newHome);
+        // Let extension know
+        window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+        saveBT();
     });
 });
 
@@ -1362,65 +1589,306 @@ function groupingUpdate(from, to) {
 
 /***
  * 
+ * Search support
+ * 
+ ***/
+let ReverseSearch = false;
+let SearchOriginId = 0;
+$("#search_entry").on("keyup", search);
+$("#search_entry").on("keydown", searchOptionKey);
+$("#search_entry").on("focus", enableSearch);
+$("#search_entry").on("focusout", disableSearch);
+function enableSearch(e) {
+    // activate search mode
+
+    // ignore if tabbed into search box from card editor
+    const editing = ($($("#dialog")[0]).is(':visible'));
+    if (editing) return;
+    
+    $("#search_entry").select();
+    $("#search_buttons").show();
+
+    // Start search from...
+    let row = (ReverseSearch) ? 'last' : 'first';
+    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:'+row)[0];
+    SearchOriginId = parseInt($(currentSelection).attr('data-tt-id'));
+    
+    // prevent other key actions til search is done
+    $(document).unbind('keyup');
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function disableSearch(e = null) {
+    // turn off search mode
+    if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
+    $("#search_entry").removeClass('failed');
+    $("#search_entry").val('');
+	$("#search_buttons").hide();
+
+    // undo display of search hits
+    $("span.highlight").contents().unwrap();
+    $("td").removeClass('search searchLite');
+    
+    BTAppNode.redisplaySearchedNodes();                      // fix searchLite'd nodes
+    AllNodes.forEach((n) => n.unshowForSearch());            // fold search-opened nodes back closed
+    
+    // redisplay selected node to remove any scrolling, url display etc
+    const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
+    let node, displayNode;
+    if (selectedNodeId) {
+	    node = AllNodes[selectedNodeId];
+        displayNode = node.getDisplayNode();
+	    node.redisplay(true);
+	    node.shownForSearch = false;
+    } else {
+        // reselect previous selection if search failed
+        node = AllNodes[SearchOriginId || 1];
+        displayNode = node.getDisplayNode();
+        $(displayNode).addClass('selected');
+	    displayNode.scrollIntoView({block: 'center'});
+    }
+    
+    if (ExtendedSearchCB)                                     // clear timeout if not executed
+	    clearTimeout(ExtendedSearchCB);
+
+    // turn back on other key actions. unbind first in cas still set
+    // reattach only after this keyup, if any, is done
+    $(document).unbind('keyup');
+    setTimeout(()=>$(document).on("keyup", keyUpHandler), 500);
+}
+
+function searchButton(e, action) {
+    // called from next/prev search buttons. construct event and pass to search
+    
+    let event = {
+	    altKey : true,
+	    code : (action == "down") ? "KeyS" : "KeyR",
+	    key : (action == "exit") ? "Enter" : "",
+	    buttonNotKey: true
+    };
+    search(event);
+    e.preventDefault();
+    e.stopPropagation();
+    if (action == "exit")				      // turn back on regular key actions
+	    $(document).on("keyup", keyUpHandler);
+	
+    return false;    
+}
+function searchOptionKey(event) {
+    // swallow keydown events for opt-s/r so they don't show in input. NB keyup is still
+    // triggered and caught by search below
+
+    if (event.altKey && (event.code == "KeyS" || event.code == "KeyR")) {
+        let sstr = $("#search_entry").val();
+        event.stopPropagation();
+        event.preventDefault();
+    }
+}
+
+let ExtendedSearchCB = null;                                  // callback to perform searchlite 
+function search(keyevent) {
+    // called on keyup for search_entry, could be Search or Reverse-search,
+    // key is new letter or opt-s/r (search for next) or del 
+
+    if (keyevent.code == "Escape") {
+        $("tr.selected").removeClass("selected");
+        $("#search_entry").blur();
+        return;
+    }
+    
+    let sstr = $("#search_entry").val();
+    let next = false;
+    if (ExtendedSearchCB)                                     // clear timeout if not executed
+	    clearTimeout(ExtendedSearchCB);
+
+    // are we done?
+    if (keyevent.key == 'Enter' || keyevent.key == 'Tab') {
+	    keyevent.buttonNotKey || keyevent.stopPropagation();
+	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop keyHandler from getting it
+	    $("#search_entry").blur();                            // will call disableSearch
+	    return false;
+    }
+
+    // opt-s/r : drop that char code and go to next match
+    if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
+	    next = true;
+	    ReverseSearch = (keyevent.code == "KeyR");
+	    keyevent.buttonNotKey || keyevent.stopPropagation();
+	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
+    }
+    const inc = ReverseSearch ? -1 : 1;                       // forward or reverse
+
+    // undo effects of any previous hit
+    $("span.highlight").contents().unwrap();
+    $("td").removeClass('search');
+    
+    if (sstr.length < 1) return;                              // don't search for nothing!
+
+    // Find where we're starting from (might be passed in from backspace key handling
+    let row = (ReverseSearch) ? 'last' : 'first';
+    let currentSelection =  $("tr.selected")[0] || $('#content').find('tr:visible:'+row)[0];
+    let nodeId = keyevent.startId || parseInt($(currentSelection).attr('data-tt-id'));
+    
+    let prevNodeId = nodeId;
+    if (next) {
+	    AllNodes[nodeId].redisplay();
+	    nodeId = nodeId + inc;                                // find next hit, forward/reverse
+    }
+    if ($("#search_entry").hasClass('failed'))
+	    // restart at top or bottom (reverse)
+	    nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
+
+    // Do the search starting from nodeId
+    let node = AllNodes[nodeId];
+    while(nodeId > 0 && nodeId < AllNodes.length) {
+	    node = AllNodes[nodeId];
+	    nodeId = nodeId + inc;
+	    if (!node) continue;                                  // AllNodes is sparse
+	    if (node.search(sstr)) break;
+	    node = null;
+    }
+    
+    if (node) {
+	    if (prevNodeId != node.id)
+	        AllNodes[prevNodeId].redisplay();                 // remove search formating if moving on
+	    $("tr.selected").removeClass('selected');
+	    $(node.getDisplayNode()).addClass('selected');
+	    node.showForSearch();                                 // unfold tree etc as needed
+	    let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
+	    if (highlight) highlight.scrollIntoView({'inline' : 'center'});
+	    node.getDisplayNode().scrollIntoView({block: 'center'});
+        
+	    $("#search_entry").removeClass('failed');
+	    $("td").removeClass('searchLite');
+	    ExtendedSearchCB = setTimeout(() => extendedSearch(0, sstr, node), 200);
+    } else {
+	    $("#search_entry").addClass('failed');
+	    $("tr.selected").removeClass('selected');
+    }
+    
+    return (!next);                                           // ret false to prevent entry
+}
+
+function extendedSearch(start, sstr, selectedNode) {
+    // do extended search in batches which can be stopped on the next key press
+    const batchSize = parseInt(AllNodes.length / 40);
+    const delay = 50;                                         // mSec delay between batches
+    let nodesToSearch, end;
+    if (start == 0) {
+        // on first pass search visible nodes. make array of BTNodes
+        nodesToSearch = $("#content tr:visible")
+            .map(function (){return $(this).attr("data-tt-id");})
+            .get().map((e) => AllNodes[parseInt(e)]);
+        end = 1;
+    } else {
+        // else carve out the next batch from AllNodes
+        end = start + batchSize;
+        nodesToSearch = AllNodes.slice(start, end);
+    }
+
+	nodesToSearch.forEach((n) => {
+		if (!n) return;
+		if (n == selectedNode) return;                        // already highlighted as selection
+		n.extendedSearch(sstr);
+    });
+
+    // set up next batch if we're not done
+    if (end < AllNodes.length) {
+	    ExtendedSearchCB = setTimeout(() =>
+            extendedSearch(end, sstr, selectedNode), delay);
+    }
+    else
+        ExtendedSearchCB = null;
+}
+
+/***
+ * 
  * Keyboard event handlers
  * 
  ***/
-
-$(document).keydown(function(e) {
-
-    const key = e.which;
-    const alt = e.altKey;
-    // This one doesn't need a row selected, alt-z for undo last delete
-    if (alt && key === 90) {
-        undo();
+// prevent default space/arrow key scrolling and element tabbing on table (not in card edit fields)
+window.addEventListener("keydown", function(e) {
+    if ($("#dialog").find(':focus').length) return;
+    if ($("#search_entry").is(":focus")) return;
+    if(["ArrowUp","ArrowDown","Space", "Tab", "Enter"].indexOf(e.code) > -1) {
+        e.preventDefault();
     }
-    
+}, false);
+
+$(document).on("keyup", keyUpHandler);
+function keyUpHandler(e) {
+    // dispatch to appropriate command. NB key up event
+
     // ignore keys (except nav up/down) if edit dialog is open
     const editing = ($($("#dialog")[0]).is(':visible'));
     if (editing) {
-        handleEditCardKeydown(e);
+        handleEditCardKeyup(e);
         return;
     }
-    const navKeys = [78, 80, 38, 40];
+
+    // searchMode takes precidence and is detected on the search box input handler
+    if ($("#search_entry").is(":focus"))
+	    return;
+    
+    const alt = e.altKey;
+    const code = e.code;
+    const key = e.key;
+    const navKeys = ["KeyN", "KeyP", "ArrowUp", "ArrowDown"];
+    // This one doesn't need a row selected, alt-z for undo last delete
+    if (alt && code == "KeyZ") {
+        undo();
+    }
 
     // n or down arrow, p or up arrow for up/down (w/o alt)
     let next, currentSelection = $("tr.selected")[0];
-    if (!alt && navKeys.includes(key)) {
+    if (!alt && navKeys.includes(code)) {
         if (currentSelection)
-            next = (key == 78 || key == 40) ?
-            $(currentSelection).nextAll(":visible").first()[0] :          // down
+            next = (code == "KeyN" || code == "ArrowDown") ?
+            $(currentSelection).nextAll(":visible").first()[0] :          // down or
             $(currentSelection).prevAll(":visible").first()[0];           // up
         else
             // no selection => nav in from top or bottom
-            next = (key == 78 || key == 40) ?
+            next = (code == "KeyN" || code == "ArrowDown") ?
             $('#content').find('tr:visible:first')[0] :
             $('#content').find('tr:visible:last')[0];
         
         if (!next) return;
         if (currentSelection) $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
-        next.scrollIntoView({block: 'nearest'});
+        next.scrollIntoView({block: 'nearest'});	
+	    $("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
+	    e.stopPropagation();
         return;
     }
-    
+
+    // s,r = Search, Reverse-search
+    if (code == "KeyS" || code == "KeyR") {
+	    ReverseSearch = (code == "KeyR");
+	    enableSearch(e);
+        return;
+    }
+
     // h = help
-    if (key === 72) {
+    if (code == "KeyH") {
         toggleHelp();
         e.preventDefault();
     }
 
     // digit 1-9, fold all at that level, expand to make those visible
-    if (key > 48 && key <= 57) {
-        const lvl = key - 48;   // level requested
+    const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    if (digits.includes(key)) {
+        const lvl = digits.indexOf(key) + 1;   // level requested
         const tt = $("table.treetable");
         AllNodes.forEach(function(node) {
-            if (!tt.treetable("node", node.id)) return;               // no such node
+            if (!tt.treetable("node", node.id)) return;	      // no such node
             if (node?.level < lvl)
                 tt.treetable("expandNode", node.id);
             if (node?.level == lvl)
                 tt.treetable("collapseNode", node.id);
         });
+	    rememberFold();                                       // save to storage
     }
 
     if (!currentSelection) return;
@@ -1429,22 +1897,23 @@ $(document).keydown(function(e) {
     if (!node) return;
 
     // up(38) and down(40) arrows move
-    if (alt && (key === 38 || key === 40)) {
+    if (alt && (code == "ArrowUp" || code == "ArrowDown")) {
         if (node.childIds.length && !node.folded) {
             $("#content").treetable("collapseNode", nodeId);
         }
         // its already below prev so we drop below prev.prev when moving up
-        const dropTr = (key === 38) ?
+        const dropTr = (code == "ArrowUp") ?
               $(currentSelection).prevAll(":visible").first().prevAll(":visible").first() :
               $(currentSelection).nextAll(":visible").first();
         const dropId = $(dropTr).attr('data-tt-id');
-        moveNode(node, AllNodes[dropId]);
+	    const dropNode = AllNodes[dropId];
+        if (dropNode) moveNode(node, dropNode, node.parentId);
         e.preventDefault();
         return;
     }
 
     // enter == open or close.
-    if (!alt && key === 13) {
+    if (!alt && code == "Enter") {
         if (node.childIds.length) {
             if (node.hasUnopenDescendants())
                 openRow(e);
@@ -1458,45 +1927,47 @@ $(document).keydown(function(e) {
         }
     }
     
-    // tab == expand or collapse
-    if (key === 9) {
-        if (node.folded)
-            $("table.treetable").treetable("expandNode", nodeId);
-        else
-            $("table.treetable").treetable("collapseNode", nodeId);
+    // tab == expand or collapse if node has children
+    if (code == "Tab") {
+        if (node.isTag()) {
+            if (node.folded)
+                $("table.treetable").treetable("expandNode", nodeId);
+            else
+                $("table.treetable").treetable("collapseNode", nodeId);
+        }
         e.preventDefault();
         return;
     }
 
     // t = cycle TODO state
-    if (key === 84) {
+    if (code == "KeyT") {
         toDo(e);
     }
 
     // e = edit
-    if (key === 69) {
+    if (code == "KeyE") {
         editRow(e);
         e.preventDefault();
     }
 
     // delete || backspace = delete
     const keyString = e.key;
-    if (keyString === "Backspace" || keyString === "Delete") {
+    if (code == "Backspace" || code == "Delete") {
         deleteRow(e);
     }
 
     // opt enter = new child
-    if (alt && key === 13 && node.isTag()) {
+    if (alt && code == "Enter" && node.isTag()) {
         addChild(e);
     }
 
     // opt <- = promote
-    if (alt && key === 37) {
+    if (alt && code == "ArrowLeft") {
         promote(e);
     }
 
     // <- collapse open node, then nav up tree
-    if (key === 37) {
+    if (!alt && code == "ArrowLeft") {
         if (node.childIds.length && !node.folded) {
             $("table.treetable").treetable("collapseNode", nodeId);
             return;
@@ -1505,10 +1976,11 @@ $(document).keydown(function(e) {
         next = $(`tr[data-tt-id=${node.parentId}]`)[0];
         $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
+        next.scrollIntoView({block: 'nearest'});
     }
 
     // -> open node, then nav down tree
-    if (key === 39) {
+    if (code == "ArrowRight") {
         if (node.folded) {
             $("table.treetable").treetable("expandNode", nodeId);
             return;
@@ -1519,37 +1991,43 @@ $(document).keydown(function(e) {
     }
 
     // space = open tab/window
-    if (key === 32) {
-        node.showNode();
+    if (code === "Space") {
+        node.openURL();
         e.preventDefault();
     }
 
-});
+};
 
-function handleEditCardKeydown(e) {
-    // subset of keydown handler applicible to card edit dialog
+function handleEditCardKeyup(e) {
+    // subset of keyUpHandler applicible to card edit dialog, nb keyup event
 
-    const key = e.which;
+    const code = e.code;
     const alt = e.altKey;
-    if (key == 9) {
-        // restrain tabbing to within dialog
+    if (code == "Tab") {
+        // restrain tabbing to within dialog. Button gets focus and then this handler is called.
+	    // so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
-        const last = $("#cancel")[0];
         const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
-        if (focused == last && !e.shiftKey) {
-            $(first).focus();
-            e.preventDefault();
-        }
-        if (focused == first && e.shiftKey) {
-            $(last).focus();
-            e.preventDefault();
-        }
+	    if (!focused || !$(focused).hasClass('editNode')) {
+	        // tabbed out of edit dialog, force back in
+	        if (!e.shiftKey)	// tabbing forward
+		        $(first).focus();
+	        else
+		        $("#cancel").focus();
+	    }
+        e.preventDefault();
         return;
     }
-    if (alt && [38,40].includes(key)) {
+    if (code == "Enter") {
+	    // on enter move focus to text entry box
+	    $("#text-text").focus();
+	    e.preventDefault();
+	    e.stopPropagation();
+    }
+    if (alt && ["ArrowUp","ArrowDown"].includes(code)) {
         // alt up/down iterates rows opening cards
         const currentSelection = $("tr.selected")[0];
-        const next = (key == 40) ?
+        const next = (code == "ArrowDown") ?
               $(currentSelection).nextAll(":visible").first()[0] :          // down
               $(currentSelection).prevAll(":visible").first()[0];           // up        
         if (!next) return;
@@ -1559,7 +2037,7 @@ function handleEditCardKeydown(e) {
         e.preventDefault();
         closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);        
     }
-}
+};
 
 function undo() {
     // undo last delete

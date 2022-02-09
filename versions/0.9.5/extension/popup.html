@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="awesomplete.css" />
+    <script src="awesomplete.js" async></script>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="message" style="white-space: pre"><i>Opening BrainTool...</i></div>
+
+    <div id="welcome" style="display:none; width:400px;">
+      <h2>Welcome to BrainTool</h2>
+      <p>To get you started I'm going to:<br/>
+	- Open the BrainTool side-panel window on the left of this screen.<br/>
+	- Resize this window to accommodate. (Feel free to undo that later.)<br/>
+	- Open a tab showing the BrainTool welcome screen with new user information.<br/>
+	  <br/>
+	  Remember:<br/>
+	  - Click the BrainTool icon or use the Option/Alt-b key to open this popup and save the current tab.<br/>
+	  - Double-click the icon or use Option/Alt-b-b to show the side-panel.
+      </p>
+      <button id="ok">OK</button>
+    </div>
+    
+    <div id="tag" style="display:none">
+      <div align="center">
+        <h2 id="heading">Choose Topic</h2>
+        <input type="text" id="newtag" size="40" autofocus></input>
+        <textarea id="note" rows="3" cols="45" disabled>Note (or hit Return):</textarea>
+        <div id="forms" >
+          <form id="tabAction" class="horizontal">
+            <label class="radio_inline" id="groupLabel" title="Group w open tabs for topic">
+              <input type="radio" name="bta" value="GROUP" id="GROUP" checked>Group
+            </label>
+            <label class="radio_inline" title="Keep tab open in this window">
+              <input type="radio" name="bta" value="STICK" id="STICK">Stick
+            </label>
+            <label class="radio_inline" title="Close tab after saving it">
+              <input type="radio" name="bta" value="CLOSE" id="CLOSE">Close
+            </label>
+          </form>
+          <hr class="horizontal" width="1" size="15" style="vertical-align: sub">
+          <div class="horizontal" id="chk">
+            <input type="checkbox" style="vertical-align: sub" id="all" name="all" value="All">
+            <label for="all" id="allLabel">All unsaved tabs</label>
+          </div>
+          <button id="submit">Save</button>
+        </div>
+      </div>
+      <h3>Existing Topics:</h3>
+      <div id="currentTags"></div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
