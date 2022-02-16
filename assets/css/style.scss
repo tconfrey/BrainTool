@@ -35,6 +35,9 @@ h3 {
     font-family: Roboto;
 }
 
+h3 + p {
+    margin-top: -0.75rem;
+}
 .row h3 {
     color: #606c71;
     font-size: 1.3rem;
