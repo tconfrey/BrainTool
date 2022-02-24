@@ -82,6 +82,7 @@ If you are a visual thinker, deep researcher or just looking to manage your read
 <table><tr><td style="width:45%; border: none; padding-left:0px; text-align:justify">
 BrainTool is a unique combination of many of these features and best described as a 'Topic Manager'. Like the best bookmarkers, BT makes it easy to capture and categorize pages, close them out and get back to them later. By using topics to control tab groups, BT replaces any need for tab or session managers. Given its hierarchy of topics with TODO's, notes and search, BT is also an entry level PKM tool and task manager. Finally, by providing open access in a well used data format, BrainTool can operate in conjunction with other tools in the category.</td><td style="border:none;">
 <img src="../../../site/postAssets/Five Tools/meme.png" alt="Mind blown meme" style="width:75%; margin-left:2em;"></td></tr></table>
-
+Please post any comments or questions to <a href="https://twitter.com/ABraintool/status/1496962742711951365">this twitter thread.</a>
+<br/><br/>
 <a name="footnote"></a>
 <small><i><a href="https://karl-voit.at/2017/09/23/orgmode-as-markup-only/"><super>*</super>The case for org-mode markup</a></i></small>
