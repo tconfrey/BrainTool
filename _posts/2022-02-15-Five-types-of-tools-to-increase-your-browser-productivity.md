@@ -6,11 +6,11 @@ excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
 ---
-# Five types of tools to improve your browser productivity
+# Five Types of Tools to Improve your Browser Productivity
  
-We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down your computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
+We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down the computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
 
-<table><tr><td style="width:40%; border: none; padding-left:0px">
+<table><tr><td style="width:40%; border: none; padding-left:0px; text-align: justify;">
 BrainTool is designed to make working in a browser more efficient. It is part of an ecosystem of browser extensions and web apps that have sprung up recently to address aspects of these problems. This is a survey of the five main classes of tools within that ecosystem.</td><td style="border:none">
 <img src="../../../site/postAssets/Five Tools/5-tool-table.png" alt="5 types of browser productivity tool"></td></tr></table>
 <!--more-->
@@ -74,12 +74,14 @@ The original PKM tools like [Evernote](https://evernote.com/) and [OneNote](http
 Given its ability to create a searchable hierarchy of topics with notes and links, BrainTool can be seen as a lightweight PKM tool. Since it saves your data in org-mode syntax<super><a href="#footnote">*</a></super> BT can also be used as a browser manager that can integrate with more extensive PKM tools such as LogSeq or [emacs/org](https://orgmode.org).
 
 ## So which should I use?
-The lightest weight approach to tabs overload is to use a tabs or session manager. Like a bandaid or pain killer these tools address the symptoms rather than the underlying cause of the problem. They don't help you organize or search your information and so aren't a long term solution, but they may provide temporary relief. 
+The lightest weight approach to tabs overload is to use a tabs or session manager. Like a bandaid or pain killer these tools address the symptoms rather than the underlying cause of the problem. They don't help you organize or search your information and so aren't a scaleable solution, but they may provide temporary relief. 
 
 If you are a visual thinker, deep researcher or just looking to manage your reading list check out the appropriate bookmarker category. If you are willing to invest some time and are interested in building a second brain try one of the modern PKM tools. Alternately if you need to get your arms around your to-do list, experiment with a task management tool.
 
 ## The BrainTool Topic Manager
-BrainTool is a unique combination of many of these features and best described as a 'Topic Manager'. Like the best bookmarkers, BT makes it easy to capture and categorize pages, close them out and get back to them later. By using topics to control tab groups, BT replaces any need for tab or session managers. Given its hierarchy of topics with TODO's, notes and search, BT is also an entry level PKM tool and task manager. Finally, by providing open access in a well used data format, BrainTool can operate in conjunction with other tools in the category.
+<table><tr><td style="width:45%; border: none; padding-left:0px; text-align:justify">
+BrainTool is a unique combination of many of these features and best described as a 'Topic Manager'. Like the best bookmarkers, BT makes it easy to capture and categorize pages, close them out and get back to them later. By using topics to control tab groups, BT replaces any need for tab or session managers. Given its hierarchy of topics with TODO's, notes and search, BT is also an entry level PKM tool and task manager. Finally, by providing open access in a well used data format, BrainTool can operate in conjunction with other tools in the category.</td><td style="border:none;">
+<img src="../../../site/postAssets/Five Tools/meme.png" alt="Mind blown meme" style="width:75%; margin-left:2em;"></td></tr></table>
 
 <a name="footnote"></a>
 <small><i><a href="https://karl-voit.at/2017/09/23/orgmode-as-markup-only/"><super>*</super>The case for org-mode markup</a></i></small>
