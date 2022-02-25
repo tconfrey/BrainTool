@@ -1,3 +1,37 @@
+/* First define the basic theme variables */
+:root {
+    --btMainHighlight: #3f673f;
+    --btMainHighlightShadow: #3f673f90;
+    --btBackground: #7bb07b;
+    --btBackgroundLight: #bed8be;
+    --btBackgroundHovered: #e0ece0;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: darkslategrey;
+
+    --btTreeForeground: #000000;
+    --btTreeBackground: #ffffff;
+    --btTreeBranchBackground: #f9f9f9;
+    --btTreeFont: tahoma;
+    --btTreeFontSize: 0.7em;
+    --btTreeLineHeight: 1;
+}
+
+[data-theme="dark"] {
+    --btMainHighlight: #7bb07b;
+    --btMainHighlightShadow: #7bb07b90;
+    --btBackground: #bed8be;
+    --btBackgroundLight: #3f673f;
+    --btBackgroundHovered: #3f673f;
+    --btControlsFont: Roboto;
+    --btHeaderFontColor: darkslategrey;
+
+    --btTreeForeground: #ffffff;
+    --btTreeBackground: #333333;
+    --btTreeBranchBackground: #444444;
+    --btTreeFont: roboto;
+    --btTreeFontSize: 0.9em;
+    --btTreeLineHeight: 1.5;
+}
 
 /* Welcome screen */
 body {
@@ -15,7 +49,7 @@ h1 {
     font-family: tahoma;
     font-size: 1.25rem;
     font-weight: normal;
-    color: #3f673f;
+    color: #var(--btMainHighlight);
 }
 h2 {
     text-align: left;
@@ -75,13 +109,13 @@ hr {
 }
 
 .lightgrey {
-    background: #f9f9f9;
+    background: var(--btTreeBranchBackground);
 }
 .highlight {
-    background: #cec;
+    background: var(--btBackgroundHovered);
 }
 .selected {
-    background: #7bb07b;
+    background: var(--btBackground);
 }
 
 span.topic {
@@ -101,9 +135,9 @@ span.caret {
 /* Topic Card */
 
 #topicCard {
-    border: 2px solid #3f673f ;
+    border: 2px solid var(--btMainHighlight);
     border-radius: 3px;
-    box-shadow: 6px 6px 4px rgb(63, 103, 63, 90);
+    box-shadow: 6px 6px 4px var(--btMainHighlightShadow);
     width: 450px;
     padding: 10px;
     margin-top: 25px;
@@ -148,7 +182,7 @@ span.caret {
 #distinguishedName {
     position: relative;
     font-size: 1.1rem;
-    color: #3f673f;
+    color: var(--btMainHighlight);
     cursor: default;    
     max-width: 90%;
     word-break: break-word;

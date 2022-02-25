@@ -75,8 +75,9 @@ const TopicCard = (() => {
     }
     NoteElt.onkeyup = function(e) {
         // key up, enter == save
-        if (e.key == "Enter" && !ExistingCard)
+        if (e.key == "Enter" && !ExistingCard) {
             saveCard(e);
+        }
     };
     TitleElt.oninput = function(e) {
         // title change => something to save
@@ -109,7 +110,8 @@ const TopicCard = (() => {
         // one of the close buttons
 
         let text = NoteElt.value;
-        text = text.replace(/\n*$/, "");           // remove trailing newlines that triggered save
+        if (!ExistingCard)
+            text = text.replace(/\n/g, "");               // remove newline that triggered save
         const data = {title: TitleElt.value,
                       text: text,
                       url: URLElt.value,

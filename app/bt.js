@@ -756,6 +756,7 @@ function tabOpened(data, highlight = false) {
 
     node.tabId = tabId;         
     node.windowId = windowId;
+    node.opening = false;
     AllNodes[parentId].windowId = windowId;
     if (tabGroupId) {
         AllNodes[parentId].tabGroupId = tabGroupId;
@@ -776,6 +777,7 @@ function tabOpened(data, highlight = false) {
     }
 
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
+    return;
     if (GroupingMode != GroupOptions.WINDOW) return;
     const expectedIndex = node.indexInParent();
     if (tabIndex != expectedIndex)
@@ -808,6 +810,7 @@ function tabClosed(data) {
     node.tabId = 0;
     node.tabGroupId = 0;
     node.windowId = 0;
+    node.opening = false;
     tabActivated(data);
 
     // update ui and animate parent to indicate change
@@ -942,7 +945,11 @@ function tabUpdated(data) {
         tabOpened(data, true);
         // acknowledge nav to BT node with brain animation
         window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
-        urlNode.group();                        // handle mooving tab to its group/window
+
+        // handle moving tab to its group. NB no move for WINDOW which goes away.
+        // NB also when tab group api is available move TG to tab, not other way around
+        if (GroupingMode == GroupOptions.TABGROUP)
+            urlNode.group();                        
         return;
     }
 
@@ -1529,9 +1536,16 @@ function exportBookmarks() {
 function updatePrefs() {
     // update prefrences based on data read into AllNodes.metaProperties
 
-    const groupMode = getMetaProp('BTGroupingMode');
+    let groupMode = getMetaProp('BTGroupingMode');
     if (groupMode) {
         const $radio = $('#tabgroup_selector :radio[name=grouping]');
+
+        // v099 move away from have a WINDOW default, new window now a choice on opening
+        if (groupMode == 'WINDOW') {
+            groupMode = 'TABGROUP';
+            setMetaProp('BTGroupingMode', groupMode);
+        }            
+        
         $radio.filter(`[value=${groupMode}]`).prop('checked', true);
         GroupingMode = groupMode;
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});

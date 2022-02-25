@@ -197,7 +197,9 @@ async function getStripePortalURL() {
 	    rsp = await functionRef(
 	        { returnUrl: "https://braintool.org", 'BTId': BTId });
     } catch(e) {
-	    console.error("Error in getPortal:", JSON.stringify(e));
+        const err = JSONstringify(e);
+	    console.error("Error in getPortal:", err);
+        alert("Error accessing Stripe portal:\n", err);
 	    return ("https://braintool.org/support");
     }
     return rsp.data.url;

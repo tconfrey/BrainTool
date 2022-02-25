@@ -33,6 +33,11 @@
     --btTreeLineHeight: 1.5;
 }
 
+body {
+    overflow-x: clip;
+    margin-left: 4px;
+    margin-right: 0px;
+}
 
 #controls_header {
     background-color: var(--btBackground);
@@ -122,8 +127,8 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 
 #controls {
     position: fixed;
-    right: 8px;
-    left: 8px;
+    right: 0px;
+    left: 4px;
     top: 0px;
     border: none;
     z-index: 3;

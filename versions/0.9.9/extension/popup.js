@@ -135,7 +135,7 @@ function popupOpen(tab) {
         ['tags', 'currentTabId', 'currentTag', 'currentText', 'currentTitle',
          'windowTopic', 'groupTopic', 'mruTopic', 'mruTime', 'saveAndClose'],
         data => {
-
+            console.log(data);
             // BT Page, just open card
             if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
                 TopicCard.setupExisting(data.currentTag, tab, data.currentText, data.currentTitle, saveCardCB);

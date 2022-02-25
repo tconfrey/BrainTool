@@ -18,7 +18,7 @@ const altOpt = document.getElementById('alt_opt');
 altOpt.textContent = OptionKey;
 
 
-chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome'], val => {
+chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation'], val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
     if (val['newInstall']) {
 	    // This is a new install, show the welcome page
@@ -48,13 +48,14 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome'], val => {
 
     // Else just normal popup either in tab or side panel
     const home = val['ManagerHome'] || 'PANEL';
+    const location = val['ManagerLocation'];
     console.log(`home = ${home}`);
-    popupAction(home);
+    popupAction(home, location);
     chrome.runtime.connect();           // tell background popup is open
     return;
 });
 
-function popupAction (home) {
+function popupAction (home, location) {
     // Activate popup -> populate form if app is open, otherwise open app
     
     if (BackgroundPage.BTTab)
@@ -65,13 +66,14 @@ function popupAction (home) {
                 popupOpen(activeTab);
             });
     else
-        windowOpen(home);
+        windowOpen(home, location);
 }
 
 document.getElementById("okButton").addEventListener('click', e => windowOpen());
-function windowOpen(home = 'PANEL') {
+function windowOpen(home = 'PANEL', location) {
     // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
     // home == tab => create manager in a tab, PANEL => in a side panel, default
+    // location {top, left, width, height} filled in by bg whenever Topic Manager is resized
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
@@ -83,28 +85,34 @@ function windowOpen(home = 'PANEL') {
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
     //const url = "https://BrainTool.org/app/";
-    const url = "http://localhost:8000/app/";
-    //const url = "https://BrainTool.org/versions/"+version+'/app/';
+    const url = "http://localhost:8000/versions/"+version+"/app/";
+   // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
     // Default open in side panel
     if (home != "TAB") {
-        console.log('opening in panel');
-        var wargs = {
-            'url' : url,
-            'type' : "panel",
-	        'state' : "normal",
-            'focused' : true,
-            'top' : 10, 'left' : 5,
-            'width' : 500, 'height' : screen.height
-        };
-        
         chrome.windows.getCurrent(mainwin => {
-	        // resize current win to accomodate side-panel. nb state can't be 'maximized'
-	        chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-					                           left: 500, width: (screen.width - 500)});
-	        // open BT win
-	        chrome.windows.create(wargs);
+            // create topic manager window where last placed or aligned w current window left/top
+            const wargs = location ? {
+                'url' : url,
+                'type' : "panel",
+	            'state' : "normal",
+                'focused' : true,
+                'top' : location.top, 'left' : location.left,
+                'width' : location.width, 'height' : location.height
+            } : {
+                'url' : url,
+                'type' : "panel",
+	            'state' : "normal",
+                'focused' : true,
+                'top' : mainwin.top, 'left' : mainwin.left,
+                'width' : 500, 'height' : mainwin.height
+            };
+	        // shift current win left to accomodate side-panel. nb state can't be 'maximized'
+	        location || chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
+                                                           left: (mainwin.left + 300)});
+            // then open Topic Manager
+            chrome.windows.create(wargs);
         });
     } else {
         // open in tab
@@ -127,7 +135,7 @@ function popupOpen(tab) {
         ['tags', 'currentTabId', 'currentTag', 'currentText', 'currentTitle',
          'windowTopic', 'groupTopic', 'mruTopic', 'mruTime', 'saveAndClose'],
         data => {
-
+            console.log(data);
             // BT Page, just open card
             if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
                 TopicCard.setupExisting(data.currentTag, tab, data.currentText, data.currentTitle, saveCardCB);

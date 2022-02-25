@@ -341,13 +341,15 @@ function openInWindow(msg, sender) {
     if (windowId) {
         chrome.windows.update(windowId, {'focused' : true}, () => check());
         tabs.forEach(tabData => {
-            chrome.tabs.create({'url': tabData.URL, 'windowId': windowId}, tab => {
-                check();
-                chrome.tabs.sendMessage(
-                    BTTab,
-                    {'function': 'tabOpened', 'nodeId': tabData.nodeId,
-                     'tabId': tab.id, 'windowId': tab.windowId, 'tabIndex': tab.index});
-            });
+            chrome.tabs.create({'url': tabData.URL, 'windowId': windowId, 'index': tabData.index},
+                               tab => {
+                                   check();
+                                   chrome.tabs.sendMessage(
+                                       BTTab,
+                                       {'function': 'tabOpened', 'nodeId': tabData.nodeId,
+                                        'tabId': tab.id, 'windowId': tab.windowId,
+                                        'tabIndex': tab.index});
+                               });
         });
     }
     else {
@@ -483,12 +485,15 @@ function moveToTabGroup(msg, sender) {
           {'tabIds': tabIds, 'createProperties': {'windowId': windowId}};
     chrome.tabs.group(args, groupId => {
         check();
-        chrome.windows.update(windowId, {'focused' : true}, () => check());
-        for (let i = 0; i < tabIds.length; i++) {
-            chrome.tabs.sendMessage(
-                BTTab, {'function': 'tabOpened', 'nodeId': nodeIds[i], 'tabId': tabIds[i],
-                        'windowId': windowId, 'tabGroupId': groupId});
-        }
+        chrome.tabs.update(tabIds[0], {'active': true}, (tab) =>
+                           {
+                               for (let i = 0; i < tabIds.length; i++) {
+                                   chrome.tabs.sendMessage(
+                                       BTTab, {'function': 'tabOpened', 'nodeId': nodeIds[i],
+                                               'tabId': tabIds[i],
+                                               'windowId': tab.windowId, 'tabGroupId': groupId});
+                               }
+                           });
     });
 }
 

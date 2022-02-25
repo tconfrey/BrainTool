@@ -14,6 +14,7 @@ async function saveBT(localOnly = false) {
 
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     brainZoom();                                 // swell the brain
+    updateStatsRow();                            // update num cards etc
     if (localOnly) return;                       // return if we're just remember folded state
 
     console.log("Recording save event and writing to any backing store");

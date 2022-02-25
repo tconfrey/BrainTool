@@ -358,12 +358,12 @@ class BTAppNode extends BTNode {
 
         // if we do care about grouping send openInWindow/TabGroup
         const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
+        const index = this.indexInParent();
         if (GroupingMode == GroupOptions.WINDOW)
             window.postMessage(
                 {'function' : 'openInWindow', 'windowId' : windowId,
-                 'tabs': [{'URL' : this.URL, 'nodeId' : this.id}] });
+                 'tabs': [{'URL' : this.URL, 'nodeId' : this.id, 'index' : index}] });
         if (GroupingMode == GroupOptions.TABGROUP) {
-            const index = this.indexInParent();
             const tabGroupId = this.tabGroupId || (this.parentId ? AllNodes[this.parentId].tabGroupId : null);
             const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
             window.postMessage(
