@@ -5,6 +5,7 @@ description: "I describe Tab managers, session managers, bookmark managers, task
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
+image: "../../../site/postAssets/Five Tools/5-tool-table.png"
 ---
 # Five Types of Tools to Improve your Browser Productivity
  
