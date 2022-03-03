@@ -1068,7 +1068,7 @@ function buttonShow() {
     $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset();
     const height = $(this).height();
-    const rowtop = (offset.top + (height / 2) - 12);
+    const rowtop = (offset.top);
     if ($(this).hasClass("opened")){
         $("#expand1").hide();
         $("#expand").hide();
@@ -1128,7 +1128,10 @@ function buttonHide() {
 
 function toggleMoreButtons(e) {
     // show/hide non essential buttons
-    $("#otherButtons").toggle(250, 'easeInCirc', () => $(".openClose").toggle());
+    $("#otherButtons").toggle(250, 'easeInCirc', () => {
+        $(".openClose").toggle();
+        $("#tools").toggleClass('toggled');
+    });
     e = e || window.event;
     e.preventDefault();		                        // don't propogate click
     return false;
@@ -1551,6 +1554,7 @@ function updatePrefs() {
         window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
 	}
 
+    // does the topic manager live in a tab or a window?
     const managerHome = getMetaProp('BTManagerHome');
     if (managerHome) {
         const $radio = $('#panel_toggle :radio[name=grouping2]');
@@ -1621,6 +1625,7 @@ function enableSearch(e) {
     
     $("#search_entry").select();
     $("#search_buttons").show();
+    $("#searchHint").hide();
 
     // Start search from...
     let row = (ReverseSearch) ? 'last' : 'first';
@@ -1639,6 +1644,7 @@ function disableSearch(e = null) {
     $("#search_entry").removeClass('failed');
     $("#search_entry").val('');
 	$("#search_buttons").hide();
+    $("#searchHint").show();
 
     // undo display of search hits
     $("span.highlight").contents().unwrap();
@@ -1904,6 +1910,10 @@ function keyUpHandler(e) {
         });
 	    rememberFold();                                       // save to storage
     }
+
+    // close overlay on escape
+    if ((code === "Escape") && $("#controls_screen").is(":visible"))
+        toggleMenu();
 
     if (!currentSelection) return;
     const nodeId = $(currentSelection).attr('data-tt-id');

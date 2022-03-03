@@ -1,5 +1,30 @@
 /* First define the basic theme variables */
 :root {
+    --btRowHeight: 30px;
+    --btFont: Roboto;
+    --btColor: #2a3f3e;
+    --btLetterSpacing: 0.02em;
+    
+    --btTopicBackground: #bcc4c5;
+    --btTopicFontWeight: 900;
+    --btTopicFontSize: 12px;
+    --btTopicLineHeight: 14px;
+
+    --btPageBackground: #d4dadb;
+    --btPageFontWeight: bold;
+    --btPageFontSize: 10px;
+    --btPageLineHeight: 12px;
+
+    --btNoteBackground: #e6e7e8;
+    --btNoteFontWeight: normal;
+    --btNoteFontSize: 10px;
+    --btNoteColor: #808285;
+    --btNoteLineHeight: 12px;
+
+    --btHintColor: #BCBEC0;
+
+    --btToolsBackground: rgba(255, 255, 255, 0.8);
+    
     --btMainHighlight: #3f673f;
     --btMainHighlightShadow: #3f673f90;
     --btBackground: #7bb07b;
@@ -35,12 +60,12 @@
 
 body {
     overflow-x: clip;
-    margin-left: 4px;
+    margin-left: 0px;
     margin-right: 0px;
 }
 
 #controls_header {
-    background-color: var(--btBackground);
+    background: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
     border-left: 1px solid #DDD;
     border-right: 1px solid #DDD;
     border-bottom: 1px solid #DDD;
@@ -72,21 +97,36 @@ body {
     height: 25px;
     position: absolute;
     top: 4px;
-    left: calc((100% - 300px) / 2);
-    font-family: var(--btControlsFont);
-    font-size: 1rem;
-    color: var(--btHeaderFontColor);
+    left: calc(50% - 220px/2);
+
 }
 #search_entry {
-    line-height: 1;
-    font-family: var(--btControlsFont);
     margin-top: 1px;
-    border: solid;
-    border-width: thin;
-    border-color: var(--btMainHighlight);
-    border-bottom-width: 1px;
-    background-color: var(--btBackgroundLight); 
+    border: none;
+    width: 180px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding-left: 10px;
+    height: 15px;
 }
+.hint {
+    /* alex */
+    font-family: var(--btFont);
+    font-style: var(--btNoteFontWeight);
+    font-weight: var(--btNoteFontWeight);
+    font-size: var(--btNoteFontSize);
+    line-height: var(--btPageLineHeight);
+    color: var(--btHintColor);
+    z-index: 3;
+    position: absolute;
+    top: 3px;
+    left: 30px;
+}
+.hintText {
+    position: relative;
+    top: -5px;
+}
+
 /* style when input is active */
 :focus-visible {
     outline-width: 1px;
@@ -128,7 +168,7 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 #controls {
     position: fixed;
     right: 0px;
-    left: 4px;
+    left: 0px;
     top: 0px;
     border: none;
     z-index: 3;
@@ -193,13 +233,29 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 #buttonRow {
-    background-color: var(--btBackground);
+    background-color: var(--btToolsBackground);
     position: absolute;
-    padding-left: 2px;
     padding-right: 0px;
-    border-radius: 2px;
+    border-radius: 0px;
     cursor: pointer;
-    right: 9px;
+    right: 0px;
+    height: calc(var(--btRowHeight) - 2px);
+
+}
+.rowButton {
+    height: 28px;
+    width: 26px;
+    border: 1px solid var(--btTopicBackground);
+    padding: 0px;
+    margin-left: -2px;
+    margin-right: -2px;
+}
+
+#tools {
+    filter: invert(1);
+}
+#tools.toggled {
+    filter: invert(0);
 }
 
 .modal {

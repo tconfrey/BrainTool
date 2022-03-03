@@ -394,6 +394,7 @@ class BTAppNode extends BTNode {
         if (GroupingMode == GroupOptions.NONE) {
             // no grouping implemented for this case, 
         }
+        this.showNode();
     }
     
 

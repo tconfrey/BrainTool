@@ -29,8 +29,10 @@
 
     <link href="wenk.css" rel="stylesheet" />
     <script src="jquery.treetable.js"></script>
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
   </head>
   <body>
     
@@ -40,8 +42,11 @@
           <img id="open_close_image" src="resources/more.svg" onClick="toggleMenu(event)">
         </span>
         <div id="search"  style="cursor:default">
-          <span>Search:</span>
-          <input id="search_entry" type="text" size="20" value="" autocomplete="off" >
+          <div id="searchHint" class="hint">
+            <img src="resources/searchGlass.svg"/>
+            <span class="hintText">Click here or hit 's' to search</span>
+          </div>
+          <input id="search_entry" type="text" size="20" autocomplete="off" >
 	      <span id="search_buttons" style="cursor: pointer; display:none">
 	        <span onmousedown="searchButton(event, 'down')" title="Next Match">&darr;</span>
 	        <span onmousedown="searchButton(event, 'up')" title="Previous Match">&uarr;</span>
@@ -153,11 +158,8 @@
             </td></tr>
             
             <tr><td style="text-align:left">BT Topics map to:</td>
-              <td colspan="1">
-                <div class="toggle-radio" id="tabgroup_selector">
-                  <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
-                  <label class="button_text" for="default_Option1">Windows</label>
-
+              <td colspan="1" style="text-align:left">
+                <div class="toggle-radio toggle-radio2" id="tabgroup_selector">
                   <input type="radio" name="grouping" id="default_Option2" value="TABGROUP">
                   <label class="button_text" for="default_Option2">Tab Groups</label>
 
@@ -282,6 +284,28 @@
         <br/>Loading your BrainTool file<br/>...</p>
     </div>
     <div id="buttonRow" style="display: none;">
+      <span id="otherButtons" style="display: none;">
+        <img id="deleteRow" src="resources/delete.svg" class="rowButton"
+             onClick="deleteRow(event)">
+        <img id="move" src="resources/drag.svg" class="rowButton"
+             style="cursor: move;">
+        <img id="outdent" src="resources/outdent.svg" class="rowButton"
+             onClick="promote(event)">
+        <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
+             onClick="addChild(event)">
+        <img id="editRow" src="resources/edit.svg" class="rowButton"
+             onClick="editRow(event)">
+        <img id="openWindow" src="resources/openWindow.svg" class="rowButton">
+      </span>
+      <span id="basebuttons">        
+        <img id="openTab" alt="Open" onClick="openRow(event)"
+             src="resources/openTab.svg" class="rowButton">
+        <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
+             onClick="toggleMoreButtons(event);">
+      </span>
+      
+             
+      <!--
       <span data-wenk="More tools">
         <img class="openClose" onClick="toggleMoreButtons(event); return false;"
              src="resources/openLeft.png"  height="22" width="10">
@@ -313,8 +337,8 @@
              src="resources/edit.png"  height="22" width="22">
       </span>
       <span data-wenk="Open tab" >
-        <img id="expand1" alt="Open" onClick="openRow(event)" style="opacity: 0.75; margin-bottom:3px"
-             src="resources/open1.png" height="18" width="18">
+        <img id="expand1" alt="Open" onClick="openRow(event)"
+             src="resources/openTab.svg" height="28" width="26">
       </span>
       <span data-wenk="Open tabs" >
         <img id="expand" alt="Open" onClick="openRow(event)" style="opacity: 0.75;"
@@ -328,6 +352,7 @@
         <img id="delete" alt="Delete"  onClick="deleteRow(event)" style="opacity: 0.75; margin-left:8px"
              src="resources/delete.png" height="22" width="22">
       </span>
+-->
     </div>
     
     <table id="content" >
