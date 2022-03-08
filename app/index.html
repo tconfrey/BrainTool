@@ -295,11 +295,16 @@
              onClick="addChild(event)">
         <img id="editRow" src="resources/edit.svg" class="rowButton"
              onClick="editRow(event)">
-        <img id="openWindow" src="resources/openWindow.svg" class="rowButton">
+        <img id="openWindow" src="resources/openWindow.svg" class="rowButton"
+             onClick="openRow(event, true)">
       </span>
       <span id="basebuttons">        
         <img id="openTab" alt="Open" onClick="openRow(event)"
              src="resources/openTab.svg" class="rowButton">
+        
+        <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
+             src="resources/closeItem.svg" height="28" width="26">
+        
         <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
              onClick="toggleMoreButtons(event);">
       </span>
