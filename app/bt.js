@@ -200,7 +200,7 @@ async function warnBTFileVersion(e) {
     if (!getMetaProp('BTGDriveConnected')) return; 	    // only if gdrive connected
     const warn = await checkBTFileVersion();
     if (!warn) {
-	    $("#stats_row").css('background-color', '#7bb07b');
+	    $("#stats_row").css('background-color', '');
 	    return;
     }
     const savesText = $("#num_saves").text();
@@ -323,7 +323,7 @@ function updateStatsRow(modifiedTime = null) {
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
     {
         $("#saves").attr("src", "resources/drive_icon.png");
-	    $("#stats_row").css('background-color', '#7bb07b');
+	    $("#stats_row").css('background-color', '');
     }
 }
 

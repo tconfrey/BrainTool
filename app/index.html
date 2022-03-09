@@ -285,79 +285,52 @@
     </div>
     <div id="buttonRow" style="display: none;">
       <span id="otherButtons" style="display: none;">
-        <img id="deleteRow" src="resources/delete.svg" class="rowButton"
-             onClick="deleteRow(event)">
-        <img id="move" src="resources/drag.svg" class="rowButton"
-             style="cursor: move;">
-        <img id="outdent" src="resources/outdent.svg" class="rowButton"
-             onClick="promote(event)">
-        <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
-             onClick="addChild(event)">
-        <img id="editRow" src="resources/edit.svg" class="rowButton"
-             onClick="editRow(event)">
-        <img id="openWindow" src="resources/openWindow.svg" class="rowButton"
-             onClick="openRow(event, true)">
+        <span data-wenk="Delete item (del)">
+          <img id="deleteRow" src="resources/delete.svg" class="rowButton"
+               onClick="deleteRow(event)">
+        </span>
+        <span data-wenk="ToDo (t)">
+          <img id="star" src="resources/star.svg" class="rowButton"
+               onClick="toDo(event)">
+        </span>
+        <span data-wenk="Drag to move (m-&uarr;&darr;)">
+          <img id="move" src="resources/drag.svg" class="rowButton"
+               style="cursor: move;">
+        </span>
+        <span data-wenk="Promote up hierarchy">
+          <img id="outdent" src="resources/outdent.svg" class="rowButton"
+               onClick="promote(event)">
+        </span>
+        <span data-wenk="Add child topic (m-enter)">
+          <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
+               onClick="addChild(event)">
+        </span>
+        <span data-wenk="Edit items card (e)">
+          <img id="editRow" src="resources/edit.svg" class="rowButton"
+               onClick="editRow(event)">
+        </span>
+        <span data-wenk="Open in new window" class="wenk--left">
+          <img id="openWindow" src="resources/openWindow.svg" class="rowButton"
+               onClick="openRow(event, true)">
+        </span>
       </span>
-      <span id="basebuttons">        
-        <img id="openTab" alt="Open" onClick="openRow(event)"
-             src="resources/openTab.svg" class="rowButton">
+      <span id="basebuttons">      
+        <span data-wenk="Open/show in browser (space)" class="wenk--left">  
+          <img id="openTab" alt="Open" onClick="openRow(event)"
+               src="resources/openTab.svg" class="rowButton">
+        </span>
         
-        <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
-             src="resources/closeItem.svg" height="28" width="26">
+        <span data-wenk="Close in browser" class="wenk--left">
+          <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
+               src="resources/closeItem.svg" height="28" width="26" >
+        </span>
         
-        <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
-             onClick="toggleMoreButtons(event);">
+        <span data-wenk="More tools" class="wenk--left">
+          <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
+               onClick="toggleMoreButtons(event);"  height="28" width="26">
+        </span>
       </span>
       
-             
-      <!--
-      <span data-wenk="More tools">
-        <img class="openClose" onClick="toggleMoreButtons(event); return false;"
-             src="resources/openLeft.png"  height="22" width="10">
-      </span>
-      <span data-wenk="Fewer tools" >
-        <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" style="display:none"
-             src="resources/closeLeft.png"  height="22" width="10">
-      </span>
-      <span id="otherButtons" style="display: none;">
-        <span data-wenk="Drag elsewhere">
-	      <img id="move" type="image" alt="Move"
-               src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
-        </span>
-        <span data-wenk="Outdent" >
-	      <img id="outdent" type="image" alt="Outdent"
-               src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
-        </span>
-        <span data-wenk="Add child">
-	      <img id="addChild" type="image" alt="add Child"
-               src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
-        </span>
-        <span data-wenk="ToDo" >
-	      <img id="todo" alt="ToDo" onClick="toDo(event)"
-               src="resources/done.png"  height="22" width="22">
-        </span>
-      </span>
-      <span data-wenk="Edit card">
-        <img id="edit" alt="Edit" onClick="editRow(event)" style="opacity: 0.75;"
-             src="resources/edit.png"  height="22" width="22">
-      </span>
-      <span data-wenk="Open tab" >
-        <img id="expand1" alt="Open" onClick="openRow(event)"
-             src="resources/openTab.svg" height="28" width="26">
-      </span>
-      <span data-wenk="Open tabs" >
-        <img id="expand" alt="Open" onClick="openRow(event)" style="opacity: 0.75;"
-             src="resources/open.png" height="22" width="22">
-      </span>
-      <span data-wenk="Close tab" >
-        <img id="collapse" alt="Close" onClick="closeRow(event)" style="opacity: 0.75;"
-             src="resources/closeNode.png" height="22" width="22">
-      </span>
-      <span data-wenk="Delete" >
-        <img id="delete" alt="Delete"  onClick="deleteRow(event)" style="opacity: 0.75; margin-left:8px"
-             src="resources/delete.png" height="22" width="22">
-      </span>
--->
     </div>
     
     <table id="content" >

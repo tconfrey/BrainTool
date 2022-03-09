@@ -311,11 +311,12 @@ function updateBTIcon(text, title, color) {
 function openTabs(msg, sender, tries=0) {
     // open list of {nodeId, url} pairs, potentially in new window
     
-    function openTabsInWin(winId, tabInfo) {
+    function openTabsInWin(tabInfo, winId = null) {
         // open [{url, nodeId}]s in tab in given window
         tabInfo.forEach((tabData) => {
-            chrome.tabs.create({'windowId': winId, 'url': tabData.url}, tab => {
-                tabOpened(winId, tab.id, tabData.nodeId, tab.index);
+            const args = winId ? {'windowId': winId, 'url': tabData.url} : {'url': tabData.url};
+            chrome.tabs.create(args, tab => {
+                tabOpened(tab.windowId, tab.id, tabData.nodeId, tab.index);
             });
         });
     }
@@ -326,11 +327,11 @@ function openTabs(msg, sender, tries=0) {
         // Create new win w first url, then iterate on rest
         chrome.windows.create({'url': first.url}, win => {
             tabOpened(win.id, win.tabs[0].id, first.nodeId, win.tabs[0].index);
-            openTabsInWin(win.id, rest);
+            openTabsInWin(rest, win.id);
         });
     else
         // else just iterate on all adding to current window
-        openTabsInWin(chrome.windows.WINDOW_ID_CURRENT, msg.tabs);                              
+        openTabsInWin(msg.tabs);                              
 }
 
 
@@ -403,9 +404,10 @@ function groupAndPositionTabs(msg, sender) {
           {'tabIds': tabIds, 'groupId': tabGroupId} : windowId ?
           {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} :
           {'tabIds': tabIds};
+    console.log(`groupArgs: ${JSON.stringify(groupArgs)}`);
     chrome.tabs.group(groupArgs, groupId => {
         // position tabs within group and update appropriate
-        check();
+        check('groupAndPositionTabs');
         tabInfo.forEach(ti => {
             chrome.tabs.move(ti.tabId, {'index': ti.tabIndex}, tab => {
                 check();
