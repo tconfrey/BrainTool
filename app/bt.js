@@ -214,6 +214,7 @@ async function warnBTFileVersion(e) {
 
 function handleInitialTabs(tabs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
+
     tabs.forEach((tab) => {
 	    const node = BTNode.findFromURL(tab.url);
 	    if (!node) return;
@@ -774,6 +775,7 @@ function tabOpened(data, highlight = false) {
     const tabIndex = data.tabIndex;
     const windowId = data.windowId;
     const parentId = AllNodes[nodeId]?.parentId || nodeId;
+    const currentParentWin = AllNodes[parentId].windowId;
 
     node.tabId = tabId;         
     node.windowId = windowId;
@@ -800,7 +802,11 @@ function tabOpened(data, highlight = false) {
 
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
     if (GroupingMode == 'NONE') return;
-    AllNodes[parentId].groupAndPosition();
+    if (windowId == currentParentWin)
+        // we never automatically move tabs between windows
+        AllNodes[parentId].groupAndPosition();
+    else
+        node.putInGroup();                          // don't group w others, just wrap in TG
     return;
 }
 
@@ -939,6 +945,9 @@ function tabUpdated(data) {
     const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
     if (urlNode) {
         // nav into a bt node from an open tab
+        const parentId = urlNode.parentId;
+        const currentTopicWin = AllNodes[parentId]?.windowId;
+
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
         // acknowledge nav to BT node with brain animation
@@ -946,8 +955,11 @@ function tabUpdated(data) {
 
         // handle moving tab to its group.
         // NB when tab group api is available move TG to tab, not other way around
-        if (GroupingMode == 'TABGROUP' && urlNode.parentId && AllNodes[urlNode.parentId])
+        if (GroupingMode == 'TABGROUP' && (windowId == currentTopicWin))
+            // don't move tabs between windows unless asked
             AllNodes[urlNode.parentId].groupAndPosition();
+        else
+            urlNode.putInGroup();       // don't group w others, just wrap in TG
         urlNode.showNode();
         return;
     }
@@ -990,7 +1002,7 @@ function tabActivated(data) {
 	        node.showForSearch();				    // unfold tree etc as needed
 	    currentSelection && $(currentSelection).removeClass('selected');
 	    $(tableNode).addClass('selected');
-	    tableNode.scrollIntoView({block: 'center'});
+	    tableNode.scrollIntoView({block: 'nearest'});
 	    $("#search_entry").val("");				    // clear search box on nav
     }	
 }
@@ -1049,7 +1061,7 @@ function buttonShow() {
     const td = $(this).find(".right");
 
     if ($("#buttonRow").index() < 0) {
-        // Can't figure out how but sometimes after a Drag/drop the element is deleted
+        // Can't figure out how but sometimes after a Drag/drop the buttonRow is deleted
         reCreateButtonRow();
     }
     
@@ -1057,6 +1069,7 @@ function buttonShow() {
     const offset = $(this).offset();
     const height = $(this).height();
     const rowtop = (offset.top);
+
     if ($(this).hasClass("opened")){
         $("#openTab").hide();
         $("#openWindow").hide();
@@ -1067,9 +1080,13 @@ function buttonShow() {
         if ($(this).find('a').length) {
             $("#openWindow").show();
             $("#openTab").show();
+        } else {
+            $("#openWindow").hide();
+            $("#openTab").hide();
         }
         $("#closeRow").hide();
     }
+
     // show expand/collapse if some kids of branch are not open/closed
     if ($(this).hasClass("branch")) {
         const id = this.getAttribute("data-tt-id");
@@ -1232,12 +1249,20 @@ function openRow(e, newWin = false) {
         setTimeout(() => appNode.openAll(newWin), 50);
     } else
         appNode.openPage(newWin);
+    
+    $("#openWindow").hide();
+    $("#openTab").hide();
+    $("#closeRow").show();
 }
 
 function closeRow(e) {
     // close this node's tab or window
     const appNode = getActiveNode(e);  
     if (!appNode) return;
+    
+    $("#openWindow").show();
+    $("#openTab").show();
+    $("#closeRow").hide();
     appNode.closeTab();
 }
 

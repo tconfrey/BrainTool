@@ -357,8 +357,9 @@ class BTAppNode extends BTNode {
         }
         this.opening = true;      // avoid opening twice w double clicks. unset in tabUpdated
 
+        const oldWinId = (this.parentId) ? AllNodes[this.parentId].windowId : 0;
         // tell extension to open when tabOpened message comes back we take care of grouping etc
-        window.postMessage({'function': 'openTabs', 'newWin': newWin,
+        window.postMessage({'function': 'openTabs', 'newWin': newWin, 'defaultWinId': oldWinId,
                             'tabs': [{'nodeId': this.id, 'url': this.URL}]});
         
         this.showNode();
@@ -385,16 +386,21 @@ class BTAppNode extends BTNode {
 
         if (!this.isTopic() || (GroupingMode != 'TABGROUP')) return;
         let tabInfo = [];
-        
+        const myWin = this.windowId;
         this.childIds.forEach(id => {
             const node = AllNodes[id];
             const index = node?.expectedTabIndex() || 0;
-            if (!node.tabId) return;
+            if (!node.tabId || (node.windowId != myWin)) return;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo});
-        
+    }
+    putInGroup() {
+        // wrap this one nodes tab in a group
+        if (!this.tabId || !this.windowId) return;
+        window.postMessage({'function': 'groupAll',
+                            'tabIds': [this.tabId], 'windowId': this.windowId});
     }
     
     closeTab() {

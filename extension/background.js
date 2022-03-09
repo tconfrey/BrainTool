@@ -316,12 +316,15 @@ function openTabs(msg, sender, tries=0) {
         tabInfo.forEach((tabData) => {
             const args = winId ? {'windowId': winId, 'url': tabData.url} : {'url': tabData.url};
             chrome.tabs.create(args, tab => {
+                chrome.windows.update(tab.windowId, {'focused' : true});
+                chrome.tabs.highlight({'windowId': tab.windowId, 'tabs': tab.index});
                 tabOpened(tab.windowId, tab.id, tabData.nodeId, tab.index);
             });
         });
     }
 
     const newWin = msg.newWin;
+    const defaultWinId = msg.defaultWinId;                                 // 0 or winId of siblings
     const [first, ...rest] = msg.tabs;
     if (newWin)
         // Create new win w first url, then iterate on rest
@@ -331,7 +334,7 @@ function openTabs(msg, sender, tries=0) {
         });
     else
         // else just iterate on all adding to current window
-        openTabsInWin(msg.tabs);                              
+        openTabsInWin(msg.tabs, defaultWinId);                              
 }
 
 
@@ -350,6 +353,8 @@ function openTabGroups(msg, sender) {
             chrome.tabs.create({'url': info.url, 'windowId': winId}, tab => {
                 check();
                 chrome.tabs.group({'tabIds': tab.id, 'groupId': tgid}, tgid => {
+                    chrome.windows.update(tab.windowId, {'focused' : true});
+                    chrome.tabs.highlight({'windowId': tab.windowId, 'tabs': tab.index});
                     tabOpened(winId, tab.id, info.nodeId, tab.index, tgid);
                 });
             });

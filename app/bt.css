@@ -258,13 +258,6 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     filter: invert(0);
 }
 
-tr.opened #closeRow {
-    display: inline;
-}
-tr.opened #openTab #openWindow {
-    display: none;
-}
-
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
