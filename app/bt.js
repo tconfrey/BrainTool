@@ -1613,6 +1613,7 @@ $("#search_entry").on("keyup", search);
 $("#search_entry").on("keydown", searchOptionKey);
 $("#search_entry").on("focus", enableSearch);
 $("#search_entry").on("focusout", disableSearch);
+$("#searchHint").on("click", enableSearch);
 function enableSearch(e) {
     // activate search mode
 
