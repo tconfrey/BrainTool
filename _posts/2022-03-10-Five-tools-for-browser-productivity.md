@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Five types of tools to increase your browser productivity"
-description: "I describe Tab managers, session managers, bookmark managers, task managers and personal knowledge managers"
+title:  "Five tools for browser productivity"
+description: "What are Tab managers, session managers, bookmark managers, task managers and personal knowledge managers?"
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
 image: "../../../site/postAssets/Five Tools/5-tool-table.png"
 ---
-# Five Types of Tools to Improve your Browser Productivity
+# Five Tools for Browser Productivity
  
 We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down the computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
 
