@@ -174,7 +174,7 @@ class BTAppNode extends BTNode {
     displayTitle() {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
         let txt = "";
-        if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
+        if (this._keyword) txt += `<span class='keyword'>${this._keyword}: </span>`; // TODO etc
         return txt + BTAppNode._orgTextToHTML(this.title);
     }
     

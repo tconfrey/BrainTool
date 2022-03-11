@@ -1,5 +1,5 @@
 table.treetable {
-    margin-top: 28px;
+    margin-top: 53px;
     margin-bottom: 10px;
     width: 100%;
     border-spacing: 0px 1px;
@@ -95,9 +95,6 @@ table.treetable tr span.elipse {
 table.treetable tr.opened {
     background-color: var(--btBackgroundLight)
 }
-tr.opened td.left {
-    font-weight: bold;
-}
 td.left {
     vertical-align: middle;
     border-right: solid;
@@ -124,6 +121,9 @@ table.treetable tr.selected span.btText {
 
 table.treetable span.btTitle {
     padding-left: 0px;
+}
+table.treetable span.keyword {
+    color: var(--btNoteColor);
 }
 
 table.treetable tr.hovered {

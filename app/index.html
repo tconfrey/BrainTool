@@ -65,7 +65,9 @@
             <span id="num_saves" class="stat_span" >: 0</span>
           </span>
         </div>
-        
+        <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
+          <span>+ ADD A NEW TOP LEVEL TOPIC</span>
+        </div>
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
@@ -320,7 +322,7 @@
                src="resources/openTab.svg" class="rowButton">
         </span>
         
-        <span data-wenk="Close in browser" class="wenk--left">
+        <span data-wenk="Close in browser (enter)" class="wenk--left">
           <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
                src="resources/closeItem.svg" height="28" width="26" >
         </span>
@@ -349,11 +351,11 @@
           <tr id="topic"> 
             <td>
               <li style="margin-left: 10px">
-                <span style="position: relative; left: -12px; top:5px">
-                  <div id="searchHint" class="hint">
-                    <span class="hintText">Name the Topic</span>
+                <span style="position: relative; left: -5px; top:6px">
+                  <div id="newTopicNameHint" class="hint">
+                    <span>Name the Topic</span>
                   </div>
-                  <input type="text" id="topic-text" class="editNode" style="width: 92%" tabindex="0">
+                  <input type="text" id="topicName" class="editNode" style="width: 92%" tabindex="0">
                 </span>
               </li>
             </td>
@@ -370,7 +372,7 @@
         </table>
         <div class="buttonDiv">
           <button id="update" class="button_text general_button editNode" tabindex="4" onClick="updateRow()">Update</button>
-          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog()">Cancel</button>
+          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
         </div>
       </dialog>
     </div>

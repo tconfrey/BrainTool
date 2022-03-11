@@ -1158,7 +1158,7 @@ function editRow(e) {
         $("#title-url").hide();
         $("#title-text").hide();
         $("#topic").show();
-        $("#topic-text").val(node.displayTag);
+        $("#topicName").val(node.displayTag);
     } else {
         $("#title-url").show();
         $("#title-text").show();
@@ -1189,7 +1189,7 @@ function editRow(e) {
         .animate({width: dialogWidth, height: height, opacity: 1.0, 'margin-left': marginLeft},
                  duration, 'easeInCirc',
                  function () {
-		             e.newTopic ? $("#topic-text").focus() : $("#text-text").focus();
+		             e.newTopic ? $("#topicName").focus() : $("#text-text").focus();
                  });
 }
 
@@ -1338,7 +1338,7 @@ function updateRow() {
     // Update Model
     const url = $("#title-url").val();
     const title = $("#title-text").val();
-    const topic = $("#topic-text").val();
+    const topic = $("#topicName").val();
     if (node.isTag())
         node.title = topic;
     else
@@ -1367,11 +1367,14 @@ function toDo(e) {
     const appNode = getActiveNode(e);
     if (!appNode) return false;
 
-    appNode.iterateKeyword()                // ask node to update
+    appNode.iterateKeyword();                // ask node to update
 
     // Update ui and file
     const tr = $(`tr[data-tt-id='${appNode.id}']`);
     $(tr).find("span.btTitle").html(appNode.displayTitle());
+
+    // Stop the event from selecting the row and line up a save
+    e.stopPropagation();
     initializeUI();
     saveBT();
 }
@@ -1397,37 +1400,64 @@ function promote(e) {
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
 
-function addChild(e) {
-    // add new child to this node
+function _displayForEdit(newNode) {
+    // common from addNew and addChild below
 
-    // create child element
-    const node = getActiveNode(e);
-    if (!node) return;
-    const newnodes = AllNodes.filter(n => n && n.title.startsWith('New Topic'));
-    const newName = newnodes.length ? 'New Topic'+newnodes.length : 'New Topic';
-    const newNode = new BTAppNode(newName, node.id, "", node.level + 1);
     newNode.createDisplayNode();
-
-    // and highlight it for editing
+    // highlight for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
     $("tr.selected").removeClass('selected');
     $(tr).addClass("selected");
 
-    // might not be scrolled into view
+    // scrolled into view
     const displayNode = tr[0];
 	displayNode.scrollIntoView({block: 'center'});
 
-    // open card editor
+    // position & open card editor. Set hint text appropriately
     const clientY = displayNode.getBoundingClientRect().top + 25;
     const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
+    $("#newTopicNameHint").show();
+    $("#topicName").off('keyup');
+    $("#topicName").on('keyup', () =>
+                       $("#newTopicNameHint").hide());
     editRow(dummyEvent);
-
-    // Stop the event from selecting the row and line up a save
-    e.stopPropagation();
-    initializeUI();
-    saveBT();
 }
 
+function addNewTopLevelTopic() {
+    // create new top level item and open edit card
+
+    const newNode = new BTAppNode('', null, "", 1);
+    _displayForEdit(newNode);
+}
+
+function addChild(e) {
+    // add new child to selected node
+
+    // create child element
+    const node = getActiveNode(e);
+    if (!node) return;
+    const newNode = new BTAppNode('', node.id, "", node.level + 1);
+    _displayForEdit(newNode);
+    if (newNode.level == 2)          // remove special handling for top nodes w/o children
+        $(`tr[data-tt-id='${node.id}'] td`).removeClass('childlessTop');
+
+    // Stop the event from selecting the row
+    e.stopPropagation();
+    initializeUI();
+}
+
+function cancelEdit() {
+    // delete node if edit cancelled w empty name
+    
+    const tr = $("tr.selected")[0];
+    if (!tr) return null;
+    const nodeId = $(tr).attr('data-tt-id') || 0;
+    const name = AllNodes[nodeId]?.title;
+    if (!nodeId || name != '') return;
+    
+    $("table.treetable").treetable("removeNode", nodeId);    // Remove from UI and treetable
+    deleteNode(nodeId);
+}
 
 /***
  * 
@@ -2029,7 +2059,7 @@ function handleEditCardKeyup(e) {
         // restrain tabbing to within dialog. Button gets focus and then this handler is called.
 	    // so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
-        const first = $($("#topic-text")[0]).is(':visible') ? $("#topic-text")[0] : $('#title-text')[0];
+        const first = $($("#topicName")[0]).is(':visible') ? $("#topicName")[0] : $('#title-text')[0];
 	    if (!focused || !$(focused).hasClass('editNode')) {
 	        // tabbed out of edit dialog, force back in
 	        if (!e.shiftKey)	// tabbing forward

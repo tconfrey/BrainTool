@@ -683,8 +683,8 @@
       // TODO Switch to $.parseHTML
       rows = $(rows);
 
-      if (node == null) { // Inserting new root nodes
-        this.append(rows);
+      if (node == null) { // Inserting new root nodes at top
+        this.prepend(rows);
       } else {
         var lastNode = this.data("treetable").findLastNode(node);
         rows.insertAfter(lastNode.row);
