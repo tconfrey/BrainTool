@@ -14,6 +14,13 @@
     --btTreeFont: tahoma;
     --btTreeFontSize: 0.7em;
     --btTreeLineHeight: 1;
+
+    
+    --btFont: Roboto;
+    --btNoteFontWeight: normal;
+    --btNoteFontSize: 10px;
+    --btHintColor: #BCBEC0;
+    --btPageLineHeight: 12px;
 }
 
 [data-theme="dark"] {
@@ -33,72 +40,77 @@
     --btTreeLineHeight: 1.5;
 }
 
-/* Welcome screen */
+
 body {
-    min-width: 22rem;
-    min-height: 350px;
-    max-height: 625px;
+    width: 440px;
+    height: 600px;
     overflow: hidden;
+    margin: 0px;
+    background: linear-gradient(180deg, rgba(196, 196, 196, 0.28) 0%, rgba(196, 196, 196, 0.3) 14.58%, rgba(196, 196, 196, 0.1) 100%);
+    
+    font-family: var(--btFont);
+    font-style: normal;
+    text-align: center;
+    color: #0C4F6B;
 }
 
-
+#header {
+    width: 100%;
+    height: 40px;
+    margin: 0px;
+    background: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
+}
 h1 {
-    text-align: center;
-    margin-top: 0px;
-    margin-bottom: 10px;
-    font-family: tahoma;
-    font-size: 1.25rem;
-    font-weight: normal;
-    color: #var(--btMainHighlight);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 19px;
+    padding-top: 10px;
+    margin: 0px;
 }
 h2 {
-    text-align: left;
-    font-size: 1.1rem;
-    font-family: tahoma;
-    font-weight: normal;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 14px;
 }
-p {
-    font-size: 0.9rem;
-}
-#welcome img {
-    width: 80%;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+h3 {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 6px;
 }
 
-#welcome {
-    width: 625px;
-}
-
-/* Topic Selector */
 hr {
-    border-top: 1px solid green;
-}
-.awesomplete {
-    font-family: tahoma;
-    font-size: 0.9rem;
-    margin-left: 10px;
+    border-top: 1px solid #BCC4C5;
+    width: 380px;
+    margin-bottom: 4px;
 }
 
-#topicSelector {
-    width: 400px;
+label {
+    position: relative;
+    top: -3px;
 }
-#topicSelectorLabel {
-    font-family: tahoma;
-    font-size: 1.1rem;
+#saveSpan {
+    float:left;
 }
-#topiclabel {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
+#saveAll {
+    float: right;
 }
+
+#topicSelector, #saveCheckboxes, #editCard, #buttonDiv {
+    width: 360px;
+    margin-left: 40px;
+}
+input[type=text], textarea {
+    width: 100%;
+    border: solid 1px #AEBABC;
+    border-radius: 2px;
+}
+
 #currentTopics {
-    font-family: tahoma;
-    font-size: 0.8rem;
     overflow-y: scroll;
-    min-height: 300px;
-    max-height: 425px;
-    padding-bottom: 1rem;
+    height: 200px;
+    border: solid 1px #AEBABC;
+    border-radius: 2px;
 }
 #currentTopics p {
     margin-top: 0.1rem;
@@ -106,22 +118,48 @@ hr {
     text-overflow: ellipsis;
     overflow-x: hidden;
     white-space: nowrap;
+    text-align: left;
+    width: 100%;
+}
+#note {
+    height: 45px;
 }
 
-.lightgrey {
-    background: var(--btTreeBranchBackground);
+.hint {
+    /* alex */
+    font-family: var(--btFont);
+    font-style: var(--btNoteFontWeight);
+    font-weight: var(--btNoteFontWeight);
+    font-size: var(--btNoteFontSize);
+    line-height: var(--btPageLineHeight);
+    color: var(--btHintColor);
+    z-index: 3;
+    position: absolute;
 }
-.highlight {
-    background: var(--btBackgroundHovered);
+.hintText {
+    position: relative;
 }
-.selected {
-    background: var(--btBackground);
+#newNoteHint {
+    top: 20px;
+    left: 20px;
+}
+#newTopicHint {
+    top: 3px;
+    left: 20px;
 }
 
+.awesomplete {
+    font-family: var(--btFont);
+    font-size: 0.9rem;
+    width: 100%;
+}
 span.topic {
     cursor: pointer;
 }
-
+p.selected {
+    background: var(--btBackground);
+}
+    
 span.caret {
   background-position: left center;
   background-repeat: no-repeat;
@@ -131,257 +169,31 @@ span.caret {
   cursor: pointer;
 }
 
-
-/* Topic Card */
-
-#topicCard {
-    border: 2px solid var(--btMainHighlight);
-    border-radius: 3px;
-    box-shadow: 6px 6px 4px var(--btMainHighlightShadow);
-    width: 450px;
-    padding: 10px;
-    margin-top: 25px;
-    margin-right: 15px;
-    margin-bottom: 15px;
-    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
-    background-size: 300px 300px;
-}
-#topicCard table {
-    width: 98%;
-}
-#topicCard td {
-    padding-bottom: 0.8em;
-}
-#topicCard.stack {
-    box-shadow: 
-    1px 1px 1px white,
-    2px 2px 1px white,
-    3px 3px 1px rgb(63, 103, 63, 90),
-    4px 4px 1px white,
-    5px 5px 1px white,
-    6px 6px 1px rgb(63, 103, 63, 90),
-    7px 7px 1px white,
-    8px 8px 1px white,
-    9px 9px 1px rgb(63, 103, 63, 90),
-    10px 10px 1px white,
-    11px 11px 1px white,
-    17px 17px 5px rgb(63, 103, 63, 90);
-}
-    
-#topicCard #title-text {
-    white-space: nowrap;
-    width: 100%;
-}
-#topicCard textarea {
-    width: 100%;
-    resize: none;
-    border: 1px solid #ddd;
-    border-radius: 2px;
-    /* font-family: roboto; */
-}
-#distinguishedName {
-    position: relative;
-    font-size: 1.1rem;
-    color: var(--btMainHighlight);
-    cursor: default;    
-    max-width: 90%;
-    word-break: break-word;
-}
-
-#selectAll {
-    margin-left: 0px;
+button {
     cursor: pointer;
-    vertical-align: sub;
-}
-#allLabel {
-    cursor: pointer;
-    font-size: 70%;
-}
-
-#topicCard input {
-    border: 1px solid #ddd;
-    border-radius: 2px;
-}
-#topicCard #text-text {
-    height: 8em;    
-}
-#text-text.inactive {    
-    color: rgb(84, 84, 84);
-    font-style: italic;
-}
-
-#topicCard #title-url {
-    height: 2em;
-    font-size: 0.6em;
-    font-style: italic;
-    font-family: ui-sans-serif;
-}
-#cardClose, #selectorClose {
-    position: absolute;
-    cursor: pointer;
-    right: 5px;
-    top: 8px;
-    z-index: 4;
-}
-
-#buttonDiv {
-    display: Flex;
-    width: 100%;
-    justify-content: space-evenly;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-#buttonDiv button {
-    cursor: pointer;
+    width: 150px;
     height: 30px;
+    background: #58BA00;
+    opacity: 0.75;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    font: var(--btFont);
+    font-size: 12px;               
 }
-
-#okButton {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 30%;
+button.activeButton {
+    opacity: 1.0;
 }
-
-/* sliding toggle to boookmark all pages, see https://codepen.io/nikkk-me/pen/abvPjeG */
-
-.switch-button1 {
-    background: #7bb07baa;
-    border-radius: 4px;
-/*    overflow: hidden;*/
-    border-style: solid;
-    border-width: 1px;
-    border-color: #ddd;
-    text-align: center;
-    font-size: 10px;
-    position: relative;
-    padding-right: 170px;
-    width: 50%;
+#buttonDiv {
+    margin-top: 12px;
+    margin-bottom: 6px;
 }
-.switch-button1:before {
-    content: "All unsaved pages in window";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-    pointer-events: none;
+#saveAndClose {
+    float:left;
 }
-.switch-button1-checkbox {
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    z-index: 2;
+#saveAndGroup {
+    float:right;
 }
-.switch-button1-checkbox:checked + .switch-button1-label:before {
-    transform: translateX(200px);
-    transition: transform 300ms linear;
-}
-.switch-button1-checkbox + .switch-button1-label {
-    position: relative;
-    padding: 2px 0;
-    display: block;
-    user-select: none;
-    pointer-events: none;
-}
-.switch-button1-checkbox + .switch-button1-label:before {
-    content: "";
-    background: #fff;
-    height: 100%;
-    width: 85%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: 4px;
-    transform: translateX(0);
-    transition: transform 300ms;
-}
-.switch-button1-checkbox + .switch-button1-label .switch-button1-label-span {
-    position: relative;
-}
-#selectAllDiv.focused  {
-    border-color: blue;
-}
-#saveOptionDiv.focused {
-    border-color: blue;
-}
-
-.switch-button2 {
-    background: #7bb07baa;
-    border-radius: 4px;
-/*    overflow: hidden; */
-    border-style: solid;
-    border-width: 1px;
-    border-color: #ddd;
-    text-align: center;
-    font-size: 10px;
-    position: relative;
-    padding-right: 150px;
-    width: 32%;
-    margin-left: 60px;
-    margin-bottom: 8px;
-}
-.switch-button2:before {
-    content: "Save & Close";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-    pointer-events: none;
-}
-.switch-button2-checkbox {
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    z-index: 2;
-}
-.switch-button2-checkbox:checked + .switch-button2-label:before {
-    transform: translateX(150px);
-    transition: transform 300ms linear;
-}
-.switch-button2-checkbox + .switch-button2-label {
-    position: relative;
-    padding: 2px 0;
-    display: block;
-    user-select: none;
-    pointer-events: none;
-}
-.switch-button2-checkbox + .switch-button2-label:before {
-    content: "";
-    background: #fff;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: 4px;
-    transform: translateX(0);
-    transition: transform 300ms;
-}
-.switch-button2-checkbox + .switch-button2-label .switch-button2-label-span {
-    position: relative;
-}
-
 
 
 /* open == expanded */

@@ -330,8 +330,10 @@ function updateStatsRow(modifiedTime = null) {
 
 function brainZoom(iteration = 0) {
     // iterate thru icons to swell the brain
+//    const iterationArray = [0];
     const iterationArray = [0,1,2,3,4,3,2,1,0];
     const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
+//    const path = '../extension/images/_BrainTool_Save_Animation_01_loop.gif';
     
     if (iteration == iterationArray.length) {
         $("#brain").attr("src", "../extension/images/BrainTool48.png");
@@ -339,6 +341,7 @@ function brainZoom(iteration = 0) {
     }
     $("#brain").attr("src", path);
     const interval = iteration == 4 ? 400 : 200;
+    //const interval = 5000;
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
@@ -835,6 +838,7 @@ function tabClosed(data) {
     if (!node) return;
     node.tabId = 0;
     node.tabGroupId = 0;
+    node.tabIndex = 0;
     node.windowId = 0;
     node.opening = false;
     tabActivated(data);
@@ -860,7 +864,7 @@ function storeTabs(data) {
     const ttNode = topicNode.getTTNode();
 
     // update shared memory for popup
-    BTAppNode.generateTags();                       // NB should really only do this iff needed
+    BTAppNode.generateTags();                     // NB should really only do this iff needed
     window.postMessage({'function': 'localStore', 'data':
                         {'tags': Tags, 'mruTopic': topicDN, 'mruTime': new Date().toJSON()}});
 
@@ -873,6 +877,7 @@ function storeTabs(data) {
         const url = tabData.url;
         const title = cleanTitle(tabData.title);
         const tabId = tabData.tabId;
+        const tabIndex = tabData.tabIndex;
         let node = BTAppNode.findFromTab(tabId);
         if (!node) {
             node = new BTAppNode(`[[${url}][${title}]]`, topicNode.id,
@@ -886,30 +891,39 @@ function storeTabs(data) {
             if (keyword) node.keyword = keyword;
             node.redisplay();
             let tabData = {tabId: tabId, windowId: windowId, groupId: 0};
-            tabActivated(tabData);    // set local storage correctly for any subsequent popup open
+            tabActivated(tabData);       // set local storage for any subsequent popup open
         }
+        node.tabIndex = tabData.tabIndex;
         newNodes.push(node);
     });
 
     // sort tree based on position in parents child array
-    topicNode.redisplay();                                  // in case changed by adding children
+    topicNode.redisplay();                        // in case changed by adding children
     const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
     const childIds = topicNode.childIds;
     $("table.treetable").treetable(
         "sortBranch", ttNode, (a, b) => (compare(childIds.indexOf(a.id),
-                                                      childIds.indexOf(b.id))));
+                                                 childIds.indexOf(b.id))));
     initializeUI();
     saveBT();
+    newNodes[0].getDisplayNode().scrollIntoView({block: 'center'});
 
     // Execute tab action (close, stick, group)
     if (tabAction == 'CLOSE') {
         newNodes.forEach(node => node.closeTab());
         return;
     }
-    newNodes.forEach(node => setNodeOpen(node));            // if not closing then show as open
-    
-    if (GroupingMode == 'TABGROUP')
+    newNodes.forEach(node => setNodeOpen(node));  // if not closing then show as open
+
+    // group w siblings if appropriate (they exist and are in same window)
+    if (GroupingMode != 'TABGROUP') return;
+    if ((topicNode.windowId == windowId && topicNode.tabGroupId) || newNodes.length > 1)
         topicNode.groupAndPosition();
+    else {
+        newNodes[0].windowId = windowId;
+        topicNode.windowId = windowId;
+        newNodes[0].putInGroup();
+    }
 }
 
 function tabUpdated(data) {
@@ -997,26 +1011,30 @@ function tabActivated(data) {
     }
     if (!node) return;						    // nothing else to do
     if (node) {
-	    const tableNode = $(`tr[data-tt-id='${node.id}']`)[0];
+	    const tableNode =  node.getDisplayNode();
 	    if(!$(tableNode).is(':visible'))
 	        node.showForSearch();				    // unfold tree etc as needed
 	    currentSelection && $(currentSelection).removeClass('selected');
 	    $(tableNode).addClass('selected');
-	    tableNode.scrollIntoView({block: 'nearest'});
+
+        // Make sure row is visible
+        const topOfRow = $(node.getDisplayNode()).position().top;
+        const displayTop = $(document).scrollTop();
+        const height = $(window).height();
+        if ((topOfRow < displayTop) || (topOfRow > (displayTop + height - 100)))
+	        tableNode.scrollIntoView({block: 'center'});
 	    $("#search_entry").val("");				    // clear search box on nav
     }	
 }
 
-function tabsGrouped(data) {
-    // due to grouping change tabids are now in a group w groupId
-    const tgId = data.tgId;
-    const tabIds = data.tabIds;
-    tabIds.forEach(tid => {
-        const node = BTAppNode.findFromTab(tid);
-        if (node) node.tabGroupId = tgId;
-        if (node?.parentId)
-            AllNodes[node.parentId].tabGroupId = tgId;
-    });
+function tabGrouped(data) {
+    // tab added to group at index
+    const node = BTAppNode.findFromTab(data.tabId);
+    if (!node) return;
+    node.tabGroupId = data.tgId;
+    node.tabIndex = data.tabIndex;
+    if (node?.parentId)
+        AllNodes[node.parentId].tabGroupId = data.tgId;
 }
 
 // Utility functions for the above
@@ -1159,6 +1177,7 @@ function editRow(e) {
         $("#title-text").hide();
         $("#topic").show();
         $("#topicName").val(node.displayTag);
+        node.displayTag && $("#newTopicNameHint").hide();
     } else {
         $("#title-url").show();
         $("#title-text").show();
@@ -1178,18 +1197,19 @@ function editRow(e) {
     const marginLeft = (fullWidth - dialogWidth) / 2 - 10;
     $("#text-text").height(height - 140);               // notes field fits but as big as possible
 
-    if ((top + height + 60) < $(window).height())
-        $(dialog).css("top", bottom+30);
+    if ((top + height + 100) < $(window).height())
+        $(dialog).css("top", bottom+60);
     else
         // position above row to avoid going off bottom of screen (or the top)
-        $(dialog).css("top", Math.max(10, top - height - 20));
+        $(dialog).css("top", Math.max(10, top - height + 30));
 
     // Animate opening w calculated size
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
         .animate({width: dialogWidth, height: height, opacity: 1.0, 'margin-left': marginLeft},
                  duration, 'easeInCirc',
                  function () {
-		             e.newTopic ? $("#topicName").focus() : $("#text-text").focus();
+                     $("#text-text")[0].setSelectionRange(node.text.length, node.text.length);
+                     e.newTopic ? $("#topicName").focus() : $("#text-text").focus();
                  });
 }
 
@@ -1307,8 +1327,11 @@ function deleteNode(id) {
     const parent = AllNodes[node.parentId];
     if (parent) {
         const openKids = $("tr[data-tt-parent-id='"+parent.id+"']").hasClass("opened");
-        if (!openKids)
+        if (!openKids) {
             $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
+            parent.tabGroupId = 0;
+            parent.windowId = 0;
+        }
         // update tree row if now is childless
         if (parent.childIds.length == 0) {
             const ttNode = $("#content").treetable("node", parent.id);
@@ -1400,10 +1423,10 @@ function promote(e) {
     window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
 }
 
-function _displayForEdit(newNode) {
+function _displayForEdit(newNode, atTop = false) {
     // common from addNew and addChild below
 
-    newNode.createDisplayNode();
+    newNode.createDisplayNode(atTop);
     // highlight for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
     $("tr.selected").removeClass('selected');
@@ -1427,7 +1450,7 @@ function addNewTopLevelTopic() {
     // create new top level item and open edit card
 
     const newNode = new BTAppNode('', null, "", 1);
-    _displayForEdit(newNode);
+    _displayForEdit(newNode, true);
 }
 
 function addChild(e) {

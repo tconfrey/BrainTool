@@ -52,6 +52,12 @@ class BTAppNode extends BTNode {
     get tabId() {
         return this._tabId;
     }
+    set tabIndex(index) {
+        this._tabIndex = index;
+    }
+    get tabIndex() {
+        return this._tabIndex;
+    }
     set tabGroupId(id) {
         this._tabGroupId = id;
     }
@@ -115,6 +121,9 @@ class BTAppNode extends BTNode {
         return ((this.URL && !this.tabId) ||
                 this.childIds.some(id => AllNodes[id].hasUnopenDescendants()));
     }
+    needsTab() {
+        return (this.URL && !this.tabId);
+    }
 
     /***
      *
@@ -165,7 +174,7 @@ class BTAppNode extends BTNode {
     displayTitle() {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
         let txt = "";
-        if (this._keyword) txt += `<b>${this._keyword}: </b>`; // TODO etc
+        if (this._keyword) txt += `<span class='keyword'>${this._keyword} </span>`; // TODO etc
         return txt + BTAppNode._orgTextToHTML(this.title);
     }
     
@@ -186,12 +195,11 @@ class BTAppNode extends BTNode {
         return $("table.treetable").treetable("node", this.id);
     }
     
-    createDisplayNode(displayParent = null) {
+    createDisplayNode(atTop = false) {
         // call out to treetable w nodes html, really its create or return
         if (this.getTTNode()) return this.getTTNode();
-        if (this.parentId && !displayParent)
-            displayParent = AllNodes[this.parentId].createDisplayNode();
-        $("table.treetable").treetable("loadBranch", displayParent || null, this.HTML());
+        let displayParent = (this.parentId) ? AllNodes[this.parentId].createDisplayNode() : null;
+        $("table.treetable").treetable("loadBranch", displayParent, this.HTML(), atTop);
         return this.getTTNode();
     }
 
@@ -331,7 +339,7 @@ class BTAppNode extends BTNode {
 
     }
     
-    openURL() {
+    openPage(newWin = false) {
         // open this nodes url
         if (!this.URL || this._opening) return;
 
@@ -348,107 +356,53 @@ class BTAppNode extends BTNode {
         }
         this.opening = true;      // avoid opening twice w double clicks. unset in tabUpdated
 
-        // if we don't care about windowing send openTab msg
-        if (GroupingMode == GroupOptions.NONE) {
-            window.postMessage(
-                {'function' : 'openTab', 'nodeId' : this.id, 'URL' : this.URL});
-            this.showNode();
-            return;
-        }
-
-        // if we do care about grouping send openInWindow/TabGroup
-        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
-        const index = this.indexInParent();
-        if (GroupingMode == GroupOptions.WINDOW)
-            window.postMessage(
-                {'function' : 'openInWindow', 'windowId' : windowId,
-                 'tabs': [{'URL' : this.URL, 'nodeId' : this.id, 'index' : index}] });
-        if (GroupingMode == GroupOptions.TABGROUP) {
-            const tabGroupId = this.tabGroupId || (this.parentId ? AllNodes[this.parentId].tabGroupId : null);
-            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
-            window.postMessage(
-                {'function' : 'openInTabGroup', 'firstOpenTab': firstOpenTab,
-                 'tabs': [{'URL' : this.URL, 'nodeId' : this.id, 'index' : index}],
-                 'tabGroupId': tabGroupId, 'windowId' : windowId});
-        }
+        const oldWinId = (this.parentId) ? AllNodes[this.parentId].windowId : 0;
+        // tell extension to open when tabOpened message comes back we take care of grouping etc
+        window.postMessage({'function': 'openTabs', 'newWin': newWin, 'defaultWinId': oldWinId,
+                            'tabs': [{'nodeId': this.id, 'url': this.URL}]});
+        
+        this.showNode();
+        return;
     }
 
-    group() {
-        // tell background how to move this nodes tab to its appropriate group
+    openAll(newWin = false) {
+        // open this node and any children. NB order taken care of by tabOpened -> groupAndPosition
 
-        const windowId = this.windowId || (this.parentId ? AllNodes[this.parentId].windowId : null);
-        const tabId = this.tabId;
-        const index = this.indexInParent();
-        if (GroupingMode == GroupOptions.WINDOW)
-            window.postMessage(
-                {'function' : 'moveToWindow', 'windowId' : windowId,
-                 'tabId' : tabId, 'index' : index, 'nodeId' : this.id});
-        if (GroupingMode == GroupOptions.TABGROUP) {
-            const tabGroupId = this.tabGroupId || (this.parentId ? AllNodes[this.parentId].tabGroupId : null);
-            const firstOpenTab = this.parentId ? AllNodes[this.parentId].leftmostOpenTab() : 0;
-            window.postMessage(
-                {'function' : 'moveToTabGroup', 'firstOpenTab' : firstOpenTab,
-                 'tabIds' : [tabId], 'tabGroupId': tabGroupId, 'windowId' : windowId,
-                 'position' : index, 'nodeIds' : [this.id]});
-        }
-        if (GroupingMode == GroupOptions.NONE) {
-            // no grouping implemented for this case, 
-        }
-    }
-    
-
-    openAll() {
-        // open this node and any children. NB indexing taken care of in repositionTabs
-
-        // if we don't care about windowing just open each tab
-        if (GroupingMode == GroupOptions.NONE) {
-            this.openURL();
-            this.childIds.forEach(nodeId => AllNodes[nodeId].openURL());
+        // if we don't care about grouping just open each tab
+        if (GroupingMode == 'NONE') {
+            const tabsToOpen = this.listOpenableTabs();              // [{nodeId, url}..}
+            window.postMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
         }
         else {                      // need to open all urls in single (possibly new) window
-            let urls = [];
-            if (this.URL && !this.tabId) {
-                urls.push({'nodeId': this.id, 'URL': this.URL, 'index': 0});
-                this.opening = true;             // unset in tabUpdated when request is satisified
-            }
-            this.childIds.forEach(nodeId => {
-                const node = AllNodes[nodeId];
-                const index = node.indexInParent();
-                if (node.URL && !node.tabId && !node.childIds.length) {
-                    urls.push({'nodeId': node.id, 'URL': node.URL, 'index': index});
-                    node.opening = true;
-                }
-            });
-            if (urls.length) {
-                if (GroupingMode == GroupOptions.WINDOW)
-                    window.postMessage({'function' : 'openInWindow', 'tabs' : urls,
-                                        'windowId': this.windowId, 'tabGroupId': this.tabGroupId});
-                if (GroupingMode == GroupOptions.TABGROUP) {
-                    const firstOpenTab = this.leftmostOpenTab();
-                    window.postMessage({'function' : 'openInTabGroup', 'tabs' : urls,
-                                        'windowId': this.windowId, 'tabGroupId': this.tabGroupId,
-                                        'firstOpenTab': firstOpenTab});
-                }
-            }
+            const tabGroupsToOpen = this.listOpenableTabGroups();    // [{tg, [{id, url}]},..]
+            window.postMessage({'function': 'openTabGroups', 'tabGroups': tabGroupsToOpen,
+                                'newWin': newWin});            
         }
-
-        // recurse
-        this.childIds.forEach(id => {
-            const node = AllNodes[id];
-            if (node.childIds.length) node.openAll();
-        });
     }
 
-    repositionTabs() {
-        // tell background correct index in window for tab
+    groupAndPosition() {
+        // Topic node fn to (re)group open tabs and put them in correct order
+
+        if (!this.isTopic() || (GroupingMode != 'TABGROUP')) return;
+        let tabInfo = [];
+        const myWin = this.windowId;
         this.childIds.forEach(id => {
             const node = AllNodes[id];
-            if (!node.tabId) return;
-            window.postMessage({'function': 'positionTab', 'tabId': node.tabId,
-                                'index': node.indexInParent()});
+            const index = node?.expectedTabIndex() || 0;
+            if (!node.tabId || (node.windowId && node.windowId != myWin)) return;
+            tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
+        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
+                            'windowId': this.windowId, 'tabInfo': tabInfo});
     }
-
+    
+    putInGroup() {
+        // wrap this one nodes tab in a group
+        if (!this.tabId || !this.windowId) return;
+        window.postMessage({'function': 'groupAll',
+                            'tabIds': [this.tabId], 'windowId': this.windowId});
+    }
+    
     closeTab() {
         // Close tabs associated w this node
         if (this.tabId)
@@ -464,7 +418,7 @@ class BTAppNode extends BTNode {
         const tabIds = AllNodes.flatMap(n => n.tabId ? [n.tabId] : []);
         if (tabIds.length)
             if (confirm('Also ungroup open tabs?'))
-                window.postMessage({'function': 'ungroupAll', 'tabIds': tabIds});
+                window.postMessage({'function': 'ungroup', 'tabIds': tabIds});
     }
 
     static groupAll() {
@@ -479,19 +433,6 @@ class BTAppNode extends BTNode {
             }
         });
     }
-
-    static windowAll() {
-        // grouping change to Window mode, so organize tags into individual windows
-
-        AllNodes.forEach(n => {
-            if (n.hasOpenChildren()) {
-                const openTabIds = n.childIds.flatMap(
-                    c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-                window.postMessage({'function': 'windowAll', 'tabIds': openTabIds});
-            }
-        });
-    }
-
     
     /***
      *
@@ -640,6 +581,40 @@ class BTAppNode extends BTNode {
         return n + me;
     }
 
+    listOpenableTabs() {
+        // gather up {nodeId, url} pairs for opening
+        let me = this.needsTab() ? [{'nodeId': this.id, 'url': this.URL}] : [];
+        let childrenURLs = this.childIds.flatMap(id => AllNodes[id].listOpenableTabs());
+        return [me, ...childrenURLs].flat();
+    }
+
+    listOpenTabs() {
+        // {nodeId, tabId} array for this nodes open pages
+        let tabs = this._tabId ? [{'nodeId': this.id, 'tabId': this._tabId}] : [];
+        this.childIds.forEach( id => {
+            if (AllNodes[id] && AllNodes[id].tabId)
+                tabs.push({'nodeId': id, 'tabId': AllNodes[id].tabId});
+        });
+        return tabs;
+    }
+
+    listOpenableTabGroups() {
+        // walk containment tree, create [{tabGroupId, windowId, tabGroupTabs: [{nodeId, url}]}, {}]
+        // where tgid & winid might be null => create new
+        if (!this.isTopic()) return [];                     // => not tab group
+        let tabGroupTabs = this.needsTab() ? [{'nodeId': this.id, 'url': this.URL}] : [];
+        this.childIds.forEach((id) => {
+            const node = AllNodes[id];
+            if (!node.isTopic() && node.needsTab())
+                tabGroupTabs.push({'nodeId': id, 'url': node.URL});
+        });
+        const me = tabGroupTabs.length ?
+              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId,
+               'tabGroupTabs': tabGroupTabs} : [];
+        const subtopics = this.childIds.flatMap(id => AllNodes[id].listOpenableTabGroups());
+        return [me, ...subtopics].flat();
+    }
+    
     reparentNode(newP, index = -1) {
         // move node from existing parent to new one, optional positional order
 
@@ -657,7 +632,7 @@ class BTAppNode extends BTNode {
         const parent = AllNodes[this.parentId];
         const thisid = this.id;
         let index = (parent.tabId) ? 1 : 0;          // if parent has a tab it's at index 0
-        parent.childIds.some(function(id) {
+        parent.childIds.some(id => {
             if (id == thisid) return true;           // exit when we get to this node
             let n = AllNodes[id];
             if (n && n.tabId) index++;
@@ -665,11 +640,17 @@ class BTAppNode extends BTNode {
         return index;
     }
 
-    leftmostOpenTab() {
+    leftmostOpenTabIndex() {
         // used for ordering w tabGroups
 
         const leftId = this.childIds.find(id => AllNodes[id].tabId);
-        return leftId ? AllNodes[leftId].tabId : 0;
+        return (leftId && AllNodes[leftId].tabIndex) ? AllNodes[leftId].tabIndex : 0;
+    }
+
+    expectedTabIndex() {
+        if (!this.parentId) return 0;
+        const parent = AllNodes[this.parentId];
+        return parent.leftmostOpenTabIndex() + this.indexInParent();
     }
 
     static generateTags() {
@@ -821,10 +802,10 @@ class BTLinkNode extends BTAppNode {
 const Handlers = {
     "loadBookmarks": loadBookmarks,
     "tabActivated": tabActivated,
-    "tabsWindowed": tabsWindowed,
-    "tabsGrouped": tabsGrouped,
+    "tabGrouped": tabGrouped,
     "tabUpdated": tabUpdated,
     "tabOpened" : tabOpened,
+    "tabMoved" : tabMoved,
     "tabClosed" : tabClosed,
     "storeTabs": storeTabs,
     "launchApp": launchApp

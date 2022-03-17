@@ -1,6 +1,6 @@
 /*** 
  * 
- * This code runs under the popup and controls the tag entry for adding a page to BT.
+ * This code runs under the popup and controls the topic entry for adding a page to BT.
  * Trying to keep it minimal. No jQuery etc.
  * 
  ***/
@@ -20,10 +20,11 @@ altOpt.textContent = OptionKey;
 
 chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation'], val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
+	const welcomeDiv = document.getElementById('welcome');
+	const messageDiv = document.getElementById('message');
+    
     if (val['newInstall']) {
 	    // This is a new install, show the welcome page
-	    const welcomeDiv = document.getElementById('welcome');
-	    const messageDiv = document.getElementById('message');
 	    messageDiv.style.display = 'none';
 	    welcomeDiv.style.display = 'block';
 	    newInstall = true;
@@ -33,8 +34,7 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
     
     if (val['newVersion']) {
 	    // Background has received updateAvailable, so inform user and upgrade
-        const msg = document.getElementById('message');
-        msg.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
+        messageDiv.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
         chrome.storage.local.remove('newVersion');
         setTimeout(() => {            
             chrome.tabs.query({title: "BrainTool Topic Manager"},
@@ -49,7 +49,6 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
     // Else just normal popup either in tab or side panel
     const home = val['ManagerHome'] || 'PANEL';
     const location = val['ManagerLocation'];
-    console.log(`home = ${home}`);
     popupAction(home, location);
     chrome.runtime.connect();           // tell background popup is open
     return;
@@ -85,7 +84,7 @@ function windowOpen(home = 'PANEL', location) {
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
     //const url = "https://BrainTool.org/app/";
-    const url = "http://localhost:8000/versions/"+version+"/app/";
+    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
    // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
@@ -121,24 +120,67 @@ function windowOpen(home = 'PANEL', location) {
     }
 }
 
-let Guess, Topics, SaveAndClose;
+let Guess, Topics, OldTopic;
+
+// Set up button cbs
+const SaveAndGroupBtn = document.getElementById("saveAndGroup");
+const SaveAndCloseBtn = document.getElementById("saveAndClose");
+SaveAndGroupBtn.addEventListener('click', () => saveCB(false));
+SaveAndCloseBtn.addEventListener('click', () => saveCB(true));
+
+// Logic for saveTab/saveAllTabs toggle
+const SavePage =  document.getElementById("savePage");
+const SaveAll =  document.getElementById("saveAllPages");
+SaveAll.addEventListener('change', e => {
+    if (SaveAll.checked) SavePage.checked = false
+    else SavePage.checked = true;
+    updateForAll();
+});
+SavePage.addEventListener('change', e => {
+    if (SavePage.checked) SaveAll.checked = false;
+    else SaveAll.checked = true;
+    updateForAll();
+});
+function updateForAll(all) {
+    // handle AllPages toggle
+    if (SaveAll.checked) {
+        document.getElementById("title").style.display = "none";
+        document.getElementById("allPages").style.display = "block";
+        document.getElementById("titleElements").style.display = "none";
+    } else  {
+        document.getElementById("title").style.display = "block";
+        document.getElementById("allPages").style.display = "none";
+        document.getElementById("titleElements").style.display = "block";
+    }
+}
+
 function popupOpen(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new
     CurrentTab = tab;
     const messageElt = document.getElementById('message');
-    const headingElt = document.getElementById("heading");
-    headingElt.style.display = 'block';
+    const saverDiv = document.getElementById("saver");
+    const titleH2 = document.getElementById('title');
+    saverDiv.style.display = 'block';
     messageElt.style.display = 'none';
     
-    // Pull data from local storage, prepopulate and open selector or card
+    // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
         ['tags', 'currentTabId', 'currentTag', 'currentText', 'currentTitle',
          'windowTopic', 'groupTopic', 'mruTopic', 'mruTime', 'saveAndClose'],
         data => {
-            console.log(data);
-            // BT Page, just open card
-            if (data.currentTag && data.currentTabId && data.currentTabId == tab.id) {
-                TopicCard.setupExisting(data.currentTag, tab, data.currentText, data.currentTitle, saveCardCB);
+            console.log(`title [${tab.title}], len: ${tab.title.length}, substr:[${tab.title.substr(0, 100)}]`);
+            let title = (tab.title.length < 150) ? tab.title :
+                tab.title.substr(0, 150) + "...";            
+            titleH2.textContent = title;
+            
+            // BT Page => just open card
+            if (data.currentTag && data.currentTabId && (data.currentTabId == tab.id)) {
+                OldTopic = data.currentTag;
+                document.body.style.height = '300px';
+                document.getElementById('topicSelector').style.display = 'none';
+                document.getElementById('saveCheckboxes').style.display = 'none';
+                TopicCard.setupExisting(tab, data.currentText,
+                                        data.currentTitle, saveCB);
                 return;
             }
 
@@ -151,88 +193,63 @@ function popupOpen(tab) {
                 Guess = (data.groupTopic || data.windowTopic ||
                          ((mruAge < 180000) ? data.mruTopic : ''));
             }
-            SaveAndClose = data.saveAndClose;                 // remembered default for selector
-            TopicCard.setupNew(tab, cardCompletedCB);
+            if (!data.saveAndClose) {
+                // set up save and group as default
+                SaveAndGroupBtn.classList.add("activeButton");
+                SaveAndCloseBtn.classList.remove("activeButton");
+            }
+            
+            TopicSelector.setup(Guess, Topics, topicSelected);
+            TopicCard.setupNew(tab.title, tab, saveCB);
         });
 }
 
-let CardData;
-function cardCompletedCB(e) {
-    // card filled in, now open topic selector. NB wait for key up so as to not autoselect
-    CardData = e.data;
-    document.addEventListener('keyup', function handler(e) {
-        this.removeEventListener('keyup', handler);
-        TopicSelector.setup(Guess, Topics, CardData, SaveAndClose, saveCardCB);
-    });
+function topicSelected() {
+    // CB from topic selector, highlight note text
+
+    document.querySelector('#note').focus();
 }
 
-function saveCardCB(e) {
-    // save topic card for page
+function saveOptionChanged(e) {
+    // Save & Group <-> Save & Close
+
+    SaveAndClose = e.currentTarget.checked;
+}
+
+function saveCB(close) {
+    // save topic card for page, optionally close tab
     // Call out to BT app which handles everything
-    const data = e.data;
-    const title = data.title;
-    const text = data.text;
-    const url = data.url;
-    const newTopic = data.newTopic;
-    const allTabs = data.saveAll;
+    const title = TopicCard.title();
+    const note = TopicCard.note();
+    const url = CurrentTab.url;
+    const newTopic = OldTopic || TopicSelector.topic();
+    const allTabs = SaveAll.checked;
     const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
-    const action = data.close ? 'CLOSE' : 'GROUP';              // dropping STICK
     const BTTabId = BackgroundPage.BTTab;                       // extension global for bttab
-    if (allTabs || (url && title)) {
+    if (allTabs || title) {
         // need a topic and either an applied url/title or alltabs
         
-        let message = {'function': 'storeTabs', 'tag': newTopic, 'note': text,
-                       'windowId': CurrentTab.windowId, 'tabAction': action};
+        let message = {'function': 'storeTabs', 'tag': newTopic, 'note': note,
+                       'windowId': CurrentTab.windowId,
+                       'tabAction': close ? "CLOSE" : "GROUP"};
         let tabsData = [];
         tabsToStore.forEach(tab => {
             // Send msg per tab to BT app for processing w text, topic and title info
-            const tabData = {'url': tab.url, 'title': allTabs ? tab.title : title, 'tabId': tab.id};
+            const tabData = {'url': tab.url, 'title': allTabs ? tab.title : title,
+                             'tabId': tab.id, 'tabIndex': tab.index};
             tabsData.push(tabData);
         });
         message.tabsData = tabsData;
         chrome.tabs.sendMessage(BTTabId, message);
         
         // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
-        if (action != 'CLOSE')              // if tab isn't closing animate the brain
+        if (!close)              // if tab isn't closing animate the brain
             chrome.runtime.sendMessage(
                 {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
-    }    
+    }
+    chrome.storage.local.set({'saveAndClose': close});
     window.close();
 }
-
-/*
-  function tabAdded() {
-  // Call out to BT app which handles everything
-
-  // value from text entry field may be tag, parent:tag, tag:keyword, parent:tag:keyword
-  // where tag may be new, new under parent, or existing but under parent to disambiguate
-  const newTag = document.getElementById('newtag').value;          
-  if (newTag == "") return;
-  let noteText = Note.value.replace(/\s+$/g, '');       // remove trailing newlines/validate
-  if (noteText.startsWith('Note (or hit Return):')) noteText = '';
-  const BTTabId = BackgroundPage.BTTab;                 // extension global for bttab
-  const cb = document.getElementById('all');
-  const allTabs = cb.checked;                           // is the All Tabs checked
-  const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
-
-  let message = {'function': 'storeTabs', 'tag': newTag, 'note': noteText,
-  'windowId': CurrentTab.windowId, 'tabAction': TabAction};
-  let tabsData = [];
-  tabsToStore.forEach(tab => {
-  // Send msg per tab to BT app for processing w text and tag info
-  const tabData = {'url': tab.url, 'title': tab.title, 'tabId': tab.id};
-  tabsData.push(tabData);
-  });
-  message.tabsData = tabsData;
-  chrome.tabs.sendMessage(BTTabId, message);
-  
-  // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
-  if (TabAction != 'CLOSE')              // if tab isn't closing animate the brain
-  chrome.runtime.sendMessage(
-  {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
-  window.close();
-  }
-*/
 
 // Listen for messages from other components. Currently just to know to close BT popup.
 chrome.runtime.onMessage.addListener((msg, sender) => {
@@ -246,4 +263,3 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     }
     console.count("IN:"+msg.type);
 });
-

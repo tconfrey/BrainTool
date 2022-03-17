@@ -29,8 +29,10 @@
 
     <link href="wenk.css" rel="stylesheet" />
     <script src="jquery.treetable.js"></script>
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
   </head>
   <body>
     
@@ -40,8 +42,11 @@
           <img id="open_close_image" src="resources/more.svg" onClick="toggleMenu(event)">
         </span>
         <div id="search"  style="cursor:default">
-          <span>Search:</span>
-          <input id="search_entry" type="text" size="20" value="" autocomplete="off" >
+          <div id="searchHint" class="hint">
+            <img src="resources/searchGlass.svg"/>
+            <span class="hintText">Click here or hit 's' to search</span>
+          </div>
+          <input id="search_entry" type="text" size="20" autocomplete="off" >
 	      <span id="search_buttons" style="cursor: pointer; display:none">
 	        <span onmousedown="searchButton(event, 'down')" title="Next Match">&darr;</span>
 	        <span onmousedown="searchButton(event, 'up')" title="Previous Match">&uarr;</span>
@@ -60,11 +65,13 @@
             <span id="num_saves" class="stat_span" >: 0</span>
           </span>
         </div>
-        
+        <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
+          <span>+ ADD A NEW TOP LEVEL TOPIC</span>
+        </div>
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool 0.9.8</p>
+        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool 0.9.9</p>
         <p style="text-align: center; font-style: italic; font-size: 12px; margin-top:0px">Type h for help. Check back here for random tips. (<a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a>, <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a>)
         </p>
         <div id="important_buttons">
@@ -153,11 +160,8 @@
             </td></tr>
             
             <tr><td style="text-align:left">BT Topics map to:</td>
-              <td colspan="1">
-                <div class="toggle-radio" id="tabgroup_selector">
-                  <input type="radio" name="grouping" id="default_Option1" value="WINDOW" checked>
-                  <label class="button_text" for="default_Option1">Windows</label>
-
+              <td colspan="1" style="text-align:left">
+                <div class="toggle-radio toggle-radio2" id="tabgroup_selector">
                   <input type="radio" name="grouping" id="default_Option2" value="TABGROUP">
                   <label class="button_text" for="default_Option2">Tab Groups</label>
 
@@ -282,52 +286,53 @@
         <br/>Loading your BrainTool file<br/>...</p>
     </div>
     <div id="buttonRow" style="display: none;">
-      <span data-wenk="More tools">
-        <img class="openClose" onClick="toggleMoreButtons(event); return false;"
-             src="resources/openLeft.png"  height="22" width="10">
-      </span>
-      <span data-wenk="Fewer tools" >
-        <img class="openClose" alt="Fewer tools" onClick="toggleMoreButtons(event); return false;" style="display:none"
-             src="resources/closeLeft.png"  height="22" width="10">
-      </span>
       <span id="otherButtons" style="display: none;">
-        <span data-wenk="Drag elsewhere">
-	      <img id="move" type="image" alt="Move"
-               src="resources/drag.png"  height="22" width="22" style="cursor: move; opacity: 0.75;">
+        <span data-wenk="Delete item (del)">
+          <img id="deleteRow" src="resources/delete.svg" class="rowButton"
+               onClick="deleteRow(event)">
         </span>
-        <span data-wenk="Outdent" >
-	      <img id="outdent" type="image" alt="Outdent"
-               src="resources/outdent.png" onClick="promote(event)" height="22" width="22" style="opacity: 0.75;">
+        <span data-wenk="ToDo (t)">
+          <img id="star" src="resources/star.svg" class="rowButton"
+               onClick="toDo(event)">
         </span>
-        <span data-wenk="Add child">
-	      <img id="addChild" type="image" alt="add Child"
-               src="resources/addChild.png" onClick="addChild(event)" height="22" width="22" style="opacity: 0.75;">
+        <span data-wenk="Drag to move (m-&uarr;&darr;)">
+          <img id="move" src="resources/drag.svg" class="rowButton"
+               style="cursor: move;">
         </span>
-        <span data-wenk="ToDo" >
-	      <img id="todo" alt="ToDo" onClick="toDo(event)"
-               src="resources/done.png"  height="22" width="22">
+        <span data-wenk="Promote up hierarchy">
+          <img id="outdent" src="resources/outdent.svg" class="rowButton"
+               onClick="promote(event)">
+        </span>
+        <span data-wenk="Add child topic (m-enter)">
+          <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
+               onClick="addChild(event)">
+        </span>
+        <span data-wenk="Edit items card (e)">
+          <img id="editRow" src="resources/edit.svg" class="rowButton"
+               onClick="editRow(event)">
+        </span>
+        <span data-wenk="Open in new window" class="wenk--left">
+          <img id="openWindow" src="resources/openWindow.svg" class="rowButton"
+               onClick="openRow(event, true)">
         </span>
       </span>
-      <span data-wenk="Edit card">
-        <img id="edit" alt="Edit" onClick="editRow(event)" style="opacity: 0.75;"
-             src="resources/edit.png"  height="22" width="22">
+      <span id="basebuttons">      
+        <span data-wenk="Open/show in browser (space)" class="wenk--left">  
+          <img id="openTab" alt="Open" onClick="openRow(event)"
+               src="resources/openTab.svg" class="rowButton">
+        </span>
+        
+        <span data-wenk="Close in browser (enter)" class="wenk--left">
+          <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
+               src="resources/closeItem.svg" height="28" width="26" >
+        </span>
+        
+        <span data-wenk="More tools" class="wenk--left">
+          <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
+               onClick="toggleMoreButtons(event);"  height="28" width="26">
+        </span>
       </span>
-      <span data-wenk="Open tab" >
-        <img id="expand1" alt="Open" onClick="openRow(event)" style="opacity: 0.75; margin-bottom:3px"
-             src="resources/open1.png" height="18" width="18">
-      </span>
-      <span data-wenk="Open tabs" >
-        <img id="expand" alt="Open" onClick="openRow(event)" style="opacity: 0.75;"
-             src="resources/open.png" height="22" width="22">
-      </span>
-      <span data-wenk="Close tab" >
-        <img id="collapse" alt="Close" onClick="closeRow(event)" style="opacity: 0.75;"
-             src="resources/closeNode.png" height="22" width="22">
-      </span>
-      <span data-wenk="Delete" >
-        <img id="delete" alt="Delete"  onClick="deleteRow(event)" style="opacity: 0.75; margin-left:8px"
-             src="resources/delete.png" height="22" width="22">
-      </span>
+      
     </div>
     
     <table id="content" >
@@ -346,8 +351,11 @@
           <tr id="topic"> 
             <td>
               <li style="margin-left: 10px">
-                <span style="position: relative; left: -12px; top:5px">
-                  <input type="text" id="topic-text" class="editNode" style="width: 92%" tabindex="0">
+                <span style="position: relative; left: -5px; top:6px">
+                  <div id="newTopicNameHint" class="hint">
+                    <span>Name the Topic</span>
+                  </div>
+                  <input type="text" id="topicName" class="editNode" style="width: 92%" tabindex="0">
                 </span>
               </li>
             </td>
@@ -364,7 +372,7 @@
         </table>
         <div class="buttonDiv">
           <button id="update" class="button_text general_button editNode" tabindex="4" onClick="updateRow()">Update</button>
-          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog()">Cancel</button>
+          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
         </div>
       </dialog>
     </div>

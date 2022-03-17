@@ -174,7 +174,7 @@ class BTAppNode extends BTNode {
     displayTitle() {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
         let txt = "";
-        if (this._keyword) txt += `<span class='keyword'>${this._keyword}: </span>`; // TODO etc
+        if (this._keyword) txt += `<span class='keyword'>${this._keyword} </span>`; // TODO etc
         return txt + BTAppNode._orgTextToHTML(this.title);
     }
     
@@ -195,12 +195,11 @@ class BTAppNode extends BTNode {
         return $("table.treetable").treetable("node", this.id);
     }
     
-    createDisplayNode(displayParent = null) {
+    createDisplayNode(atTop = false) {
         // call out to treetable w nodes html, really its create or return
         if (this.getTTNode()) return this.getTTNode();
-        if (this.parentId && !displayParent)
-            displayParent = AllNodes[this.parentId].createDisplayNode();
-        $("table.treetable").treetable("loadBranch", displayParent || null, this.HTML());
+        let displayParent = (this.parentId) ? AllNodes[this.parentId].createDisplayNode() : null;
+        $("table.treetable").treetable("loadBranch", displayParent, this.HTML(), atTop);
         return this.getTTNode();
     }
 
@@ -390,12 +389,13 @@ class BTAppNode extends BTNode {
         this.childIds.forEach(id => {
             const node = AllNodes[id];
             const index = node?.expectedTabIndex() || 0;
-            if (!node.tabId || (node.windowId != myWin)) return;
+            if (!node.tabId || (node.windowId && node.windowId != myWin)) return;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo});
     }
+    
     putInGroup() {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId) return;
@@ -644,7 +644,7 @@ class BTAppNode extends BTNode {
         // used for ordering w tabGroups
 
         const leftId = this.childIds.find(id => AllNodes[id].tabId);
-        return leftId ? AllNodes[leftId].tabIndex : 0;
+        return (leftId && AllNodes[leftId].tabIndex) ? AllNodes[leftId].tabIndex : 0;
     }
 
     expectedTabIndex() {
@@ -802,7 +802,7 @@ class BTLinkNode extends BTAppNode {
 const Handlers = {
     "loadBookmarks": loadBookmarks,
     "tabActivated": tabActivated,
-    "tabsGrouped": tabsGrouped,
+    "tabGrouped": tabGrouped,
     "tabUpdated": tabUpdated,
     "tabOpened" : tabOpened,
     "tabMoved" : tabMoved,

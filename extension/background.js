@@ -432,13 +432,18 @@ function ungroup(msg, sender) {
 }
 
 function groupAll(msg, sender) {
-    // user changed to tag:TabGrouping so group
-    chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds},
-                      tg => {
-                          check();
-                          chrome.tabs.sendMessage(
-                              BTTab, {'function': 'tabsGrouped', 'tgId': tg, 'tabIds': msg.tabIds});
-                      });
+    // add tabs to new group, either cos pref's changed or grouped tab was opened
+    chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds}, tg => {
+        check();
+        msg.tabIds.forEach(tid => {
+            chrome.tabs.get(tid, tab => {
+                check();
+                chrome.tabs.sendMessage(
+                    BTTab,
+                    {'function': 'tabGrouped', 'tgId': tg, 'tabId': tid, 'tabIndex': tab.index});
+            });
+        });
+    });
 }
 
 function showNode(msg, sender) {
@@ -493,6 +498,35 @@ function setBadge(tabId) {
     });
 }
 
+/* Experiment w Alex's icon options
+function brainZoom(msg, sender, iteration = 0) {
+    const iterationArray = ['_BrainTool_Save_Animation_01_loop.gif',
+                   '_BrainTool_Save_Animation_02_loop.gif',
+                   '_BrainTool_Save_Animation_03_loop.gif'];
+
+    const path = 'images/'+iterationArray[iteration];
+    const default_icon = {
+        "16": "images/BrainTool16.png",
+        "32": "images/BrainTool32.png",
+        "48": "images/BrainTool48.png",
+        "128": "images/BrainTool128.png"
+    };
+    
+    if (iteration == iterationArray.length) {
+        chrome.browserAction.setIcon({'path': default_icon, 'tabId': msg.tabId});
+        setTimeout(function() {setBadge(msg.tabId);}, 150);
+        return;
+    }
+    console.log(path);
+    chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId}, () => {
+        // if action was Close tab might be closed by now
+        if (chrome.runtime.lastError)
+            console.log("!!Whoops, tab closed before Zoom.. " + chrome.runtime.lastError.message);
+        else
+            setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 5000);
+    });
+}
+*/
 
 function brainZoom(msg, sender, iteration = 0) {
     // iterate thru icons to swell the brain
@@ -511,7 +545,7 @@ function brainZoom(msg, sender, iteration = 0) {
         return;
     }
     chrome.browserAction.setIcon({'path': path, 'tabId': msg.tabId}, () => {
-        // if action was Close tab might be clsoed by now
+        // if action was Close tab might be closed by now
         if (chrome.runtime.lastError)
             console.log("!!Whoops, tab closed before Zoom.. " + chrome.runtime.lastError.message);
         else

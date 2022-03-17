@@ -676,18 +676,18 @@
       return this;
     },
 
-    loadBranch: function(node, rows) {
+      loadBranch: function(node, rows, atTop) {
       var settings = this.data("treetable").settings,
           tree = this.data("treetable").tree;
 
       // TODO Switch to $.parseHTML
       rows = $(rows);
 
-      if (node == null) { // Inserting new root nodes at top
-        this.prepend(rows);
+      if (node == null) { // potentially inserting new root nodes at top
+          atTop ? this.prepend(rows) : this.append(rows);
       } else {
-        var lastNode = this.data("treetable").findLastNode(node);
-        rows.insertAfter(lastNode.row);
+          var lastNode = this.data("treetable").findLastNode(node);
+          rows.insertAfter(lastNode.row);
       }
 
       this.data("treetable").loadRows(rows);

@@ -11,14 +11,13 @@
 
 [data-wenk]:after {
     position: absolute;
-    font-size: 13px;
+    font: var(--btFont);
+    font-size: var(--btTopicFontSize);
     border-radius: .2rem;
     content: attr(data-wenk);
     padding: .4rem;
-    background-color:  var(--btBackground);
-    -webkit-box-shadow: 0 0 10px var(--btMainHighlight);
-    box-shadow: 0 0 10px var(--btMainHighlight);
-    color: #111;
+    background-color:  var(--btSettingsBackground);
+    color: #fff;
     line-height: 20px;
     line-height: 1.25rem;
     text-align: left;
@@ -27,15 +26,15 @@
     display: block;
     opacity: 0;
     visibility: hidden;
-    -webkit-transition: all .1s;
-    transition: all .1s;
+    -webkit-transition: all .25s;
+    transition: all .25s;
     bottom: 160%;
-    left: -25%;
+    left: -125%;
     -webkit-transform: translate(-25%, 3px);
             transform: translate(-25%, 3px);
     white-space: pre;
     width: auto;
-    border: 1px solid var(--btMainHighlight);
+    border: none;
 }
 
 [data-wenk]:after {
@@ -71,8 +70,8 @@
 [data-wenk].wenk--left:after, [data-wenk][data-wenk-pos="left"]:after {
     bottom: auto;
     left: auto;
-    top: 25%;
-    right: 100%;
+    top: 75%;
+    right: 50%;
     -webkit-transform: translate(5px, -25%);
             transform: translate(5px, -25%);
 }

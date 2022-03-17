@@ -1,15 +1,24 @@
 table.treetable {
-    margin-top: 28px;
+    margin-top: 53px;
     margin-bottom: 10px;
+    width: 100%;
+    border-spacing: 0px 1px;
+
+    /*
     border: 1px solid #DDD;
     font-size: var(--btTreeFontSize);
     font-family: var(--btTreeFont);
     line-height: var(--btTreeLineHeight);
-    width: 100%;
     color: var(--btTreeForeground);
     background: var(--btTreeBackground);
-    border-spacing: 0px 1px;
+   */
+
+    /* Alexs Figma specs */
+    font-family: var(--btFont);
+    color: var(--btColor);
+    letter-spacing: var(--btLetterSpacing);
 }
+    
 
 /* my add - equal width cols w tree on left not wrapping. not sure why max-width is needed?! */
 /* https://stackoverflow.com/questions/26292408/why-does-this-behave-the-way-it-does-with-max-width-0 */
@@ -44,8 +53,31 @@ table.treetable tbody tr td {
   padding: .3em .1em;           /* changed from 1.0 to left align for better use of space*/
 }
 
+/* Alexs Figma specs */
+table.treetable tr {
+    height: var(--btRowHeight);
+}
+
 table.treetable tr.branch {
-  background-color: var(--btTreeBranchBackground);
+    background-color: var(--btTopicBackground);
+    font-size: var(--btTopicFontSize);
+    font-weight: var(--btTopicFontWeight);
+    line-height: var(--btTopicLineHeight);
+}
+
+table.treetable tr.leaf {
+    background-color: var(--btPageBackground);
+    font-size: var(--btPageFontSize);
+    font-weight: var(--btPageFontWeight);
+    line-height: var(--btPageLineHeight);
+}
+
+table.treetable td.right {
+    background-color: var(--btNoteBackground);
+    font-size: var(--btNoteFontSize);
+    font-weight: var(--btNoteFontWeight);
+    line-height: var(--btNoteLineHeight);
+    color: var(--btNoteColor);
 }
 
 table.treetable tr span.indenter a {
@@ -63,9 +95,6 @@ table.treetable tr span.elipse {
 table.treetable tr.opened {
     background-color: var(--btBackgroundLight)
 }
-tr.opened td.left {
-    font-weight: bold;
-}
 td.left {
     vertical-align: middle;
     border-right: solid;
@@ -74,11 +103,27 @@ td.left {
 }
 
 table.treetable span.btText {
-    padding-left: 0px;
+    padding-left: 2px;
     white-space: pre-line;
+    display: -webkit-box;
+    overflow-y: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    /* https://stackoverflow.com/questions/33058004/applying-an-ellipsis-to-multiline-text
+    display: block;
+    height: calc(2 * var(--btNoteLineHeight));
+   */
 }
+table.treetable tr.selected span.btText {
+    /* turn on scroll of notes when row is selected, otherwise hidden w ellipses by above */
+    overflow-y: auto;
+}
+
 table.treetable span.btTitle {
     padding-left: 0px;
+}
+table.treetable span.keyword {
+    color: var(--btNoteColor);
 }
 
 table.treetable tr.hovered {

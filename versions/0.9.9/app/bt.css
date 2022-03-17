@@ -1,5 +1,31 @@
 /* First define the basic theme variables */
 :root {
+    --btRowHeight: 30px;
+    --btFont: Roboto;
+    --btColor: #2a3f3e;
+    --btLetterSpacing: 0.02em;
+    
+    --btTopicBackground: #bcc4c5;
+    --btTopicFontWeight: 900;
+    --btTopicFontSize: 12px;
+    --btTopicLineHeight: 14px;
+
+    --btPageBackground: #d4dadb;
+    --btPageFontWeight: bold;
+    --btPageFontSize: 10px;
+    --btPageLineHeight: 12px;
+
+    --btNoteBackground: #e6e7e8;
+    --btNoteFontWeight: normal;
+    --btNoteFontSize: 10px;
+    --btNoteColor: #808285;
+    --btNoteLineHeight: 12px;
+
+    --btHintColor: #BCBEC0;
+
+    --btToolsBackground: rgba(255, 255, 255);
+    --btSettingsBackground: rgba(42, 63, 62, 0.85);
+    
     --btMainHighlight: #3f673f;
     --btMainHighlightShadow: #3f673f90;
     --btBackground: #7bb07b;
@@ -35,12 +61,12 @@
 
 body {
     overflow-x: clip;
-    margin-left: 4px;
+    margin-left: 0px;
     margin-right: 0px;
 }
 
 #controls_header {
-    background-color: var(--btBackground);
+    background: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
     border-left: 1px solid #DDD;
     border-right: 1px solid #DDD;
     border-bottom: 1px solid #DDD;
@@ -50,8 +76,8 @@ body {
     position: relative;
     bottom: 5px;
     padding-right: 8px;
-    font-size: 13px;
-    font-family: var(--btControlsFont);
+    font-size: var(--btTopicFontSize);
+    font-family: var(--btFont);
 }
 
 #stats_row {
@@ -72,21 +98,48 @@ body {
     height: 25px;
     position: absolute;
     top: 4px;
-    left: calc((100% - 300px) / 2);
-    font-family: var(--btControlsFont);
-    font-size: 1rem;
-    color: var(--btHeaderFontColor);
+    left: calc((100% - 350px) / 2);
+
 }
 #search_entry {
-    line-height: 1;
-    font-family: var(--btControlsFont);
     margin-top: 1px;
-    border: solid;
-    border-width: thin;
-    border-color: var(--btMainHighlight);
-    border-bottom-width: 1px;
-    background-color: var(--btBackgroundLight); 
+    border: none;
+    width: 175px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding-left: 10px;
+    height: 15px;
 }
+.hint {
+    /* alex */
+    font-family: var(--btFont);
+    font-style: var(--btNoteFontWeight);
+    font-weight: var(--btNoteFontWeight);
+    font-size: var(--btNoteFontSize);
+    line-height: var(--btPageLineHeight);
+    color: var(--btHintColor);
+    z-index: 3;
+    position: absolute;
+    top: 3px;
+    left: 20px;
+}
+.hintText {
+    position: relative;
+    top: -6px;
+}
+#newTopLevelTopic {
+    width: 100%;
+    height: 25px;
+    text-align: center;
+    background: #2A3F3E;
+    color: #85E20E;
+    cursor: pointer;
+}
+#newTopLevelTopic span {
+    position: relative; 
+    top: 5px;
+}
+
 /* style when input is active */
 :focus-visible {
     outline-width: 1px;
@@ -128,36 +181,22 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 #controls {
     position: fixed;
     right: 0px;
-    left: 4px;
+    left: 0px;
     top: 0px;
     border: none;
     z-index: 3;
-    font-family: var(--btControlsFont);
+    font-family: var(--btFont);
+    font-size: var(--btTopicFontSize);
 }                    
 
-
-#controls_screen::before {
-    content: "";
-    left: 0px;
-    top:0;
-    bottom:0;
-    right: 0px;
-    position: absolute;
-    z-index: -4;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0%,
-				      rgba(255, 255, 255, 0.95) 5%,
-				      rgba(255, 255, 255, 0.95) 95%,
-				      rgba(255, 255, 255, 0.1) 100%)
-}
 #controls_screen {
     position: relative;
     overflow: hidden;
     display: block;
+    background: white;
     border: 2px solid var(--btBackground);
     border-radius: 0px 0px 5px 5px;
-    backdrop-filter: blur(3px);
-    min-height: 280px;
-    top: -2px;
+    top: -27px;
     margin-left: 1px;
     margin-right: 1px;
 }
@@ -193,13 +232,29 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 #buttonRow {
-    background-color: var(--btBackground);
+    background-color: var(--btToolsBackground);
     position: absolute;
-    padding-left: 2px;
     padding-right: 0px;
-    border-radius: 2px;
+    border-radius: 0px;
     cursor: pointer;
-    right: 9px;
+    right: 0px;
+    height: calc(var(--btRowHeight) - 2px);
+
+}
+.rowButton {
+    height: 28px;
+    width: 26px;
+    border: 1px solid var(--btTopicBackground);
+    padding: 0px;
+    margin-left: -2px;
+    margin-right: -2px;
+}
+
+#tools {
+    filter: invert(1);
+}
+#tools.toggled {
+    filter: invert(0);
 }
 
 .modal {

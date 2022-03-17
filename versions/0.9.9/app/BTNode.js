@@ -92,6 +92,9 @@ class BTNode {
         // Is this node used as a tag => has webLinked children
         return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
+    isTopic() {
+        return this.isTag();           // same thing, should refactor
+    }
     
     isTopicTree() {
         // Does this nodes url match a pointer to a web .org resource that can be loaded
@@ -179,7 +182,7 @@ class BTNode {
             if (!node) return;
 
             // recurse to delete children if any
-            [...node.childIds].forEach(_deleteNode);
+            node.childIds.forEach(_deleteNode);
             
             // Remove from parent
             const parent = AllNodes[node.parentId];
