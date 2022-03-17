@@ -555,10 +555,23 @@ class BTAppNode extends BTNode {
     }
 
     countOpenableTabs() {
-        // used to warn of opening too many tabs
+        // used to warn of opening too many tabs and show appropriate row action buttons
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableTabs());
 
         const me = (this.URL && !this.tabId) ? 1 : 0;
+
+        let n = 0;
+        if (childCounts.length)
+            n = childCounts.reduce((accumulator, currentValue) => accumulator + currentValue);
+        
+        return n + me;
+    }
+
+    countClosableTabs() {
+        // used to warn of opening too many tabs and show appropriate row action buttons
+        let childCounts = this.childIds.map(x => AllNodes[x].countClosableTabs());
+
+        const me = (this.tabId) ? 1 : 0;
 
         let n = 0;
         if (childCounts.length)

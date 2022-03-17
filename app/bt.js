@@ -222,6 +222,7 @@ function handleInitialTabs(tabs) {
         $("tr[data-tt-id='"+node.id+"']").addClass("opened");
         node.tabId = tab.id;
         node.windowId = tab.windowId;
+        node.tabIndex = tab.tabIndex;
         if (tab.groupId > 0) node.tabGroupId = tab.groupId;
         if (node.parentId && AllNodes[node.parentId]) {
             AllNodes[node.parentId].windowId = node.windowId;
@@ -341,7 +342,7 @@ function brainZoom(iteration = 0) {
     }
     $("#brain").attr("src", path);
     const interval = iteration == 4 ? 400 : 200;
-    //const interval = 5000;
+//  const interval = 5000;
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
@@ -1073,7 +1074,7 @@ function setNodeOpen(node) {
  * 
  ***/
 
-function buttonShow() {
+function buttonShow(e) {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
     const td = $(this).find(".right");
@@ -1088,21 +1089,17 @@ function buttonShow() {
     const height = $(this).height();
     const rowtop = (offset.top);
 
-    if ($(this).hasClass("opened")){
-        $("#openTab").hide();
-        $("#openWindow").hide();
-        $("#closeRow").show();
+    // Open/close buttons 
+    const node = getActiveNode(e);
+    $("#openTab").hide();
+    $("#openWindow").hide();
+    $("#closeRow").hide();
+    if (node.countOpenableTabs()){
+        $("#openTab").show();
+        $("#openWindow").show();
     }
-    else {
-        // show appropriate icon if there's something to open. (one tab or many)
-        if ($(this).find('a').length) {
-            $("#openWindow").show();
-            $("#openTab").show();
-        } else {
-            $("#openWindow").hide();
-            $("#openTab").hide();
-        }
-        $("#closeRow").hide();
+    if (node.countClosableTabs()) {
+        $("#closeRow").show();
     }
 
     // show expand/collapse if some kids of branch are not open/closed
@@ -1244,7 +1241,8 @@ function closeDialog(cb = null, duration = 250) {
 
 function getActiveNode(e) {
     // Return the active node for the event, either hovered (button click) or selected (keyboard)
-    const tr = (e.type === 'click') ? $(e.target).closest('tr')[0] : $("tr.selected")[0];
+    const tr = (['click', 'mouseenter'].includes(e.type)) ?
+          $(e.target).closest('tr')[0] : $("tr.selected")[0];
     if (!tr) return null;
     const nodeId = $(tr).attr('data-tt-id') || 0;
     return AllNodes[nodeId];

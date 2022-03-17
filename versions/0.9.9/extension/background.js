@@ -225,6 +225,7 @@ function getOpenTabs() {
 			             allTabs.push({'id': tab.id,
 				                       'groupId': tab.groupId,
 				                       'windowId': tab.windowId,
+                                       'tabIndex' : tab.index,
 				                       'url': tab.url}));
 	        resolve(allTabs);
 	    });
@@ -498,7 +499,7 @@ function setBadge(tabId) {
     });
 }
 
-/* Experiment w Alex's icon options
+/* Experiment w Alex's icon options /
 function brainZoom(msg, sender, iteration = 0) {
     const iterationArray = ['_BrainTool_Save_Animation_01_loop.gif',
                    '_BrainTool_Save_Animation_02_loop.gif',
