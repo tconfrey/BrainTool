@@ -331,10 +331,9 @@ function updateStatsRow(modifiedTime = null) {
 
 function brainZoom(iteration = 0) {
     // iterate thru icons to swell the brain
-//    const iterationArray = [0];
+
     const iterationArray = [0,1,2,3,4,3,2,1,0];
     const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
-//    const path = '../extension/images/_BrainTool_Save_Animation_01_loop.gif';
     
     if (iteration == iterationArray.length) {
         $("#brain").attr("src", "../extension/images/BrainTool48.png");
@@ -342,7 +341,6 @@ function brainZoom(iteration = 0) {
     }
     $("#brain").attr("src", path);
     const interval = iteration == 4 ? 400 : 200;
-//  const interval = 5000;
     setTimeout(function() {brainZoom(++iteration);}, interval);
 }
 
@@ -1077,7 +1075,7 @@ function setNodeOpen(node) {
 function buttonShow(e) {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
-    const td = $(this).find(".right");
+    const td = $(this).find(".left");
 
     if ($("#buttonRow").index() < 0) {
         // Can't figure out how but sometimes after a Drag/drop the buttonRow is deleted
@@ -1221,6 +1219,18 @@ $("#editOverlay").click(function(e) {
     {
         closeDialog();
         $("#buttonRow").show(100);
+    }
+});
+
+$(window).resize(() => {
+    if ($(window).width() < 350) {
+        $("#content td.right").hide();
+        $("#stats_row").hide();
+        $("#search").css('left', 'calc((100% - 175px) / 2)');
+    } else {
+        $("#content td.right").show();
+        $("#stats_row").show();
+        $("#search").css('left', 'calc((100% - 350px) / 2)');
     }
 });
 

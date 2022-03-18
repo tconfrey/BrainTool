@@ -34,8 +34,9 @@
       <div id="header">
         <h1>BrainTool Saver</h1>
       </div>
-      <h2 id="title">Page Title</h2>
-      <h2 id="allPages" style="display:none">Multiple Pages</h2>
+      <h2 class="onePage" id="title">Page Title</h2>
+      <h2 class="allPages">Multiple Pages</h2>
+      
       <div id="saveCheckboxes">
         <hr style="margin-left: -11px;"/>
         <span id="saveSpan">
@@ -48,8 +49,10 @@
         </span>
       </div>
       <hr/>
+      
       <div id="topicSelector">
-        <h3>Assign a topic to the page:</h3>
+        <h3 class="onePage">Assign a topic to the page:</h3>
+        <h3 class="allPages">Assign a topic to the pages:</h3>
         <div class="hint">
           <span id="newTopicHint" class="hintText">Select from below, type for autocomplete, or Enter (for Scratch)</span>
         </div>
@@ -57,18 +60,17 @@
         <h3>Topic tree:</h3>
         <div id="currentTopics"></div>
       </div>
-      <div id="editCard">
-        <div id="titleElements">
-          <h3>Page title:</h3>
-          <input type="text" id="titleInput" class="inactive" tabindex="2" value='title'>
-        </div>
+      
+      <div id="editCard" class="onePage">
+        <h3>Page title:</h3>
+        <input type="text" id="titleInput" class="inactive" tabindex="2" value='title'>
         <h3>Note:</h3>
         <div class="hint">
           <span id="newNoteHint" class="hintText">Add a note or just hit enter to save</span>
-        </div>
-        
+        </div>        
         <textarea id="note"></textarea>
       </div>
+      
       <div id="buttonDiv">
         <button id="saveAndClose" tabindex="4" class="activeButton">Save and close</button>
         <button id="saveAndGroup" tabindex="5">Save and group</button>

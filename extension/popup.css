@@ -1,21 +1,5 @@
 /* First define the basic theme variables */
 :root {
-    --btMainHighlight: #3f673f;
-    --btMainHighlightShadow: #3f673f90;
-    --btBackground: #7bb07b;
-    --btBackgroundLight: #bed8be;
-    --btBackgroundHovered: #e0ece0;
-    --btControlsFont: Roboto;
-    --btHeaderFontColor: darkslategrey;
-
-    --btTreeForeground: #000000;
-    --btTreeBackground: #ffffff;
-    --btTreeBranchBackground: #f9f9f9;
-    --btTreeFont: tahoma;
-    --btTreeFontSize: 0.7em;
-    --btTreeLineHeight: 1;
-
-    
     --btFont: Roboto;
     --btNoteFontWeight: normal;
     --btNoteFontSize: 10px;
@@ -43,7 +27,8 @@
 
 body {
     width: 440px;
-    height: 600px;
+    max-height: 600px;
+    padding-bottom: 50px;
     overflow: hidden;
     margin: 0px;
     background: linear-gradient(180deg, rgba(196, 196, 196, 0.28) 0%, rgba(196, 196, 196, 0.3) 14.58%, rgba(196, 196, 196, 0.1) 100%);
@@ -52,6 +37,9 @@ body {
     font-style: normal;
     text-align: center;
     color: #0C4F6B;
+}
+.allPages {
+    display: none;
 }
 
 #header {
@@ -101,7 +89,7 @@ label {
     margin-left: 40px;
 }
 input[type=text], textarea {
-    width: 100%;
+    width: 356px;
     border: solid 1px #AEBABC;
     border-radius: 2px;
 }
@@ -126,7 +114,6 @@ input[type=text], textarea {
 }
 
 .hint {
-    /* alex */
     font-family: var(--btFont);
     font-style: var(--btNoteFontWeight);
     font-weight: var(--btNoteFontWeight);
@@ -186,7 +173,6 @@ button.activeButton {
 }
 #buttonDiv {
     margin-top: 12px;
-    margin-bottom: 6px;
 }
 #saveAndClose {
     float:left;

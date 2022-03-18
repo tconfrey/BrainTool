@@ -143,14 +143,14 @@ SavePage.addEventListener('change', e => {
 });
 function updateForAll(all) {
     // handle AllPages toggle
+    const onePageElements = document.getElementsByClassName("onePage");
+    const allPageElements = document.getElementsByClassName("allPages");
     if (SaveAll.checked) {
-        document.getElementById("title").style.display = "none";
-        document.getElementById("allPages").style.display = "block";
-        document.getElementById("titleElements").style.display = "none";
+        Array.from(onePageElements).forEach(e => e.style.display = "none");
+        Array.from(allPageElements).forEach(e => e.style.display = "block");
     } else  {
-        document.getElementById("title").style.display = "block";
-        document.getElementById("allPages").style.display = "none";
-        document.getElementById("titleElements").style.display = "block";
+        Array.from(onePageElements).forEach(e => e.style.display = "block");
+        Array.from(allPageElements).forEach(e => e.style.display = "none");
     }
 }
 
@@ -173,10 +173,15 @@ function popupOpen(tab) {
                 tab.title.substr(0, 150) + "...";            
             titleH2.textContent = title;
             
+            if (!data.saveAndClose) {
+                // set up save and group as default
+                SaveAndGroupBtn.classList.add("activeButton");
+                SaveAndCloseBtn.classList.remove("activeButton");
+            }
+            
             // BT Page => just open card
             if (data.currentTag && data.currentTabId && (data.currentTabId == tab.id)) {
                 OldTopic = data.currentTag;
-                document.body.style.height = '300px';
                 document.getElementById('topicSelector').style.display = 'none';
                 document.getElementById('saveCheckboxes').style.display = 'none';
                 TopicCard.setupExisting(tab, data.currentText,
@@ -193,12 +198,6 @@ function popupOpen(tab) {
                 Guess = (data.groupTopic || data.windowTopic ||
                          ((mruAge < 180000) ? data.mruTopic : ''));
             }
-            if (!data.saveAndClose) {
-                // set up save and group as default
-                SaveAndGroupBtn.classList.add("activeButton");
-                SaveAndCloseBtn.classList.remove("activeButton");
-            }
-            
             TopicSelector.setup(Guess, Topics, topicSelected);
             TopicCard.setupNew(tab.title, tab, saveCB);
         });
@@ -208,12 +207,6 @@ function topicSelected() {
     // CB from topic selector, highlight note text
 
     document.querySelector('#note').focus();
-}
-
-function saveOptionChanged(e) {
-    // Save & Group <-> Save & Close
-
-    SaveAndClose = e.currentTarget.checked;
 }
 
 function saveCB(close) {
