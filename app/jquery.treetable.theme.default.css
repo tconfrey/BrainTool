@@ -26,7 +26,7 @@ table.treetable td.left {
 }
 
 table.treetable td.searchLite {
-    background-color: lightgrey;
+    background-color: var(--btSearchLite); 
 }
 
 table.treetable td.search {

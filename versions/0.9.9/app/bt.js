@@ -9,25 +9,26 @@
 
 const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
 const tipsArray = [
-    "Add ':' at the end of a topic in the popup to create a new subtopic.",
+    "Add ':' at the end of a topic in the BT Saver to create a new subtopic.",
     "Double click on a table row to highlight its' open window, if any.",
     "Type ':TODO' after a topic to make the item a TODO in the BT tree.",
     "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
     "Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)",
     `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
     "You can save individual gmails or google docs into the BT tree.",
-    "'Group', 'Stick' and 'Close' support different workflows when filing your tabs.",
     "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
-    "Use the TODO button on a row to toggle between TODO, DONE and none.",
+    "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
     "See BrainTool.org for the BrainTool blog and other info.",
-    "Check out the Bookmark import/export functions under Options!",
-    "You can click on the topics shown in the BT popup instead of typing out the name.",
+    "Check out the Bookmark import/export functions under Actions",
+    "You can click on the topics shown in the Saver instead of typing out the name.",
     "Close and re-open this controls overlay to get a new tip!",
     `Double tap ${OptionKey}-b, or double click the icon, to surface the BrainTool side panel.`,
     "When you have an Edit card open, the up/down arrows will open the next/previous card.",
     "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
     "You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
-    "Try hitting '1','2','3' etc to collapse to that level."
+    "Try hitting '1','2','3' etc to collapse the tree to that level.",
+    "Import public topic trees and useful links from braintool.org/topicTrees",
+    "Try the new DARK theme. It's under Actions"
 ];
 
 var InitialInstall = false;
@@ -53,6 +54,14 @@ async function launchApp(msg) {
     Config = msg.Config || {};
     InitialInstall = msg.initial_install;
     UpgradeInstall = msg.upgrade_install;                     // null or value of 'previousVersion'
+
+    if (InitialInstall || UpgradeInstall)
+        setTimeout(closeMenu, 5000);
+    else {
+        addTip();
+        setTimeout(closeMenu, 1500);
+    }
+        
     BTFileText = msg.BTFileText;
     processBTFile();                                          // create table etc
 
@@ -91,10 +100,6 @@ async function launchApp(msg) {
         if (InitialInstall) {
             gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
         }
-        setTimeout(closeMenu, 5000);
-    } else {
-        addTip();
-        setTimeout(closeMenu, 1500);
     }
 
     // scroll to top
@@ -1662,6 +1667,7 @@ $(document).ready(function () {
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
         saveBT();
+        alert("NB you need to close the current Topic Manager for this change to take effect");
     });
     $('#theme_selector :radio').click(function () {
         const newTheme = $(this).val();
@@ -1792,9 +1798,8 @@ function search(keyevent) {
     // key is new letter or opt-s/r (search for next) or del 
 
     if (keyevent.code == "Escape") {
-        $("tr.selected").removeClass("selected");
         $("#search_entry").blur();
-        return;
+        return false;
     }
     
     let sstr = $("#search_entry").val();

@@ -44,6 +44,7 @@
     --btControlsBackground: whitesmoke;
 
     --btLinkColor: blue;
+    --btSearchLite: lightgrey;
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
 }
@@ -77,6 +78,7 @@
     --btControlsBackground: #b6c3c3;
 
     --btLinkColor: #88ffff;
+    --btSearchLite: var(--btMainHighlight);
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackgroundDark.png");
 
