@@ -250,6 +250,7 @@ function toggleMenu(event) {
         $("#controls_screen").css('min-height',0)
 	        .slideUp(400, 'easeInCirc', () => {
                 $(this).css('min-height', minHeight);
+                $("#open_close_span").attr('data-wenk', "Options, Actions, Info");
                 $("#open_close_span").addClass("wenk--right");
                 $("#open_close_image").addClass("animate_more");
             });
@@ -265,6 +266,7 @@ function toggleMenu(event) {
         $("#controls_screen").css('min-height',0)
 	        .slideDown(400, 'easeInCirc', () => {
                 $(this).css('min-height', minHeight);
+                $("#open_close_span").removeAttr('data-wenk');
                 $("#open_close_span").removeClass("wenk--right");
                 $("#open_close_image").removeClass("animate_more");
             });
@@ -320,7 +322,7 @@ function updateStatsRow(modifiedTime = null) {
     const saveTime = getDateString(modifiedTime);           // null => current time
     $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
     $('#num_saves').text(':'+numSaves);
-    $("#saves_span").attr('data-wenk', `${numSaves} Saves\nSaved: ${saveTime}`);
+    $("#saves_span").attr('data-wenk', `${numSaves} Saves. Saved:\n${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
     {
@@ -1136,10 +1138,11 @@ function buttonHide() {
 
 function toggleMoreButtons(e) {
     // show/hide non essential buttons
-    $("#otherButtons").toggle(250, 'easeInCirc', () => {
-        $(".openClose").toggle();
+    $("#otherButtons").toggle(100, 'easeInCirc', () => {
         $("#tools").toggleClass('toggled');
-    });
+        let hint = $("#tools").hasClass('toggled') ? "Fewer Tools" : "More Tools";
+        $("#moreToolsSpan").attr('data-wenk', hint);
+    });    
     e = e || window.event;
     e.preventDefault();		                        // don't propogate click
     return false;
@@ -1230,7 +1233,7 @@ $(window).resize(() => {
     } else {
         $("#content td.right").show();
         $("#stats_row").show();
-        $("#search").css('left', 'calc((100% - 350px) / 2)');
+        $("#search").css('left', 'calc((100% - 300px) / 2)');
     }
 });
 
@@ -1624,12 +1627,22 @@ function updatePrefs() {
         $radio.filter(`[value=${managerHome}]`).prop('checked', true);
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
     }
+
+    // Theme?
+    const theme = getMetaProp('BTTheme');
+    if (theme) {
+        const $radio = $('#theme_selector :radio[name=theme]');
+        $radio.filter(`[value=${theme}]`).prop('checked', true);
+        window.postMessage({'function': 'localStore', 'data': {'Theme': theme}});
+        // Change theme by setting attr on document which overide a set of vars. see top of bt.css
+        document.documentElement.setAttribute('data-theme', theme);
+    }        
 }
 
 // Register listener for radio button changes in Options
 $(document).ready(function () {
     if (typeof WaitingForKeys !== 'undefined') {
-        // Defined in btContentScript so undefined => some issue
+        // Defined in btContentScript, so if undefined => some issue
         alert("Something went wrong. The BrainTool app is not connected to its Browser Extension!");
     }
     $('#tabgroup_selector :radio').click(function () {
@@ -1648,6 +1661,14 @@ $(document).ready(function () {
         setMetaProp('BTManagerHome', newHome);
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+        saveBT();
+    });
+    $('#theme_selector :radio').click(function () {
+        const newTheme = $(this).val();
+        setMetaProp('BTTheme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        // Let extension know
+        window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
         saveBT();
     });
 });

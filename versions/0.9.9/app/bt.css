@@ -2,63 +2,91 @@
 :root {
     --btRowHeight: 30px;
     --btFont: Roboto;
-    --btColor: #2a3f3e;
+    --btControlsFont: Roboto;
     --btLetterSpacing: 0.02em;
     
-    --btTopicBackground: #bcc4c5;
     --btTopicFontWeight: 900;
     --btTopicFontSize: 12px;
     --btTopicLineHeight: 14px;
 
-    --btPageBackground: #d4dadb;
     --btPageFontWeight: bold;
     --btPageFontSize: 10px;
     --btPageLineHeight: 12px;
 
-    --btNoteBackground: #e6e7e8;
     --btNoteFontWeight: normal;
     --btNoteFontSize: 10px;
-    --btNoteColor: #808285;
     --btNoteLineHeight: 12px;
 
+    --btColor: #2a3f3e;
+    --btNoteColor: #808285;
+    --btTopicBackground: #bcc4c5;
+    --btPageBackground: #d4dadb;
+    --btNoteBackground: #e6e7e8;
+    
+    --btInputBackground: white;
+    --btInputForeground: #2d2d2d;
     --btHintColor: #BCBEC0;
-
-    --btToolsBackground: rgba(255, 255, 255);
-    --btSettingsBackground: rgba(42, 63, 62, 0.85);
+    --btWenkBackground: rgba(42, 63, 62, 0.85);
+    --btWenkForeground: #fff;
     
     --btMainHighlight: #3f673f;
     --btMainHighlightShadow: #3f673f90;
+    --btSelected: #7bb07b;
+    --btRowOpened: #bed8be;
+    
     --btBackground: #7bb07b;
-    --btBackgroundLight: #bed8be;
     --btBackgroundHovered: #e0ece0;
-    --btControlsFont: Roboto;
-    --btHeaderFontColor: #000; /* was darkslategrey; */
 
-    --btTreeForeground: #000000;
-    --btTreeBackground: #ffffff;
-    --btTreeBranchBackground: #f9f9f9;
-    --btTreeFont: tahoma;
-    --btTreeFontSize: 0.7em;
-    --btTreeLineHeight: 1;
+    --btHeaderBackground: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
+    --btEmptyBackground: whitesmoke;
+    --btBorderColor: white;
+    --btControlsBorder: #ddd;
+    --btControlsBackground: whitesmoke;
+
+    --btLinkColor: blue;
+
+    --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
 }
 
-[data-theme="dark"] {
+[data-theme="DARK"] {
+
+    --btColor: #b6c3c3;
+    --btTopicBackground: #3d4749;
+    --btPageBackground: #626A6C;
+    --btNoteBackground: #262F2F;
+
+    --btInputBackground: #2d2d2d;
+    --btInputForeground: white;
+    --btHintColor: white;
+    
+    --btWenkForeground: rgba(42, 63, 62, 0.85);
+    --btWenkBackground: #fff;
+    
     --btMainHighlight: #7bb07b;
     --btMainHighlightShadow: #7bb07b90;
-    --btBackground: #bed8be;
-    --btBackgroundLight: #3f673f;
-    --btBackgroundHovered: #3f673f;
-    --btControlsFont: Roboto;
-    --btHeaderFontColor: darkslategrey;
+    --btSelected: #3f673f;
+    --btRowOpened: #3A565F;
+    
+    --btBackground: #7bb07b;
+    --btBackgroundHovered: #2d2d2d;
 
-    --btTreeForeground: #ffffff;
-    --btTreeBackground: #333333;
-    --btTreeBranchBackground: #444444;
-    --btTreeFont: roboto;
-    --btTreeFontSize: 0.9em;
-    --btTreeLineHeight: 1.5;
+    --btHeaderBackground: linear-gradient(180deg, #6C7777 0%, #475354 100%);
+    --btEmptyBackground: #2d2d2d;
+    --btBorderColor: #2d2d2d;
+    --btControlsBorder: #2d2d2d;
+    --btControlsBackground: #b6c3c3;
+
+    --btLinkColor: #88ffff;
+
+    --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackgroundDark.png");
+
 }
-
+a {
+    color: var(--btLinkColor);
+}
+html {
+    background: var(--btEmptyBackground);
+}
 body {
     overflow-x: clip;
     margin-left: 0px;
@@ -66,10 +94,10 @@ body {
 }
 
 #controls_header {
-    background: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
-    border-left: 1px solid #DDD;
-    border-right: 1px solid #DDD;
-    border-bottom: 1px solid #DDD;
+    background: var(--btHeaderBackground);
+    border-left: 1px solid var(--btControlsBorder);
+    border-right: 1px solid var(--btControlsBorder);
+    border-bottom: 1px solid var(--btControlsBorder);
 }
 
 .stat_span {
@@ -82,7 +110,7 @@ body {
 
 #stats_row {
     height: 27px;
-    color: var(--btHeaderFontColor);
+    color: var(--btColor);
     position: absolute;
     top: 1px;
     right: 5px;
@@ -98,14 +126,14 @@ body {
     height: 25px;
     position: absolute;
     top: 4px;
-    left: calc((100% - 350px) / 2);
-
+    left: calc((100% - 300px) / 2);
 }
 #search_entry {
     margin-top: 1px;
     border: none;
     width: 175px;
-    background: #FFFFFF;
+    color: var(--btInputForeground);
+    background: var(--btInputBackground);
     border-radius: 12px;
     padding-left: 10px;
     height: 15px;
@@ -193,7 +221,7 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     position: relative;
     overflow: hidden;
     display: block;
-    background: white;
+    background: var(--btControlsBackground);
     border: 2px solid var(--btBackground);
     border-radius: 0px 0px 5px 5px;
     top: -27px;
@@ -232,7 +260,6 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 #buttonRow {
-    background-color: var(--btToolsBackground);
     position: absolute;
     padding-right: 0px;
     border-radius: 0px;
@@ -251,9 +278,11 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 #tools {
+    border-color: white;
     filter: invert(1);
 }
 #tools.toggled {
+    border-color: var(--btTopicBackground);
     filter: invert(0);
 }
 
@@ -277,7 +306,7 @@ dialog {
     padding-top: 2px;
     margin-top: 0px;
     position: fixed;
-    background-image: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
+    background-image: var(--btGridBackground);
     background-size: 300px 300px;
 }
 
@@ -287,11 +316,13 @@ dialog textarea {
     border: 1px solid #ddd;
     border-radius: 2px;
     font-family: var(--btControlsFont);
+    background: var(--btControlsBackground);
 }
 dialog input {
     border: 1px solid #ddd;
     border-radius: 2px;
     font-family: var(--btControlsFont);
+    background: var(--btControlsBackground);
 }
 dialog #title-text {
     white-space: nowrap;
@@ -311,7 +342,7 @@ dialog #distinguishedName {
     position: relative;
     left: -10px;
     font-family:var(--btControlsFont);
-    color: var(--btMainHighlight);
+    color: #3f673f;
 }
 dialog li::marker {
     color: var(--btMainHighlight);
@@ -332,7 +363,7 @@ dialog li::marker {
     border-style: solid;
     border-radius: 5px;
     border-color: grey;
-    background-color: var(--btBackgroundLight);
+    background-color: var(--btBackground);
     width: 180px;
     height: 40px;
     font-size: 1.2em;
@@ -362,11 +393,12 @@ dialog li::marker {
     border-radius: 3px;
     box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
 
-    background-color: white;
+    background-color: var(--btControlsBackground);
     width: 90%;    
 }
 
 .overlay_table {
+    background: var(--btControlsBackground);
     margin-left: auto;
     margin-right: auto;
     font-size: 12px;

@@ -29,11 +29,11 @@ const TopicCard = (() => {
         NoteElt.setSelectionRange(NoteElt.value.length, NoteElt.value.length);
         
     }
-    function setupNew(title, tab, completeCB) {
+    function setupNew(title, tab, saveCB) {
         // entry point for new page
         
         TitleElt.value = title;                                   // value, cos its a text input
-        SaveCB = completeCB;
+        SaveCB = saveCB;
         NoteHint.addEventListener('click', (e) => NoteElt.focus());
     }
 
