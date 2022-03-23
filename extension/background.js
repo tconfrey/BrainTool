@@ -411,6 +411,7 @@ function groupAndPositionTabs(msg, sender) {
           {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} :
           {'tabIds': tabIds};
     console.log(`groupArgs: ${JSON.stringify(groupArgs)}`);
+    if (!tabIds.length) return;                                       // shouldn't happen, but safe
     chrome.tabs.group(groupArgs, groupId => {
         // position tabs within group and update appropriate
         check('groupAndPositionTabs');

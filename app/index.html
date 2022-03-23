@@ -89,7 +89,7 @@
           <p>- This Message board opens and closes via the 3 dots button, top left. A tip will be shown here on startup. See the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> for all tips.</p>
 	    </div>
 	    <p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
-        <p style="margin-bottom: 20px; margin-left:10px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
+        <p style="margin-bottom: 20px; margin-left:5px; margin-top: 40px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
         
         <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close" class="split_image"
@@ -169,6 +169,18 @@
                   <label class="button_text" for="default_Option3">Nothing</label>
                 </div>
             </td></tr>
+            
+            <tr><td style="text-align:left">Theme:</td>
+              <td colspan="1" style="text-align:left">
+                <div class="toggle-radio toggle-radio2" id="theme_selector">
+                  <input type="radio" name="theme" id="lightTheme" value="LIGHT" checked>
+                  <label class="button_text" for="lightTheme">Light</label>
+
+                  <input type="radio" name="theme" id="darkTheme" value="DARK">
+                  <label class="button_text" for="darkTheme">Dark</label>
+                </div>
+            </td></tr>
+            
             <tr >
               <td style="text-align:left">
                 <span id="autoSaveLabel">GDrive Auto-save:</span><br/>
@@ -319,15 +331,15 @@
       <span id="basebuttons">      
         <span data-wenk="Open/show in browser (space)" class="wenk--left">  
           <img id="openTab" alt="Open" onClick="openRow(event)"
-               src="resources/openTab.svg" class="rowButton">
+               src="resources/openTab.svg" class="rowButton openClose">
         </span>
         
         <span data-wenk="Close in browser (enter)" class="wenk--left">
-          <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton" 
+          <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton openClose" 
                src="resources/closeItem.svg" height="28" width="26" >
         </span>
         
-        <span data-wenk="More tools" class="wenk--left">
+        <span data-wenk="More tools" class="wenk--left" id="moreToolsSpan">
           <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
                onClick="toggleMoreButtons(event);"  height="28" width="26">
         </span>

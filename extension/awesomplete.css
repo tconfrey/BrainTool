@@ -25,7 +25,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    background: #fff;
+    background: var(--btInputBackground);
 }
 
 .awesomplete > ul:empty {
@@ -35,8 +35,7 @@
 .awesomplete > ul {
 	border-radius: .3em;
 	margin: .2em 0 0;
-	background: hsla(0,0%,100%,.9);
-	background: linear-gradient(to bottom right, white, hsla(0,0%,100%,.8));
+	background: var(--awesompleteBackground);
 	border: 1px solid rgba(0,0,0,.3);
 	box-shadow: .05em .2em .6em rgba(0,0,0,.2);
 	text-shadow: none;
@@ -65,7 +64,7 @@
 		left: 1em;
 		width: 0; height: 0;
 		padding: .4em;
-		background: white;
+		background: var(--btInputBackground);
 		border: inherit;
 		border-right: 0;
 		border-bottom: 0;
@@ -99,6 +98,6 @@
 		
 		.awesomplete li[aria-selected="true"] mark {
 			background: hsl(86, 100%, 21%);
-			color: white; 
+			color: var(--btInputBackground);
 		}
 /*# sourceMappingURL=awesomplete.css.map */

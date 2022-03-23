@@ -18,7 +18,7 @@ const altOpt = document.getElementById('alt_opt');
 altOpt.textContent = OptionKey;
 
 
-chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation'], val => {
+chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme'], val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
 	const welcomeDiv = document.getElementById('welcome');
 	const messageDiv = document.getElementById('message');
@@ -44,6 +44,10 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
                               }));
         }, 2000);
 	    return;
+    }
+    if (val['Theme']) {        
+        // Change theme by setting attr on document which overide a set of vars. see top of .css
+        document.documentElement.setAttribute('data-theme', val['Theme']);
     }
 
     // Else just normal popup either in tab or side panel
@@ -199,7 +203,7 @@ function popupOpen(tab) {
                          ((mruAge < 180000) ? data.mruTopic : ''));
             }
             TopicSelector.setup(Guess, Topics, topicSelected);
-            TopicCard.setupNew(tab.title, tab, saveCB);
+            TopicCard.setupNew(tab.title, tab, cardCompleted);
         });
 }
 
@@ -207,6 +211,12 @@ function topicSelected() {
     // CB from topic selector, highlight note text
 
     document.querySelector('#note').focus();
+}
+function cardCompleted() {
+    // CB from enter in notes field of card
+
+    const close = (SaveAndCloseBtn.classList.contains('activeButton')) ? true : false;
+    saveCB(close);       
 }
 
 function saveCB(close) {

@@ -345,7 +345,8 @@ class BTAppNode extends BTNode {
 
         // if this node is a link to a topic tree load it up
         if (this.isTopicTree()) {
-            this.openTopicTree();
+            if (!this.childIds.length || confirm('Re-add this topic tree?'))
+                this.openTopicTree();
             return;
         }
 

@@ -4,15 +4,6 @@ table.treetable {
     width: 100%;
     border-spacing: 0px 1px;
 
-    /*
-    border: 1px solid #DDD;
-    font-size: var(--btTreeFontSize);
-    font-family: var(--btTreeFont);
-    line-height: var(--btTreeLineHeight);
-    color: var(--btTreeForeground);
-    background: var(--btTreeBackground);
-   */
-
     /* Alexs Figma specs */
     font-family: var(--btFont);
     color: var(--btColor);
@@ -93,13 +84,13 @@ table.treetable tr span.elipse {
 
 
 table.treetable tr.opened {
-    background-color: var(--btBackgroundLight)
+    background-color: var(--btRowOpened)
 }
 td.left {
     vertical-align: middle;
     border-right: solid;
     border-right-width: 1px;
-    border-right-color: white;
+    border-right-color: var(--btBorderColor);
 }
 
 table.treetable span.btText {
@@ -131,7 +122,7 @@ table.treetable tr.hovered {
 }
 
 table.treetable tr.selected {
-    background-color: var(--btBackground);
+    background-color: var(--btSelected);
 }
 
 table.treetable tr.attention {
@@ -147,7 +138,7 @@ table.treetable td.dropOver {
 tr.selected.opened td.left {
     border-right-width: 20px;
     border-right-style: solid;
-    border-right-color: var(--btBackgroundLight);
+    border-right-color: var(--btRowOpened);
 }
 
 

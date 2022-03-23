@@ -1,27 +1,38 @@
 /* First define the basic theme variables */
 :root {
     --btFont: Roboto;
+    --btBackgroundHovered: #3f673f;
     --btNoteFontWeight: normal;
     --btNoteFontSize: 10px;
     --btHintColor: #BCBEC0;
     --btPageLineHeight: 12px;
+
+    --btHeaderBackground: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
+    --btBodyBackground: linear-gradient(180deg, rgba(196, 196, 196, 0.28) 0%, rgba(196, 196, 196, 0.3) 14.58%, rgba(196, 196, 196, 0.1) 100%);
+    --btTextColor: #0C4F6B;
+    --btBackground: #bed8be;
+
+        
+    --btInputBackground: white;
+    --btInputForeground: #2d2d2d;
+    --btHintColor: #BCBEC0;
+    --awesompleteBackground: linear-gradient(to bottom right, white, hsla(0,0%,100%,.8));
 }
 
-[data-theme="dark"] {
-    --btMainHighlight: #7bb07b;
-    --btMainHighlightShadow: #7bb07b90;
-    --btBackground: #bed8be;
-    --btBackgroundLight: #3f673f;
-    --btBackgroundHovered: #3f673f;
-    --btControlsFont: Roboto;
-    --btHeaderFontColor: darkslategrey;
+[data-theme="DARK"] {
 
-    --btTreeForeground: #ffffff;
-    --btTreeBackground: #333333;
-    --btTreeBranchBackground: #444444;
-    --btTreeFont: roboto;
-    --btTreeFontSize: 0.9em;
-    --btTreeLineHeight: 1.5;
+    --btHeaderBackground:linear-gradient(180deg, #6C7777 0%, #475354 100%);
+    --btBodyBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
+    --btTextColor: #E0F0F8;
+    
+    --btInputBackground: #2d2d2d;
+    --btInputForeground: white;
+    --btHintColor: white;
+    --awesompleteBackground: linear-gradient(to bottom, black, hsla(0,0%,0%,.4));
+
+    
+    --btBackground: #bed8be;
+
 }
 
 
@@ -31,13 +42,19 @@ body {
     padding-bottom: 50px;
     overflow: hidden;
     margin: 0px;
-    background: linear-gradient(180deg, rgba(196, 196, 196, 0.28) 0%, rgba(196, 196, 196, 0.3) 14.58%, rgba(196, 196, 196, 0.1) 100%);
+    background: var(--btBodyBackground); 
     
     font-family: var(--btFont);
     font-style: normal;
     text-align: center;
-    color: #0C4F6B;
+    color: var(--btTextColor);
 }
+
+#welcome p {
+    text-align: left;
+    margin-left: 15px;
+}
+
 .allPages {
     display: none;
 }
@@ -46,7 +63,7 @@ body {
     width: 100%;
     height: 40px;
     margin: 0px;
-    background: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
+    background: var(--btHeaderBackground);
 }
 h1 {
     font-weight: 700;
@@ -92,6 +109,8 @@ input[type=text], textarea {
     width: 356px;
     border: solid 1px #AEBABC;
     border-radius: 2px;
+    background: var(--btInputBackground);
+    color: var(--btInputforeground);
 }
 
 #currentTopics {
@@ -99,6 +118,7 @@ input[type=text], textarea {
     height: 200px;
     border: solid 1px #AEBABC;
     border-radius: 2px;
+    background: var(--btInputBackground);
 }
 #currentTopics p {
     margin-top: 0.1rem;
