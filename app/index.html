@@ -54,15 +54,17 @@
 	      </span>
         </div>
         <div id="stats_row" style="cursor:default">
-          <span id="brain_span" class="wenk--bottom">
+          <span id="brain_span" class="wenk--left">
             <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                  height="20" width="20" >
             <span id="num_topics" class="stat_span">: 0</span>
           </span>
-          <span id="saves_span" class="wenk--bottom">
+          <span id="saves_span" class="wenk--left">
             <img id="saves" type="image" alt="#File Saves"
                  src="resources/fileSave.png" height="20" width="20" style="opacity: 0.8;">
-            <span id="num_saves" class="stat_span" >: 0</span>
+          </span>
+          <span id="refresh_span" class="wenk--left" data-wenk="Refresh from GDrive">
+            <button id="headerRefreshButton" class="tinyButton" onclick="refreshTable(true)" style="display:none">Refresh</button>
           </span>
         </div>
         <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
@@ -265,7 +267,7 @@
             </tr>
             <tr>
               <td class="option_td"><span class="alt_opt">Option</span> &uarr;&darr;</td>
-              <td >Move selection (or card) up/down</td>
+              <td >Move selection up/down</td>
             </tr>
             <tr>
               <td class="option_td"><span class="alt_opt">Option</span> &larr;</td>
@@ -319,7 +321,7 @@
           <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
                onClick="addChild(event)">
         </span>
-        <span data-wenk="Edit items card (e)">
+        <span data-wenk="Edit item (e)">
           <img id="editRow" src="resources/edit.svg" class="rowButton"
                onClick="editRow(event)">
         </span>

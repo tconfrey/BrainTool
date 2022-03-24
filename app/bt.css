@@ -115,7 +115,8 @@ body {
     color: var(--btColor);
     position: absolute;
     top: 1px;
-    right: 5px;
+    right: 0px;
+    padding-right: 5px;
     border-radius: 3px;
 }
 
@@ -467,6 +468,13 @@ button:not([disabled]):hover {
 }
 .dropdown_button {
     border-radius: 3px 3px 0px 0px;
+}
+button.tinyButton {
+    border-radius: 3px 3px 3px 3px;
+    font-size: 11px;
+    border: 1px solid var(--btColor);
+    position: relative;
+    top: -7px;
 }
     
 .dropdown_text {

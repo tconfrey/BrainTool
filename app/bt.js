@@ -208,9 +208,8 @@ async function warnBTFileVersion(e) {
 	    $("#stats_row").css('background-color', '');
 	    return;
     }
-    const savesText = $("#num_saves").text();
-    if (!savesText.includes('!')) $("#num_saves").text(savesText + '!');
     
+    $("#headerRefreshButton").show();
     $("#saves_span").attr('data-wenk', 'Remote file is newer,\nconsider refreshing');
     $("#stats_row").css('background-color', '#ffcc00');
     console.log("Newer BTFile version on GDrive, sending gtag event and warning");
@@ -320,19 +319,19 @@ function updateStatsRow(modifiedTime = null) {
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
     const numSaves = getMetaProp('BTVersion');
-    const tagText = `${numTags + numLinks} Topic Cards\n(${numOpenLinks} open tabs)`;
+    const tagText = `${numTags + numLinks} Items\n(${numOpenLinks} open tabs)`;
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
     $("#brain_span").attr('data-wenk', tagText);
     
     const saveTime = getDateString(modifiedTime);           // null => current time
     $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
-    $('#num_saves').text(':'+numSaves);
-    $("#saves_span").attr('data-wenk', `${numSaves} Saves. Saved:\n${saveTime}`);
+    $("#saves_span").attr('data-wenk', `Last saved: \n${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
     {
         $("#saves").attr("src", "resources/drive_icon.png");
 	    $("#stats_row").css('background-color', '');
+        $("#headerRefreshButton").hide();
     }
 }
 
@@ -389,6 +388,7 @@ async function refreshTable(fromGDrive = false) {
         if (fromGDrive)
             await getBTFile();
         processBTFile();
+        $("#headerRefreshButton").hide();
     }
     catch (e) {
         console.warn('error in refreshTable: ', e.toString());
@@ -1099,11 +1099,11 @@ function buttonShow(e) {
     $("#openTab").hide();
     $("#openWindow").hide();
     $("#closeRow").hide();
-    if (node.countOpenableTabs()){
+    if (node && node.countOpenableTabs()){
         $("#openTab").show();
         $("#openWindow").show();
     }
-    if (node.countClosableTabs()) {
+    if (node && node.countClosableTabs()) {
         $("#closeRow").show();
     }
 

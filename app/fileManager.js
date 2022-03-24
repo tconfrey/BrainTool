@@ -13,10 +13,10 @@ async function saveBT(localOnly = false) {
     if (window.LOCALTEST) return;
 
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
-    brainZoom();                                 // swell the brain
-    updateStatsRow();                            // update num cards etc
     if (localOnly) return;                       // return if we're just remember folded state
 
+    brainZoom();                                 // swell the brain
+    updateStatsRow();                            // update num cards etc
     console.log("Recording save event and writing to any backing store");
     gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
 
