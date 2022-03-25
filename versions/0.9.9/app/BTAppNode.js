@@ -389,8 +389,9 @@ class BTAppNode extends BTNode {
         const myWin = this.windowId;
         this.childIds.forEach(id => {
             const node = AllNodes[id];
-            const index = node?.expectedTabIndex() || 0;
             if (!node.tabId || (node.windowId && node.windowId != myWin)) return;
+            
+            const index = node?.expectedTabIndex() || 0;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,

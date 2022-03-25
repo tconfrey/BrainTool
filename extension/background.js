@@ -90,9 +90,9 @@ const Handlers = {
 chrome.runtime.onMessage.addListener((msg, sender) => {
     if (msg.from != 'btwindow' && msg.from != 'popup') return;
     
-    console.log(`BTChromeNode received: [${msg.function}]: ${JSON.stringify(msg)}`);
+    console.log(`Background received: [${msg.function}]: ${JSON.stringify(msg)}`);
     if (Handlers[msg.function]) {
-        console.log("BTChromeNode dispatching to ", Handlers[msg.function].name);
+        console.log("Background dispatching to ", Handlers[msg.function].name);
         Handlers[msg.function](msg, sender);
         return;
     }
@@ -405,24 +405,29 @@ function groupAndPositionTabs(msg, sender) {
     const tabGroupId = msg.tabGroupId;
     const windowId = msg.windowId;
     const tabInfo = msg.tabInfo;
+
+    // Sort left to right before moving
+    tabInfo.sort((a,b) => a.tabindex < b.tabindex);
     const tabIds = tabInfo.map(t => t.tabId);
     const groupArgs = tabGroupId ?
           {'tabIds': tabIds, 'groupId': tabGroupId} : windowId ?
           {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} :
           {'tabIds': tabIds};
-    console.log(`groupArgs: ${JSON.stringify(groupArgs)}`);
+    console.log(`groupAndposition.groupArgs: ${JSON.stringify(groupArgs)}`);
     if (!tabIds.length) return;                                       // shouldn't happen, but safe
-    chrome.tabs.group(groupArgs, groupId => {
-        // position tabs within group and update appropriate
-        check('groupAndPositionTabs');
-        tabInfo.forEach(ti => {
-            chrome.tabs.move(ti.tabId, {'index': ti.tabIndex}, tab => {
-                check();
+
+    chrome.tabs.move(tabIds, {'index': tabInfo[0].tabIndex}, tabs => {
+        // first move tabs into place
+        check('groupAndPositionTabs-move');
+        chrome.tabs.group(groupArgs, groupId => {
+            // then group appropriately. NB this order cos move drops the tabgroup
+            check('groupAndPositionTabs-group');
+            tabs.forEach(t => {
+                const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
                 chrome.tabs.sendMessage(
-                    BTTab, {'function': 'tabMoved', 'tabId': ti.tabId,
-                            'nodeId': ti.nodeId, 'tabGroupId': groupId,
-                            'windowId': tab.windowId,
-                            'tabIndex': tab.index});
+                    BTTab, {'function': 'tabMoved', 'tabId': t.id,
+                            'nodeId': nodeInfo.nodeId, 'tabGroupId': groupId,
+                            'windowId': t.windowId, 'tabIndex': t.index});
             });
         });
     });         

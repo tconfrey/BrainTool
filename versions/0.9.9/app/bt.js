@@ -141,8 +141,8 @@ async function launchApp(msg) {
     if (!sub && !(InitialInstall || UpgradeInstall))
 	    $("#specialOffer").show();
 
-    // handle currently open tabs
-    handleInitialTabs(msg.all_tabs);
+    handleInitialTabs(msg.all_tabs);              // handle currently open tabs
+    checkCompactMode();                           // drop note col if to narrow
 }
 
 async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
@@ -969,18 +969,12 @@ function tabUpdated(data) {
         const currentTopicWin = AllNodes[parentId]?.windowId;
 
         data['nodeId'] = urlNode.id;
+
+        // handle same as directed tab opens
         tabOpened(data, true);
+        
         // acknowledge nav to BT node with brain animation
         window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
-
-        // handle moving tab to its group.
-        // NB when tab group api is available move TG to tab, not other way around
-        if (GroupingMode == 'TABGROUP' && (windowId == currentTopicWin))
-            // don't move tabs between windows unless asked
-            AllNodes[urlNode.parentId].groupAndPosition();
-        else
-            urlNode.putInGroup();       // don't group w others, just wrap in TG
-        urlNode.showNode();
         return;
     }
 
@@ -1230,7 +1224,8 @@ $("#editOverlay").click(function(e) {
     }
 });
 
-$(window).resize(() => {
+function checkCompactMode() {
+    // when window is too small drop the notes column
     if ($(window).width() < 350) {
         $("#content td.right").hide();
         $("#stats_row").hide();
@@ -1240,7 +1235,8 @@ $(window).resize(() => {
         $("#stats_row").show();
         $("#search").css('left', 'calc((100% - 300px) / 2)');
     }
-});
+}
+$(window).resize(() => checkCompactMode());
 
 function closeDialog(cb = null, duration = 250) {
     // animate dialog close and potentially callback when done

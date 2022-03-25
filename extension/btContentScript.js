@@ -10,7 +10,7 @@ window.addEventListener('message', function(event) {
     // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
         return;
-    console.log(`Content-IN ${event.data.function} from bt.js:`, event);
+    console.log(`Content-IN ${event.data.function} from TopicManager:`, event);
     if (event.data.function == 'localStore')
         // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
         chrome.storage.local.set(event.data.data);
@@ -25,7 +25,7 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
-    console.log(`Content-IN ${msg.function} from background.js:`, msg);
+    console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
     case 'loadBookmarks':
         chrome.storage.local.get('bookmarks', data => {
