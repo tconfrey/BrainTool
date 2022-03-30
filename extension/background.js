@@ -422,7 +422,8 @@ function groupAndPositionTabs(msg, sender) {
         chrome.tabs.group(groupArgs, groupId => {
             // then group appropriately. NB this order cos move drops the tabgroup
             check('groupAndPositionTabs-group');
-            tabs.forEach(t => {
+            const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
+            theTabs.forEach(t => {
                 const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
                 chrome.tabs.sendMessage(
                     BTTab, {'function': 'tabMoved', 'tabId': t.id,
@@ -484,10 +485,10 @@ function setBadge(tabId) {
 
     function marquee(badgeText, index) {
         if (badgeText.length < 6 || index >= badgeText.length - 2) {
-            chrome.browserAction.setBadgeText({'text' : badgeText, 'tabId': tabId}, () => check());
+            chrome.browserAction.setBadgeText({'text' : badgeText, 'tabId': tabId}, () => check('marquee'));
         } else {            
             chrome.browserAction.setBadgeText({'text' : badgeText.slice(index) + "   ",
-                                               'tabId': tabId}, () => check());
+                                               'tabId': tabId}, () => check('marquee'));
             MarqueeEvent = setTimeout(function() {marquee(badgeText, ++index);}, 150);
         }
     }

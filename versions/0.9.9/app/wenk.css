@@ -16,8 +16,8 @@
     border-radius: .2rem;
     content: attr(data-wenk);
     padding: .4rem;
-    background-color:  var(--btWenkBackground);
-    color: var(--btWenkForeground);
+    background-color:  var(--btTooltipBackground);
+    color: var(--btTooltipForeground);
     line-height: 20px;
     line-height: 1.25rem;
     text-align: left;

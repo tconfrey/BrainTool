@@ -17,36 +17,43 @@
     --btNoteFontSize: 10px;
     --btNoteLineHeight: 12px;
 
+    /* Items below differ in the DARK theme */
+    
     --btColor: #2a3f3e;
     --btNoteColor: #808285;
     --btTopicBackground: #bcc4c5;
     --btPageBackground: #d4dadb;
+
+    /* uncomment to set note background color 
     --btNoteBackground: #e6e7e8;
+    */
     
     --btInputBackground: white;
     --btInputForeground: #2d2d2d;
     --btHintColor: #BCBEC0;
-    --btWenkBackground: rgba(42, 63, 62, 0.85);
-    --btWenkForeground: #fff;
+    --btTooltipBackground: rgba(42, 63, 62, 0.85);
+    --btTooltipForeground: #fff;
     
-    --btMainHighlight: #3f673f;
-    --btMainHighlightShadow: #3f673f90;
-    --btSelected: #7bb07b;
+    --btRowSelected: #7bb07b;
     --btRowOpened: #bed8be;
+    --btRowHovered: #e0ece0;
     
-    --btBackground: #7bb07b;
-    --btBackgroundHovered: #e0ece0;
+    --btGeneralBorder: #3f673f;
+    --btGeneralBorderShadow: #3f673f90;
+    --btButtonBackground: #7bb07b;
 
     --btHeaderBackground: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
     --btEmptyBackground: whitesmoke;
-    --btBorderColor: white;
-    --btControlsBorder: #ddd;
+    --btRowBorderColor: white;
+    --btHeaderBorder: #ddd;
     --btControlsBackground: whitesmoke;
 
     --btLinkColor: blue;
-    --btSearchLite: lightgrey;
+    --btSearchResult: lightgrey;
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
+
+    --btDrawAttention: var(--btGeneralBorder);
 }
 
 [data-theme="DARK"] {
@@ -54,34 +61,39 @@
     --btColor: #b6c3c3;
     --btTopicBackground: #3d4749;
     --btPageBackground: #626A6C;
+
+    /*
     --btNoteBackground: #262F2F;
+    */
 
     --btInputBackground: #2d2d2d;
     --btInputForeground: white;
     --btHintColor: white;
     
-    --btWenkForeground: rgba(42, 63, 62, 0.85);
-    --btWenkBackground: #fff;
+    --btTooltipForeground: rgba(42, 63, 62, 0.85);
+    --btTooltipBackground: #fff;
     
-    --btMainHighlight: #7bb07b;
-    --btMainHighlightShadow: #7bb07b90;
-    --btSelected: #3f673f;
+    --btRowSelected: #3f673f;
     --btRowOpened: #3A565F;
+    --btRowHovered: #2d2d2d;
     
-    --btBackground: #7bb07b;
-    --btBackgroundHovered: #2d2d2d;
+    --btGeneralBorder: #7bb07b;
+    --btGeneralBorderShadow: #7bb07b90;
+    --btButtonBackground: #7bb07b;
 
     --btHeaderBackground: linear-gradient(180deg, #6C7777 0%, #475354 100%);
     --btEmptyBackground: #2d2d2d;
-    --btBorderColor: #2d2d2d;
-    --btControlsBorder: #2d2d2d;
+    --btRowBorderColor: #2d2d2d;
+    --btHeaderBorder: #2d2d2d;
     --btControlsBackground: #b6c3c3;
 
     --btLinkColor: #88ffff;
-    --btSearchLite: var(--btMainHighlight);
+    --btSearchResult: var(--btGeneralBorder);
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackgroundDark.png");
 
+    
+    --btDrawAttention: var(--btGeneralBorder);
 }
 a {
     color: var(--btLinkColor);
@@ -97,9 +109,9 @@ body {
 
 #controls_header {
     background: var(--btHeaderBackground);
-    border-left: 1px solid var(--btControlsBorder);
-    border-right: 1px solid var(--btControlsBorder);
-    border-bottom: 1px solid var(--btControlsBorder);
+    border-left: 1px solid var(--btHeaderBorder);
+    border-right: 1px solid var(--btHeaderBorder);
+    border-bottom: 1px solid var(--btHeaderBorder);
 }
 
 .stat_span {
@@ -174,7 +186,7 @@ body {
 /* style when input is active */
 :focus-visible {
     outline-width: 1px;
-    outline-color: var(--btMainHighlight);
+    outline-color: var(--btGeneralBorder);
     outline-style: groove;
 }
 .highlight {
@@ -225,7 +237,7 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     overflow: hidden;
     display: block;
     background: var(--btControlsBackground);
-    border: 2px solid var(--btBackground);
+    border: 2px solid var(--btGeneralBorder);
     border-radius: 0px 0px 5px 5px;
     top: -27px;
     margin-left: 1px;
@@ -238,7 +250,7 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     font-size: 15px;
     line-height: 1.4em;
     padding: 3px;
-    border: 2px solid var(--btMainHighlight) ;
+    border: 2px solid var(--btGeneralBorder) ;
     border-radius: 3px;
 }
 #openingTips p {
@@ -302,9 +314,9 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 dialog {
-    border: 2px solid var(--btMainHighlight) ;
+    border: 2px solid var(--btGeneralBorder) ;
     border-radius: 3px;
-    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
+    box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
     padding: 10px;
     padding-top: 2px;
     margin-top: 0px;
@@ -348,7 +360,7 @@ dialog #distinguishedName {
     color: #3f673f;
 }
 dialog li::marker {
-    color: var(--btMainHighlight);
+    color: var(--btGeneralBorder);
 }
 
 #important_buttons {
@@ -366,7 +378,7 @@ dialog li::marker {
     border-style: solid;
     border-radius: 5px;
     border-color: grey;
-    background-color: var(--btBackground);
+    background-color: var(--btButtonBackground);
     width: 180px;
     height: 40px;
     font-size: 1.2em;
@@ -392,9 +404,9 @@ dialog li::marker {
     transform: translate(-50%, -50%);
 
     /* same as edit dialog */
-    border: 2px solid var(--btMainHighlight) ;
+    border: 2px solid var(--btGeneralBorder) ;
     border-radius: 3px;
-    box-shadow: 7px 7px 5px var(--btMainHighlightShadow);
+    box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
 
     background-color: var(--btControlsBackground);
     width: 90%;    
@@ -445,7 +457,7 @@ dialog li::marker {
 
 button:not([disabled]):hover {
     color: #222;
-    background-color: var(--btBackground);
+    background-color: var(--btButtonBackground);
     cursor: pointer;
 }
 
@@ -514,7 +526,7 @@ button.tinyButton {
     padding: 5px 0px 5px 8px;
     width: 152px;
 }
-.dropdown_content div:hover {background-color: var(--btBackground)}  
+.dropdown_content div:hover {background-color: var(--btButtonBackground)}  
 .dropdown:hover .dropdown_content {
     display: block;
 }
@@ -560,7 +572,7 @@ body.waiting * {
 .toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
 .toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
 
-.toggle-radio > input:checked + label {background: var(--btBackground);}
+.toggle-radio > input:checked + label {background: var(--btButtonBackground);}
 /* CORE STYLES */
 .toggle-radio {
     display:inline-block;

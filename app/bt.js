@@ -1227,11 +1227,11 @@ $("#editOverlay").click(function(e) {
 function checkCompactMode() {
     // when window is too small drop the notes column
     if ($(window).width() < 350) {
-        $("#content td.right").hide();
+        $("#content").addClass('compactMode');
         $("#stats_row").hide();
         $("#search").css('left', 'calc((100% - 175px) / 2)');
     } else {
-        $("#content td.right").show();
+        $("#content").removeClass('compactMode');
         $("#stats_row").show();
         $("#search").css('left', 'calc((100% - 300px) / 2)');
     }

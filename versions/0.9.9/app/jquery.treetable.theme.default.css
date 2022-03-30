@@ -13,6 +13,12 @@ table.treetable {
 
 /* my add - equal width cols w tree on left not wrapping. not sure why max-width is needed?! */
 /* https://stackoverflow.com/questions/26292408/why-does-this-behave-the-way-it-does-with-max-width-0 */
+
+/* hide right column when compact */
+#content.compactMode td.right {
+    display: none;
+}
+
 table.treetable td.right {
     width: 50%;
     max-width: 0px;
@@ -26,7 +32,7 @@ table.treetable td.left {
 }
 
 table.treetable td.searchLite {
-    background-color: var(--btSearchLite); 
+    background-color: var(--btSearchResult); 
 }
 
 table.treetable td.search {
@@ -90,7 +96,7 @@ td.left {
     vertical-align: middle;
     border-right: solid;
     border-right-width: 1px;
-    border-right-color: var(--btBorderColor);
+    border-right-color: var(--btRowBorderColor);
 }
 
 table.treetable span.btText {
@@ -118,19 +124,19 @@ table.treetable span.keyword {
 }
 
 table.treetable tr.hovered {
-    background-color: var(--btBackgroundHovered);
+    background-color: var(--btRowHovered);
 }
 
 table.treetable tr.selected {
-    background-color: var(--btSelected);
+    background-color: var(--btRowSelected);
 }
 
 table.treetable tr.attention {
-    background-color: var(--btMainHighlight);
+    background-color: var(--btDrawAttention);
 }
 table.treetable td.dropOver {
     border-bottom-style: solid;
-    border-bottom-color: var(--btMainHighlight);
+    border-bottom-color: var(--btDrawAttention);
     border-bottom-width: 5px;
 }
 
