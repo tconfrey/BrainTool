@@ -182,6 +182,11 @@ body {
     position: relative; 
     top: 5px;
 }
+#newTopicNameHint {
+    position: relative;
+    left: 40px;
+    top: 15px;
+}
 
 /* style when input is active */
 :focus-visible {
@@ -339,7 +344,7 @@ dialog input {
     font-family: var(--btControlsFont);
     background: var(--btControlsBackground);
 }
-dialog #title-text {
+dialog #title-text,#topicName {
     white-space: nowrap;
     margin-left: 20px;
 }

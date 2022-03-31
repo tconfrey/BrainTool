@@ -2,7 +2,7 @@
 #+PROPERTY: BTVersion 1
 #+PROPERTY: BTGroupingMode TABGROUP
 
-* [[https://braintool.org/support/welcome][Welcome, lets get started]]
+* Welcome, lets get started
 Follow these steps to get up and running quickly.
 ** TODO Review the sample Topic Hierarchy
 BrainTool is organized as a hierarchy of topics. 
@@ -10,7 +10,7 @@ The structure is yours to define.
 ** TODO Import and organize some Bookmarks
 Open the Options/Actions menu (top left) and click Import Bookmarks. 
 ** TODO Try saving some tabs
-Play with the BrainTool Saver tool to save and close some tabs.
+Play with the Saver tool to categorize, save and close out some old tabs.
 
 * Project
 Keep all your links and notes for each project in one place.
