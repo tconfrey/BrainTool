@@ -22,7 +22,7 @@ While working on your computer you should be able to easily capture and categori
 
 Information discovery these days generally takes place in a browser tab, creation is either also in a tab or as some kind of note or task list or idea, written in text. BrainTool unifies these two information spaces making it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
 
-The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing with the exchange of curated informational [Topic Maps]({% post_url 2021-05-15-Organizing-your-life-with-a-Topic-Manager%})
+The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing with the exchange of curated informational [Topic Maps]({% post_url 2021-05-15-Browser-Productivity-with-a-Topic-Manager%})
 
 ## Overview
 The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing use the Bookmarker to assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
@@ -44,7 +44,7 @@ By organizing links and capturing your notes about them you are mapping your per
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
 # <A href="#concepts">Concepts</A>
-BrainTool (BT) is loosely based on the semantic web idea of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_ as an organizational unit, _Associations_ between topics, and _Occurrences_ of information about a topic. There's a more detailed treatment of [using Topic Maps to manage your online life.]({% post_url 2021-05-15-Organizing-your-life-with-a-Topic-Manager%})
+BrainTool (BT) is loosely based on the semantic web idea of [Topic Maps](https://ontopia.net/topicmaps/materials/tao.html) which define a 'TAO' of information: _Topics_ as an organizational unit, _Associations_ between topics, and _Occurrences_ of information about a topic. There's a more detailed treatment of [using Topic Maps to manage your online life.]({% post_url 2021-05-15-Browser-Productivity-with-a-Topic-Manager%})
 
 ## Topics
 Topics are the basic unit of organization. A project you are working on can be a topic. An area of responsibility can be a topic (eg Home Finances). As can a set of resources you want to keep track of (eg web sites related to programming Chrome Extensions). Every parent node in the BT Topic Manager is a topic.
