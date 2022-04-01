@@ -5,6 +5,7 @@ description: "BrainTool is a browser bookmark tool that can act as part of a pro
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
+image: "../../../site/postAssets/Five Tools/browserBasedProductivity.png"
 ---
 # Browser-based Productivity and PKM with emacs, org-mode, LogSeq and BrainTool
 
