@@ -34,9 +34,8 @@
     --btTooltipBackground: rgba(42, 63, 62, 0.85);
     --btTooltipForeground: #fff;
     
-    --btRowSelected: #7bb07b;
-    --btRowOpened: #bed8be;
-    --btRowHovered: #e0ece0;
+    --btRowSelected: # #e0ece0;
+    --btRowHovered: #AAB6B8;
     
     --btGeneralBorder: #3f673f;
     --btGeneralBorderShadow: #3f673f90;
@@ -48,7 +47,9 @@
     --btHeaderBorder: #ddd;
     --btControlsBackground: whitesmoke;
 
-    --btLinkColor: blue;
+    --btLinkColor: #2a3f3e;
+    --btLinkOpenedColor: #005d7a;
+    --btLinkSelectedOpenedColor: #057a9f;
     --btSearchResult: lightgrey;
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
@@ -73,9 +74,8 @@
     --btTooltipForeground: rgba(42, 63, 62, 0.85);
     --btTooltipBackground: #fff;
     
-    --btRowSelected: #3f673f;
-    --btRowOpened: #3A565F;
-    --btRowHovered: #2d2d2d;
+    --btRowSelected: #666c6d;
+    --btRowHovered: #525a5c;
     
     --btGeneralBorder: #7bb07b;
     --btGeneralBorderShadow: #7bb07b90;
@@ -87,7 +87,9 @@
     --btHeaderBorder: #2d2d2d;
     --btControlsBackground: #b6c3c3;
 
-    --btLinkColor: #88ffff;
+    --btLinkColor: #b8c3c3;
+    --btLinkOpenedColor: #78c6de;
+    --btLinkSelectedOpenedColor: #5bc1e1;
     --btSearchResult: var(--btGeneralBorder);
 
     --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackgroundDark.png");
@@ -98,6 +100,13 @@
 a {
     color: var(--btLinkColor);
 }
+a:link {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
 html {
     background: var(--btEmptyBackground);
 }

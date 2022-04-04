@@ -18,7 +18,12 @@ async function saveBT(localOnly = false) {
     brainZoom();                                 // swell the brain
     updateStatsRow();                            // update num cards etc
     console.log("Recording save event and writing to any backing store");
-    gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
+    if (InitialInstall) {
+        gtag('event', 'FirstSave', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
+        InitialInstall = false;
+    } else {        
+        gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Count', 'value': getMetaProp('BTVersion')});
+    }
 
     // also save to GDrive if connected
     if (!GDriveConnected) return;

@@ -61,6 +61,9 @@ async function launchApp(msg) {
         addTip();
         setTimeout(closeMenu, 1500);
     }
+    if (InitialInstall) {
+        gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
+    }
         
     BTFileText = msg.BTFileText;
     processBTFile();                                          // create table etc
@@ -96,9 +99,6 @@ async function launchApp(msg) {
                 UpgradeInstall.startsWith('0.6'))
                 setMetaProp('BTGDriveConnected', 'true');
             gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall});
-        }
-        if (InitialInstall) {
-            gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall});
         }
     }
 
