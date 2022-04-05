@@ -45,21 +45,27 @@
     --btEmptyBackground: whitesmoke;
     --btRowBorderColor: white;
     --btHeaderBorder: #ddd;
-    --btControlsBackground: whitesmoke;
+    
+    --btControlsBackground: #eeeeee;
+    --btOptionsBackground: #e5e5e5;
+    --btControlsHeaderPrimaryColor: #2a3f3e;
+    --btControlsHeaderSecondaryColor: #435554;
+    --btControlsDividerColor: #556463;
 
     --btLinkColor: #2a3f3e;
-    --btLinkOpenedColor: #005d7a;
+    --btLinkOpenedColor: rgba(5, 122, 159, 0.8);
     --btLinkSelectedOpenedColor: #057a9f;
     --btSearchResult: lightgrey;
 
-    --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackground.png");
-
+    --btDialogBackground: #eeeeee;
+    --btTextAreaBackground: #fff;
     --btDrawAttention: var(--btGeneralBorder);
 }
 
 [data-theme="DARK"] {
 
     --btColor: #b6c3c3;
+    --btNoteColor: #aab6b8;
     --btTopicBackground: #3d4749;
     --btPageBackground: #626A6C;
 
@@ -73,8 +79,9 @@
     
     --btTooltipForeground: rgba(42, 63, 62, 0.85);
     --btTooltipBackground: #fff;
+    --btInvert: invert(1);
     
-    --btRowSelected: #666c6d;
+    --btRowSelected: #e5e5e5;
     --btRowHovered: #525a5c;
     
     --btGeneralBorder: #7bb07b;
@@ -85,16 +92,20 @@
     --btEmptyBackground: #2d2d2d;
     --btRowBorderColor: #2d2d2d;
     --btHeaderBorder: #2d2d2d;
-    --btControlsBackground: #b6c3c3;
+    
+    --btControlsBackground: #556463;
+    --btOptionsBackground: #394847;
+    --btControlsHeaderPrimaryColor: #ffffff;
+    --btControlsHeaderSecondaryColor: rgba(255, 255, 255, 0.7);
+    --btControlsDividerColor: rgba(255, 255, 255, 0.3);
 
     --btLinkColor: #b8c3c3;
     --btLinkOpenedColor: #78c6de;
     --btLinkSelectedOpenedColor: #5bc1e1;
     --btSearchResult: var(--btGeneralBorder);
 
-    --btGridBackground: linear-gradient(to left, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%), url("resources/gridBackgroundDark.png");
-
-    
+    --btDialogBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
+    --btTextAreaBackground: #000;
     --btDrawAttention: var(--btGeneralBorder);
 }
 a {
@@ -251,11 +262,30 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     overflow: hidden;
     display: block;
     background: var(--btControlsBackground);
-    border: 2px solid var(--btGeneralBorder);
-    border-radius: 0px 0px 5px 5px;
     top: -27px;
     margin-left: 1px;
     margin-right: 1px;
+    text-align: center;
+    letter-spacing: var(--btLetterSpacing);
+    color: var(--btControlsHeaderSecondaryColor);
+    border-top: 1px solid var(--btControlsDividerColor);
+    border-bottom: 1px solid var(--btControlsDividerColor);
+}
+#controls_screen a:link {
+  text-decoration: underline;
+}
+#controls_screen hr {
+    width: 90%;
+    border: 0.5px solid var(--btControlsDividerColor);
+}
+
+#welcome {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 26px;
+    letter-spacing: var(--btLetterSpacing);
+    color: var(--btControlsHeaderPrimaryColor);
 }
 
 #openingTips {
@@ -266,6 +296,7 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     padding: 3px;
     border: 2px solid var(--btGeneralBorder) ;
     border-radius: 3px;
+    text-align: left;
 }
 #openingTips p {
     margin-block-start: 0.3em;
@@ -273,19 +304,18 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
 }
 
 #tip {
-    margin-top: 55px;
     margin-bottom: 10px;
-    font-size: 15px;
+    font-size: 12px;
     padding-left: 10px;
     padding-right: 10px;
 }
 
 #logo_image {
-    width: 40%;
+    width: 30%;
     display: block;
     margin-left: auto;
     margin-right:auto;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 #buttonRow {
@@ -331,47 +361,46 @@ dialog {
     border: 2px solid var(--btGeneralBorder) ;
     border-radius: 3px;
     box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
-    padding: 10px;
+    padding: 30px;
     padding-top: 2px;
     margin-top: 0px;
     position: fixed;
-    background-image: var(--btGridBackground);
-    background-size: 300px 300px;
+    background: var(--btDialogBackground);
 }
 
 dialog textarea {
-    width: 91%;
     resize: none;
+    width: 100%;
     border: 1px solid #ddd;
     border-radius: 2px;
     font-family: var(--btControlsFont);
-    background: var(--btControlsBackground);
+    background: var(--btTextAreaBackground);
+    color: #808285;
+    font-size: 11px;
 }
 dialog input {
     border: 1px solid #ddd;
+    width: 100%;
     border-radius: 2px;
     font-family: var(--btControlsFont);
-    background: var(--btControlsBackground);
+    background: var(--btTextAreaBackground);
+    color: var(--btColor);
 }
 dialog #title-text,#topicName {
     white-space: nowrap;
-    margin-left: 20px;
 }
 dialog #text-text {
     height: 11em;
-    margin-left: 20px;
 }
 dialog #title-url {
     height: 2em;
-    margin-left: 20px;
     font-size: 0.6em;
     font-style: italic;
 }
 dialog #distinguishedName {
-    position: relative;
-    left: -10px;
     font-family:var(--btControlsFont);
-    color: #3f673f;
+    color: var(--btColor);
+    text-align: center;
 }
 dialog li::marker {
     color: var(--btGeneralBorder);
@@ -387,26 +416,25 @@ dialog li::marker {
     justify-content: space-around;
 }
 
-.important_button {    
-    border-width: 2px;
-    border-style: solid;
+.important_button {   
+    border-style: none;
     border-radius: 5px;
-    border-color: grey;
-    background-color: var(--btButtonBackground);
+    color: white;
+    background-color: rgba(88, 186, 0, 0.8);
     width: 180px;
-    height: 40px;
-    font-size: 1.2em;
+    height: 30px;
+    font-size: 12px;
     font-family: var(--btControlsFont);
 }
 
 .buttonDiv {
-    width: 95%;
     margin: auto;
     padding-top: 4px;
     display: flex;
     justify-content: space-around;
     position: absolute;
     bottom: 10px;
+    width: 80%;
 }
 
 .control_overlay {
@@ -422,12 +450,12 @@ dialog li::marker {
     border-radius: 3px;
     box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
 
-    background-color: var(--btControlsBackground);
+    background-color: var(--btOptionsBackground);
     width: 90%;    
 }
 
 .overlay_table {
-    background: var(--btControlsBackground);
+    background: var(--btOptionsBackground);
     margin-left: auto;
     margin-right: auto;
     font-size: 12px;
@@ -462,6 +490,7 @@ dialog li::marker {
     right: 3px;
     top: 3px;
     z-index: 4;
+    filter: var(--btInvert);
 }
 
 #inner {
@@ -477,6 +506,7 @@ button:not([disabled]):hover {
 
 /* button for import/export */
 .button_text {
+    color: #435554;
     font-family: var(--btControlsFont);
     font-size: 15px;
 }
@@ -526,7 +556,6 @@ button.tinyButton {
 }
 
 .dropdown_content a {
-    color: black;
     text-decoration: none;
     float: left;
 }

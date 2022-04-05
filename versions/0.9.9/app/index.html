@@ -73,16 +73,21 @@
       </div>
       <div id="controls_screen">
         <img id="logo_image" src="resources/logo.png"/>
-        <p style="text-align: center; font-size:16px; margin-top: 0px; margin-bottom: 0px;"> Hello from BrainTool 0.9.9</p>
-        <p style="text-align: center; font-style: italic; font-size: 12px; margin-top:0px">Type h for help. Check back here for random tips. (<a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a>, <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes</a>)
+        <p id="welcome">Hello from BrainTool 0.9.9</p>
+        <p style="font-size: 12px; margin-top:0px; margin-bottom: 0px">Type 'h' for help. Check back here for random tips.
         </p>
+        <p style="font-size: 12px; margin-top:0px"><a href="https://braintool.org/support/userGuide" target="_blank">User Guide.</a> <a href='https://braintool.org/support/releaseNotes' target="_blank">Release Notes.</a>
+        </p>
+        
         <div id="important_buttons">
           <button id="importBookmarkButton" class="important_button" style="display:none" onClick="importBookmarks()">Import Bookmarks</button>
-          <button id="openOptionsButton" class="important_button" onClick="toggleOptions()">Options</button>
+          <button id="openOptionsButton" class="important_button" onClick="toggleOptions()">Actions</button>
         </div>
-	    <div id="specialOffer" style="display:none; text-align: center; font-size:18px; margin-top: -10px; font-weight: bold;">
-	      <a href="https://braintool.org/pricing" style="color: #518651" target="_blank">Special subscription offer!</a>
+	    <div id="specialOffer" style="display:none; text-align: center; font-size:14px; margin-top: -10px; font-weight: bold;">
+          <hr style="margin-bottom: 23px"/>
+	      <a href="https://braintool.org/pricing" style="color: #74CF2A;" target="_blank">Click here for a special subscription offer!</a>
 	    </div>
+        <hr style="margin-top: 23px;"/>
 	    <div id="openingTips" style="display:none">
           <p>- Save any web page by clicking the BT icon or with <span class="alt_opt">Option</span>-b.</p>
           <p>- NB The icon may hide under the jigsaw icon - browser top right.</p>
@@ -90,8 +95,10 @@
           <p>- Build on the example Topics. Delete anything you don't want.</p>
           <p>- This Message board opens and closes via the 3 dots button, top left. A tip will be shown here on startup. See the <a href="https://braintool.org/support/userGuide" target="_blank">User Guide</a> for all tips.</p>
 	    </div>
-	    <p id="tip" style="margin-bottom: 10px"><b>Tip:</b>Loading...</p>
-        <p style="margin-bottom: 20px; margin-left:5px; margin-top: 40px; font-style: italic; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
+        <div style="margin-top: 23px;"><b>TIP:</b></div>
+	    <p id="tip" style="margin-bottom: 33px">Loading...</p>
+        <hr/>
+        <p style="margin-bottom: 20px; margin-left:5px; margin-top: 22px; font-size: 10px">BrainTool is young and evolving. Please review positively or send feedback to braintool.extension@gmail.com</p>
         
         <div id="options" class="control_overlay" style="display: none">
           <img id="optionsClose" type="image" alt="Close" title="Close" class="split_image"
@@ -144,7 +151,7 @@
                     </div>
 
 		            <div style="border-top: solid 1px #ddd">
-                      <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left;" onclick="exportOrgFile()">Local Org-mode file</a>
+                      <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none" onclick="exportOrgFile()">Local Org-mode file</a>
                     </div>
                   </div>
                 </div>
@@ -357,9 +364,7 @@
         <table style="width:100%;">
           <tr id="dn">
             <td style="padding-bottom: 2px">
-              <li>
-                <span id="distinguishedName"></span>
-              </li>
+              <div id="distinguishedName"></div>
             </td>
           </tr>
           <tr id="topic"> 
@@ -367,11 +372,11 @@
               <div id="newTopicNameHint" class="hint">
                 <span>Name the Topic</span>
               </div>
-              <input type="text" id="topicName" class="editNode" style="width: 91%" tabindex="0">
+              <input type="text" id="topicName" class="editNode" tabindex="0">
             </td>
           </tr> 
           <tr> 
-            <td><input type="text" id="title-text" class="editNode" tabindex="1" style="width: 91%" value='title'></td>
+            <td><input type="text" id="title-text" class="editNode" tabindex="1" value='title'></td>
           </tr>
           <tr> 
             <td><textarea id="title-url" class="editNode" tabindex="2">url</textarea></td>
@@ -381,8 +386,8 @@
           </tr>
         </table>
         <div class="buttonDiv">
-          <button id="update" class="button_text general_button editNode" tabindex="4" onClick="updateRow()">Update</button>
-          <button id="cancel" class="button_text general_button editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
+          <button id="cancel" class="important_button editNode" style="width: 30%; background-color: #ff5555" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
+          <button id="update" class="important_button editNode" style="width: 30%; background-color: #58BA00" tabindex="4" onClick="updateRow()">Update</button>
         </div>
       </dialog>
     </div>

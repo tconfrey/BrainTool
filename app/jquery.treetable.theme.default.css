@@ -89,17 +89,18 @@ table.treetable tr span.elipse {
 }
 
 tr.opened td.left a{
-    color: var(--btLinkOpenedColor)
+    color: var(--btLinkOpenedColor);
 }
 tr.opened.selected td.left a{
-    color: var(--btLinkSelectedOpenedColor)
+    color: var(--btLinkSelectedOpenedColor);
 }
 
 tr.opened td.left{
-    color: var(--btLinkOpenedColor)
+    color: var(--btLinkOpenedColor);
+    font-weight: bold;
 }
 tr.opened.selected td.left{
-    color: var(--btLinkSelectedOpenedColor)
+    color: var(--btLinkSelectedOpenedColor);
 }
 
 td.left {

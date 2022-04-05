@@ -187,7 +187,7 @@ async function updateSigninStatus(signedIn, error=false, userInitiated = false) 
 function addTip() {
     // add random entry from the tipsArray
     let indx = Math.floor(Math.random() * tipsArray.length);
-    $("#tip").html("<b>Tip:</b> " + tipsArray[indx]);
+    $("#tip").html(tipsArray[indx]);
     $("#tip").show();
 }
 
@@ -1189,9 +1189,8 @@ function editRow(e) {
     $("#content").addClass('editOverlaid');
     $("#editOverlay").css("display", "block");
     const fullWidth = $($("#editOverlay")[0]).width();
-    const dialogWidth = Math.min(fullWidth - 60, 600);
+    const dialogWidth = Math.min(fullWidth - 80, 600);
     const height = dialogWidth / 1.618;                 // golden!
-    const marginLeft = (fullWidth - dialogWidth) / 2 - 10;
     $("#text-text").height(height - 140);               // notes field fits but as big as possible
 
     if ((top + height + 100) < $(window).height())
@@ -1202,7 +1201,7 @@ function editRow(e) {
 
     // Animate opening w calculated size
     $(dialog).css({display: 'block', opacity: 0.0, height: 0, width:0})
-        .animate({width: dialogWidth, height: height, opacity: 1.0, 'margin-left': marginLeft},
+        .animate({width: dialogWidth, height: height, opacity: 1.0},
                  duration, 'easeInCirc',
                  function () {
                      $("#text-text")[0].setSelectionRange(node.text.length, node.text.length);
@@ -1538,7 +1537,7 @@ function loadBookmarks(msg) {
     // remmember this import and remove button from main control screen
     setMetaProp('BTLastBookmarkImport', dateString);
     $("#importBookmarkButton").hide();
-    $("#openOptionsButton").text("Options");
+    $("#openOptionsButton").text("Actions");
     processImport(importName);                             // see above
 }
 
@@ -1663,7 +1662,7 @@ $(document).ready(function () {
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
         saveBT();
-        alert("NB you need to close the current Topic Manager for this change to take effect");
+        alert("NB you need to close and reopen the Topic Manager to change themes");
     });
     $('#theme_selector :radio').click(function () {
         const newTheme = $(this).val();
