@@ -11,12 +11,12 @@ audience: user
 We're very glad to have you as a new user. This page should help you get up and running on some things that might not be immediately obvious.
 
 ## Installation and Organization. Step by step video
-Here's a 3 minute video of the process.
+Here's a 4 minute video of the process (NB the video shows a previous version of the UI).
 <video width="95%" controls style="border:solid; border-width:1px">
   <source src="../../../media/BTInstall.mp4" type="video/mp4">
 </video>
 
-There's also a [YouTube Playlist](https://www.youtube.com/watch?v=6JGdPIenO38&list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP&index=1) with a few more examples of BT in use.
+There's also a [YouTube Playlist](https://www.youtube.com/watch?v=6JGdPIenO38&list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP&index=1) with a few more examples of BrainTool (BT) in use.
 
 ## Launching BrainTool
 
@@ -35,4 +35,4 @@ Ideally BT is intuitive to use but it's pretty feature rich and not everything i
 Also check out [this special offer](../pricing.md) in advance of BrainTool 1.0 dropping.
 
 ## Security and Permissions
-The BrainTool (BT) philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what it's doing. Your braintool data is stored on the browser locally and, optionally, in plain text [org-mode](https://orgmode.org) format, on a Google Drive file.
+The BrainTool philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what it's doing. Your braintool data is stored on the browser locally and, optionally, in plain text [org-mode](https://orgmode.org) format, on a Google Drive file.

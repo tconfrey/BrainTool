@@ -6,9 +6,40 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
-# Welcome to BrainTool 0.9.8
+# Welcome to BrainTool 0.9.9
+(NB 0.9.9 is out for review at the Chrome and Edge stores, you may see the 0.9.8 version in the interim.)
+
 Inching closer to 1.0! I'm getting such great feedback from users that I can't resist the temptation to incorporate the improvements before closing on 1.0. See [Pricing](../pricing.md) for a special offer for pre-1.0 subscribers.
 
+## New Look and Feel including a Dark Mode
+I completely revamped the BT fonts and color palette and added a dark mode - the most requested feature.
+
+## Re-organized Saver Tool
+I made another iteration on whats been called the bookmarker or popup to make it easier to understand while keeping it fast and efficient for both mouse and keyboard users. Additionally, any number of nested new topics can now be created from the Saver e.g. setting the topic to Animal:Vertebrate:Mammal:Carnivore:Canid:Dog:Hound:Beagle will create 8 levels of topic if they don't already exist.
+
+## Compact Mode
+Another highly requested feature. Shrinking the Topic Manager to less than 350 pixels wide hides the notes column for a highly compact and information dense display of your saved topics and pages.
+
+## "Open in New Window" Tool
+You can now open a page, or complete topic, in a new window. The previous mapping of topics to windows has been removed as being too complicated. You can choose to have BT manage your tabs, grouping them into tab groups, or not, thus leaving them wherever you or the browser puts them. BT will no longer confuse you by moving tabs between windows.
+
+## "Add Top Level Topic" Tool
+Available at the top of the Topic Manager. Hopefully this one is self-explanatory.
+
+## Topic Manager window remembers its position
+The Topic Manager now opens with the same size and position as it had when it was last closed.
+
+## GDrive Refresh Button
+If you have GDrive syncing turned on, the Refresh button is now available in the top toolbar whenever BT detects that there is a newer file available.
+
+## Topic Tree imports
+A correctly formatted org-mode file will now import its contents into the appropriate nesting in the tree. See [these topic trees](../topicTrees) as an example.
+
+## Other Usability and Misc Improvements
+I removed the counter for number of saves (top right) because its no longer part of the [pricing model](../pricing). Lots of improvements were made in areas like the card editor, the initial topic tree, the initial placement of the topic manager etc.
+
+
+# BrainTool 0.9.8
 ## New Bookmarker 
 To address some confusion and to make the 'popup' more usable I've re-designed it from the ground up and done some rebranding. I'm now calling the popup 'Bookmarker'. Clicking the BT icon (or Opt/alt-b) now opens the Bookmarker showing the note card for the page with the Notes field selected. You can still just hit enter to move on without adding a note, for speed. This new card editor also allows you to edit the page title and it's where you can select to save all tabs or just the active one.
 

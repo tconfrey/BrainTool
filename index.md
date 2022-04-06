@@ -43,21 +43,21 @@ No longer fear closing a tab!
         }
 	  </script>
 	  
-<img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin;">
+<br/>
+<img src="/media/topicsAndTabs.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin;">
 </div>
 </div>
 <div class="row">
 
 <div class="cell left">
 <h3>
-<br/>
 Trivially add a page into your Topic tree and close it out.
-<br/><br/><br/><br/>
+<br/><br/>
 </h3>
-<img src="/media/edit-card.png" alt="Card editor" style="border:solid; border-width:thin; ">
+<img src="/media/editCard.png" alt="Card editor" style="border:solid; border-width:thin; ">
 </div>
 <div class="cell right">
-<img src="/media/topic-selector.png" alt="Autocomplete topics" style="border:solid; border-width:thin;">
+<img src="/media/saver.png" alt="Autocomplete topics" style="border:solid; border-width:thin;">
 <br/><br/>
 <h3>
 Or keep detailed notes on the Topic card associated with every item.
@@ -157,7 +157,7 @@ With Braintool I have found it.</td></tr>
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
 <h1>More Info</h1>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="500" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 See the [Vision Statement](http://braintool.org/overview) for philosophy and roadmap information and see the [required official privacy policy](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
 

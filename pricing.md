@@ -26,7 +26,7 @@ If you'd prefer to just pay and/or want to show support, please do go ahead and 
 <h2>Basic</h2>
 
 <p>
-Up to 300 Topic Cards and 3000 Saves
+Up to 300 saved items
 </p>
 <p>
 Import and export Browser Bookmarks
@@ -35,7 +35,7 @@ Import and export Browser Bookmarks
 Import-from and export-to local text file in readable <a href='http://orgmode.org' target='_blank'>org-mode</a> format.
 </p>
 <p>
-Optional continuous sync to Google Drive.
+Optional continuous sync to Google Drive (again in plain text).
 </p>
 <p>
 Full text search on links, descriptions and notes. 
@@ -50,7 +50,7 @@ To-Do/Done annotations.
 <i>Topic sharing</i>
 </p>
 <p>
-<i>Topic Card text editor</i>
+<i>Tab Group naming</i>
 </p>
 <p>
 <b>Free</b>
@@ -60,7 +60,7 @@ To-Do/Done annotations.
 <h2>Premium</h2>
 
 <p>
-Unlimited Topic Cards and Saves.
+Unlimited saved items
 </p>
 <p>
 <i><b>Planned Features:</b></i>
@@ -95,3 +95,6 @@ $3.99/mo or $40/yr
 There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and resources to do so, so it seems nice to share!
 
 There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription you are paying for those tools and their continued improvement, and keeping your data to yourself.
+
+## Lifetime Access
+Part of the BrainTool philosophy is to avoid locking you in. You already have continuous access to your data in a re-usable format but in addition, any user paid up for at least a year can discontinue their subscription and still retain access to their currently active version of the BrainTool software (i.e. with no further updates until the subscription is reactivated).
