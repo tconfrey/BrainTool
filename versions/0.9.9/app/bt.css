@@ -375,7 +375,7 @@ dialog textarea {
     border-radius: 2px;
     font-family: var(--btControlsFont);
     background: var(--btTextAreaBackground);
-    color: #808285;
+    color: var(--btColor);
     font-size: 11px;
 }
 dialog input {
