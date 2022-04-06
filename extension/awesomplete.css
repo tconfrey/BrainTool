@@ -88,8 +88,7 @@
 	}
 	
 		.awesomplete mark {
-			background: #cec;
-/*			background: hsl(65, 100%, 50%); */
+			background: var(--btHighlightColor);
 		}
 		
 		.awesomplete li:hover mark {

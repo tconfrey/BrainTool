@@ -12,6 +12,8 @@
     --btTextColor: #0C4F6B;
     --btBackground: #bed8be;
 
+    --btHighlightColor: #cec;
+    --btSelected: #7bb07b;
         
     --btInputBackground: white;
     --btInputForeground: #2d2d2d;
@@ -25,11 +27,12 @@
     --btBodyBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
     --btTextColor: #E0F0F8;
     
+    --btHighlightColor: #aab6b8;
+    
     --btInputBackground: #2d2d2d;
     --btInputForeground: white;
-    --awesompleteBackground: linear-gradient(to bottom, black, hsla(0,0%,0%,.4));
+    --awesompleteBackground: #566564; /*linear-gradient(to bottom, black, hsla(0,0%,0%,.6));*/
 
-    
     --btBackground: #bed8be;
 
 }
@@ -162,8 +165,11 @@ input[type=text], textarea {
 span.topic {
     cursor: pointer;
 }
+p.highlight {
+    background: var(--btHighlightColor);
+}
 p.selected {
-    background: var(--btBackground);
+    background: var(--btSelected);
 }
     
 span.caret {
