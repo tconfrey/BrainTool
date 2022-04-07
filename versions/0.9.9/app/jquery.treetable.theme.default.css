@@ -55,18 +55,18 @@ table.treetable tr {
     height: var(--btRowHeight);
 }
 
-table.treetable tr.branch {
-    background-color: var(--btTopicBackground);
-    font-size: var(--btTopicFontSize);
-    font-weight: var(--btTopicFontWeight);
-    line-height: var(--btTopicLineHeight);
-}
-
 table.treetable tr.leaf {
     background-color: var(--btPageBackground);
     font-size: var(--btPageFontSize);
     font-weight: var(--btPageFontWeight);
     line-height: var(--btPageLineHeight);
+}
+
+table.treetable tr.branch {
+    background-color: var(--btTopicBackground);
+    font-size: var(--btTopicFontSize);
+    font-weight: var(--btTopicFontWeight);
+    line-height: var(--btTopicLineHeight);
 }
 
 table.treetable td.right {
@@ -75,6 +75,13 @@ table.treetable td.right {
     font-weight: var(--btNoteFontWeight);
     line-height: var(--btNoteLineHeight);
     color: var(--btNoteColor);
+}
+
+table.treetable tr.topic {
+    background-color: var(--btTopicBackground);
+    font-size: var(--btTopicFontSize);
+    font-weight: var(--btTopicFontWeight);
+    line-height: var(--btTopicLineHeight);
 }
 
 table.treetable tr span.indenter a {
