@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Five tools for browser productivity"
-description: "What are Tab managers, session managers, bookmark managers, task managers and personal knowledge managers?"
+description: "How to use Tab managers, session managers, bookmark managers, task managers and personal knowledge managers to be more productive"
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
@@ -12,7 +12,7 @@ image: "../../../site/postAssets/Five Tools/5-tool-table.png"
 We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down the computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
 
 <table><tr><td style="width:40%; border: none; padding-left:0px; text-align: justify;">
-BrainTool is designed to make working in a browser more efficient. It is part of an ecosystem of browser extensions and web apps that have sprung up recently to address aspects of these problems. This is a survey of the five main classes of tools within that ecosystem.</td><td style="border:none">
+BrainTool is designed to make working in a browser more efficient. It is part of an ecosystem of browser extensions and web apps that have sprung up recently to address aspects of these problems. This is a description of the five main classes of tools within that ecosystem.</td><td style="border:none">
 <img src="../../../site/postAssets/Five Tools/5-tool-table.png" alt="5 types of browser productivity tool"></td></tr></table>
 <!--more-->
 ## Tab Managers
@@ -29,7 +29,7 @@ The two major symptoms of the too-many-tabs problem are human and computer overl
 ## Session Managers
 A step up in terms of complexity, are session managers, which save and manage sets of tabs geared to a particular purpose. [Session Buddy](https://chrome.google.com/webstore/detail/session-buddy/edacconmaakjimmfgnblocblbcdcpbko) lets you see and manage open tabs, save sets of tabs into a named session and restore previous sessions. [Tabs Outliner](https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl) shows a side panel window with a hierarchical representation of sessions, windows and tabs with associated notes. Live and historical sessions are intermingled.
 
-Worth noting here is the "tab groups" feature in most modern browsers. [Tab groups](https://blog.google/products/chrome/manage-tabs-with-google-chrome/) provide a visual color-coded and named grouping of tabs which can be collapsed to save space in the tab row. They can be considered an in-browser session.
+Worth noting here is the "tab groups" feature in most modern browsers. [Tab groups](https://blog.google/products/chrome/manage-tabs-with-google-chrome/) provide a visual color-coded and named grouping of tabs which can be collapsed to save space in the tab row. They can be used to create an in-browser session.
 
 <img src="../../../site/postAssets/Five Tools/TabGroups.png" alt="browser tab groups">
 BrainTool (BT) can fill the role of a session manager with tree functionality similar to TabsOutliner and the ability to save and restore sets of annotated tabs. By default BT groups tabs for a topic into a tab group.
