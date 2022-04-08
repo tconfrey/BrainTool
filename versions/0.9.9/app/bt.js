@@ -109,9 +109,9 @@ async function launchApp(msg) {
     if (getMetaProp('BTGDriveConnected') == 'true') {
         GDriveConnected = true;
         authorizeGapi();
-        gtag('event', 'GDriveLaunch', {'event_category': 'General'});
+        gtag('event', 'GDriveLaunch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
     } else {
-        gtag('event', 'NonGDriveLaunch', {'event_category': 'General'});
+        gtag('event', 'NonGDriveLaunch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
     }
     
     // If bookmarks have been imported remove button from controls screen (its still under options)
