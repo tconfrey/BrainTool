@@ -7,7 +7,6 @@ audience: user
 ---
 
 # Welcome to BrainTool 0.9.9
-(NB 0.9.9 is out for review at the Chrome and Edge stores, you may see the 0.9.8 version in the interim.)
 
 Inching closer to 1.0! I'm getting such great feedback from users that I can't resist the temptation to incorporate the improvements before closing on 1.0. See [Pricing](../pricing.md) for a special offer for pre-1.0 subscribers.
 

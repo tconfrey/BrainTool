@@ -262,7 +262,8 @@ function toggleMenu(event) {
 	        $("#openingTips").hide();		     // if not already hidden
 
         // scroll-margin ensures the selection does not get hidden behind the header
-        $(".treetable tr").css("scroll-margin-top", "25px");
+        $(".treetable tr").css("scroll-margin-top", "50px");
+        $("#open_close_image").attr('src', 'resources/more.svg');
     } else {
         // Open
         toggleMenu.introMessageShown = true;         // leave tip showing and remember it showed
@@ -274,7 +275,8 @@ function toggleMenu(event) {
                 $("#open_close_span").removeClass("wenk--right");
                 $("#open_close_image").removeClass("animate_more");
             });
-        $(".treetable tr").css("scroll-margin-top", "375px");
+        $(".treetable tr").css("scroll-margin-top", "425px");
+        $("#open_close_image").attr('src', 'resources/close.png');
     }
 }
 function closeMenu() {
@@ -512,7 +514,11 @@ function initializeUI() {
     $("table.treetable tr").on("click", function (e) {
 	    // first check this is not openclose button, can't stop propagation
 	    if (e?.originalEvent?.target?.classList?.contains('openClose')) return;
-	    
+
+        // close menu overlay on click
+        if ($("#controls_screen").is(":visible")) toggleMenu();
+
+        // select the new row
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
     });
@@ -1645,7 +1651,7 @@ $(document).ready(function () {
         // Defined in btContentScript, so if undefined => some issue
         alert("Something went wrong. The BrainTool app is not connected to its Browser Extension!");
     }
-    $('#tabgroup_selector :radio').click(function () {
+    $('#tabgroup_selector :radio').change(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
         GroupingMode = newVal;
@@ -1656,7 +1662,7 @@ $(document).ready(function () {
         saveBT();
         groupingUpdate(oldVal, newVal);
     });
-    $('#panel_toggle :radio').click(function () {
+    $('#panel_toggle :radio').change(function () {
         const newHome = $(this).val();
         setMetaProp('BTManagerHome', newHome);
         // Let extension know
@@ -1664,7 +1670,7 @@ $(document).ready(function () {
         saveBT();
         alert("NB you need to close and reopen the Topic Manager to change themes");
     });
-    $('#theme_selector :radio').click(function () {
+    $('#theme_selector :radio').change(function () {
         const newTheme = $(this).val();
         setMetaProp('BTTheme', newTheme);
         document.documentElement.setAttribute('data-theme', newTheme);

@@ -222,14 +222,16 @@ body {
 }
 
 #open_close_image {
-    height: 25px;
+    margin-top: 2px;
     width: 25px;
     cursor: pointer;
 }
 /* Animation on More SVG image to draw attention when closing. 
 https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
 #open_close_image.animate_more {
-  animation: filter-animation 1.5s 2;
+    height: 25px;
+    margin-top: 0px;
+    animation: filter-animation 1.5s 2;
 }
 @keyframes filter-animation {
     0% {
@@ -615,7 +617,10 @@ body.waiting * {
 .toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
 .toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
 
-.toggle-radio > input:checked + label {background: var(--btButtonBackground);}
+.toggle-radio > input:checked + label {
+    background: var(--btButtonBackground);
+    cursor: default;
+}
 /* CORE STYLES */
 .toggle-radio {
     display:inline-block;

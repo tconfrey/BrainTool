@@ -2,7 +2,7 @@
 #+PROPERTY: BTVersion 1
 #+PROPERTY: BTGroupingMode TABGROUP
 
-* Welcome, lets get started
+* 👋  Welcome, lets get started
 Follow these steps to get up and running quickly.
 ** TODO Review the sample Topic Hierarchy
 BrainTool is organized as a hierarchy of topics. 
@@ -147,8 +147,8 @@ BrainTool data is stored in org-mode format. Technically savvy users only!
 *** [[https://braintool.org/topicTrees][More public topic trees here]]
 Peruse at your leisure. 
 
-* Archive
+* 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
 
-* Scratch
+* 📝 Scratch
 Pages that you save without a Topic will be filed under Scratch
