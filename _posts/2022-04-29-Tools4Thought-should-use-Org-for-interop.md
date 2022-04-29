@@ -85,4 +85,5 @@ Karl Voit has proposed ['OrgDown'](https://gitlab.com/publicvoit/orgdown/-/tree/
 - [https://github.com/200ok-ch/org-parser](https://github.com/200ok-ch/org-parser)
 - [https://github.com/orgapp/orgajs](https://github.com/orgapp/orgajs)
 - [https://hackage.haskell.org/package/org-mode](https://hackage.haskell.org/package/org-mode)
+- [https://github.com/logseq/mldoc](https://github.com/logseq/mldoc)
 <hr/>
