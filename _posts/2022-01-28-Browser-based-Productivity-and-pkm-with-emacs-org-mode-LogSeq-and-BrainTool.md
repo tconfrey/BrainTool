@@ -8,9 +8,9 @@ audience: "nonuser"
 image: "../../../site/postAssets/Five Tools/browserBasedProductivity.png"
 ---
 # Browser-based Productivity and PKM with emacs, org-mode, LogSeq and BrainTool
-
+<!--start-->
 BrainTool is a free and open source browser bookmark tool that makes it easy to add notes to your bookmarks, organize them into a topic hierarchy and then use that hierarchy to open and close groups of tabs and thus control your browser. It is unique as a bookmark manager in that it is designed to interoperate as part of a larger system of personal knowledge management and productivity tools. 
-<!--more-->
+<!--end-->
 
 It achieves this interoperability by saving your data into an accessible plain text file written in the emacs standard org-mode format. Org mode is a set of plain text tools used to manage tasks, to do lists, notes, links, journal entries and almost any form of text-based information. 
 

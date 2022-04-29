@@ -8,13 +8,13 @@ audience: "nonuser"
 image: "../../../site/postAssets/Five Tools/5-tool-table.png"
 ---
 # Five Tools for Browser Productivity
- 
+<!--start-->
 We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down the computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
-
+ <!--end-->
 <table><tr><td style="width:40%; border: none; padding-left:0px; text-align: justify;">
 BrainTool is designed to make working in a browser more efficient. It is part of an ecosystem of browser extensions and web apps that have sprung up recently to address aspects of these problems. This is a description of the five main classes of tools within that ecosystem.</td><td style="border:none">
 <img src="../../../site/postAssets/Five Tools/5-tool-table.png" alt="5 types of browser productivity tool"></td></tr></table>
-<!--more-->
+
 ## Tab Managers
 The two major symptoms of the too-many-tabs problem are human and computer overload. Tab managers address these symptoms by making it easy to close a bunch of tabs such that you can get them back later (easing mental overload), or by suspending/deactivating tabs such that they stop using resources (easing computer overload). 
 
