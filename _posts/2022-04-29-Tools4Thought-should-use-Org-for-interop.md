@@ -47,6 +47,8 @@ Org-mode covers a lot of ground and not every application needs all of those ent
 
 Karl Voit has proposed ['OrgDown'](https://gitlab.com/publicvoit/orgdown/-/tree/master) which is a model for defining increasing subsets of Org as conforming to different levels of compliance. Thus far only an OD-1 level is defined. Personally I would prefer to see a more granular enumerated list of OrgDown entity types for which applications can demonstrate support. See the [addendum](#addendum) below for one take at such a list.
 <hr/>
+Have thoughts? Drop a comment on the [https://twitter.com/tconfrey/status/1521934272617136131](Twitter thread)
+<hr/>
 <a name="addendum"></a>
 #### Addendum: Proposed Org syntax components
 <table>
