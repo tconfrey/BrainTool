@@ -5,6 +5,7 @@ description: "Too many tabs? You can tame your tabs with BrainTool and keep a cl
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
+image: "../../../site/postAssets/Five Tools/meme.png"
 ---
 # BrainTool Browser Hygiene
 Keeping good tab hygiene can reduce the cognitive load of having so many distractions and open loops in your head. It's also pretty satisfying! I recently found myself with 20+ open tabs and decided to record a demo of my process for cleaning up a workspace by saving what I need to keep into BrainTool.<!--more-->  
