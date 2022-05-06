@@ -150,5 +150,5 @@ Peruse at your leisure.
 * 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
 
-* 📝 Scratch
+* Scratch
 Pages that you save without a Topic will be filed under Scratch
