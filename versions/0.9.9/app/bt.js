@@ -871,7 +871,7 @@ function storeTabs(data) {
     const tabAction = data.tabAction;
 
     // process topic info create topic hierarchy as needed. no topic => scratch
-    const [topicDN, keyword] = BTNode.processTopicString(topicString || "Scratch");
+    const [topicDN, keyword] = BTNode.processTopicString(topicString || "📝 Scratch");
     const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
     const ttNode = topicNode.getTTNode();
 
@@ -1635,15 +1635,14 @@ function updatePrefs() {
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
     }
 
-    // Theme?
-    const theme = getMetaProp('BTTheme');
-    if (theme) {
-        const $radio = $('#theme_selector :radio[name=theme]');
-        $radio.filter(`[value=${theme}]`).prop('checked', true);
-        window.postMessage({'function': 'localStore', 'data': {'Theme': theme}});
-        // Change theme by setting attr on document which overide a set of vars. see top of bt.css
-        document.documentElement.setAttribute('data-theme', theme);
-    }        
+    // Theme saved or set from OS
+    const theme = getMetaProp('BTTheme') ||
+          (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
+    const $radio = $('#theme_selector :radio[name=theme]');
+    $radio.filter(`[value=${theme}]`).prop('checked', true);
+    window.postMessage({'function': 'localStore', 'data': {'Theme': theme}});
+    // Change theme by setting attr on document which overides a set of vars. see top of bt.css
+    document.documentElement.setAttribute('data-theme', theme);
 }
 
 // Register listener for radio button changes in Options
@@ -1669,7 +1668,7 @@ $(document).ready(function () {
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
         saveBT();
-        alert("NB you need to close and reopen the Topic Manager to change themes");
+        alert("NB you need to close and reopen the Topic Manager to change its location");
     });
     $('#theme_selector :radio').change(function () {
         const newTheme = $(this).val();
