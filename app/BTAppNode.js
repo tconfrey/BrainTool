@@ -397,13 +397,15 @@ class BTAppNode extends BTNode {
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
-                            'windowId': this.windowId, 'tabInfo': tabInfo});
+                            'windowId': this.windowId, 'tabInfo': tabInfo,
+                            'groupName': this.displayTag});
     }
     
     putInGroup() {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId) return;
-        window.postMessage({'function': 'groupAll',
+        const groupName = this.isTopic() ? this.displayTag : AllNodes[this.parentId].displayTag;
+        window.postMessage({'function': 'groupAll', 'groupName': groupName,
                             'tabIds': [this.tabId], 'windowId': this.windowId});
     }
     
