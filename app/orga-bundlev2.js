@@ -5145,7 +5145,7 @@ exports.default = ({ reader, todoKeywordSets }) => {
         position: stars.position,
     });
     eat('whitespaces');
-    const keyword = eat(RegExp(`^${todos.map(escape).join('|')}(?=\\s)`));
+    const keyword = eat(RegExp(`^${todos.map(escape).join('|^')}(?=\\s)`));
     if (!position_1.isEmpty(keyword.position)) {
         buffer.push({
             type: 'todo',
