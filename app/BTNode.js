@@ -275,7 +275,7 @@ class BTNode {
                         let tpath = AllNodes[id].displayTag;
                         let parent = AllNodes[id].parentId;
                         for (let i = 1; i < level; i++) {
-                            if (parent) {
+                            if (parent && AllNodes[parent]) {
                                 tpath = AllNodes[parent].displayTag + ":" + tpath;
                                 parent = AllNodes[parent].parentId;
                             }

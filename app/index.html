@@ -189,21 +189,33 @@
                   <label class="button_text" for="darkTheme">Dark</label>
                 </div>
             </td></tr>
-            
-            <tr >
-              <td style="text-align:left">
-                <span id="autoSaveLabel">GDrive Auto-save:</span><br/>
-                <p id="gdrive_save" style="display:none; margin: 0px; font-size:11px;"/>
+
+            <tr id="syncSettings" >
+              <td colspan="2" style="border-top: solid; border-color: darkgrey; padding-bottom: 0px">
+                <p style="margin:0px; float:left; padding-bottom:0px">Sync your BrainTool data:</p>
               </td>
+            </tr>
+            <tr id="saveToFile">
               <td style="text-align:left">
-                <button id="gdrive_auth" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="authorizeGapi(true)">Authorize</button>
-                <button id="refresh" class="button_text general_button" onclick="refreshTable(true)" style="display:none">Refresh from File</button>
+                <button id="file_auth" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onClick="authorizeLocalFile(true)">To a Local File</button>
+              <td >
+                <button id="gdrive_auth" class="button_text general_button" style="border-radius: 3px 3px 3px 3px; width: 170px" onClick="authorizeGAPI(true)">To a Google Drive File</button>
+              </td>
+            </tr>
+            
+            <tr id="fileInfo" style="display:none">
+              <td style="text-align:left; border-top: solid; border-color: darkgrey;">
+                <span id="autoSaveLabel">Auto-save:</span><br/>
+                <p id="file_stats" style="margin: 0px; font-size:11px;"/>
+              </td>
+              <td style="text-align:left; border-top: solid; border-color: darkgrey;">
+                <button id="refresh" class="button_text general_button" onclick="refreshTable(true)">Refresh from File</button>
               </td>
             </tr>          
-            <tr class="subscription_buttons">
-	          <td colspan="2">
-                <p style="margin:0px; float:left; padding-bottom:0px">Upgrade to Premium (more details <a href="https://braintool.org/pricing" target="_blank">here</a>):</p>		
-              </td></tr>
+            <tr class="subscription_buttons" style="border-top: solid; border-color: darkgrey">
+	          <td colspan="2" style="border-top: solid; border-color: darkgrey;">
+                <p style="margin:0px; float:left; padding-bottom:0px">Upgrade to Premium (more details <a href="https://braintool.org/pricing" target="_blank" style="color: blue">here</a>):</p>		
+            </td></tr>
             <tr class="subscription_buttons">
 	          <td style="padding-top:0px; padding-bottom:0px">
                 <button id="annual_sub" class="button_text general_button" style="border-radius: 3px 3px 3px 3px;" onclick="createSubscription(Annual)">$40/Yr</button>
@@ -387,14 +399,20 @@
         </table>
         <div class="buttonDiv">
           <button id="cancel" class="important_button editNode" style="width: 30%; background-color: #ff5555" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
-          <button id="update" class="important_button editNode" style="width: 30%; background-color: #58BA00" tabindex="4" onClick="updateRow()">Update</button>
+          <button id="update" class="important_button editNode" style="width: 30%;" tabindex="4" onClick="updateRow()">Update</button>
         </div>
+      </dialog>
+      <dialog id="permissions" style="display:none">
+        <p>BrainTool needs to re-establish local file access.<br/>The browser will now ask for your permission.</p>
+        <button id="grant">OK</button>
       </dialog>
     </div>
     
     <script src="orga-bundlev2.js"></script>
     <script src="BTNode.js"></script>
     <script src="fileManager.js"></script>
+    <script src="gDriveFileManager.js"></script>
+    <script src="localFileManager.js"></script>
     <script src="bt.js"></script>
     <script src="BTAppNode.js"></script>
     <script src="parser.js"></script>

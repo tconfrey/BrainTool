@@ -428,6 +428,9 @@ dialog li::marker {
     font-size: 12px;
     font-family: var(--btControlsFont);
 }
+.important_button:disabled {
+    opacity: 0.5;
+}
 
 .buttonDiv {
     margin: auto;
@@ -465,7 +468,8 @@ dialog li::marker {
 }
 
 .options_table td {
-    padding-top: 18px;
+    padding-top: 9px;
+    padding-bottom: 6px;
 }
 
 .option_td {

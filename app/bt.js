@@ -67,23 +67,6 @@ async function launchApp(msg) {
         
     BTFileText = msg.BTFileText;
     processBTFile();                                          // create table etc
-
-    // Get BT sub id => premium 
-    // BTId in local store and from org data should be the same. local store is primary
-    if (msg.bt_id) {
-	    BTId = msg.bt_id;
-	    if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
-	    else if (BTId != getMetaProp('BTId'))
-	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
-    } else {
-	    // get from file if not in local storage and save locally (will allow for recovery if lost)
-	    if (getMetaProp('BTId')) {
-	        BTId = getMetaProp('BTId');
-	        Config.bt_id = BTId;
-	        window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
-	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
-	    }
-    }
     
     gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
 
@@ -105,13 +88,24 @@ async function launchApp(msg) {
     // scroll to top
     $('html, body').animate({scrollTop: '0px'}, 300);
 
-    // If GDrive connection was previously established, re-set it up on this startup
-    if (getMetaProp('BTGDriveConnected') == 'true') {
-        GDriveConnected = true;
-        authorizeGapi();
-        gtag('event', 'GDriveLaunch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+    // If a backing store file was previously established, re-set it up on this startup
+    handleStartupFileConnection();
+
+    // Get BT sub id => premium 
+    // BTId in local store and from org data should be the same. local store is primary
+    if (msg.bt_id) {
+	    BTId = msg.bt_id;
+	    if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
+	    else if (BTId != getMetaProp('BTId'))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
     } else {
-        gtag('event', 'NonGDriveLaunch', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+	    // get from file if not in local storage and save locally (will allow for recovery if lost)
+	    if (getMetaProp('BTId')) {
+	        BTId = getMetaProp('BTId');
+	        Config.bt_id = BTId;
+	        window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
+	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    }
     }
     
     // If bookmarks have been imported remove button from controls screen (its still under options)
@@ -145,44 +139,6 @@ async function launchApp(msg) {
     checkCompactMode();                           // drop note col if to narrow
 }
 
-async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
-    // CallBack on GDrive signin state change
-    if (error) {
-        let msg = "Error Authenticating with Google. Google says:\n'";
-        msg += (error.details) ? error.details : JSON.stringify(error);
-        msg += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
-        msg += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
-        alert(msg);
-        return;
-    }
-    if (signedIn) {
-        gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
-        $("#gdrive_auth").hide();                           // Hide button and add 'active' text
-        $("#autoSaveLabel").text("Auto-saving is on");
-        $("#gdrive_save").show();
-        GDriveConnected = true;
-        refreshRefresh();
-        
-        // Upgrades from before 0.9 to 0.9+ need to load from GDrive before first save, and then resave
-        if (UpgradeInstall &&
-            (UpgradeInstall.startsWith('0.8') ||
-             UpgradeInstall.startsWith('0.7') ||
-             UpgradeInstall.startsWith('0.6')))
-        {
-            alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
-            await refreshTable(true);                       // Read previous org from GDrive
-            saveBT();					    // save to record it's now synced
-        }
-	    if (userInitiated) saveBT();			    // also save if newly authorized
-    } else {
-        alert("GDrive connection lost");
-        $("#gdrive_save").hide();
-	    $("#refresh").hide();
-        $("#gdrive_auth").show();
-        $("#autoSaveLabel").text("Auto-saving is off");
-        GDriveConnected = false;
-    }
-}
 
 function addTip() {
     // add random entry from the tipsArray
@@ -201,9 +157,9 @@ function handleFocus(e) {
 }
 
 async function warnBTFileVersion(e) {
-    // warn in ui if there's a newer btfile on Drive
-    if (!getMetaProp('BTGDriveConnected')) return; 	    // only if gdrive connected
-    const warn = await checkBTFileVersion();
+    // warn in ui if there's a backing file and its newer than local data
+    
+    const warn = syncEnabled() && await checkBTFileVersion();
     if (!warn) {
 	    $("#stats_row").css('background-color', '');
 	    return;
@@ -326,12 +282,12 @@ function updateStatsRow(modifiedTime = null) {
     $("#brain_span").attr('data-wenk', tagText);
     
     const saveTime = getDateString(modifiedTime);           // null => current time
-    $("#gdrive_save").html(`<i>Saved: ${saveTime}</i>`);
+    $("#file_stats").html(`<i>Saved: ${saveTime}</i>`);
     $("#saves_span").attr('data-wenk', `Last saved: \n${saveTime}`);
 
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
-    {
         $("#saves").attr("src", "resources/drive_icon.png");
+    if (syncEnabled()) {
 	    $("#stats_row").css('background-color', '');
         $("#headerRefreshButton").hide();
     }
@@ -364,8 +320,8 @@ var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 
-async function refreshTable(fromGDrive = false) {
-    // Clear current state and redraw table. Used after an import or on a manual GDrive refresh request
+async function refreshTable(fromStore = false) {
+    // Clear current state and redraw table. Used after an import or on manual GDrive refresh request
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
     if (savePendingP()) {
@@ -387,7 +343,7 @@ async function refreshTable(fromGDrive = false) {
 
     // Either get BTFileText from gDrive or use local copy. If GDrive then await its return
     try {
-        if (fromGDrive)
+        if (fromStore)
             await getBTFile();
         processBTFile();
         $("#headerRefreshButton").hide();
@@ -568,9 +524,9 @@ function initializeUI() {
         }
     });
     
-    // Hide loading notice and show refresh button
+    // Hide loading notice and show sync/refresh buttons as appropriate
     $("#loading").hide();
-    if (GDriveConnected) $("#refresh").show();
+    updateSyncSettings(syncEnabled());
 
     // Copy buttonRow's html for potential later recreation (see below)
     if ($("#buttonRow")[0])
@@ -878,7 +834,8 @@ function storeTabs(data) {
     // update shared memory for popup
     BTAppNode.generateTags();                     // NB should really only do this iff needed
     window.postMessage({'function': 'localStore', 'data':
-                        {'tags': Tags, 'mruTopic': topicDN, 'mruTime': new Date().toJSON()}});
+                        {'tags': Tags, 'mruTopic': topicDN, 'mruTime': new Date().toJSON(),
+                         'currentTag': topicNode.displayTag, 'currentText': note}});
 
     // process tabs to store
     const tabsData = data.tabsData.reverse();
@@ -920,7 +877,7 @@ function storeTabs(data) {
     saveBT();
     newNodes[0].getDisplayNode().scrollIntoView({block: 'center'});
 
-    // Execute tab action (close, stick, group)
+    // Execute tab action (close or save)
     if (tabAction == 'CLOSE') {
         newNodes.forEach(node => node.closeTab());
         return;
