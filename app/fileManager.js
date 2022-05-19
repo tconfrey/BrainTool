@@ -1,6 +1,7 @@
 /*** 
  * 
- * Handles local and gdrive file storage interactions.
+ * Handles local and gdrive file storage interactions. Mostly just a facade on 
+ * localFileManager and gDriveFileManager
  * 
  ***/
 
@@ -68,6 +69,7 @@ async function authorizeLocalFile() {
     const success = await localFileManager.authorizeLocalFile();
     if (!success) return;
 
+    setMetaProp('BTGDriveConnected', 'false');
     Config.BTTimestamp = await localFileManager.getFileLastModifiedTime();
     window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     updateSyncSettings(true);
@@ -84,6 +86,7 @@ function savePendingP() {
         return gDriveFileManager.savePendingP();
     if (localFileManager.getLocalFileHandle())
         return localFileManager.savePendingP();
+    return false;
 }
 
 async function checkBTFileVersion() {
@@ -92,6 +95,7 @@ async function checkBTFileVersion() {
         return await gDriveFileManager.checkBTFileVersion();
     if (localFileManager.getLocalFileHandle())
         return await localFileManager.checkBTFileVersion();
+    return false;
 }
 
 async function getBTFile() {
@@ -100,6 +104,8 @@ async function getBTFile() {
         return await gDriveFileManager.getBTFile();
     if (localFileManager.getLocalFileHandle())
         return await localFileManager.getBTFile();
+    alert("No file connected");
+    return "";
 }
 
 
@@ -108,7 +114,7 @@ function updateSyncSettings(connected = false, time = null) {
 
     if (connected) {
         $("#syncSettings").hide();
-        $("#saveToFile").hide()
+        $("#saveToFile").hide();
         $("#fileInfo").show();
         const filetype = GDriveConnected ? 'GDrive' : 'Local';
         $("#autoSaveLabel").text(`${filetype} sync on.`);

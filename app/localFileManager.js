@@ -96,7 +96,7 @@ const localFileManager = (() => {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
             alert("Sorry, local file saving is not supported on your browser (eg Brave)");
-            return;
+            return null;
         }
         alert("Choose where you want to store your BrainTool file");
         const options = {startIn: 'documents', create: true};
@@ -121,11 +121,11 @@ const localFileManager = (() => {
         if (fileExists &&
             confirm("BrainTool.org file already exists. Click OK to use its contents")) {
 		    await refreshTable(true);
-		} else {
-            // else do a save to sync everything up
-            const content = BTAppNode.generateOrgFile();
-            saveBT(content);
-        }
+	} else {
+	    // else do a save to sync everything up
+	    const content = BTAppNode.generateOrgFile();
+	    saveBT(content);
+	}
         
         set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
         set('localDirectoryHandle', LocalDirectoryHandle);     // store for subsequent sessions
@@ -199,8 +199,8 @@ const localFileManager = (() => {
     async function checkBTFileVersion() {
         // is there a newer version of the btfile on Drive?
 
-        const remoteVersion = await getFileLastModifiedTime();
-        const localVersion = Config.BTTimestamp;
+        const remoteVersion = await getFileLastModifiedTime() || 0;
+        const localVersion = Config.BTTimestamp || 0;
         console.log(`Checking timestamps. local: ${localVersion}, remote: ${remoteVersion}`);
         return (remoteVersion > localVersion);
     }
