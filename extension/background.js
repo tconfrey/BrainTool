@@ -6,14 +6,14 @@
  *
  ***/
 
-'use strict';
+var config;
 try {
     importScripts('config.js');
 } catch (e) {
-  console.error(e);
+    console.log(e);
+    config = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
 }
-//var BTTab = 0;
-//var BTWin = 0;
+
 var LocalTest = false;                 // control code path during unit testing
 var InitialInstall = false;            // should we serve up the welcome page
 var UpdateInstall = false;                   // or the release notes page
@@ -88,13 +88,6 @@ const Handlers = {
     "closeTab": closeTab,
     "ungroup": ungroup,
     "groupAll": groupAll
-//    "openTab": openTab,
-//    "openInWindow": openInWindow,
-//    "openInTabGroup": openInTabGroup,
-//    "moveToWindow": moveToWindow,
-//    "groupTabs": groupTabs,
-//    "positionTab": positionTab,
-//    "ungroupAll": ungroupAll,
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
