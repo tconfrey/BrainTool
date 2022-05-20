@@ -25,6 +25,9 @@ window.addEventListener('message', function(event) {
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
 
+    // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
+    response();
+
     console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
     case 'loadBookmarks':

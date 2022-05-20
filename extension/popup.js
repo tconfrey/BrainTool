@@ -6,7 +6,8 @@
  ***/
 'use strict';
 
-const BackgroundPage = chrome.extension.getBackgroundPage();
+//const BackgroundPage = chrome.extension.getBackgroundPage();
+var BTTab;
 var CurrentTab;
 var ReadOnly = false;                   // capture whether tab is already stored in BT
 var Tabs;                               // tabs in current window
@@ -18,11 +19,11 @@ const altOpt = document.getElementById('alt_opt');
 altOpt.textContent = OptionKey;
 
 
-chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme'], val => {
+chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
 	const welcomeDiv = document.getElementById('welcome');
 	const messageDiv = document.getElementById('message');
-    
+    BTTab = val.BTTab;
     if (val['newInstall']) {
 	    // This is a new install, show the welcome page
 	    messageDiv.style.display = 'none';
@@ -58,10 +59,10 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
     return;
 });
 
-function popupAction (home, location) {
+async function popupAction (home, location) {
     // Activate popup -> populate form if app is open, otherwise open app
     
-    if (BackgroundPage.BTTab)
+    if (BTTab)
         chrome.tabs.query(              // find active tab to open popup from
             {currentWindow: true}, list => {
                 Tabs = list;
@@ -87,8 +88,8 @@ function windowOpen(home = 'PANEL', location) {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    //const url = "https://BrainTool.org/app/";
-    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
+    const url = "https://BrainTool.org/app/";
+   // const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
    // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
@@ -228,7 +229,6 @@ function saveCB(close) {
     const newTopic = OldTopic || TopicSelector.topic();
     const allTabs = SaveAll.checked;
     const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
-    const BTTabId = BackgroundPage.BTTab;                       // extension global for bttab
     if (allTabs || title) {
         // need a topic and either an applied url/title or alltabs
         
@@ -243,7 +243,7 @@ function saveCB(close) {
             tabsData.push(tabData);
         });
         message.tabsData = tabsData;
-        chrome.tabs.sendMessage(BTTabId, message);
+        chrome.tabs.sendMessage(BTTab, message);
         
         // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
         if (!close)              // if tab isn't closing animate the brain
