@@ -166,6 +166,7 @@ async function warnBTFileVersion(e) {
     }
     
     $("#headerRefreshButton").show();
+    $("#refresh").prop("disabled", false);
     $("#saves_span").attr('data-wenk', 'Remote file is newer,\nconsider refreshing');
     $("#stats_row").css('background-color', '#ffcc00');
     console.log("Newer BTFile version on GDrive, sending gtag event and warning");
@@ -288,8 +289,9 @@ function updateStatsRow(modifiedTime = null) {
     if (GDriveConnected)                                    // set save icon to GDrive, not fileSave
         $("#saves").attr("src", "resources/drive_icon.png");
     if (syncEnabled()) {
-	    $("#stats_row").css('background-color', '');
+	$("#stats_row").css('background-color', '');
         $("#headerRefreshButton").hide();
+	$("#refresh").prop("disabled", true);
     }
 }
 
@@ -347,6 +349,7 @@ async function refreshTable(fromStore = false) {
             await getBTFile();
         processBTFile();
         $("#headerRefreshButton").hide();
+	$("#refresh").prop("disabled", true);
     }
     catch (e) {
         console.warn('error in refreshTable: ', e.toString());
@@ -426,17 +429,8 @@ function processBTFile() {
     }, 200);
 
     updatePrefs();
-    if (GDriveConnected) refreshRefresh();
     $('body').removeClass('waiting');
     if (RefreshCB) RefreshCB();                      // may be a callback registered
-}
-
-function refreshRefresh() {
-    // set refresh button back on
-    console.log('Refreshing Refresh');
-    $("#refresh").show();
-    $("#refresh").prop("disabled", false);
-    $('body').removeClass('waiting');
 }
 
 

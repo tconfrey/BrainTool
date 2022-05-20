@@ -300,9 +300,7 @@ const gDriveFileManager = (() => {
         ).then((res) => {
             if (res.status && res.status.signed_in) {
                 console.error("reAuth succeeded. Continuing");
-	            if (callback)
-                    callback();                         // try again
-                refreshRefresh();
+	        if (callback) callback();                         // try again
             } else {
                 alert("Error in (re)authorizing GDrive access.");
             }});
@@ -465,7 +463,6 @@ const gDriveFileManager = (() => {
             gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
             updateSyncSettings(true);            // common fileManager fn to show connectivity info
             GDriveConnected = true;
-            refreshRefresh();
             
             // Upgrades from before 0.9 to 0.9+ need to load from GDrive before first save, and then resave
             if (UpgradeInstall &&
