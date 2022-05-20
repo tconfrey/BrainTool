@@ -1,30 +1,16 @@
 #!/bin/sh
-# bundles up commands to create a new ~/versions subtree. Take in name, eg 0.8.0
-echo creating versions/$1
-mkdir versions/$1
-mkdir versions/$1/app
-mkdir versions/$1/extension
-mkdir versions/$1/utilities
-mkdir versions/$1/app/resources
-mkdir versions/$1/extension/images
-mkdir versions/$1/extension/resources
-mkdir versions/$1/extension/_locales
-mkdir versions/$1/extension/_locales/de
-mkdir versions/$1/extension/_locales/en
-mkdir versions/$1/extension/_locales/es
-mkdir versions/$1/extension/_locales/fr
-mkdir versions/$1/extension/_locales/ko
-cp app/* versions/$1/app
-cp extension/* versions/$1/extension/
-cp utilities/* versions/$1/utilities/
-cp app/resources/* versions/$1/app/resources
-cp extension/images/* versions/$1/extension/images
-cp extension/resources/* versions/$1/extension/resources
-cp extension/_locales/* versions/$1/extension/_locales
-cp extension/_locales/de/* versions/$1/extension/_locales/de
-cp extension/_locales/en/* versions/$1/extension/_locales/en
-cp extension/_locales/es/* versions/$1/extension/_locales/es
-cp extension/_locales/fr/* versions/$1/extension/_locales/fr
-cp extension/_locales/ko/* versions/$1/extension/_locales/ko
+## Usage: mkver.sh VERSION
+## Creates a new version in versions/VERSION
+## Example: mkver.sh 1.0
 
-echo "Don't forget to update the manifest and popup files to point to the right version!"
+VERSION="$1"
+NEW="versions/$VERSION/"
+mkdir -p "$NEW"
+
+# NOTE cp on Mac/BSD and Linux behaves differently
+# DON'T add a trailing slash to the source directories
+# or Mac/BSD will copy contents instead of the whole directory
+cp -aR app extension utilities "$NEW" &&
+    echo "Created $NEW"
+
+echo "Don't forget to update manifest and popup files with the new version"
