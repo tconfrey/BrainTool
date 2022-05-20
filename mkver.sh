@@ -13,4 +13,7 @@ mkdir -p "$NEW"
 cp -aR app extension utilities "$NEW" &&
     echo "Created $NEW"
 
-echo "Don't forget to update manifest and popup files with the new version"
+# Update manifest files to point to the right version
+sed -i '/"version":/s/:.*/: "'$VERSION'",/' $NEW/extension/manifest*.json
+
+# Do popup files need updating too?
