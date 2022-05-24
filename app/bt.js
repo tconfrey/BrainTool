@@ -869,7 +869,7 @@ function storeTabs(data) {
                                                  childIds.indexOf(b.id))));
     initializeUI();
     saveBT();
-    newNodes[0].getDisplayNode().scrollIntoView({block: 'center'});
+    changeSelected(newNodes[0]);                // select newly added node in tree
 
     // Execute tab action (close or save)
     if (tabAction == 'CLOSE') {
@@ -960,28 +960,8 @@ function tabActivated(data) {
         m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
     
-    // Set Highlight to this node if in tree. see also similar code in keyHandler
-    let currentSelection = $("tr.selected")[0];
-    if (currentSelection) {
-        const prev = $(currentSelection).attr("data-tt-id");
-	    AllNodes[prev].unshowForSearch();
-    }
-    if (!node) return;						    // nothing else to do
-    if (node) {
-	    const tableNode =  node.getDisplayNode();
-	    if(!$(tableNode).is(':visible'))
-	        node.showForSearch();				    // unfold tree etc as needed
-	    currentSelection && $(currentSelection).removeClass('selected');
-	    $(tableNode).addClass('selected');
-
-        // Make sure row is visible
-        const topOfRow = $(node.getDisplayNode()).position().top;
-        const displayTop = $(document).scrollTop();
-        const height = $(window).height();
-        if ((topOfRow < displayTop) || (topOfRow > (displayTop + height - 100)))
-	        tableNode.scrollIntoView({block: 'center'});
-	    $("#search_entry").val("");				    // clear search box on nav
-    }	
+    // Set Highlight to this node
+    if (node) setNodeSelected(node);            // show in table
 }
 
 function tabGrouped(data) {
@@ -1004,7 +984,7 @@ function cleanTitle(text) {
 }
 
 function setNodeOpen(node) {
-    // utility - set node and parent to open, propagate upwards as needed above any collapsed nodes
+    // utility - show as open in browser, propagate upwards as needed above any collapsed nodes
 
     function propogateOpened(parentId) {
         // recursively pass upwards adding opened class if appropriate
@@ -1019,6 +999,32 @@ function setNodeOpen(node) {
     $("tr[data-tt-id='"+parentId+"']").addClass("opened");
     propogateOpened(parentId);
 }
+
+function changeSelected(node) {
+    // utility - make node visible and selected, unselected previous selection
+
+    // Unselect current selection
+    let currentSelection = $("tr.selected")[0];
+    if (currentSelection) {
+        const prev = $(currentSelection).attr("data-tt-id");
+	    AllNodes[prev].unshowForSearch();
+    }
+    if (!node) return;                          // nothing to select, we're done
+    
+	const tableNode =  node.getDisplayNode();
+	if(!$(tableNode).is(':visible'))
+	    node.showForSearch();				    // unfold tree etc as needed
+	currentSelection && $(currentSelection).removeClass('selected');
+	$(tableNode).addClass('selected');
+
+    // Make sure row is visible
+    const topOfRow = $(node.getDisplayNode()).position().top;
+    const displayTop = $(document).scrollTop();
+    const height = $(window).height();
+    if ((topOfRow < displayTop) || (topOfRow > (displayTop + height - 100)))
+	    tableNode.scrollIntoView({block: 'center'});
+	$("#search_entry").val("");				    // clear search box on nav
+}	
 
 
 /*** 

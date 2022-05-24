@@ -375,7 +375,7 @@ dialog textarea {
     width: 100%;
     border: 1px solid #ddd;
     border-radius: 2px;
-    font-family: var(--btControlsFont);
+/*     font-family: var(--btControlsFont); */
     background: var(--btTextAreaBackground);
     color: var(--btColor);
     font-size: 11px;
