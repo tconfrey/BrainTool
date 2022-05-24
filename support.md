@@ -30,4 +30,4 @@ Related to the above, some security and privacy related extensions stop web page
 As noted above, your braintool data is stored in the browser and optionally on Google Drive in a file associated with your Google account (the file is called BrainTool.org, you can see it by visiting [drive.google.com](https://drive.google.com)). Thus you will have a single such file across any set of computers you use. If you have BrainTool running simultaneously on multiple computers you need to use the Refresh button (under Options) to reload the latest version of the file when you swap between computers. 
 
 # Some other problem
-Email braintool.discussion@gmail.com or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback.
+Email braintool.extension@gmail.com or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback.
