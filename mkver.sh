@@ -1,7 +1,7 @@
 #!/bin/sh
 ## Usage: mkver.sh VERSION
 ## Creates a new version in versions/VERSION
-## Example: mkver.sh 1.0
+## Example: mkver.sh 1.0.0
 
 VERSION="$1"
 OUT="versions/$VERSION/"
