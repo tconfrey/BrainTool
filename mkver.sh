@@ -7,8 +7,8 @@ VERSION="$1"
 OUT="versions/$VERSION/"
 mkdir -p "$OUT"
 
-# copy whole folders
-rsync -a app extension utilities "$OUT"
+# copy whole folders, deleting anything added to $OUT
+rsync -a --delete app extension utilities "$OUT"
 
 # Update manifest files to point to the right version
 sed -i '/"version":/s/:.*/: "'$VERSION'",/' $OUT/extension/manifest*.json
