@@ -7,7 +7,7 @@ VERSION="$1"
 OUT="versions/$VERSION/"
 mkdir -p "$OUT"
 
-# copy whole folders, deleting anything added to $OUT
+# copy modified files, and propagate deletions too
 rsync -a --delete app extension utilities "$OUT"
 
 # Update manifest files to point to the right version
