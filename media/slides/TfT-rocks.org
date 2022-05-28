@@ -1,0 +1,167 @@
+#+PROPERTY: BTParentTopic Areas:TFT Interop:Org Proposal
+#+OPTIONS: num:nil toc:nil
+#+HTML_HEAD: <base target="_blank">
+#+REVEAL_TRANS: Slide
+#+REVEAL_THEME: black
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_EXTRA_CSS: ./slides.css 
+#+REVEAL_EXTRA_SCRIPT_SRC: ./slides.js
+
+
+#+Title: TfT interop & Org-mode
+#+Author: Tony Confrey
+#+Email: tconfrey@gmail.com
+#+Twitter: @tconfrey
+
+* TfT & Me
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+- Me
+  - Knowledge Engineer during the 2nd AI Winter, late 80's
+  - Telecom interop (SNMP, CMIP, TL1...)
+  - Semantic web (RDF, XML, OWL, Topic Maps), informationspace.net
+  - HealthCare interop (HL7, FHIR, SMART on FHIR, SNOMED, ICD10...)
+  - BrainTool
+
+#+REVEAL_HTML: <br/> <br/>
+#+ATTR_REVEAL: :frag fade-in
+- Tools for Thought
+  - Maggie Appleton's Cultural Systems
+  - The OG TfT - The Meme (in the Richard Dawkins sense)
+- Vs 'PKM', 'Productivity Tools' or 'Second Brain Apps (SBAs)'?
+
+#+ATTR_REVEAL: :frag fade-in
+#+ATTR_HTML: :alt Meme Machine :style position:absolute; right: 200px; top: 310px; width: 140px;
+[[file:./memeMachine.jpeg]]
+
+* What are SBA's?
+  - Tasks/To-do Managers
+  - Journaling tools
+  - Outliners
+  - Note takers
+  - Bookmark and resource managers
+  - Calendaring and reminders
+  - Zettlekasten, Linked Blocks
+  - Macros and automations
+  - ...
+
+* SBA InterOp
+  - Why InterOp
+    - Tools come and go
+    - N x Simple Best of breed tools  >>  1 x Kitchen sink tool
+    - Sharing/reuse at the individual and group level
+    - Users have realtime ownership of their data
+    - The unknowns of the global brain and human progress
+      - The ML path forward
+      - The Web3 path forward
+
+* SBA InterOp
+  - SBA Primitives
+    - Outlines/header hierarchies (addressable, context)
+    - Marked up text (Bold, underline etc), images
+    - Links - to local items and remote resources
+    - Lists
+    - Tables
+    - Tasks with life-cycles, schedules and priorities
+    - Tags
+    - Properties, meta comments, executable blocks
+
+
+* Org-Mode
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+20 years of evolution in the Walled Garden of emacs,
+#+REVEAL_HTML:
+hidden behind sky high learning curves,
+#+REVEAL_HTML:
+being continuously improved and refined
+#+REVEAL_HTML:
+by process and productivity savants 
+#+REVEAL_HTML:
+to form the most perfect text-based productivity and note taking system known to mankind!
+#+REVEAL_HTML: <br/>
+It natively supports all the outlined primitives.
+
+#+ATTR_HTML: :alt Architectural overview :style position:absolute; right: 120px; top: 90px; width: 140px;
+[[file:./orgModeUnicord.png]]
+
+** Demo
+1) Open BT Saver and save preso
+2) Show Topic Manager w page open under TFT InterOp
+3) Close tab w button, edit it add note
+4) Open tft interop in a window
+5) Show search BT-Admin, Add TODO
+6) Drop into emacs, show BrainTool file and structure, note TODO, table, list etc
+7) Open agenda, narrow to BT file, expand, narrow to BT10 tags,
+8) Show Follow mode, mark #5 task as done
+9) Show preso is also org data, note BTParentTopic
+10) Back to Topic Manager, refresh, show task updated, view tables and list in card
+11) Import preso file, show alignment in tree and access to resources
+12) Open from imported link and show stuff in LogSeq
+13) Show video of same thing in Plain Org
+
+** On Mobile
+#+REVEAL_HTML: <video controls width="540" height="1110" src="./android.mp4"></video>
+#+REVEAL_HTML: <video controls width="540" height="1110" src="./PlainOrg.mov"></video>
+
+* Proposal
+An iteration on Voits  [[https://gitlab.com/publicvoit/orgdown/-/tree/master][OrgDown]]
+|-----------------------+--------------------------------------------------------------------------------------------------|
+| Orgdown 'feature'     | Description                                                                                      |
+|-----------------------+--------------------------------------------------------------------------------------------------|
+| OD-0                  | Read and write plain text, preserving any markup.                                                |
+| OD-Outlines           | Nested outlines/headers with paragraph text.                                                     |
+| OD-Markup             | Basic text markup (bold, italic etc). Also [ [links] ].                                          |
+| OD-ListsAndCheckboxes | Bulleted and numbered lists. Lists of checkbox items.                                            |
+| OD-Tables             | Tables with formatting.                                                                    |
+| OD-Tasks              | Basic todo/done plus configurable lifecycle. Priorities, deadlines                               |
+| OD-Tags               | Tag assignment to outline headers with inheritance along the outline hierarchy.                  |
+| OD-Properties         | (Name, Value) meta-data properties associated with an Outline or File. Ignored Comment sections. |
+| OD-Automations        | Executable blocks that carry information allowing them to be run in a given context.             |
+|-----------------------+--------------------------------------------------------------------------------------------------|
+
+
+* Other Factors and Options
+  - Why not Markdown?
+    - Which Markdown, extended how?
+  - What about these new Block Protocols?
+    - No real contradiction, they solve an orthogonal problem
+
+  - Performance / scaling ?!
+    - striping and caching
+
+  - But there are better ways to do it!
+    - The best standard seldom wins...
+    - but available now, good enough, and widely used can get you to InterOp...
+    - and InterOp often opens huge new opportunities.
+    - Plus, Plain Text is **SOOO** nice!
+
+
+* Q&A, References
+- ??
+** Org-based Tools
+- [[https://BrainTool.org][BrainTool]]
+The topic manager for your online life
+- [[https://logseq.com][Logseq]]
+The next big thing in SBA's
+- [[https://plainorg.org][PlainOrg]]
+Org on your iPhone!
+- [[https://orgzly.com][Orgzly]]
+Org on your Android!
+- [[https://flathabits.com][Flat Habits]]
+- [[https://beorg.app][BeOrg]]
+- [[https://easyorgmode.com][Easy Org Mode]]
+- [[https://organice.200ok.ch][OrgaNice]]
+- [[https://orgro.org][Ogro]]
+- [[https://www.orgroam.com/][Org Roam]]
+Doesn't work for me, but honorable mention.
+
+** Org-Mode Parsers
+- [[https://github.com/200ok-ch/org-parser][200ok-ch]]
+- [[https://github.com/orgapp/orgajs][OrgaJS]]
+- [[https://hackage.haskell.org/package/org-mode][Haskell Parser]]
+- [[https://github.com/logseq/mldoc][Another Emacs Parser]]
+
+

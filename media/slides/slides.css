@@ -1,0 +1,33 @@
+:root {
+    --r-main-font-size: 30px;
+}
+p {
+    text-align: justify;
+}
+ul {
+    display: block !important;
+    margin: 0 !important;
+}
+li {
+    margin-top: 10px !important;
+}
+ol {
+    font-size: calc(var(--r-main-font-size) * 0.6);
+    margin-top: 5px;
+    margin-left: 0px !important;
+}
+p.subtext {
+    font-size: calc(var(--r-main-font-size) * 0.6);
+    margin-top: 0px;
+}
+b {
+    color: lightseagreen;
+}
+
+section {
+    height: 700px;
+    overflow-y: auto !important;
+}
+table {
+    font-size: calc(var(--r-main-font-size) * 0.75);
+}

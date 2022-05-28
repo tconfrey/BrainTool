@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>TfT interop &amp; Org-mode</title>
+<meta name="author" content="(Tony Confrey)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./slides.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'https://cdn.jsdelivr.net/npm/reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<base target="_blank">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">TfT interop &amp; Org-mode</h1><h2 class="author">Tony Confrey</h2><p class="date">Created: 2022-05-28 Sat 14:39</p>
+</section>
+
+<section>
+<section id="slide-org55b1a95">
+<h2 id="org55b1a95">TfT &amp; Me</h2>
+<ul>
+<li>Me
+<ul>
+<li>Knowledge Engineer during the 2nd AI Winter, late 80's</li>
+<li>Telecom interop (SNMP, CMIP, TL1&#x2026;)</li>
+<li>Semantic web (RDF, XML, OWL, Topic Maps), informationspace.net</li>
+<li>HealthCare interop (HL7, FHIR, SMART on FHIR, SNOMED, ICD10&#x2026;)</li>
+<li>BrainTool</li>
+
+</ul></li>
+
+</ul>
+
+<br/> <br/>
+<ul class="fragment fade-in">
+<li>Tools for Thought
+<ul>
+<li>Maggie Appleton's Cultural Systems</li>
+<li>The OG TfT - The Meme (in the Richard Dawkins sense)</li>
+
+</ul></li>
+<li>Vs 'PKM', 'Productivity Tools' or 'Second Brain Apps (SBAs)'?</li>
+
+</ul>
+
+
+<div class="figure">
+<p><img src="./memeMachine.jpeg" alt="Meme Machine" class="fragment fade-in" style="position:absolute; right: 200px; top: 310px; width: 140px;" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org80ea5fa">
+<h2 id="org80ea5fa">What are SBA's?</h2>
+<ul>
+<li>Tasks/To-do Managers</li>
+<li>Journaling tools</li>
+<li>Outliners</li>
+<li>Note takers</li>
+<li>Bookmark and resource managers</li>
+<li>Calendaring and reminders</li>
+<li>Zettlekasten, Linked Blocks</li>
+<li>Macros and automations</li>
+<li>&#x2026;</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org8c7cffd">
+<h2 id="org8c7cffd">SBA InterOp</h2>
+<ul>
+<li>Why InterOp
+<ul>
+<li>Tools come and go</li>
+<li>N x Simple Best of breed tools  &gt;&gt;  1 x Kitchen sink tool</li>
+<li>Sharing/reuse at the individual and group level</li>
+<li>Users have realtime ownership of their data</li>
+<li>The unknowns of the global brain and human progress
+<ul>
+<li>The ML path forward</li>
+<li>The Web3 path forward</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org6475479">
+<h2 id="org6475479">SBA InterOp</h2>
+<ul>
+<li>SBA Primitives
+<ul>
+<li>Outlines/header hierarchies (addressable, context)</li>
+<li>Marked up text (Bold, underline etc), images</li>
+<li>Links - to local items and remote resources</li>
+<li>Lists</li>
+<li>Tables</li>
+<li>Tasks with life-cycles, schedules and priorities</li>
+<li>Tags</li>
+<li>Properties, meta comments, executable blocks</li>
+
+</ul></li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org6e94269">
+<h2 id="org6e94269">Org-Mode</h2>
+<p>
+20 years of evolution in the Walled Garden of emacs,
+</p>
+<p>
+hidden behind sky high learning curves,
+</p>
+<p>
+being continuously improved and refined
+</p>
+<p>
+by process and productivity savants 
+</p>
+<p>
+to form the most perfect text-based productivity and note taking system known to mankind!
+</p>
+<br/>
+<p>
+It natively supports all the outlined primitives.
+</p>
+
+
+<div class="figure">
+<p><img src="./orgModeUnicord.png" alt="Architectural overview" style="position:absolute; right: 120px; top: 90px; width: 140px;" />
+</p>
+</div>
+
+</section>
+<section id="slide-org38cd355">
+<h3 id="org38cd355">Demo</h3>
+<ol>
+<li>Open BT Saver and save preso</li>
+<li>Show Topic Manager w page open under TFT InterOp</li>
+<li>Close tab w button, edit it add note</li>
+<li>Open tft interop in a window</li>
+<li>Show search BT-Admin, Add TODO</li>
+<li>Drop into emacs, show BrainTool file and structure, note TODO, table, list etc</li>
+<li>Open agenda, narrow to BT file, expand, narrow to BT10 tags,</li>
+<li>Show Follow mode, mark #5 task as done</li>
+<li>Show preso is also org data, note BTParentTopic</li>
+<li>Back to Topic Manager, refresh, show task updated, view tables and list in card</li>
+<li>Import preso file, show alignment in tree and access to resources</li>
+<li>Open from imported link and show stuff in LogSeq</li>
+<li>Show video of same thing in Plain Org</li>
+
+</ol>
+
+</section>
+<section id="slide-orgc04407c">
+<h3 id="orgc04407c">On Mobile</h3>
+<video controls width="540" height="1110" src="./android.mp4"></video>
+<video controls width="540" height="1110" src="./PlainOrg.mov"></video>
+
+</section>
+</section>
+<section>
+<section id="slide-org255917f">
+<h2 id="org255917f">Proposal</h2>
+<p>
+An iteration on Voits  <a href="https://gitlab.com/publicvoit/orgdown/-/tree/master">OrgDown</a>
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Orgdown 'feature'</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">OD-0</td>
+<td class="org-left">Read and write plain text, preserving any markup.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Outlines</td>
+<td class="org-left">Nested outlines/headers with paragraph text.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Markup</td>
+<td class="org-left">Basic text markup (bold, italic etc). Also [ [links] ].</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-ListsAndCheckboxes</td>
+<td class="org-left">Bulleted and numbered lists. Lists of checkbox items.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Tables</td>
+<td class="org-left">Tables with formatting.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Tasks</td>
+<td class="org-left">Basic todo/done plus configurable lifecycle. Priorities, deadlines</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Tags</td>
+<td class="org-left">Tag assignment to outline headers with inheritance along the outline hierarchy.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Properties</td>
+<td class="org-left">(Name, Value) meta-data properties associated with an Outline or File. Ignored Comment sections.</td>
+</tr>
+
+<tr>
+<td class="org-left">OD-Automations</td>
+<td class="org-left">Executable blocks that carry information allowing them to be run in a given context.</td>
+</tr>
+</tbody>
+</table>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org0f0be90">
+<h2 id="org0f0be90">Other Factors and Options</h2>
+<ul>
+<li>Why not Markdown?
+<ul>
+<li>Which Markdown, extended how?</li>
+
+</ul></li>
+<li>What about these new Block Protocols?
+<ul>
+<li>No real contradiction, they solve an orthogonal problem</li>
+
+</ul></li>
+
+<li>Performance / scaling ?!
+<ul>
+<li>striping and caching</li>
+
+</ul></li>
+
+<li>But there are better ways to do it!
+<ul>
+<li>The best standard seldom wins&#x2026;</li>
+<li>but available now, good enough, and widely used can get you to InterOp&#x2026;</li>
+<li>and InterOp often opens huge new opportunities.</li>
+<li>Plus, Plain Text is <b><b>SOOO</b></b> nice!</li>
+
+</ul></li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org5ce9d3a">
+<h2 id="org5ce9d3a">Q&amp;A, References</h2>
+<ul>
+<li>??</li>
+
+</ul>
+</section>
+<section id="slide-org85f5a0f">
+<h3 id="org85f5a0f">Org-based Tools</h3>
+<ul>
+<li><a href="https://braintool.org">BrainTool</a></li>
+
+</ul>
+<p>
+The topic manager for your online life
+</p>
+<ul>
+<li><a href="https://logseq.com">Logseq</a></li>
+
+</ul>
+<p>
+The next big thing in SBA's
+</p>
+<ul>
+<li><a href="https://plainorg.org">PlainOrg</a></li>
+
+</ul>
+<p>
+Org on your iPhone!
+</p>
+<ul>
+<li><a href="https://orgzly.com">Orgzly</a></li>
+
+</ul>
+<p>
+Org on your Android!
+</p>
+<ul>
+<li><a href="https://flathabits.com">Flat Habits</a></li>
+<li><a href="https://beorg.app">BeOrg</a></li>
+<li><a href="https://easyorgmode.com">Easy Org Mode</a></li>
+<li><a href="https://organice.200ok.ch">OrgaNice</a></li>
+<li><a href="https://orgro.org">Ogro</a></li>
+<li><a href="https://www.orgroam.com/">Org Roam</a></li>
+
+</ul>
+<p>
+Doesn't work for me, but honorable mention.
+</p>
+
+</section>
+<section id="slide-org0600b3e">
+<h3 id="org0600b3e">Org-Mode Parsers</h3>
+<ul>
+<li><a href="https://github.com/200ok-ch/org-parser">200ok-ch</a></li>
+<li><a href="https://github.com/orgapp/orgajs">OrgaJS</a></li>
+<li><a href="https://hackage.haskell.org/package/org-mode">Haskell Parser</a></li>
+<li><a href="https://github.com/logseq/mldoc">Another Emacs Parser</a></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+
+</script>
+<script src="./slides.js"></script></body>
+</html>
