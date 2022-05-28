@@ -102,8 +102,9 @@ It natively supports all the outlined primitives.
 12) Open from imported link and show stuff in LogSeq
 13) Show video of same thing in Plain Org
 
-** On Mobile
+** On Mobile - Android
 #+REVEAL_HTML: <video controls width="540" height="1110" src="./android.mp4"></video>
+** On Mobile - iOS
 #+REVEAL_HTML: <video controls width="540" height="1110" src="./PlainOrg.mov"></video>
 
 * Proposal
