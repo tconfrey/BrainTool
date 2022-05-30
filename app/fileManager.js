@@ -51,17 +51,23 @@ async function saveBT(localOnly = false) {
     updateStatsRow();                            // update num cards etc
     console.log("Recording save event and writing to any backing store");
     if (InitialInstall) {
-        gtag('event', 'FirstSave', {'event_category': 'General', 'event_label': 'Version', 'value': getMetaProp('BTVersion')});
+        gtag('event', 'FirstSave', {'event_category': 'General'});
         InitialInstall = false;
     } else {        
-        gtag('event', 'Save', {'event_category': 'General', 'event_label': 'Version', 'value': getMetaProp('BTVersion')});
     }
 
-    // also save to GDrive or local file if connected
-    if (GDriveConnected)
+    // also save to GDrive or local file if connected and drop an event
+    if (GDriveConnected) {
         gDriveFileManager.saveBT(BTFileText);
-    if (localFileManager.getLocalFileHandle())
+        gtag('event', 'GDriveSave', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+        return;
+    }
+    if (localFileManager.getLocalFileHandle()) {
         localFileManager.saveBT(BTFileText);
+        gtag('event', 'LocalSave', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+        return;
+    }
+    gtag('event', 'InternalSave', {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
 }
 
 async function authorizeLocalFile() {

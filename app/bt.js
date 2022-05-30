@@ -961,7 +961,7 @@ function tabActivated(data) {
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
     
     // Set Highlight to this node
-    if (node) setNodeSelected(node);            // show in table
+    if (node) changeSelected(node);            // show in table
 }
 
 function tabGrouped(data) {

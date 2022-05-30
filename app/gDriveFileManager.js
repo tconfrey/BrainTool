@@ -379,8 +379,6 @@ const gDriveFileManager = (() => {
                 form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
 
                 SaveUnderway = true;
-                gtag('event', 'Save', {'event_category': 'GDrive', 'event_label': 'Count',
-                                       'value': getMetaProp('BTVersion')});
 
                 await fetch('https://www.googleapis.com/upload/drive/v3/files/'
                             + encodeURIComponent(BTFileID)
