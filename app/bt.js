@@ -35,8 +35,6 @@ var InitialInstall = false;
 var UpgradeInstall = false;
 var GroupingMode = 'TABGROUP';          // or 'NONE'
 var GDriveConnected = false;
-var Config = {};					    // general config info holder
-
 
 /***
  *
@@ -47,13 +45,9 @@ var Config = {};					    // general config info holder
 async function launchApp(msg) {
     // Launch app w data passed from extension local storage
     
-    ClientID = msg.client_id;
-    APIKey = msg.api_key;
-    FBKey = msg.fb_key;
-    STRIPE_PUBLISHABLE_KEY = msg.stripe_key;
-    Config = msg.Config || {};
+    configManager.setConfigAndKeys(msg);
     InitialInstall = msg.initial_install;
-    UpgradeInstall = msg.upgrade_install;                     // null or value of 'previousVersion'
+    UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
 
     if (InitialInstall || UpgradeInstall)
         setTimeout(closeMenu, 5000);
@@ -80,7 +74,7 @@ async function launchApp(msg) {
             if (UpgradeInstall.startsWith('0.8') ||
                 UpgradeInstall.startsWith('0.7') ||
                 UpgradeInstall.startsWith('0.6'))
-                setMetaProp('BTGDriveConnected', 'true');
+                configManager.setProp('BTGDriveConnected', 'true');
             gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall});
         }
     }
@@ -93,8 +87,8 @@ async function launchApp(msg) {
 
     // Get BT sub id => premium 
     // BTId in local store and from org data should be the same. local store is primary
-    if (msg.bt_id) {
-	    BTId = msg.bt_id;
+    if (msg?.Config?.BTId) {
+	    BTId = msg.Config.BTId;
 	    if (!getMetaProp('BTId')) setMetaProp('BTId', BTId);
 	    else if (BTId != getMetaProp('BTId'))
 	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issue contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
@@ -102,14 +96,12 @@ async function launchApp(msg) {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
 	    if (getMetaProp('BTId')) {
 	        BTId = getMetaProp('BTId');
-	        Config.bt_id = BTId;
-	        window.postMessage({'function': 'localStore', 'data': {'BTId': BTId}});
-	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+            configManager.setProp('BTId', BTId);
 	    }
     }
     
     // If bookmarks have been imported remove button from controls screen (its still under options)
-    if (!getMetaProp('BTLastBookmarkImport')) {
+    if (!configManager.getProp('BTLastBookmarkImport')) {
 	    $("#importBookmarkButton").show();
 	    $("#openOptionsButton").text("Other Actions");
     }
@@ -277,7 +269,7 @@ function updateStatsRow(modifiedTime = null) {
     const numLinks = AllNodes.filter(n => n?.URL).length;
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
-    const numSaves = getMetaProp('BTVersion');
+    const numSaves = configManager.getProp('BTVersion');
     const tagText = `${numTags + numLinks} Items\n(${numOpenLinks} open tabs)`;
     $('#num_topics').text(numOpenTags ? `:${numTags + numLinks} (${numOpenLinks})` : `:${numTags + numLinks}`);
     $("#brain_span").attr('data-wenk', tagText);
@@ -1499,7 +1491,7 @@ function loadBookmarks(msg) {
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
     // remmember this import and remove button from main control screen
-    setMetaProp('BTLastBookmarkImport', dateString);
+    configManager.setProp('BTLastBookmarkImport', dateString);
     $("#importBookmarkButton").hide();
     $("#openOptionsButton").text("Actions");
     processImport(importName);                             // see above
@@ -1569,23 +1561,22 @@ function exportBookmarks() {
 function updatePrefs() {
     // update prefrences based on data read into AllNodes.metaProperties
 
-    let groupMode = getMetaProp('BTGroupingMode');
+    let groupMode = configManager.getProp('BTGroupingMode');
     if (groupMode) {
         const $radio = $('#tabgroup_selector :radio[name=grouping]');
 
         // v099 move away from have a WINDOW default, new window now a choice on opening
         if (groupMode == 'WINDOW') {
             groupMode = 'TABGROUP';
-            setMetaProp('BTGroupingMode', groupMode);
+            configManager.setProp('BTGroupingMode', groupMode);
         }            
         
         $radio.filter(`[value=${groupMode}]`).prop('checked', true);
         GroupingMode = groupMode;
-        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
 	}
 
     // does the topic manager live in a tab or a window?
-    const managerHome = getMetaProp('BTManagerHome');
+    const managerHome = configManager.getProp('BTManagerHome');
     if (managerHome) {
         const $radio = $('#panel_toggle :radio[name=grouping2]');
         $radio.filter(`[value=${managerHome}]`).prop('checked', true);
@@ -1593,7 +1584,7 @@ function updatePrefs() {
     }
 
     // Theme saved or set from OS
-    const theme = getMetaProp('BTTheme') ||
+    const theme = configManager.getProp('BTTheme') ||
           (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
     const $radio = $('#theme_selector :radio[name=theme]');
     $radio.filter(`[value=${theme}]`).prop('checked', true);
@@ -1612,16 +1603,14 @@ $(document).ready(function () {
         const oldVal = GroupingMode;
         const newVal = $(this).val();
         GroupingMode = newVal;
-        setMetaProp('BTGroupingMode', GroupingMode);
-        // Let extension know
-        window.postMessage({'function': 'localStore', 'data': {'GroupingMode': GroupingMode}});
+        configManager.setProp('BTGroupingMode', GroupingMode);
 
         saveBT();
         groupingUpdate(oldVal, newVal);
     });
     $('#panel_toggle :radio').change(function () {
         const newHome = $(this).val();
-        setMetaProp('BTManagerHome', newHome);
+        configManager.setProp('BTManagerHome', newHome);
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
         saveBT();
@@ -1629,7 +1618,7 @@ $(document).ready(function () {
     });
     $('#theme_selector :radio').change(function () {
         const newTheme = $(this).val();
-        setMetaProp('BTTheme', newTheme);
+        configManager.setProp('BTTheme', newTheme);
         document.documentElement.setAttribute('data-theme', newTheme);
         // Let extension know
         window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});

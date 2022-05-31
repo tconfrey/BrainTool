@@ -84,7 +84,7 @@ const localFileManager = (() => {
         // Close the file and write the contents to disk.
         await writable.close();
         savePending = false;
-        Config.BTTimestamp = Date.now();
+        configManager.setProp('BTTimestamp', Date.now());
 		window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     }
 
@@ -183,7 +183,7 @@ const localFileManager = (() => {
         const file = await LocalFileHandle.getFile();
         const contents = await file.text();
         
-		Config.BTTimestamp =  file.lastModified;
+		configManager.setProp('BTTimestamp', file.lastModified);
 	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         BTFileText = contents;
     }
@@ -200,7 +200,7 @@ const localFileManager = (() => {
         // is there a newer version of the btfile on Drive?
 
         const remoteVersion = await getFileLastModifiedTime() || 0;
-        const localVersion = Config.BTTimestamp || 0;
+        const localVersion = configManager.getProp('BTTimestamp') || 0;
         console.log(`Checking timestamps. local: ${localVersion}, remote: ${remoteVersion}`);
         return (remoteVersion > localVersion);
     }

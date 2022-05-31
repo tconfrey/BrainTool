@@ -5,9 +5,6 @@
  * 
  ***/
 
-// TODO sink these into gDrive manager
-var ClientID, APIKey;
-
 function syncEnabled() {
     // Is there a backing store file, local or gdrive
     return GDriveConnected || localFileManager.getLocalFileHandle();
@@ -19,7 +16,7 @@ async function handleStartupFileConnection() {
     let launchType = 'NonGDriveLaunch';
 
     // Handle GDrive connection
-    if (getMetaProp('BTGDriveConnected') == 'true') {
+    if (configManager.getProp('BTGDriveConnected') == 'true') {
         GDriveConnected = true;
         gDriveFileManager.authorizeGapi();
         launchType = 'GDriveLaunch';
@@ -76,8 +73,7 @@ async function authorizeLocalFile() {
     if (!success) return;
 
     setMetaProp('BTGDriveConnected', 'false');
-    Config.BTTimestamp = await localFileManager.getFileLastModifiedTime();
-    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+    configManager.setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
 }
 
