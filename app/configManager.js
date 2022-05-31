@@ -12,7 +12,7 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID'],
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTLastBookmarkImport'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme']
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
@@ -41,14 +41,14 @@ const configManager = (() => {
     function getProp(prop) {
         // getter for sync props
 
+        if (Properties.localStorageProps.includes(prop)) {
+            return Config[prop];
+        }
         if (Properties.orgProps.includes(prop)) {
             return getMetaProp(prop);
         }
         if (Properties.keys.includes(prop)) {
             return Keys[prop];
-        }
-        if (Properties.localStorageProps.includes(prop)) {
-            return Config[prop];
         }
         alert(`unknown prop: ${prop}`);
     };
