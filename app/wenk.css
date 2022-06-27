@@ -6,7 +6,7 @@
  * @license MIT
  */
 [data-wenk] {
-    position: relative
+    position: relative;
 }
 
 [data-wenk]:after {
@@ -21,7 +21,6 @@
     line-height: 20px;
     line-height: 1.25rem;
     text-align: left;
-    z-index: 4;
     pointer-events: none;
     display: block;
     opacity: 0;
@@ -49,22 +48,9 @@
     display: block;
     opacity: 1;
     visibility: visible;
+    z-index: 0;
     -webkit-transform: translate(-25%, -5px);
             transform: translate(-25%, -5px);
-}
-
-[data-wenk].wenk--bottom:after, [data-wenk][data-wenk-pos="bottom"]:after {
-    bottom: auto;
-    top: 100%;
-    left: -100%;
-    font-size: 12px;
-    -webkit-transform: translate(-25%, -5px);
-            transform: translate(-25%, -5px);
-}
-
-[data-wenk].wenk--bottom:hover:after, [data-wenk][data-wenk-pos="bottom"]:hover:after {
-    -webkit-transform: translate(-25%, 5px);
-            transform: translate(-25%, 5px);
 }
 
 [data-wenk].wenk--left:after, [data-wenk][data-wenk-pos="left"]:after {
@@ -79,6 +65,34 @@
 [data-wenk].wenk--left:hover:after, [data-wenk][data-wenk-pos="left"]:hover:after {
     -webkit-transform: translate(-5px, -25%);
             transform: translate(-5px, -25%);
+}
+
+[data-wenk].wenk--right:after, [data-wenk][data-wenk-pos="left"]:after {
+    bottom: 75%;
+    left: auto;
+    top: auto;
+    right: 50%;
+    -webkit-transform: translate(5px, -25%);
+            transform: translate(5px, -25%);
+}
+
+[data-wenk].wenk--right:hover:after, [data-wenk][data-wenk-pos="left"]:hover:after {
+    -webkit-transform: translate(-5px, -25%);
+            transform: translate(-5px, -25%);
+}
+/*
+[data-wenk].wenk--bottom:after, [data-wenk][data-wenk-pos="bottom"]:after {
+    bottom: auto;
+    top: 100%;
+    left: -100%;
+    font-size: 12px;
+    -webkit-transform: translate(-25%, -5px);
+            transform: translate(-25%, -5px);
+}
+
+[data-wenk].wenk--bottom:hover:after, [data-wenk][data-wenk-pos="bottom"]:hover:after {
+    -webkit-transform: translate(-25%, 5px);
+            transform: translate(-25%, 5px);
 }
 
 [data-wenk].wenk--right:after, [data-wenk][data-wenk-pos="right"]:after {
@@ -121,7 +135,7 @@
 [data-wenk][data-wenk-align="center"]:after, [data-wenk].wenk-align--center:after {
     text-align: center;
 }
-
+*/
 [data-wenk=""]:after {
     visibility: hidden !important;
 }

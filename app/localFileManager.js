@@ -73,6 +73,7 @@ const localFileManager = (() => {
     let savePending = false;
     async function saveBT(BTFileText) {
         // Save BT file to local file for which permission was granted
+        console.log('writing to local file');
         savePending = true;
         if (!LocalFileHandle)
             LocalFileHandle = await authorizeLocalFile();
@@ -85,7 +86,6 @@ const localFileManager = (() => {
         await writable.close();
         savePending = false;
         configManager.setProp('BTTimestamp', Date.now());
-		window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     }
 
     function savePendingP() {
@@ -118,18 +118,18 @@ const localFileManager = (() => {
             LocalFileHandle =
             await LocalDirectoryHandle.getFileHandle('BrainTool.org', { create: true });
         
+        LocalFileConnected = true;                             // used in fileManager facade
         if (fileExists &&
             confirm("BrainTool.org file already exists. Click OK to use its contents")) {
 		    await refreshTable(true);
-	} else {
-	    // else do a save to sync everything up
-	    const content = BTAppNode.generateOrgFile();
-	    saveBT(content);
-	}
+	    } else {
+	        // else do a save to sync everything up
+	        const content = BTAppNode.generateOrgFile();
+	        saveBT(content);
+	    }
         
         set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
         set('localDirectoryHandle', LocalDirectoryHandle);     // store for subsequent sessions
-        
         return LocalFileHandle;
     }
 
@@ -165,6 +165,7 @@ const localFileManager = (() => {
         }
 
         // check if newer version on disk
+        LocalFileConnected = true;
         const newerOnDisk = await checkBTFileVersion();
         if (newerOnDisk && confirm("BrainTool.org file is newer on disk. Use newer?")) {
             try {
@@ -184,7 +185,6 @@ const localFileManager = (() => {
         const contents = await file.text();
         
 		configManager.setProp('BTTimestamp', file.lastModified);
-	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         BTFileText = contents;
     }
 

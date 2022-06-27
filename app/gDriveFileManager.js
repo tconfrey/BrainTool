@@ -84,7 +84,7 @@ const gDriveFileManager = (() => {
 	        alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
         }
         if (typeof gapi !== 'undefined')
-            gapi.load('client:auth2', initClient(userInitiated));             // initialize gdrive app
+            return gapi.load('client:auth2', initClient(userInitiated));      // initialize gdrive app
         else {
             $("#loadingMessage").append(".");
             setTimeout(authorizeGapi, 500);
@@ -132,14 +132,16 @@ const gDriveFileManager = (() => {
             }
             catch (e){
                 console.warn("Error in initClient:", e.toString());
-                return;
+                return false;
             }
             updateSigninStatus(AuthObject.isSignedIn.get(), false, userInitiated);
 	    }
         catch (err) {
             clearTimeout(timeout);
             updateSigninStatus(false, err);
+            return false;
         }
+        return true;
     }
 
     function checkLoginReturned() {
@@ -186,7 +188,6 @@ const gDriveFileManager = (() => {
 	        {
 		        // if user just initiated connection but file exists ask to import
 		        // or if we have a recorded version thats older than disk, ask to import
-		        warnBTFileVersion();
 		        const msg = userInitiated ?
 		              "BrainTool.org file already exists. Use its contents?" :
 		              "BrainTool.org file is newer than browser data. Use newer?";
@@ -272,7 +273,6 @@ const gDriveFileManager = (() => {
             BTFileText = response.body;
 	        const remoteVersion = await getBTModifiedTime();
 	        configManager.setProp('BTTimestamp', remoteVersion);
-            updateStatsRow(remoteVersion);
         }
         catch(error) {
 	        console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
@@ -347,7 +347,7 @@ const gDriveFileManager = (() => {
         async function _writeBTFile() {
             // Write file contents into BT.org file on GDrive
             // NB Have to be careful to keep SaveUnderway up to date on all exit paths
-            console.log("Writing BT file");
+            console.log("Writing BT file to gdrive");
             UnwrittenChangesTimer = null;
 
             if (!BTFileID) {
@@ -471,9 +471,12 @@ const gDriveFileManager = (() => {
             {
                 alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
                 await refreshTable(true);                       // Read previous org from GDrive
-                saveBT();					    // save to record it's now synced
+                saveBT();                                       // save to record it's now synced
             }
-	        if (userInitiated) saveBT();			    // also save if newly authorized
+	        if (userInitiated) {
+                saveBT();                                       // also save if newly authorized
+                alert('GDrive connection established. See Actions to disable.');
+            }
         } else {
             alert("GDrive connection lost");
             updateSyncSettings(false);

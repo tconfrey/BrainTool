@@ -221,7 +221,7 @@ class BTAppNode extends BTNode {
     showForSearch() {
 	    // show this node in the tree cos its the search hit (might be folded)
 	    const disp = this.getDisplayNode();
-	    if(!$(disp).is(':visible')) {
+	    if(disp && !$(disp).is(':visible')) {
 	        if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
 	        $(disp).show();                                                // jquery node show
 	        this.shownForSearch = true;
@@ -404,7 +404,7 @@ class BTAppNode extends BTNode {
     putInGroup() {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId) return;
-        const groupName = this.isTopic() ? this.displayTag : AllNodes[this.parentId].displayTag;
+        const groupName = this.isTopic() ? this.displayTag : AllNodes[this.parentId]?.displayTag;
         window.postMessage({'function': 'groupAll', 'groupName': groupName,
                             'tabIds': [this.tabId], 'windowId': this.windowId});
     }
@@ -434,8 +434,8 @@ class BTAppNode extends BTNode {
             if (n.hasOpenChildren()) {
                 const openTabIds = n.childIds.flatMap(
                     c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-                window.postMessage({'function': 'groupAll', 'tabIds': openTabIds,
-                                    'windowId': n.windowId});
+                window.postMessage({'function': 'groupAll', 'groupName': n.displayTag,
+                                    'tabIds': openTabIds, 'windowId': n.windowId});
             }
         });
     }

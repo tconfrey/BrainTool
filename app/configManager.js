@@ -1,9 +1,12 @@
 /*** 
  * 
- * Handles configuration getting/setting. Config can come from
+ * Handles configuration/actions/help getting/setting and associated displays. 
+ * Config can come from
  * 1) config.js embedded in extension package and passed in msg
  * 2) Config obj kept in local storage
  * 3) metaProps - Org properties read from bt.org file and stored as properties on AllNodes[]
+ * 4) stats, separated out but stored in local storage under the BTStats property
+ * NB BTId is both in meta and local for recovery purposes
  * 
  ***/
 'use strict';
@@ -12,14 +15,16 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTLastBookmarkImport'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme']
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTStats', 'BTLastShownMessageIndex'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme'],
+        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
 
     function setConfigAndKeys(msg) {
         // takes message from background/Content script and pulls out settings
         Config = msg.Config || {};
+        if (!Config['BTStats']) Config['BTStats'] = {};
         Keys.CLIENT_ID = msg.client_id;
         Keys.API_KEY = msg.api_key;
         Keys.FB_KEY = msg.fb_key;
@@ -50,13 +55,207 @@ const configManager = (() => {
         if (Properties.keys.includes(prop)) {
             return Keys[prop];
         }
-        alert(`unknown prop: ${prop}`);
+        return null;
     };
+
+    function incrementStat(statName) {
+        // numLaunches, numSaves, numTabOps, update lastactivity as side effect
+        const oldVal = Config['BTStats'][statName] || 0;
+        Config['BTStats'][statName] = oldVal + 1;
+        Config['BTStats']['BTLastActivityTime'] = Date.now();
+	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+    };
+
+    function setStat(statName, statValue) {
+        // eg sessionStartTime
+        Config['BTStats'][statName] = statValue;
+	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+    };  
+    
+    function updatePrefs() {
+        // update preferences based on data read into AllNodes.metaProperties
+
+        let groupMode = configManager.getProp('BTGroupingMode');
+        if (groupMode) {
+            const $radio = $('#tabGroupToggle :radio[name=grouping]');
+
+            // v099 move away from have a WINDOW default, new window now a choice on opening
+            if (groupMode == 'WINDOW') {
+                groupMode = 'TABGROUP';
+                configManager.setProp('BTGroupingMode', groupMode);
+            }            
+            
+            $radio.filter(`[value=${groupMode}]`).prop('checked', true);
+            GroupingMode = groupMode;
+	    }
+
+        // does the topic manager live in a tab or a window?
+        const managerHome = configManager.getProp('BTManagerHome');
+        if (managerHome) {
+            const $radio = $('#panelToggle :radio[name=location]');
+            $radio.filter(`[value=${managerHome}]`).prop('checked', true);
+            window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
+        }
+
+        // Theme saved or set from OS
+        const theme = configManager.getProp('BTTheme') ||
+              (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
+        const $radio = $('#themeToggle :radio[name=theme]');
+        $radio.filter(`[value=${theme}]`).prop('checked', true);
+        window.postMessage({'function': 'localStore', 'data': {'Theme': theme}});
+        // Change theme by setting attr on document which overides a set of vars. see top of bt.css
+        document.documentElement.setAttribute('data-theme', theme);
+        $("img").removeClass('LIGHT', 'DARK').addClass(theme);  // swap some icons
+
+        // Subscription show to subscribe or info + link
+        let btid = getProp('BTId') || getMetaProp('BTId');   // try both since might be just read in
+        if (btid) {
+            $('#settingsSubscriptionAdd').hide();
+            $('#settingsSubscriptionStatus').show();
+            $('#subId').text(btid);
+        }        
+    }
+
+    // Register listener for radio button changes in Options
+    $(document).ready(function () {
+        $('#tabGroupToggle :radio').change(function () {
+            const oldVal = GroupingMode;
+            const newVal = $(this).val();
+            GroupingMode = newVal;
+            configManager.setProp('BTGroupingMode', GroupingMode);
+            saveBT();
+            groupingUpdate(oldVal, newVal);
+        });
+        $('#panelToggle :radio').change(function () {
+            const newHome = $(this).val();
+            configManager.setProp('BTManagerHome', newHome);
+            // Let extension know
+            window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+            saveBT();
+        });
+        $('#themeToggle :radio').change(function () {
+            const newTheme = $(this).val();
+            configManager.setProp('BTTheme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            // Let extension know
+            window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
+            saveBT();
+        });
+        $('#syncSetting :radio').change(async function () {
+            const newVal = $(this).val();
+            let success = false;
+            if (newVal == 'gdrive')
+                success = await authorizeGAPI(true);
+            if (newVal == 'local')
+                success = await authorizeLocalFile();
+            if (success) {
+                $("#settingsSync").hide();
+                $("#settingsSyncStatus").show();
+            }
+            return success;
+        });
+    });
+
+    function toggleSettingsDisplay() {
+        // open/close settings panel
+        
+        const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+        
+        if ($('#actions').is(':visible'))
+            toggleActionsDisplay();                       // can't have both open
+        
+        if ($('#settings').is(':visible')) {            
+            $('#settings').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("body").css("overflow", "auto");
+            setTimeout(() => {
+                $('#settingsButton').removeClass('open');
+                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+            }, 250);
+        } else {
+            $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
+            $('#settingsButton').addClass('open');
+            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        }
+    }
+
+    function toggleActionsDisplay() {
+        // open/close actions panel
+        
+        const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+        
+        if ($('#actions').is(':visible')) {            
+            $('#actions').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("body").css("overflow", "auto");
+            setTimeout(() => {
+                $('#actionsButton').removeClass('open');
+                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+            }, 250);
+        } else {
+            $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
+            $('#actionsButton').addClass('open');
+            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        }
+    }
+
+    function toggleHelpDisplay(panel) {
+        // open/close help panel
+
+        const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+        
+        if ($('#help').is(':visible')) {            
+            $('#help').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("body").css("overflow", "auto");
+            setTimeout(() => {
+                $('#footerHelp').removeClass('open');
+                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+            }, 250);
+        } else {
+            $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
+            $('#footerHelp').addClass('open');
+            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        }
+    }
+
+    function toggleKeyCommands() {
+        // open/close key command table inside help
+        if ($('#keyCommands').is(':visible'))
+            setTimeout(()=>$('#keyCommands').slideUp({duration: 250, 'easing': 'easeInCirc'}),10);
+        else
+            setTimeout(()=>$('#keyCommands').slideDown({duration: 250, 'easing': 'easeInCirc'}), 10);
+    }
+
+    function initializeInstallDate() {
+        // best guess at install date cos wasn't previously set
+        // Use bookmark import data if set. Otherwise assume 2x saves/day up to 1 year
+        if (Config['BTStats']['BTInstallDate']) return;
+        if (getProp('BTLastBookmarkImport')) {
+            const datestr = getProp('BTLastBookmarkImport').replace(';', ':');
+            const date = Date.parse(datestr);
+            if (date) {
+                setStat('BTInstallDate', date);
+                return;
+            }
+        }
+        const saveDays = Math.min(Config['BTStats']['BTNumSaves'] / 2, 365);
+        const guessedInstallDate = Date.now() - (saveDays * 24 * 60 * 60000);
+        setStat('BTInstallDate', guessedInstallDate);
+    }
 
     return {
         setConfigAndKeys: setConfigAndKeys,
         setProp: setProp,
-        getProp: getProp
+        getProp: getProp,
+        setStat: setStat,
+        incrementStat: incrementStat,
+        updatePrefs: updatePrefs,
+        toggleSettingsDisplay: toggleSettingsDisplay,
+        toggleHelpDisplay: toggleHelpDisplay,
+        toggleActionsDisplay: toggleActionsDisplay,
+        toggleKeyCommands: toggleKeyCommands,
+        initializeInstallDate: initializeInstallDate
     };
 })();
 
