@@ -6,17 +6,17 @@
  *
  ***/
 
-var config;
+var Keys;
 try {
     importScripts('config.js');
 } catch (e) {
     console.log(e);
-    config = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
+    Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
 }
 
-var LocalTest = false;                 // control code path during unit testing
-var InitialInstall = false;            // should we serve up the welcome page
-var UpdateInstall = false;                   // or the release notes page
+var LocalTest = false;                            // control code path during unit testing
+var InitialInstall = false;                       // should we serve up the welcome page
+var UpdateInstall = false;                        // or the release notes page
 
 async function getBTTabWin() {
     // read from local storage
@@ -33,7 +33,6 @@ function check(msg='') {
 
 /* Document data kept in storage.local */
 const storageKeys = ["BTFileText",                // golden source of BT .org text data
-                     "GroupingMode",              // window/group/none user pref
                      "TabAction",                 // remember popup default action
                      "currentTabId",
                      "currentTag",                // for setting badge text
@@ -253,9 +252,9 @@ async function initializeExtension(msg, sender) {
     // send over gdrive app info
     chrome.tabs.sendMessage(                        
         BTTab,
-        {'function': 'launchApp', 'config': config, 'client_id': config.CLIENT_ID,
-	     'api_key': config.API_KEY, 'fb_key': config.FB_KEY,
-	     'stripe_key': config.STRIPE_KEY,
+        {'function': 'launchApp', 'client_id': Keys.CLIENT_ID,
+	     'api_key': Keys.API_KEY, 'fb_key': Keys.FB_KEY,
+	     'stripe_key': Keys.STRIPE_KEY,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall,
 	     'all_tabs': allTabs});
 
