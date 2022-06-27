@@ -8,7 +8,7 @@ Follow these steps to get up and running quickly.
 BrainTool is organized as a hierarchy of topics. 
 The structure is yours to define.
 ** TODO Import and organize some Bookmarks
-Open the Options/Actions menu (top left) and click Import Bookmarks. 
+Open the Actions menu (top left) and click Import Bookmarks. 
 ** TODO Try saving some tabs
 Play with the Saver tool to categorize, save and close out some old tabs.
 
@@ -19,20 +19,21 @@ Keep all your links and notes for each project in one place.
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-An example home improvement type project.
+Hover the mouse over a row to see the tools you can use on it.
 
 *** Contractors
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Click the T button to open all links under Contractors in a tab group.
+Click the T tool to open all links under Contractors in a tab group.
 **** [[https://braintool.org/overview.html][The Expensive guys]]
-Click the link or use the T button to open in a Tab.
+Click the link or use the T tool to open in a Tab.
 
 **** [[https://braintool.org/posts][The cheap guy]]
-W opens in a new window.
+The W tool opens in a new window.
 
 **** [[https://northriverbuilders.com/][North River Builders]]
+Add text notes to saved pages...
 Just right! Nile was great to talk to. Really engaged with the project. Good project management software, great portfolio.
 
 *** Cabinetry
