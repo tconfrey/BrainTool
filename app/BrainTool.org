@@ -4,11 +4,11 @@
 
 * 👋  Welcome, lets get started
 Follow these steps to get up and running quickly.
-** TODO Review the sample Topic Hierarchy
+** TODO Review these sample Topics
 BrainTool is organized as a hierarchy of topics. 
 The structure is yours to define.
-** TODO Import and organize some Bookmarks
-Open the Actions menu (top left) and click Import Bookmarks. 
+** TODO Import and organize Bookmarks
+Open the Actions menu (top right) and select Browser Bookmarks under Import.
 ** TODO Try saving some tabs
 Play with the Saver tool to categorize, save and close out some old tabs.
 
