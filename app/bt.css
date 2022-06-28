@@ -442,7 +442,7 @@ body {
     padding-right: 0px;
     border-radius: 0px;
     cursor: pointer;
-    right: 0px;
+    right: 2px;
     height: calc(var(--btRowHeight) - 2px);
 }
 .rowButton {
