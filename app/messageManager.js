@@ -11,24 +11,25 @@ const messageManager = (() => {
     const tipsArray = [
         "Add ':' at the end of a topic in the BT Saver to create a new subtopic.",
         "Double click on a table row to highlight its' open window, if any.",
-        "Type ':TODO' after a topic to make the item a TODO in the BT tree.",
+        "Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
-        "Remember to Refresh if you've been editing the BrainTool.org file directly. <br/>(Also make sure your updates are sync'd to your GDrive.)",
+        "Remember to Refresh if you've been editing the BrainTool.org file directly.",
         `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
         "You can save individual gmails or google docs into the BT tree.",
         "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
         "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
         "See BrainTool.org for the BrainTool blog and other info.",
+        "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!",
         "Check out the Bookmark import/export functions under Actions",
         "You can click on the topics shown in the Saver instead of typing out the name.",
-        "Close and re-open this controls overlay to get a new tip!",
-        `Double tap ${OptionKey}-b, or double click the icon, to surface the BrainTool side panel.`,
-        "When you have an Edit card open, the up/down arrows will open the next/previous card.",
+        "Use the forward (>>) button on the right to cycle through tips",
+        `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.`,
+        `When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.`,
         "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
         "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
         "Try hitting '1','2','3' etc to collapse the tree to that level.",
         "Import public topic trees and useful links from braintool.org/topicTrees.",
-        "Try the new DARK theme. It's under Actions."
+        "Try the new DARK theme. It's under Settings."
     ];
     const messageArray = [
         "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
