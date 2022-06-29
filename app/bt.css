@@ -736,7 +736,10 @@ body.waiting * {
 #messageContainer.message > img {
     filter : hue-rotate(180deg);
 }
-
+#message .emoji {
+    font-size: 18px;
+    vertical-align: middle;
+}
 /* 
  * Footer
  */

@@ -29,7 +29,8 @@ const messageManager = (() => {
         "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
         "Try hitting '1','2','3' etc to collapse the tree to that level.",
         "Import public topic trees and useful links from braintool.org/topicTrees.",
-        "Try the new DARK theme. It's under Settings."
+        "Try the new DARK theme. It's under Settings.",
+        "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
         "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
