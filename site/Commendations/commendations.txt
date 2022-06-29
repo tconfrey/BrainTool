@@ -36,3 +36,844 @@ My husband recommended this extension as I stopped using Tabs Outliner
 As a current Tabs Outliner user, my first reaction is that BrainTool, even in its pre-1.0 release, is far more polished.
 
 Amazing App. I love that it's in plane text and uses org mode!
+
+
+
+I've been using BrainTool for about six months now. It's in a different league to offerings like Collections in Edge; it works in an actually useful way that flexes with your workflow.
+If you work across many installations, the fact that it can stayed synced across all instances via your own google drive is incredibly useful, as is the fact that this also works across any Chromium-based browser.
+I also appreciate that it is in regular development, which bodes well for future improvements.
+Perhaps most praise-worthy, however, is that the data file is always available to the user in intelligible org format. That, to me, is the sign of a real coder behind the project! (It also means that giving it a try is very low risk.)
+
+----------------------
+I've been looking for this for years, a way to properly compartmentalise projects and research tangents without introducing clutter from excessive tabs. I can more effectively context switch between active tasks/projects while still maintaining a clean feel of browsing with only relevant tabs open.
+
+Over the competition (tabs outliner specifically), the key differentiators for me are the plaintext storage format and the clean handling of "Continue where you left off" without creating duplicate entries and floating nodes.
+
+Thanks very much to the developer.
+
+----------------------
+This app is a work  of genius, the only thing missing is perhaps ML, but it easily beats anything in its category and I have literally downloaded thousands of extensions.
+
+----------------------
+This extension is truly a must have! As an everyday Emacs (and Org mode) user and plain text tool enthusiast, I have been searching an effective and pleasant way to manage the bookmark. Until I find BT, I think I can stop here.
+
+The interface is clean and developer really knows the art behind Org mode. I can even manage my daily trivial todos using BT. It integrates "VERY" well with the tabs and I never worry about losing my tabs again by the browser crash somehow. One thing showing the developer's detail mind is that, when the link is added to BT under some topic, the topic name will show in the Chrome extension icon reminding me the topic I interested, this little work is truly lovely. The guide after installation is also very useful for many people who did not have Org mode experience before.
+
+All the data is stored plain text and get synced. I can even open it in my iPhone using PlainOrg and have all my bookmarks on the go. BT really puts my plain text life to next level. Do hope there will be Firefox and Safari version in the future and have 1 org file to rule them all !
+
+----------------------
+This is exactly what I have been looking for as a 4th year engineering student. With so many tabs from so many avenues of research it is so nice to not only have the ability to save and categorize the relevant and important tabs at my fingertips but also to be able to note them and thus find them easier. Thank you developer and keep up the awesome work
+
+----------------------
+I can already tell this is going to change how I use the web. I keep all my links in Org-Mode and open them from Emacs, but before I found Braintool, saving them back into the right places was a laborious process, and there was no way to open a load of tabs at once. I'm really looking forward to the 1.0 release, which will be able to sync with an Org file (and thus work with Linux).
+
+----------------------
+A simple yet effective extension for managing your tabs and bookmarks. It still has some rough edges, but it's extremely useful in its current form. Thanks to BrainTool I've finally been able to organise all my tabs and bookmarks, while also having better visibility of them than I had ever managed to with other extensions (like, e.g. Tabs Outliner). Some distinct features of it that I love are its org-mode compatibility (which opens up a world of possibilities for interoperability), and that it fully supports keyboard navigation. And on top of that it's also open source! After adapting to this new way of managing my tabs and bookmarks, I won't be going back to using a browser without BrainTool.
+
+----------------------
+This is a neat solution to the huge number of tabs I generally dabble with for while conducting research. This extension is the best among all the alternatives among those that are rather expensive both for accumulating bookmarks and managing the tab space for greater productivity.
+
+----------------------
+I've just started using this and it is transforming my bookmark chaos into a functional system :)
+
+----------------------
+A great tool for organising your bookmarks. Easy to use and powerful too!
+
+----------------------
+I am a collector of links and the bookmarks storage of Chrome doesn't work for me. It is not interactive enough.
+I'm still a noob but what I've seen is very positive.
+I like the easy way that Braintool makes editing and interacting easier.
+
+----------------------
+I've been looking for a replacement for Tabs Outliner for a while. After spending a few hours with BrainTool, it looks promising.
+
+----------------------
+This is a great extension that replaced my workflow. As a researcher, I tend to open many tabs.
+This extension naturally fits the bill of organizing such tab groups into a logical hierarchy that can be quickly accessed to.
+
+----------------------
+Here I swim (now instead of sinking) in DaTa!  I have earnestly, desperately tried a couple of dozen different Tab Outliners, Iconifiers, and Managers without achieving ONE MAIN GOAL:  To Outline and thus hide masses (literally 1,000's) of web page links into a hierarchical structure.  None of the Browsers (yes, I've used them all too) have hierarchical tab management beyond tab-grouping and that somehow easily is lost with browser restarts.  I liked Vivaldi fairly well and it almost makes the grade, but does not consistently retain Named Groups.  Furthermore there's only one level of Group Hierarchy available.  Currently, I'm running the Brave Browser, which I appreciate for privacy and speed, but it's just basic tabs like most of the other browsers.
+     BrainTool has a high probability of actually doing what the other extensions promise to turn the Insatiable Information Beast into compartment data.  It does so WITHOUT INFO-GRABBING and merchandising my life.  The Data is kept locally by default unless I elect to have it placed online. Thanks BrainTool for not being grabby!  BrainTool also goes the next step and enables not just Web Page Hierarchies, but ToDo Lists, Scratch Lists, and other types of Action Items.  This makes sense, because the purpose of knowing something is to then Do Something!
+     BrainTool is just getting started, so there are some items that can be made more efficient, which I'll be commenting about on their Blog; however, I think they've got the Core Things on target:  Honoring my privacy, Enabling hierarchical Outlining so to hide and reveal Data on Demand, and a certain simplicity to the interface.  Thanks BrainTool.  This adolescent is already ahead of many older peers.
+
+----------------------
+BrainTool is without a doubt as vital as an ad blocker extension for anyone using a web browser.
+
+BrainTool not only lets you browse the web but organise and categorise it, this truly transform how you learn and store the knowledge inside BrainTool.
+
+Every student should try this extension, it will greatly enhance their studies by allowing them to better keep track a trail of websites for research!
+
+I can't praise this extension enough, the developer is fast to respond on discussion forums and listens to feature requests, he also has great passion and drive to take BrainTool to new heights so you'll get an even better extension after the work he's putting in.
+
+I can't wait to see what the developer does to this amazing extension!
+THANKYOU FOR AN AMAZING EXTENSION!
+
+----------------------
+I have been using Org-Mode as my daily driver for many years, and it has always been a stumbling block that integration between my browser and my Org files was missing. Tabs Outliner was a big help, but BrainTool is really the thing I was looking for - bidirectional communication between Org and the browser is a big jump in the usefulness and productivity I already wrest out of these tools. Bravo!
+
+----------------------
+I like the idea of a plugin that helps me to manage a large amount of bookmarks and open tabs. 
+
+But what I especially like is that it uses org-mode as storage format. On one hand, this makes my date interoperable and does not lock it into a cloud. On the other hand, this enables me as a org-mode user to collect and annotate links directly in the browser and then organize and re-use in at other places.
+
+As an academic, I often open a large amount of academic papers which I want to bookmark and work on later, which is something I can easily do with braintool, instead of increasing my open tabs count by 42 new tabs each day and never closing a single one. ;-)
+
+Also, the upcoming features (see website) sound rather promising.
+
+----------------------
+I've been using BrainTool for six months and can't imagine going back to my old system. As someone who typically would have 100 tabs open, it's a relief to be able to save and record information for the tabs for future reference.  The organization system clicks for me. I appreciate the plain text format as an occasional org mode user. 
+
+I have 194 items added and organized. It's convenient to open up an entire group of items related to a topic. The search is helpful to find a topic.
+
+My only wish is for some way to bring similar functionality to android / phones in general. That would be killer.  This extension has changed the way I browse the web on my desktop computer.
+
+----------------------
+As an engineering student with multiple personal and school-related projects, BrainTool is a fantastic way to organize my bookmarks in a way I can easily use, store, remember, sort through, and search. I love that BrainTool is flexible enough to handle hierarchies, brief notes, ToDos while still being easy to use, and open source! I doubt I'm using it to its full potential, but it's far surpassed any of my former tab management extensions/strategies, and it's only continued to improve over time.
+
+----------------------
+amazing tool
+
+----------------------
+I use BrainTool more as a bookmarks manager than a tab wrangler. The fact that I can collect, organize and save bookmarks without relying on a browser-based system or with another service that asks me to open an account is what sold me on BrainTool. I'm an avid Emacs and Org Mode user and have been relying on hacky third-party tools with org-capture to run my own bookmarking system--and I was never completely satisfied with it. Before BrainTool I'd end up accidentally saving half of my bookmarks in the browser and the other half in an org-mode file. The ability to assign topics immediately (the topic search suggestions are awesome!), and to then reorganize them makes me unafraid to close tabs. The whole thing goes into a plaintext file that I organize and do things with. 
+
+BrainTool is still immature and there's a of room for improvement but I'm betting big on it. Keenly waiting for the option to sync (and not just export) bookmarks with a local org-mode file.   I'm an aspiring researcher and I feel like this is gonna be a real life saver for me in the future, if not now (the actionable TODOs, I'm gonna need them). I hope this matures into a product that I'll be using for my lifetime.
+
+----------------------
+Amazing extension. Everything just works so easily, the auto save in drive is so simple to set up, the fact that it uses the recent tab group feature is great and I love that it uses org-mode behind the scene.
+
+----------------------
+It's been a while since I found something worth mentioning but BrainTool has a few things I really like. It lets you make trees of links with descriptions, and links your tabs into groups based on your placement in your tree. It also makes a local file that can be edited in any text editor, which can be more than handy at times. I think there's a lot of growing potential here as well, it's a more than useful tool that has surprised me a few times with some of the features that just kind of snuck up on me. It's also really easy to back up to your Google Drive. I don't think you'll be disappointed if you try it.
+
+----------------------
+A tool that just gets out of my way.
+
+I'm a flat-file nut and love the ethos behind org-mode style tools that let me:
+a. Capture simply
+b. Review effectively
+c. Reference easily
+
+This plugin is checking all those boxes.
+
+Keep up the great work! Looking forward to the next release!
+
+----------------------
+Braintool is a new take on bookmark managers, kind of combining session management and tab management to it, while still retaining a hierarchy structure. Furthermore, it opens up topics in tab groups, making it easier for doing research and keeping tabs organized. I also see Bi-Directional linking and highlights on the roadmap, which will make this a killer app!! For certain if implemented it can easily give race way ahead of the current lead bookmarking services.
+
+
+The ultimate extension for organizing browser workflows, thoughts, and projects. While it is tempting to simply denote this as a tab manager, it does so much more, allowing you to seamlessly integrate notes you deem relevant, bookmark relevant resources in association, and with graph functionality in the works, the usefulness and power of this tool is unmatched. I can have running tabsets for particular browser states (eg managing finances, visual media), active projects with subfolders of relevant pages I don't need open at times, and bookmark sets for topics of interest. The sky is truly the limit and I cannot wait to see where this tool goes!
+
+----------------------
+Is very promosing as a tool to provide an easier way to add and manage my to-read and just in general my todo files with Emacs Org Agenda. The topic grouping and organisation has already found much use in my workflow with org-roam when it comes to mentioning resources for nodes. I cannot wait for more support for sync with local files.
+
+----------------------
+There are two things BrainTool has solved for me:
+Have my bookmarks everywhere; and have my bookmarks in one place and one place only.
+
+I do not always use Chrome which means I have to rely on some 3rd party to have my bookmarks available elsewhere. But I do sync my org files to all devices, so having my bookmarks on an org file just makes sense. Now they are everywhere, and synced.
+
+I often have notes for some URLs, this means I have something in an org file about that site. Which implies I have bookmarks on my browser and on my org files. Where is what? With BrainTool all bookmarks are in one place: org-mode. I can then refence them by ID or do whatever I want. The thing is bookmarks are all in one place and one place only: org files.
+
+Did I mention org files are text based? Means you can open them anywhere.
+
+----------------------
+I had been increasingly concerned with the size and lack of organization of my Bookmarks, until now. I am happy to find BrainTool to help organize and reduce the size of my bookmarks collection.  Though I am just starting to use and learn BrainTool capabilities, I am happy with the simplicity of the GUI and pleased  to find YouTube tutorials and  online help resources.  More review content to follow - after I start to fix my old bookmarks mess.
+
+----------------------
+This is (currently) Org-Mode meets BOOKMARK management .... althought the roadmap | pricing pages show that the developer is trending towards a more "universa" TabOutliner style TAB manager CROSSED with Browser-Based OBSIDIAN ...
+The underlying zettyl style note structure is already there, the interface to access that Note & Annotation functionality is still NOT active.
+
+However,  this app -- out of HUNDREDS i have tried or eyed -- seems to rather singularly have the potential to meet some of these multiple needs.  I currenly use | try Memex Worldbrain, Raindrop.io, Diggo, Zoho, Zotero, Notion, Evernote and Obsidian .... Honestly, if i could just get something (this) that was the best parts of Memex Worldbrain, TabToolbar, and Obsidian all in one place ... i think it would be the winner.  So, 
+CURRENTLY -- a BOOKMARK toolbar (like TabOutliner) with Org-Mode elements. But 
+SOON (we hope) it will be a much more evolved entity approximating Obsidian+MemexWorldbrain Crossed with TabOutliner
+
+----------------------
+I was looking to install my current browser extension to a new chrome account when I stumbled across this. Dang... it offers all the things I've been looking for including the things I didn't even know I wanted :-) Love the left nav categories and the notes piece. makes it easy and incredibly helpful. No lore wondering why this particular page was important know I know! Great tool.
+
+----------------------
+I've used a lot of browser tools wand still seem to be on the search because none of the ones in the past did the complete job. Always something missing. That was until I found tis one. FINALLY a tool that does everything I need and more. Kudos to the developer who did the extra effort to make a tool that works!
+
+----------------------
+I've been searching for a tool like this since AGES! This is a life-saver when you have endless tabs open, related to many different topics, and you feel overwhelmed by information overload.. you know what I mean. This simply works!
+
+----------------------
+It's great!  I don't need any other topic organizer.  This one tool does it!
+
+----------------------
+This is exactly what I was looking for, thanks!  An extension that integrates with org-mode.  It's open-source, has a great privacy policy/philosophy, and it has active community in Google Groups.  I'm looking forward to using this extension!
+
+----------------------
+The computer gods have smiled upon me! I've literally been searching for months to find the "perfect" tool to manage all my topics, bookmarks, links, resources, etc. I work for a large tech company and I run a business, so I have a LOT of information to manage. There's always new stuff to add, and existing links seem to be in constant need of updating. BrainTool makes this brain-dead simple (pardon the pun)! I'm also a huge fan of open source software and anything that uses plain text so I can avoid having my data locked in by proprietary file formats. So you can imagine my excitement when I learned BrainTool stores everything in a text file using org-mode format. Genius! I've installed it in three browsers on two different computers and tested syncing via Google Drive. I also edited the underlying text file using LogSeq and then refreshed/reloaded the file in BrainTool. It's awesome! I've already started converting everything over to BrainTool and ditching other methods.
+
+----------------------
+Been looking for a long time for a rival to the old Tabs Outliner.  Bit of a learning curve but it is the investment in time necessary for anything that will apply high leverage to your workflow.  An absolute game changer in terms of any browser based work.
+
+----------------------
+fantastic extension! works great for me as a bridge from the browser to org mode
+
+----------------------
+This is on a Mac running Mojave, keeping Chrome open just about 24/7
+
+Well, the first thing that got to me was this sentence on your pricing page:
+> Posting an honest 5 star review on the Chrome or Edge Web Store.
+An honest 5 star review? Really?
+
+1. Import from Tabs Outliner went perfect. It took several minutes to do so but that was ok. Thank you for that!
+
+2. It seems (never counted them) that my list contains ~5800 tabs in total. All sorted and grouped and except for the delimiter lines I used in Tabs Outliner, all of them made it across to BrainTool. 
+
+3. Closing and re-opening this list takes ~1 min which is longer than Tabs Outliner. I can accept that even though it means to have to tell Chrome to wait for the page to finish loading every time. Again, sort of acceptable as this should not happen very often on a normal day but it is very slow and needing to tell Chrome to wait is just one thing that should not happen.
+
+4. So, I then noticed that on re-opening the Brain Tool Topic Manager, some hidden tabs were not hidden anymore even though their parent showed a collapsed child list. I had to manually go, re-expand and re-collapse the child list to have it be hidden.
+
+5. So, I then tried to drag some topics around. First, I had the problem that it took a long time to register that I did want to drag a topic and when it finally worked, this topic became "inoperable" (for lack of a better word). It was greyed out and no actions could be performed on it for several minutes. This was just a normal topic without any children so nothing special.
+Closing and re-opening the BrainTool Manager Window would fix that but really? Wait 1 min every time, after dragging 1 tab to another place in the list?
+
+6 I then scrolled down the list a bit and fell over another link/topic that was greyed out. Mousing over the link showed the possible actions on another topic/link further down the page...well...not so good.
+Again, closing and re-opening the BrainTool Manager Window would fix that but really? Wait 1 min every time, after dragging 1 tab to another place in the list?
+
+7. Trying to authorise Gdrive Auto-save failed because BrainTool wants to open a popup and i have disabled popups and so I can't enable it. I had to switch the BrainTool Manager window to a tab so I had access to the toolbar and the location bar to enable popups for this page. I would accept this a a Chrome and user problem as it had been my decision to block popups a loooong time ago and my knowledge of the information an extension has access to is limited. Displaying the error that is returned by Chrome is positive.
+
+8. I opened a link in a new tab. It never showed up in the BrainTool Manager Window. Closing and re-opening the BrainTool Manager Window didn’t help with it at all.
+
+9. The following happened when I created a new tab by using <cmd>-T (I use a Mac):
+    9.1. the tab is appended to the far right in the window
+    9.2. a few seconds later, the tab is moved to the far left
+    9.3. somewhere in the BrainTool Manager window (I am sure there is a logic to it because it is always the same location), totally unrelated to the window I am in, this new tab is shown
+I do wonder whether it would fix itself once I clean up as described in point 4 but my patience ran out.
+
+Yes, I accept that I didn't restart my browser at any point and because of the slowness of BranTool, I might have hesitated too much in closing and re-opening the manager window as well...
+
+So...did you want a 5 star or an honest review? I am not normally someone who posts a lot of reviews but because of the call for the "honest 5 star" review, I decided to write down my impressions of BrainTool and going fo honest rather than 5 star.
+
+----------------------
+OK, not 5 stars, but thanks for the honest review Eveline! While many BrainTool users are successfully managing thousands of bookmarks, it has been the case that folks transitioning in from years of TabsOutliner use often have *a lot* of saved data and that can lead to the kind of issues you describe here. I've made some progress but still have a number of things to improve in this regard. I'd really like to continue this thread on the discussion group so we can figure out how to make BT work for you, see https://groups.google.com/u/0/g/braintool-discussion
+
+----------------------
+I'm thoroughly impressed with Braintool! It is, as others have already said, an incredibly powerful tool for managing browser workflows and I've personally come to rely on it as a valuable tool in my professional and personal knowledge management systems. The fact that it uses Org-mode behind the scenes and is essentially plain-text is really great as it removes any concerns around vendor-lock in based on proprietary formats and makes synchronization a breeze across other devices / platforms. Being keyboard driven is an even bigger plus - I personally find nothing more annoying that a feature-ful browser application that doesn't support the keyboard. Braintool allows me to keep my hands on the keyboard and therefore there is no slowdown as I navigate the interface and the various browser tabs I have open during the course of my day. Super super tool - a must-have for any serious professional.
+
+----------------------
+I am a browser tab addict. I have sacrificed my computer's memory and resources to feed my browser tab habit. This is my story.
+
+When I found my first tab manager extension for Chrome, it made a huge difference for me and my computer. It was extremely intuitive and easy to use, until I overwhelmed it and grew frustrated with the challenges of organizing it. More and more tab managers became available. I tried them but ended up back with that One tried and true TM. I tried others, and finally found one that Outlined my frustrations with solutions. I could organize it in ways my old standby couldn't.
+
+Eventually, it wasn't enough either. I began the search again. Here I am now with BrainTool. I didn't know it until I found it, but I needed to move beyond bookmarks. The higher level framework for managing topics and organizing tabs is ideal. The additional advantage of a text file root, the ability to move between browsers with a common extension, an active development process, and accessible developers and community all contribute to 5 star usability. My browser tab habit no longer means I'm less productive.
+
+I am a tab browser addict. Now I have the tool to keep it from overwhelming my computer. Thank you.
+
+----------------------
+This is fantastic.  It's powerful and really cool.
+
+I often have several distinct groups of browser tabs open at once.  For example:
+
+- "these 6 tabs" are for the payment integration that I'm implementing right now, 
+- "those 4 tabs" are about this external service platform that I'm integrating, 
+- I'm logged into various work tools and utilities in these 5-8 pinned tabs and
+- there are a few interesting sites on things that I'm researching in this random assortment of tabs over here.
+
+This is _hard_ to manage.  Did I want this tiny tab or that one?  I want to close just "this group" because I've finished that task and I'm ready to move onto the next one.  Oh, now I want to go back to the group of tabs that I was working on half an hour ago.
+
+BrainTool just makes this so much easier.  I can organise these tabs into "Topics", search for them, open individual pages, or the entire group (and change the order that they open in), and the whole lot syncs between browsers.  As an added bonus, the internal format is org-mode.  This is huge!
+
+----------------------
+I was searching for an alternative to TabsOutliner since the maintainer has abandoned the project. BrainTool is everything i was searching for in a tabs manager tool that TO couldn't provide. I can classify and retrieve easily a lot of data assigned to different project hierarchy. It allow for a far greater organization of information in your browsing data.
+
+----------------------
+If you've ever used getamna.com but wanted more hackability, this is it. It's containerization for web browsing. Tabs and browser sessions should be ephemeral and instantly recreateable. You shouldn't have to keep things in your wetware RAM, and the context for each of your projects should be self contained. This is the extension that made me come back to chrome.
+
+----------------------
+Like most of us, I have many projects going on spanning personal and work areas that often require a fair amount of research, reading, and most importantly quick access to information.  The concept behind this tool lends itself to finding items quickly across the web, multiple platforms in use by my clients, and my personal workflow.  The hierarchy permitted in Topic Manager is very conducive to 'quick switch' from one project to another and the extension makes saving links into the correct area a breeze. Managing the Topic Manager is particularly easy for me with ALT up and down arrow and node level view by number - the feels feel natural to me based on my extensive use of OneNote 2016 in outline view.  For me - it just makes sense.  With my widescreen monitor opened to Brain Tool Topic Manager and Chrome 20%/80% I feel like I am navigating efficiently and I am able to collapse Brain Tool Topic Manager to get really focused in a particular project/subject area.  I am looking forward to the next developments in the extension.  I have been using this tool and coming back to it consistently for months and it is becoming a part of my solution process.  I expect most users would benefit from giving this tool a try.  Great addition to my toolkit.
+
+----------------------
+I have only just started playing around with this extension and I'm in loving it! I've had a problem for years having many tabs open and getting overwhelmed, opening a new window and doing the exact same thing again. This extension is now heavily integrated into my workflow and I can't imagine going back to my old ways of "organizing" bookmarks. AND it works with org mode! Thank you so much!
+
+----------------------
+I have been struggling with finding a good bookmark manager for a long time now.  I've tried various options such as pinboard.in, maintaining my own set of links, and even delecio.us (remember them?).  Two features that nobody seems to have at the same time: the ability to "live search" your bookmarks *quickly*, and having a local copy of your data in a readable format.  Having used emacs for over 2^5 years, org-mode is a singly unifying aspect of how I organize my life, and the fact that this extension uses org-mode to store bookmarks makes this, um, a no-brainer for me. :)
+
+----------------------
+I used to have an org-mode file called "read-later.org". This file had headings each related to a topic. I used this file to track my list of things to read later. Now I have the exact same setup but using braintool it is magically connected to my browser! I can have the same file and structure and now control and modify while I am reading. Thanks for this great tool!
+
+----------------------
+Brain Tool is a great extension that meets a need that I (and I suspect others) have. I usually have some tabs open for a long time because I need to take some action on them or they are tied to a project I'm working on. So I'm just not ready to close them yet. I could just bookmark the tabs but most of the time they aren't really something I want to keep long term. And if I just bookmark them (outside of Brain Tool) they will get lost in all my other bookmarks. With Brain Tool I can categorize the URL and tie it to a project or add it as a TODO item. For that use case this extension works very well. For me it is perfect for those links that I need to remember but I'm scared to close.  
+
+I also really like that your data is stored in plain text format. Org-mode is very powerful it shows how much future potential this extension has if it is able to take advantage of some of those features.
+
+----------------------
+This extension is very comfortable to use and feels like a modern TO that is in active development. I'm particularly excited for `Session Save and Live Sessions: being able to save a snapshot of the whole browser session for later recovery. Relatedly, continuously capturing all activity in a browser window into a topic could be useful while researching` which would make this extension invaluable to me. I recently started getting into the org ecosystem with organice and this should integrate perfectly with my workflow for time logs, notes, and tasks (at least way more than saving thousands of bookmarks and keeping hundreds of tabs open). Even though I'm not fond of a strictly-subscription model, I appreciate a lot how much care is given to the users and how well we're treated; it is extremely refreshing.
+
+I'm just getting into learning and creating my own PKM. For Years I have searched for a decent bookmark Extension for Chrome that I can do more with than simply just export them to an html file. Braintool goes above and beyond everything I wanted and needed. There's still much more that I need to learn and much more to discover from this that I'm excited to uncover. Thank You Braintool!
+
+----------------------
+BrainTool is much more than just a bookmark manager. I can add custom titles and notes to each bookmark and group the bookmarks by topics; open individual bookmarks or all bookmarks in a topic; share all bookmarks, notes and topics between Chrome and Edge browsers running on both Windows and Chrome OS. BrainTool is already the most advanced bookmark manage I have used and the developer posts a roadmap indicating that it will continue to be enhanced. I highly recommend BrainTool.
+
+----------------------
+a simple and effective tabs/bookmarks manager, I use it to organize my bookmarks and enhance my workflow, highly recommended.
+
+----------------------
+This is the bookmark manager you've been looking for. I've used several different bookmark managers in the past, and also tab managers, browser managers, etc... But Braintool allows me to consolidate it all in one place, and its compatible with both all my browsers. So no brainer (pardon the pun), just install it and get on with your knowledge and life. My only suggestion for further improvement would be a way to automatically sync everything between all browsers and maybe even mobile devices, that would make this 5^ app perfect.
+
+----------------------
+After using virtually every bookmark / session / tab manager, I've arrived at my final destination.
+
+The interface and functionality are clean and well thought out, and I look forward to the ride. In particular, I look forward to developments in session / tab management (particularly syncing / reflecting all open tabs for easier organization and management). 
+
+One additional suggestion is simplifying offloading (via simple text and/or HTML) - or better yet, one-click adding - for easy adding into existing PKM software (i.e. Roam Research and others).  For me, this would serve as the 'vault' which tasks and information from BrainTool can be stored and organized for the long term. 
+
+Superb work so far, looking forward to supporting BT going forward!
+
+----------------------
+Thanks again Z! 
+
+Note that you can export your BrainTool data in org-mode (plain text) format (use Export, under Options). Also, the LogSeq PKM tool can sync to the same BrainTool.org file that BT does. I personally prefer to edit and manage my knowledge base in emacs but I've opened the BT file in Logseq exchanged edits between it and BT. I'm planning to record a video and upload to https://braintool.org/posts.html
+
+----------------------
+This is a very handy tool to organize the hundreds of tabs I find myself opening regularly. It is relatively easy to use and comprehend (the YT video could be better). The only thing missing is the ability to list and manage all the current open tabs.
+
+----------------------
+My browser bookmarks have been in a disorganized way in a long time. This tool re-enable me to reorganize the bookmarks and also could be a good replacement for the tab management tool as you no longer need to keep the browser tabs open for in progress tasks. There is a another plus for emacs org mode users as it can export the whole structure into an org mode file.
+
+----------------------
+I don't do this, but I actually found this extension to be useful and have a good number of features without being too overwhelming or burdensome. thank you for your hard work and good coding
+
+----------------------
+I've been tab wrangling for years. As a programmer, I'm constantly drowning in tabs. I've locked up 16gb of ram before, have had more than 500 concurrent tabs at one time, etc. Starting a new job in a new field, I'm constantly drowning in too many resources to manage. Closing tabs with valuable resources I've found but don't have time to follow up on right away is painful, but keeping them open is unmanageable clutter. The solution here of hierarchical grouped/searchable bookmarking is a fantastic solution. I've been using onetab and trying to group tabs into windows, but that has been a crude/minimalist solution that lacks the full features here. I've lightly tried sessionbuddy, but haven't really felt like it was a fit for what I needed.
+
+This is a great structure! My only concern is whether performance will hold up as I inevitably end up with thousands of entries. We'll see, and I'll be glad to come back and update with my experience as time goes on.
+
+The only reason I will hesitate to recommend this to friends is that I am worried about the pricing being a bit high in the future--I personally try to avoid all subscriptions that I can, and this will essentially become a mind-map long term that will be hard to export. I'd really prefer that there was a one-time payment option. I also think that as a subscription, $4/mo is pretty high for a chrome extension--I wouldn't be comfortable with more than $1/mo. We'll see if/how that changes, it's still under very active development, and the dev seems responsive and mindful. :)
+
+----------------------
+Amazing Extension, you will never regret using this extension. I am happy to use such an amazing extension which helps alot with my work. Thanks to the developer.
+
+----------------------
+A great start. The interface is clear. The format is tried and true (org-mode), already making it an essential part of my workflow. 
+
+The only quip I have is already on the roadmap: tags and backlinks. Once this feature is here there will be nothing to stop BrainTool from catching on as the glue that binds your knowledge management together. Tame the Internet, start using BrainTool.
+
+----------------------
+Just switched from Tabs Outliner and I have to say honestly, this is better in my opinion. It's less laggy and more organize in a sense.
+
+----------------------
+The most promising long-term solution to tab overwhelm that I've found. This extension is still early in it's development, but is already is SO MUCH more than just another "tab organizer" extension -- the author has clearly spent time thinking about the deeper reasons behind WHY I have 1000+ tabs open, and is working on sustainable solutions to actually process those tabs into useful, actionable information. Many of the most popular tab "solutions" (the Great Suspender (RIP), OneTab, etc) are simplistic solutions that paper over the problem. BrainTool recognizes that much of the time, tabs serve as placeholders for TODO items that haven't yet been fully articulated, and focuses on organizing them as such, bringing the right reference material together, at the right time, in the right context to actually get things done. Best of all, it does so in the most user-respectful way possible with:
+
+- Open source code
+- Using long-standing open data format (Orgmode)
+- contained in storage you control (your personal Google Drive account)
+
+I've tried a ton of different organization and tab management tools, but none have a long-term vision even close to as exciting as what is the author is going for with the Brain Tool: https://braintool.org/overview.html
+
+----------------------
+As a heavy user of Chrome tabs, I have tried numerous extensions to try to manage the chaos. After settling most recently with Tabs Outliner, I stumbled across BrainTool and am loving it so far. For being a pre-1.0 release, it is stable, and easy to use. I love that it allows sharing between browsers and computers in a transparent way that can be easily opened or modified using any text editor. I also love that it is open source and has an active community for suggestions and  support questions. The developer seems to really appreciate end-user privacy and has a published roadmap of future improvements. I can't wait to see BrainTool catch on and grow in the future!
+
+----------------------
+This review is about a year overdue, but I very much appreciate the developer working so quickly to make the package usable on non-PC/Mac platforms.  Although other reviewers have rightly emphasized the tab management, for me the combination of being able to nest and annotate bookmarks and ability to save results on Google Drive has been particularly helpful for organizing research topics.
+
+----------------------
+Exactly the type of bookmark manager I was looking for. It's unintrusive, yet easy to use, and makes managing the different projects I'm working on much smoother. I often work on several projects, and opening all the pages I need for each can be time-consuming and tedious. BrainTool makes it easy to find my bookmarks and open all the tabs I need with one click. The notes field beside each link is also super helpful, adding just enough context to remember the importance of links I don't frequently use.
+I've tried many different bookmark managers, and this my favorite by far.
+
+----------------------
+So far I really love this extension. Thanks for the helpful tool, keep up the good work!
+
+----------------------
+It's been a good 5 years since the last extension installed and kept. If you install looking for the next chrome store extension, you'll what I mean, but if you get lucky or you read this review, this is likely to become a mainstay on modern computers moving forward, and why not get used to it now? Braintool categorises the bookmark you want to keep, it helps you to remember tabs and much more. Definitely go for it, you'd be surprised, how easy, how effective and how much more satisfaction you get by using this!
+
+----------------------
+Awesome tool! It works great as a launchpad, tab organizer, and mindmap.
+
+----------------------
+I very much appreciate the work that went into this. The move away from proprietary software and tools has been a long (and sometimes difficult) process and BrainTool helps me make a huge leap in this direction. I love that I own my data and remain in control of it, and the use of regular text files allows me to save, edit and manipulate my data as I see fit. Thank you for creating and sharing BrainTool. Love it!
+
+----------------------
+OrgMode + BookmarkManager!
+
+I finally can orgnize my bookmarks using OrgMode!!
+
+One tiny issue: exporting my bookmarks(which is almost organized) into .org file seems to have some bug: the bookmark folder appear twice, one with folder only, another one with entries within.
+
+----------------------
+The bookmark import issue has now been resolved. Thanks to Philip for helping me track it down!
+
+----------------------
+Thanks for the quick response. Just provided more details on the BT discussion board.
+
+----------------------
+Hi Philip, Thanks for the review. I haven't heard of this problem before and would really like to understand and fix the issue. Can you give me more details, either via email, braintool.extension@gmail.com , or on the BT discussion board, https://groups.google.com/u/0/g/braintool-discussion.
+
+----------------------
+Best in class tab organizer at a point where tab organization is becoming all the more central to modern work and life. I increasingly find myself saddled with multiple projects with their associated tree of web pages. Pruning these trees with BrainTool and keeping long-running leaves annotated has been a boon for my workflow, and more importantly, allowed me to manage my focus and attention better. You can annotate the current tab directly through the extension interface. However where BrainTool really distinguishes itself is in its commitment to plaintext syncing. You can edit or create new annotations and re-structure your entire suite of windows/topics/tabs in the plaintext editor of your choice and sync it. This feature sets it apart and has me convinced that an engaged community will develop around the workflows it makes possible
+
+----------------------
+I have been searching for an extension to track and manage my ADHD driven web searches and workflows. Brain Tool allows me to organize my folders of bookmarks and open them as tabs easily by topic or any title I want. Having the ability to make notes on them allows me to come back to folders and re approach without having to remember what i was using it for. I can give myself lists of sites i need to check daily, this is so amazing i can barely compose this review. I highly recommend this to anyone!
+
+----------------------
+We all do it: get caught up in a click-fest while trying to winnow down a specific topic we're interested in or researching. No matter the motive, it is very common to glance at the top bar of our browser and cringe when we see the many tabs we've gotten down into. This is often overwhelming to both our mentation and our computer's processing resources. I've tried many different tab managers and session managers, bookmark managers and all the like because I tend to simply drill down into a subject—or sets of related topics. Though there is some great code out there, I kept looking for something more attuned to my method and process.
+   ** Enter BrainTool **
+   I dove right in without much reading very much about BrainTool. The opening "tutorial" info was brief and focused, getting me right where I wanted to be: elbow-deep into figuring out the basics of the program. That was nice and I'll go out on a limb to presume that many of us prefer to do just that. And the program is actually pretty user-friendly, as far as getting started. The example topic tree is set up in a way that showcases many of the important features, in that regard. I modified the root topic and set up: "Stuff to Merge After Initial Bookmark Import," intending to separate my (quite likely and pending) import task from learning these basics. My Bookmarks file(s) are extensive and quite long in the tooth. 
+   I'm excited about noodling around more with BrainTool and I'm intrigued by how it appears to intuitively facilitate the exploration and organization phases of whichever topics I'm happening into. I've skimmed around in the feature lists and also I'm duly impressed with the many dimensions of this program. I imagine it as a way of leaving myself a trail of rational braincrumbs as I wander around amidst various subjects and the inevitable tangents. Better yet, I can simply pick up where I leave off and quickly get back to it, no matter where I may be working on a computer. Side note: both myself and my spouse fondly envisioned phasing out my prolific scraps of paper.
+   I imagine that the power of BrainTool multiplies when combined with other thought-development tools (eg—mindmaps, etc)—and perhaps the program will even come to replace them in my practice. I also welcomed the foundational links to various related subjects out in the Internet. It is humbling and inspiring that this Dev has tapped into available resources and raw ingenuity in order to help himself, and then has chosen to share that work with the rest of us. It appears that the code is actively being developed, and this is heartening as well. I fondly anticipate the axiom that more will be revealed as I gain more familiarity with the current and future BrainTool feature set. Kudos to you, Tony, for your work and your vision. And many thanks for your commitment to maintaining a robustly functional free version of your program.
+   Thanks for reading. Have a great rest of your day and an even better set of tomorrows!
+   ~ SszZ
+
+----------------------
+It feels like the stars finally aligned, I've tried managing my bookmarks with various plugins in Chrome/Brave, using external programs like mem.ai and emacs but nothing ever seemed to be low friction and easy to maintain, braintool is a single shortcut away and allows for super fast insertion of your current page into the tool.
+
+Besides plain bookmarks you can add more information:
+1. Bookmarks
+2. Grouping
+3. Notes
+These are 3 simple data primitives but together they've really liberated the way I use my browser:
+* No more clunky tab-groups that are always open and load up the browser
+* Find that link to that document that you've seen, it's now actually easy to find as the notes provide additional metadata
+* Close and open loads of tabs, it's trivial to destroy or restore a 'workspace' containing multiple tabs
+
+And of course you can export your data into org format if you need it, no lock in ever, even if you change to safari or opera..
+
+Great tool to keep things organized and resume work on different projects faster. I like the export to external file which is pretty much plain text so can be easily read and used in other situations like creating a reference index in another program. Keep up the great work!
+
+----------------------
+I've been using BrainTool for a few years and would be lost without it.  Outside of all the awesome features one of the best IMO is the data is persisted to your google drive.
+
+----------------------
+I think i am not alone in the search for a tool to organize my bookmarks, I have bookmark collections all around in browsers, online managers, documents etc. I have been an org mode user for a couple of years and the idea that the tool was based on org seduced me to try it. But the experience was more than what I expected and is allowing me to have a very consistent bookmark collection for work and personal interests. I love being able to see my bookmarks in org and having a single source of truth for my bookmarks that I can organize and manage the way I work.
+
+----------------------
+Atlast I got the extension that works my way. Flowy concept amazing. No more multiple bookmarks on Google chrome
+
+----------------------
+TLDR:
+Plain files (thus not locked in to a vendor), able to sync with your own google drive, its quick, allows quick saving and ordering, saving and opening per page as group.
+
+Only request I have is to make the search case insensitive, but I just saw the new updates which make the UI a lot more pretty, so it might have also my request. If that is the case I would give it 6 stars. It's really impressive!
+
+----------------------
+Hi Yorick, thanks for the positive review. BrainTool search *is* case insensitive in this release!
+
+6 stars please!
+
+----------------------
+This is the ultimate extension to simplify browser workflows. I usually open a lot of tabs per different thought patterns or subjects and managing them is near to impossible. The worst is when browser crashes losing all my history (even when using session managers). This pretty much naturally falls into the way people think and operate when researching subjects. The tool takes some exploring to understand workflow and ability to navigate using keyboard shortcuts is golden. Can't wait for git sync. Many thanks and keep up the good work.
+
+----------------------
+Have recently started using BrainTool as an alternative to Tabs Outliner at work.
+Some of the things that stand out to me so fare are that it is actively developed, code is open source, allows me to context switch between tasks/projects easily, allows searching across all saved tabs and provides multiple backup options. Looking forward to some of the future features detailed in the roadmap.
+
+----------------------
+BrainTool is a very useful extension. I always used to end up accumulating hundreds of open tabs with webpages that I found interesting for all kinds of reasons until my RAM ran out and I had to bookmark all of them in one set, never to look at them again or, worse, having to search them one by one. BrainTool helps me by making it easy and quick to classify and to take notes about a webpage, so now I do it on the spot and I can close the tab immediately. It also lends itself to many methodologies (e.g., PARA, GTD, etc). I highly recommend it.
+
+----------------------
+Honestly this is one of the best bookmark manager i have seen. You can manage all bookmarks at one place and maintain hierarchy in good way. Thanks for such tool.
+
+----------------------
+BT is a neat extension for Chrome.  It can help you keep track of your bookmarks in topics, and speed up your browser workflow efficiently. 
+With GDrive sync, all the topics are safely saved as a backup, in a pure plain text format. After installing BT, I can close my tabs with no hesitant, and release some memory resources for other software.  
+Still need time to get used to the side panel though.
+
+----------------------
+New incremental search is fantastic! This extension helped me organize my research and develop my papers.
+
+----------------------
+Wow, I was using Tabs Outliner for so long and it was a miracle when I first found it since I'm a tab hoarder, but so messy and hard me for to know what was what sometimes.  The first time I opened BrainTool I thought it looked very clean and I appreciated the information at the top with the examples on how to set up links and descriptions.  I imported the basic browser bookmarks into it without issue, but trying to import using the .tree file ends up causing BrainTool to hang and I get a popup with Wait or Exit, but maybe this file is just too big?  I'm thinking that last one is my issue and I look forward to using BrainTool more and understanding what it's all about.  Oh!  I'm also looking forward to the dark mode addition because that was honestly the one thing that kept me from using this sooner.   Seems like such silly reason now since it's an awesome tool, but the developer says dark mode is on, fingers crossed that it's soon!.
+Edit: Oh it was most definitely too large of a file that I was trying to upload, I trimmed my list down and after waiting I was able to import the file just fine.  For reference the second trimmed file was a third of what the first file size was.
+
+----------------------
+After using BrainTool for a while, I think it's an extension well worth trying, and its bookmark management has made me a lot more efficient.I've been using tab outliner and onetab before,but I found Braintool to be more suitable for me.
+Highly recommend it.
+
+----------------------
+The author is offering a 50% discount on early adopters who do subscribe now which is nice. But the author is also soliciting 5 star "honest" reviews in exchange for a free lifetime subscription license. 
+
+However, the software itself is honestly great. It's not perfect but in the current state it's already good enough that I think most will find value, especially it if you are coming from Tabs Outliner. 
+
+Writing to the same Braintree.org file on your GDrive will work from multiple browsers, however don't expect this to be perfect. If you leave BT open on both PCs and switch between them, expect to lose links as you will be prompted to sync by refreshing the BT sidebar. Depending on which you refresh at which time changes will be lost as BT is simply copying the local BT file over. This extension was released very recently and it's already gotten features like Search which is awesome.
+
+I'm happy the file being written to is a text format and I like the clean UI. There is also an active discussion group which is nice. Currently it's keyboard centric which I'm happy with.
+
+----------------------
+Update: I had an issue with the software, wrote to the developer in the discussion group, and he kindly sent a detailed reply along with fixing the problem. I just had to refresh the sidebar page and the fix was implemented.
+
+The software works well for me from multiple PCs. Subscription status(if you choose to support the development of the software and want the ability to perform more saves) is also maintained since it's all pointed at the same BrainTool.org file. 
+
+The software is also open source and on github. That is awesome in my book and should help assuage worries about abandoning support for the extension. To me at this point the extension is already providing a lot of value but I am hoping to see the UI improved and some more features. If you've tried this and the alternatives, and you like this software, please consider subscribing to help encourage the developer. Thanks!
+
+----------------------
+Installed on Brave. Opening the sidebar resizes my active browser window, import bookmarks hangs. na-ah...
+
+----------------------
+Hi Tanuki, Sorry your experience with BrainTool was not positive. Brave is supported and bookmark imports have worked for other users. There is a permission granting step, maybe you missed the browser popup? Do you have a huge number of bookmarks or are you running a privacy related extension like Privacy Badger?
+The window resizing is a one-time startup step to position and make visible the BT Topic Manager window, you can restore your standard set up at any time. Please reach out to braintool.extension@gmail.com for help getting past these startup issues.
+
+----------------------
+I am a long time user of TO and was looking for an alternative... bang this is so cool: org mode meets tab management! I still have to adapt and find a good alternative to manage sessions but this is such a life saver! Thank you for that!
+
+----------------------
+2021-10-09: Unmatchable potential. This extension is a great tab management, but that's just a tiny subset of the things it can do. For anyone searching for a great personal knowledge management tool, this extension is for you. The dev said it himself, (loosely paraphrasing him) today's paradigm is that digital life is heavily browser-centered, so an integrated tool to manage your digital life just makes sense. Think of the countless articles, websites, pdfs, papers you read throughout the years, of countless different topics. This extension enables you to save all that locally and easily export and edit in another platform/text editor. 
+
+This is something big. Time will tell if it'll become the software to rule them all. I hopefully expect it will.
+
+----------------------
+So far, so good - still stumbling thru getting it set up but encouraged that this is a good direction.  I'll update this review as things progress :)
+
+----------------------
+It's atrocious how browsers see so little innovation. Is it such a hard-to-understand thing to manage and annotate a tree of tabs? I used to use Tabs Outliner, which is unmaintained, and did not offer tools to easily jump between the different parts of the tab forest datastructure. I then switched to Workona, which is a nice product, but it is one of those evil cloud data suckers, kind of slow (as expected as of a tool that exfiltrates our data), does not offer plain text integration, has only one-level trees (i.e., only groups), and its free functionality is very limited. Thus I decided to implement a tab manager in org-mode myself, but low and behold, someone had beat me to it!
+
+----------------------
+Like the other reviews have said I've tried a lot of tab managers.  Cluster, Tabs Outliner, Toby, Workona, Tab Manager Plus, and most recently Mark tab manager.  I've tried them to various degrees, and most work very well, but there is just a certain something about BrainTool.  
+
+It seems to be the simplicity, theory behind the design, and features packed into it.  Plus, the developer seems to like feedback from users and is actively developing the extension.  
+
+Like another reviewer named Brandon mentioned, BrainTool allows you to open a tabs and have them auto-open in the tab group.  In the side panel you can also see which tabs are open because open tabs get a highlighted background.  That is a very nice UI touch. 
+
+BrainTool also introduced me to the PARA method as another reviewer mentioned.  This ultimately lead me to discover the PPV system by August Bradley. I think a browser is one of the vital pieces of software to our learning and digital lives in general.  With the structure of BrainTool you can use it plug into other areas where you may use the PARA method or PPV system. 
+
+If you aren't satisfied with your current tab manager, or like it and think it's just missing a little something, then I would definitely give this one a try.  Have a great day and best of luck on your tab taming journey!
+
+----------------------
+I have been using the extension now for several weeks and It is really great.  It has been a fine descrete tool to organize all types of research.  Has saved me a lot of time and easy to organize and then find item....Thanks
+
+----------------------
+Hi Frank, Thanks for the positive review. Why only two star?
+
+----------------------
+Org mode meets tab management - What's not to like?
+Why in 2021 is it all but impossible to find a decent tab manager? This is a really interesting solution, geared more to research use than session management I think, yet it provides a feature missing from most other extensions: real time, automatic backup to google drive. Now other extensions, was that so hard? And as if that wasn't enough, the backup file is an org mode file which is an added bonus, as presumably a version can be modified and re-imported given a smattering of org mode knowledge. It's very early days in this extension's life but I am very interested to see how it grows. Especially having just lost all my previous session history thanks to another sub-standard solution :(
+
+----------------------
+Takes a bit to figure out, but really helpful for dealing with and managing large volumes of tabs.
+
+----------------------
+I write code for various customers and tend to get overwhelmed with tabs and even run out of memory due to keeping multiple workflows open so I can move between them and continue as needed.  I've tried a lot of session manager and tab bookmarking/managing plugins in an attempt to make my life easier, but all of them would be memory hogs, missing something or function in a way that made them less than ideal.  This little nugget isn't perfect, I can see areas for improvement and it too is missing something I'd like but can easily resolve with another plugin if I actually do need it (tab suspension).  
+
+Two features that set this ahead of the rest are the ability to not only open tab groups in their own window, but also the option of opening them in the same window but in a group.  Never seen the window group option in my extension search before!  The other cool feature is the icon will show and scroll the group name so you know if it's saved and which group.
+
+I don't think you'll find a better bookmark/session/tab management solution than this.
+
+----------------------
+Braintool is nice simple tool, a must-have for all internet users to enhance your ability to retain and remember key insights from the information overload we are suffering from.
+
+Works like a charm and you will realize the benefits of organizing your research and thoughts from day 1.
+
+It has bookmarking, notes capture, to-do list and can sit nicely adjacent to your Chrome browser.
+
+Well thought out interface and keyboard shortcuts will make you a power-user very quickly.
+
+I'm trying to wrangle my tabs, bookmarks, and remembering the websites that I want to come back to - or at least have some memory of having interacted with. I also use org-mode for my day-to-day note taking, so BrainTool is a good fit for what I'm trying to accomplish. The developer's approach is a novel one that shows a lot of promise, and I'm excited to see where the developer takes this. 
+
+The use of tab groups in Chrome and a quick "close this tab, save it to a hierarchical tagged and labeled bookmark with notes" functionality is great and unlike anything I've seen in other extensions.
+
+Planned features - I'm excited to see how the planned "in-page highlights" is implemented. Hopefully with some inspiration from Hypothes.is, which is my current note-taking solution.
+
+I think this version is a great MVP, not quite enough to pay for, but has a lot of promise in that direction. If you're searching for org-mode on the chrome web store, you're probably the target audience for this, and should at least give it a try.
+
+(I was inspired to actually write this review in exchange for a free license from the developer, but the comments above represent my thoughts with or without any compensation).
+
+----------------------
+I had a huge problem with sorting bookmarks in the browser. The bookmark toolbar quickly gets stuffed. Third-party solutions didn't work very reliably, and could go down any day. But BrainTool safely syncs to Google Drive, and it's an awesome research tool. Highly recommended.
+
+----------------------
+Being the type of person that can have upwards of 300 tabs open; I had to use extensions like session buddy and onetab to keep track of the sheer quantity of things open. Finding Braintool was a godsend, it allowed me to organize my content rather than accumulating it. It also introduced me to the PARA method which is interesting. All in all a solid extension that has helped in clearing up and organizing the mess which was once my browser.
+
+----------------------
+Imagine having the power to organize all your bookmarks and then exporting them as an org file, with this extension you have the power of org-mode (An Emacs package) at you hands.
+
+----------------------
+This is exactly the kind of extension I needed for my workflow.
+No other bookmark/tab manager has all the features I needed like BrainTool does!
+
+----------------------
+I love this app!   It lets me quickly and easily save bookmarks with annotations that are grouped together in a category for the project I'm working on.  It allows me to open and close all bookmarks for a project with single click, and it stores the bookmarks in Google Drive so I can have access to them from other computers allowing me to pick up research where I left off when I get home.  The interface remembers the last project you were working with so adding sites with notes is super easy.
+
+----------------------
+I have been using it for a while. When I first started using it the concept was great but it needed some improvements and features added. There are other bookmark/tab add-ons available, but this has more available in a single add-on. It has gotten better as a project over time and continues to do so. I HIGHLY recommend this add-on. Thank you for this add-on, and I look forward to seeing how it continues to improve.
+
+----------------------
+I just got the latest update. Thank you for the work you do on this extension, it has helped greatly with organizing my bookmarks. I recommend it to my co-workers all the time. Keep up the AWESOME work.
+
+----------------------
+I have been searching for quite some time for a proper tool to organize my bookmarks. Unfortunately, though, due to the number and complexity of the bookmarks I have amassed and continue to amass, all of the existing browser extensions and organizing programs - and I don't think that there's one I missed - have proven unsatisfactory for my needs, which include both personal use and academic research. I am therefore pleased to have finally found a tool which fills the gap - Braintool, and it does so admirably. I might add that while the current functionality of this extension is quite extensive, the developer is planning to add even more functionality (e.g. tags), which would be a most welcome addition to what is already an excellent tool.
+
+----------------------
+Really like this extension.
+Clean, Powerful. 
+Good alternative for Tab outliner.
+
+----------------------
+BrainTool has helped me get my life organized in a way that I never thought possible. It's not only helped me curate and organize all the great content I find on the internet, but it also helps me make decisions about what resources are relevant to my profession and interests.
+
+----------------------
+Amazing App. I love that it's in plane text and uses org mode!
+
+----------------------
+Plain text* XD
+
+----------------------
+5 stars for the amount of smart thinking that went into this, for the vision. The main advantage - it uses a simple org-mode file, so it can be used to sync/access in many ways: other than the obvious Org-mode, for instance with Logseq or on mobile, with Orgzly. But even if you are not interested in Org and you never open the file, it's a brilliant tab manager and you can use it to save content to hierarchies (topic maps) that work for you. What I'm most interested for the future: the possibility to add content to more than one topic. Yes, hierarchies are great for knowledge work, but can be limiting.
+
+----------------------
+Been using it for the past month. It has really increased my productivity at work. Before Braintool I used to have multiple profiles which was a big hustle to maintain.
+
+----------------------
+I used to have hundreds of tabs open in Chrome. It was causing Chrome to take too much CPU & memory. It was also causing me stress. Now I am using Braintool chrome plugin to organize my links & tabs. 5 stars for an excellent tool.
+
+----------------------
+There is some learning curve, so you need to give it some time. But after that it's a life saver, and a game changer for productivity and digital well-being.
+
+I especially love this project's Philosophy (quote from braintool.org):
+
+> The core BrainTool philosophy is that your data is stored in a human-readable plain text format and that you own and have complete control over its use. BrainTool endeavors to be a fantastic standalone tool but to work well within an emacs and org-mode text-based workflow and to readily integrate with an associated ecosystem of information management and productivity tools.
+
+----------------------
+For a long time I was looking for a Tabs Outliner replacement because it is not actively developed.
+With Braintool I have found it. The developer seems to be committed. 
+Even if it gets abandoned, my data is stored in plain text.
+
+----------------------
+I've been using Braintool for several months now and I've been thrilled with it. I had been using Better OneTab to keep my tabs and links organized, but it had minimal organization and a poor search function. The really great thing in BrainTool is the ability to save notes along with the link - you can write down why it is you saved the link or other links it should be associated with or the like, which makes it much more functional to browse. The keyboard shortcuts also make it incredibly quick and easy to use. As an Emacs/Org user, I also very much appreciate the ability to import/export the contents as an org file. 
+
+It doesn't replace saving webpages locally if you want to ensure long-term access to them, but for any content you trust to remain online and hosted for as long as you need to reference it, it's absolutely fantastic.
+
+----------------------
+This is a great extension, that replaced my workflow of having a separate browser to have a group of tabs ready to be opened at a moments notice. More over, I tend to have open many tabs in groups, depending on what I'm going, be it a research, house keeping, or working on one of many projects. This extension naturally fits the bill of organizing such tab groups into a logical hierarchy of "work units" that can be quickly accessed / switched to.
+
+Google Drive integration works great, so I don't have to worry about syncing anything manually between different machines. An Org mode it great as well, for import / export / local backups, even though I'm a heavy Vi user.
+
+I would definitely recommend to try this extension and see if it fits your workflow needs!
+
+----------------------
+My husband recommended this extension as I stopped using Tabs Outliner because I could not sync across computers. Took a little bit getting used to, but so far I like it a lot!
+
+----------------------
+Finally!  After years of using Tabs Outliner and dealing with the frustration of the author having basically abandoned it, and having tried almost every other tab management extension I could find, this is the one that I finally believe is on the right track.  
+
+What a great start.  It saves the data to a FILE in your Google Drive, which has a # of key advantages over Tabs Outliner:
+  1) Instead of depending on the Google account like Tabs Outliner -- which makes it break on Microsoft Edge, it writes the data to a plain file on your Google My Drive.  Thus it works on any browser.
+ 2) That file is thus accessible from any other profile or browser or computer, even Edge, and therefore you have "sync" across all your devices!   It's not "instant" and you do have to "refresh" when you switch browsers, but that's a small inconvenience for being able to do it at all!  
+
+Other advantages over Tabs Outliner:
+* once you "save" a tab, you can CLOSE it WITHOUT LOSING the saved entry!   With TO (Tabs Outliner), if you close the tab, you lose the entry.
+* it doesn't automatically create an entry from open tabs, so you can leave the browser startup setting to "Continue where you left off" without having to worry about duplicate entries.
+
+There are a few other nice things but those are the key ones.  I am in the process of switching everything from TO to Brain Tool.   Highly recommended.
+For being an initial ree
+
+----------------------
+Planning to try this out as an alternative to another product "tabs outliner".  The biggest challenge with tabs outliner was that it kept piling on crashed chrome sessions.  Very soon, this makes the whole tabs outliner unmanageable with a huge database build up.  Not seeing that with BT. Would like to know more though.  Does it automatically save all windows when chrome closes and does it make sure not to create duplicates?  Regardless, the reason I am leaving 5 stars is because of tagging, categorization, and notes taking that is clean and visible.  Would love to see future integrations with Evernote if possible.  Good job, dev.
+
+----------------------
+I am looking for a good bookmark manager, and BrainTool looks very interesting! I had abandoned Evernote last year and migrated to Obsidian for note taking, which uses markdown, so BrainTool looks like a 2-for-1 win since it's datafile might happily co-exist in my Obsidian vault!! Also, I've been a long-time fan of outlines for organizing information, so again, this could be a triple win!!! The key for me is that I'll have consistency in the organization of my documents, notes, and links, as well as consistency in the tools that I use to manage that organization. I'm definitely going to look beyond the surface of BrainTool to discover it's hidden powers ... which are desperately needed in today's cloud-based environments where lots of information is hidden in the fog.
+
+----------------------
+This is becoming a powerhouse productivity tool! It is Bookmarks+Sessions+Outliner in one place. Juggling with multiple projects/activities, it is easy to group tabs in specific windows, and then Alt+B to their respective Topic with "All unsaved tabs" checked to update that specific Topic (Session) with the new tabs. Easily adding TODO state to a Bookmark is also very useful! And also, the whole idea of basing this on an org file is just brilliant!
+
+----------------------
+I had been on a browser/bookmarking/tab hunt for sometime. You brought the description field back that I loved in Firefox. A research tool if you will as I can open groups and add to them fairly quickly and close without thought of loosing anything.
+
+I didn't think I would like it at first until I started using it. i saw how easy it was to bookmark and group things rapidly. 
+
+So thanks.
+
+----------------------
+UPDATE II: Please Join his Google Discussion group as its an excellent place to give feedback, suggestions and to work through an issues that may occur.
+
+----------------------
+Update: This extension has me hooked as it's definitely not like your normal bookmark manager. There was a slight learning curve only because it makes you rethink or approach bookmarking differently. I have been struggling with bookmarking ending up with stuff everywhere. I didn't realize until using this tool there was others like me trying to treat bookmarks as a second brain only to realize there is a whole fad out there on SecondBrain. I needed a dumping grounds when browsing, working on projects, and researching. With the ability to annotate folders (topic cards) or bookmarks and this made it possible.
+
+The ability to use an org file to sycn was a genius move.
+
+----------------------
+I already use org-mode and drive, so I knew this was going to be good. The UI is a little basic, but the tool itself is amazing. The only issues I had with it were fixed in the latest update, so I'm really looking forward to where it goes from here. You can use this with TabFS, todoist.el, and rclone to do some pretty neat things. Very elegant. I want this for Firefox badly.
+
+----------------------
+Hi Joel, I'm glad you are liking BrainTool. I wanted to let you know that I have a new version ready to release and am soliciting early feedback on it. It focuses on better org-mode support and the ability to import and export org files. You can see details here: https://braintool.org/support/releaseNotes .
+
+Super responsive developer for a great project. I've wanted a straightforward quick keyboard interface for bookmarking / tagging and this is almost perfect, very excited to see how this develops.
+
+----------------------
+It took a minute to figure out that there was a pop-up asking me to grant Drive access but after that it's be very helpful.  Tag, write a quick note then close a tab.  Everything is categorized and notated so I don't have to keep all the tabs open to keep track of all the crazy stuff I'm doing.  Great extension!
+
+----------------------
+The design goal of this application is great! I saw some one star reviews which missing the point of this extension. The intention is not to have a huge kitchen sink to store everything. It is means to be carefully curated links which needs effort to organize, but it will provide benefits for you later.
+The design/graphics/videos all needs improvement. That being said, great tools to have!
+
+----------------------
+I thought of BrainTool as a bookmark management and replacement at first, but I was wrong. This is just an unaffiliated alternative. I was hoping to import my bookmarks and annotate them. Wrong again. I think this tool might be trying to be a project-based researching tool?? I'm not sure.
+
+BrainTool is a good idea in that it helps you organize URLs with tags and notes, and allows you to open them with a button. But that's where the good idea ends. The intended usage is so convoluted and unintuitive that I had to give up and watch the videos, where he very quietly mutters as he clicks around without any coherent explanation of what he is doing. After I finally grasped the concept, I felt like I could have made a 30 second intro that showed all of the functionality and purpose clearly. alternate keyboard controls such as using CTRL+click, or ALT+click are not documented. He's made fundamental concepts of browser functionality into a sticky mess of vague icons. 
+
+I also had a realization:
+It's easier to organize this information on a spreadsheet, or any other kind of document. You have more control of the layout, and editing is easier. Using this tool, just makes a very simple task of note taking, weird and alien. Just make a Google Spreadsheet and add URLs and notes. Done. 
+
+I do think that if this tool was redesigned, maybe with the help of a UX designer, the functionality could be intuitive and useful. Certainly a feature that imports existing bookmarks would be extremely useful.
+
+----------------------
+I've used Session Buddy and OneTab. This is far superior.
+Things I like:
+1) Ability to free format edit the data store
+2) The ability to use a hierarchy of groups
+3) The point-and-click editing in the side window
+Rooms for improvement:
+a) Bulk upload - to save all the tabs in a window at once
+b) Conversion of existing bookmarks into BrainTool
+c) A real idiot-proof simple intro for beginners
+    I was enough of an idiot to have to learn the hard way, including ...
+    Single click on the extension icon to add the current tab
+    Double click on the extension icon to open the side window
+    Although the data is save in Google Drive, you need to edit it with a TEXT EDITOR not Google docs
+
+----------------------
+8 months later BrainTool absolutely still deserves 5 stars. Among other improvements, the import/export to/from existing bookmarks has been in place for several months now. 
+Thanks again for this tool!
+
+----------------------
+As a current Tabs Outliner user, my first reaction is that BrainTool, even in its pre-1.0 release, is far more polished.  
+
+One feature of Tabs Outliner I've come to depend on is its support for keyboard shortcuts.  Hoping that's on your roadmap, though I don't see it in the 'future plans' section at https://braintool.org/overview.  If you do pursue this, I think an excellent example of such support is the freemium outliner tool Checkvist.com.
+
+----------------------
+Thanks, Tony.  
+
+The keys I most use are...
+- up/down to change the selected line
+- ctrl-up/down to move the selected line
+- left-arrow to hide the children of selected line
+- left-arrow to show the children of selected line
+
+(The site is https://checkvist.com, with a v.)
+
+----------------------
+Thanks Jonathan! I'm personally a fingers-on-keys kind of guy and in my own use of BrainTool I've optimized keyboard interaction. LMK what you think should be shortcutted (either here or email braintool.extension@gmail.com). I'll look at Checklist.
+
+----------------------
+I had some trouble initially, because I didn't click the button to link the extension to my Google Drive. It worked just fine after that. It also took me a while to find the button to click and drag the tags into sub categories. However, once I found all the correct buttons, I have to say I really like it. When I am working, I frequently need to open the same four websites, and this tool allows me to open them all at once or individually, which is fantastic! I will be spending some time creating tags and organizing them this week. Well done! Thank you for the great tool.
+
+----------------------
+won't run message says not authorized
+
+----------------------
+Hi Fred, The Google Drive authorization step is key and, based on these early reviews, something I need to make clearer. You need to click the grey 'Authorize GDrive Access' button in the initial welcome message. Please ping me at braintool.extension@gmail.com if you continue to have difficulties.
+
+----------------------
+Did not work. Would show the pop up to add a tag, but the entry field did not react to the keyboard. Each time I'd try to add something, another pop up would appear and advise that I needed to give the extension access to the GDrive, which I did each time; another pop up would appear to go through the process, but nothing was ever saved. At one point I did get what I assume was a JavaScript error message that there was an error in "tabAdded". Seems like a great idea, but no go.
+
+----------------------
+Hi Terry, We found that some security-related extensions and Chrome configurations caused the GDrive access to fail silently and result in the behavior you observed. Specifically the Privacy Badger extension and Third-party Cookie settings have caused problems. The newly released 0.6.1 BrainTool version has better error handling. See braintool.org/support for more details. Give it another try and let me know how it goes (braintool-extension@gmail.com).
+
+----------------------
+I had the same problem, but found it was user error. When you first add the extension, there is a small Gray box that says something to the effect of grant access to drive (I forget the exact wording, but I removed the extension and re-added it to chrome and it came up again) If you don't click that box you haven't connected your Google Drive to the actual extension, so it doesn't work. I am evaluating now, with the sample tag tree.
+
+----------------------
+Interesting concept, very different from other bookmark tools. Now I never loose anything *and* keep my browser workspace neat and tidy!
+
+----------------------
+An easy way to categorize and organize your links. A must have when finishing a project and closing those tabs - don't forget how you found the information from last time!
+
+----------------------
+5 stars for the amount of smart thinking that went into this, for the vision. The main advantage - it uses a simple org-mode file, so it can be used to sync/access in many ways: other than the obvious Org-mode, for instance with Logseq or on mobile, with Orgzly. But even if you are not interested in Org and you never open the file, it's a brilliant tab manager and you can use it to save content to hierarchies (topic maps) that work for you. What I'm most interested for the future: the possibility to add content to more than one topic. Yes, hierarchies are great for knowledge work, but can be limiting.
+
+----------------------
+Been using it for the past month. It has really increased my productivity at work. Before Braintool I used to have multiple profiles which was a big hustle to maintain.
+
+----------------------
+I used to have hundreds of tabs open in Chrome. It was causing Chrome to take too much CPU & memory. It was also causing me stress. Now I am using Braintool chrome plugin to organize my links & tabs. 5 stars for an excellent tool.
+
+----------------------
+There is some learning curve, so you need to give it some time. But after that it's a life saver, and a game changer for productivity and digital well-being.
+
+I especially love this project's Philosophy (quote from braintool.org):
+
+> The core BrainTool philosophy is that your data is stored in a human-readable plain text format and that you own and have complete control over its use. BrainTool endeavors to be a fantastic standalone tool but to work well within an emacs and org-mode text-based workflow and to readily integrate with an associated ecosystem of information management and productivity tools.
+
+----------------------
+For a long time I was looking for a Tabs Outliner replacement because it is not actively developed.
+With Braintool I have found it. The developer seems to be committed. 
+Even if it gets abandoned, my data is stored in plain text.
+
+----------------------
+I've been using Braintool for several months now and I've been thrilled with it. I had been using Better OneTab to keep my tabs and links organized, but it had minimal organization and a poor search function. The really great thing in BrainTool is the ability to save notes along with the link - you can write down why it is you saved the link or other links it should be associated with or the like, which makes it much more functional to browse. The keyboard shortcuts also make it incredibly quick and easy to use. As an Emacs/Org user, I also very much appreciate the ability to import/export the contents as an org file. 
+
+It doesn't replace saving webpages locally if you want to ensure long-term access to them, but for any content you trust to remain online and hosted for as long as you need to reference it, it's absolutely fantastic.
+
+----------------------
+This is a great extension, that replaced my workflow of having a separate browser to have a group of tabs ready to be opened at a moments notice. More over, I tend to have open many tabs in groups, depending on what I'm going, be it a research, house keeping, or working on one of many projects. This extension naturally fits the bill of organizing such tab groups into a logical hierarchy of "work units" that can be quickly accessed / switched to.
+
+Google Drive integration works great, so I don't have to worry about syncing anything manually between different machines. An Org mode it great as well, for import / export / local backups, even though I'm a heavy Vi user.
+
+I would definitely recommend to try this extension and see if it fits your workflow needs!
+
+----------------------
+My husband recommended this extension as I stopped using Tabs Outliner because I could not sync across computers. Took a little bit getting used to, but so far I like it a lot!
+
+----------------------
+Finally!  After years of using Tabs Outliner and dealing with the frustration of the author having basically abandoned it, and having tried almost every other tab management extension I could find, this is the one that I finally believe is on the right track.  
+
+What a great start.  It saves the data to a FILE in your Google Drive, which has a # of key advantages over Tabs Outliner:
+  1) Instead of depending on the Google account like Tabs Outliner -- which makes it break on Microsoft Edge, it writes the data to a plain file on your Google My Drive.  Thus it works on any browser.
+ 2) That file is thus accessible from any other profile or browser or computer, even Edge, and therefore you have "sync" across all your devices!   It's not "instant" and you do have to "refresh" when you switch browsers, but that's a small inconvenience for being able to do it at all!  
+
+Other advantages over Tabs Outliner:
+* once you "save" a tab, you can CLOSE it WITHOUT LOSING the saved entry!   With TO (Tabs Outliner), if you close the tab, you lose the entry.
+* it doesn't automatically create an entry from open tabs, so you can leave the browser startup setting to "Continue where you left off" without having to worry about duplicate entries.
+
+There are a few other nice things but those are the key ones.  I am in the process of switching everything from TO to Brain Tool.   Highly recommended.
+For being an initial ree
+
+----------------------
+Planning to try this out as an alternative to another product "tabs outliner".  The biggest challenge with tabs outliner was that it kept piling on crashed chrome sessions.  Very soon, this makes the whole tabs outliner unmanageable with a huge database build up.  Not seeing that with BT. Would like to know more though.  Does it automatically save all windows when chrome closes and does it make sure not to create duplicates?  Regardless, the reason I am leaving 5 stars is because of tagging, categorization, and notes taking that is clean and visible.  Would love to see future integrations with Evernote if possible.  Good job, dev.
+
+----------------------
+I am looking for a good bookmark manager, and BrainTool looks very interesting! I had abandoned Evernote last year and migrated to Obsidian for note taking, which uses markdown, so BrainTool looks like a 2-for-1 win since it's datafile might happily co-exist in my Obsidian vault!! Also, I've been a long-time fan of outlines for organizing information, so again, this could be a triple win!!! The key for me is that I'll have consistency in the organization of my documents, notes, and links, as well as consistency in the tools that I use to manage that organization. I'm definitely going to look beyond the surface of BrainTool to discover it's hidden powers ... which are desperately needed in today's cloud-based environments where lots of information is hidden in the fog.
+
+----------------------
+This is becoming a powerhouse productivity tool! It is Bookmarks+Sessions+Outliner in one place. Juggling with multiple projects/activities, it is easy to group tabs in specific windows, and then Alt+B to their respective Topic with "All unsaved tabs" checked to update that specific Topic (Session) with the new tabs. Easily adding TODO state to a Bookmark is also very useful! And also, the whole idea of basing this on an org file is just brilliant!
+
+----------------------
+I had been on a browser/bookmarking/tab hunt for sometime. You brought the description field back that I loved in Firefox. A research tool if you will as I can open groups and add to them fairly quickly and close without thought of loosing anything.
+
+I didn't think I would like it at first until I started using it. i saw how easy it was to bookmark and group things rapidly. 
+
+So thanks.
+
+----------------------
+I already use org-mode and drive, so I knew this was going to be good. The UI is a little basic, but the tool itself is amazing. The only issues I had with it were fixed in the latest update, so I'm really looking forward to where it goes from here. You can use this with TabFS, todoist.el, and rclone to do some pretty neat things. Very elegant. I want this for Firefox badly.
+
+----------------------
+The computer gods have smiled upon me! I've literally been searching for months to find the "perfect" tool to manage all my topics, bookmarks, links, resources, etc. I work for a large tech company and I run a businessl, so I have a LOT of information to manage. There's always new stuff to add, and existing links seem to be in constant need of updating. BrainTool makes this brain-dead simple (pardon the pun)! I'm also a huge fan of open source software and anything that uses plain text so I can avoid having my data locked in by proprietary file formats. So you can imagine my excitement when I learned BrainTool stores everything in a text file using org-mode format. Genius! I've installed it in three browsers on two different computers and tested syncing via Google Drive. I also edited the underlying text file using LogSeq and then refreshed/reloaded the file in BrainTool. It's awesome! I've already started converting everything over to BrainTool and ditching other methods.
+
+----------------------
+Awesome browser add-on for managing topics, bookmarks, and all sorts of information related to those items. Open-source, plain text format, how much better could it get?? Works great so far, and I love being able to control everything with keyboard shortcuts. I've already removed all my actual browser bookmarks after importing them into BrainTool.
+
+----------------------
+Braintool made my bookmark management intuitive, scalable for depth and breadth of nesting using topic cards, subjects, interdependent areas, and easily portable across all my Chromium-based browsers.
+
+----------------------
+Love it! The topic management aspect has created a much better experience for my tab management needs. I found BrainTool partly because of my desire to refine my browser choices, partly out of my need to have a higher degree of tab organization. There is active, transparent development and accessibility to developers and other users. It is built on a text file foundation, with the many advantages that provides.
+
+----------------------
+As a long term orgmode user, this plugin is a god sent. It integrated naturally to my daily workflow where everything is managed using plain text file. I will be migrating my bookmarks from raindrop.io soon.
+
+----------------------
+Over the last several years I have tried every 'tab management' plugin I can find. Most free, some paid, but none of them have managed tabs in a manner which feels optimal for me. I have always worked from home or come back from the office and continued to work. For me that means that I have a dozens of co-mingled work and personal tabs. When Microsoft Edge made vertical tabs available, that was a boon for me only for the added real-estate for which I could readily see all the tabs in my browser. I've tried using separate Edge windows with topic specific tabs. Even then I found that trying to simplify the windows to topics cluttered my Desktop with too many windows. BrainTool does both a great job of automatically keeping tabs grouped when organized together *and* makes it easy to categorize tabs. Alt+b brings up a quick search window of which you get suggested tags as you type. Reminds me of the "Tabs Outliner" extension, but better. Keep up the development!
+
+----------------------
+Good bookmark management tool! Suitable for programmers. I can integrate a lot of my fragmented data. And because I can import tab outliner, it's very convenient for me. A lightweight but important plugin that I love! Looking forward to the 1.0 update, he has been replaced by Tab Outliner.
+
+----------------------
+The ability to organize all my webpages in categories so I can get quick access is no longer a nice to have for me--it is an essential tool. It is simple, easy to work with, and efficient. Thanks to the developer(s)!
+
+----------------------
+Oh my gosh this is exactly the extension I've been searching for. It consolidates my tabs into something usable! FINALLY! It's simple yet effective in presenting the windows and tabs correctly!
+
+----------------------
+Having just found this extension looking for options to support my focus during my studies, I have found the tool brilliant. It is just what I needed to organise all the projects in 1 easy to access space and its great that you can easily transfer links ready to transfer to my referencing.
+
+----------------------
+I've finally found my ultimate weapon of organization! Countless note apps, add-ons, etc have been through my browsers, but this is the one I will settle with. Perfect for a field mechanic in 2021. Simple, yet effective and feature filled. I can't say enough. A+ and this is still early!
+
+----------------------
+Those looking for a lightweight, text-file backed information manager need to give this extension a try. In it's simplest form, BrainTool (BT) can help you better organize your bookmarks and keep track of information in a hierarchical structure. Add to this that BT is backed by a simple text-based file and you can mix-in your own personal information manager for added effect. The easiest integration is with Emacs and Org-mode/Org-roam since BT stores it's data in that format, but you can use whatever you're comfortable with. There is a marked absence of mobile support for BT, but that's where having a text backend is helpful. As long as you can get to the storage location on your device (BT supports Google Drive natively but you can get it to work with other cloud based storage with a little work), most mobile devices will allow you to open a text file easily. If you have a native Org-mode client on your device, all the better.
+
+----------------------
+I have been searching for quite some time for a proper tool to organize my bookmarks. Unfortunately, though, due to the number and complexity of the bookmarks I have amassed and continue to amass, all of the existing browser extensions and organizing programs - and I don't think that there's one I missed - have proven unsatisfactory for my needs, which include both personal use and academic research. I am therefore pleased to have finally found a tool which fills the gap - Braintool, and it does so admirably. I might add that while the current functionality of this extension is quite extensive, the developer is planning to add even more functionality (e.g. tags), which would be a most welcome addition to what is already an excellent tool.
+
+----------------------
+I had been on a browser/bookmarking/tab hunt for sometime. You brought the description field back that I loved in Firefox. A research tool if you will as I can open groups and add to them fairly quickly and close without thought of loosing anything. I didn't think I would like it at first until I started using it. I saw how easy it was to bookmark and group things rapidly. Also, it had been some time since I utilized Emacs. With the org file I was compelled to install and play around similar to how you described either in the discussion group or your website. Keep up the awesome work. So thanks.
+
