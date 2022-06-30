@@ -35,11 +35,6 @@ The Topic Manager is your central controller. With drag and drop and powerful ke
 <img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
 
 By organizing links and capturing your notes about them you are mapping your personal information space. BrainTool stores that information space in a plain-text file. As you save pages, and add notes a file called BrainTool.org is kept updated. That file is regular text but structured in the public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
-<!--
-<br/>
-<br/><br/>
-<img src="/site/bt-screenshot4.png" style="border:solid; width:50%; border-width:thin;">
--->
 <br/><br/>
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
