@@ -179,6 +179,11 @@ const configManager = (() => {
         }
     }
 
+    function closeActionsDisplay() {
+        // close if open
+        if ($('#actions').is(':visible')) toggleActionsDisplay();
+    }
+        
     function toggleActionsDisplay() {
         // open/close actions panel
         
@@ -254,6 +259,7 @@ const configManager = (() => {
         toggleSettingsDisplay: toggleSettingsDisplay,
         toggleHelpDisplay: toggleHelpDisplay,
         toggleActionsDisplay: toggleActionsDisplay,
+        closeActionsDisplay: closeActionsDisplay,
         toggleKeyCommands: toggleKeyCommands,
         initializeInstallDate: initializeInstallDate
     };

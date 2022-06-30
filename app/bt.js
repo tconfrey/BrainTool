@@ -207,6 +207,7 @@ var OpenedNodes = [];          // attempt to preserve opened state across refres
 
 async function refreshTable(fromStore = false) {
     // Clear current state and redraw table. Used after an import or on manual GDrive refresh request
+    // Needed to regenerate the tabletree structures
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
     if (savePendingP()) {
@@ -250,7 +251,6 @@ function generateTable() {
 }
 
 
-var RefreshCB = null;           // callback on refresh completion (used by bookmark import)
 function processBTFile() {
     // turn the org-mode text into an html table, extract Topics
 
@@ -310,7 +310,6 @@ function processBTFile() {
 
     configManager.updatePrefs();
     $('body').removeClass('waiting');
-    if (RefreshCB) RefreshCB();                      // may be a callback registered
 }
 
 
@@ -1365,19 +1364,19 @@ function cancelEdit() {
  * 
  ***/
 
-function processImport(nodeName) {
+async function processImport(nodeId) {
     // an import (bkmark, org, tabsOutliner) has happened => save and refresh
 
-    RefreshCB = function() {animateNewImport(nodeName);};
-    saveBT();
-    refreshTable();
+    configManager.closeActionsDisplay();                      // close panel
+    await saveBT();                                           // save w imported data
+    refreshTable();                                           // re-gen treetable display
+    animateNewImport(nodeId);                                 // indicate success
 }
 
 function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
     window.postMessage({'function': 'getBookmarks'});
-    //    toggleOptions(1500);
 }
 
 function loadBookmarks(msg) {
@@ -1390,8 +1389,8 @@ function loadBookmarks(msg) {
         return;
     }
 
-    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
-    const importName = "Imported Bookmarks (" + dateString + ")";
+    const dateString = getDateString().replace(':', '&#8759;');        // 12:15 => :15 is a sub topic
+    const importName = "&#x1F516; Bookmark Import (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
     msg.data.bookmarks.children.forEach(node => {
@@ -1399,9 +1398,9 @@ function loadBookmarks(msg) {
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
-    // remmember this import and remove button from main control screen
+    // remmember this import
     configManager.setProp('BTLastBookmarkImport', dateString);
-    processImport(importName);                             // see above
+    processImport(importNode.id);                             // see above
 }
 
 function loadBookmarkNode(node, parent) {
@@ -1431,20 +1430,22 @@ function loadBookmarkNode(node, parent) {
     });
 }
 
-function animateNewImport(name) {
+function animateNewImport(id) {
     // Helper for bookmark import, draw attention
-    const node = BTNode.findFromTitle(name);
+    const node = AllNodes[id];
     if (!node) return;
     const element = $(`tr[data-tt-id='${node.id}']`)[0];
+	element.scrollIntoView({block: 'center'});
+    /*
     $('html, body').animate({
         scrollTop: $(element).offset().top
     }, 750);
+*/
     $(element).addClass("attention",
                         {duration: 2000,
                          complete: function() {
                              $(element).removeClass("attention", 2000);
                          }});
-    RefreshCB = null;
 }
 
 

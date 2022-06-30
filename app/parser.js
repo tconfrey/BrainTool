@@ -65,7 +65,7 @@ function insertOrgFile(fileName, fileText) {
         if (orgaNode.type == "section")
             orgaSection(orgaNode, parentNode);
     }
-    processImport(parentNode.title);                           // bt.js fn to write and refresh 
+    processImport(parentNode.id);                           // bt.js fn to write and refresh 
 }
 
 function orgaSection(section, parentAppNode) {

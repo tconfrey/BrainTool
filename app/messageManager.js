@@ -33,8 +33,8 @@ const messageManager = (() => {
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
-        "See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of recent changes."
+        "Welcome to BrainTool 0.9.9a, a new minor release.<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions)."
     ];
     let Warning = false, Message = false, lastShownMessageIndex = 0;
 

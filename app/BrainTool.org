@@ -19,13 +19,13 @@ Keep all your links and notes for each project in one place.
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Hover the mouse over a row to see the tools you can use on it.
+Expand and collapse the tree from the hierarchy on the left.
 
 *** Contractors
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Click the T tool to open all links under Contractors in a tab group.
+Hover the mouse over a row to see the tools you can use on it. 'More Tools' shows them all.
 **** [[https://braintool.org/overview.html][The Expensive guys]]
 Click the link or use the T tool to open in a Tab.
 
@@ -40,14 +40,15 @@ Just right! Nile was great to talk to. Really engaged with the project. Good pro
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Another set of links could live here.
 
+Click the T tool to open all links under Cabinetry in a tab group.
 **** [[http://www.crown-point.com/][Crown Point Cabinetry]]
 
 *** Appliances
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
+Another set of links could live here.
 **** [[https://clarkeliving.com/][demo showroom in Boston]]
 
 ** Knowledge Worker Sample Project

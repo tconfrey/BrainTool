@@ -180,11 +180,18 @@ function updateSyncSettings(connected = false, time = null) {
  ***/
 
 function importOrgFile() {
+    // Only way I could find to get wait cursor to show was to introduce the timeout
+    $('body').addClass('waiting');
+    setTimeout(() => _importOrgFile(), 100);
+}    
+function _importOrgFile() {
     // Import org file text from user chosen file
-    
     const fr = new FileReader();
     const uploader = $("#org_upload")[0];
-    if (!uploader.files.length) return;
+    if (!uploader.files.length) {
+        $('body').removeClass('waiting');
+        return;
+    }
     const file = uploader.files[0];
     fr.onload = function(){
         insertOrgFile(file.name, fr.result);     // call parser to insert
@@ -197,11 +204,13 @@ function importOrgFile() {
 async function loadOrgFile(url) {
     // load topic tree from web resource
     
+    $('body').addClass('waiting');
     let response = await fetch(url);
     if (response.ok) {
         const btdata = await response.text();
         insertOrgFile("Import", btdata);
     } else {            
+        $('body').removeClass('waiting');
         alert('Error loading Topic file');
     }
     return;
@@ -209,10 +218,18 @@ async function loadOrgFile(url) {
 
 
 function importTabsOutliner() {
+    // Only way I could find to get wait cursor to show was to introduce the timeout
+    $('body').addClass('waiting');
+    setTimeout(() => _importTabsOutliner(), 100);
+}
+function _importTabsOutliner() {
     // Import TabsOutliner json from user chosen file
     const fr=new FileReader();
     const uploader = $("#to_upload")[0];
-    if (!uploader.files.length) return;
+    if (!uploader.files.length) {
+        $('body').removeClass('waiting');
+        return;
+    }
     const file = uploader.files[0];
     fr.onload=function(){
         const orgForTabsO = tabsToBT(fr.result);
@@ -220,7 +237,7 @@ function importTabsOutliner() {
         gtag('event', 'TOImport', {'event_category': 'Import'});
     };
     fr.readAsText(file);
-    this.value = null;                                       // needed to re-trigger if same file selected again
+    this.value = null;                        // needed to re-trigger if same file selected again
 }
 
 function exportOrgFile(event) {
