@@ -15,7 +15,7 @@ function syncEnabled() {
 async function handleStartupFileConnection() {
     // If there's a backing store file, local or GDrive, handle reconnection etc
 
-    let launchType = 'NonGDriveLaunch';
+    let launchType = 'UnsyncedLaunch';
 
     // Handle GDrive connection
     if (configManager.getProp('BTGDriveConnected') == 'true') {
@@ -32,7 +32,7 @@ async function handleStartupFileConnection() {
     }
 
     // fire off tracking event
-    gtag('event', launchType, {'event_category': 'General', 'event_label': 'NumNodes', 'value': AllNodes.length});
+    gtag('event', launchType, {'event_category': 'General'});
 }
 
 async function saveBT(localOnly = false) {
@@ -49,7 +49,7 @@ async function saveBT(localOnly = false) {
     brainZoom();                                 // swell the brain
     console.log("Recording save event and writing to any backing store");
     if (InitialInstall) {
-        gtag('event', 'FirstSave', {'event_category': 'Launch'});
+        gtag('event', 'FirstSave', {'event_category': 'General'});
         InitialInstall = false;
     }
 

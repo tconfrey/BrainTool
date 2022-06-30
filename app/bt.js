@@ -75,20 +75,25 @@ async function launchApp(msg) {
 
 function updateStats() {
     // read and update various useful stats, only called at startup
+    // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
-    // Record this launch and its type
-    gtag('event', 'Launch', {'event_category': 'Launch', 'event_label': 'NumNodes',
-                             'value': AllNodes.length});    
+    // Record this launch and software version
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'Version',
+                             'value': "0.9.9a"});    
     if (InitialInstall) {
-        gtag('event', 'Install', {'event_category': 'Launch', 'event_label': InitialInstall});
+        gtag('event', 'Install', {'event_category': 'General', 'event_label': 'Version',
+                                  'value': InitialInstall});
         configManager.setStat('BTInstallDate', Date.now());
     }
     if (UpgradeInstall)
-        gtag('event', 'Upgrade', {'event_category': 'Launch', 'event_label': UpgradeInstall});
+        gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': 'Version',
+                                  'value': UpgradeInstall});
 
     // Calculate some other stat info (and do some one-time setup of installDate and numSaves)
+    // Since numSaves was not recorded as a stat previously, use BTVersion from org file
     let stats = configManager.getProp('BTStats');
-    if (!stats['BTNumSaves']) configManager.setStat('BTNumSaves', configManager.getProp('BTVersion'));
+    if (!stats['BTNumSaves']) configManager.setStat('BTNumSaves',
+                                                    parseInt(configManager.getProp('BTVersion')));
     if (!stats['BTInstallDate']) configManager.initializeInstallDate(); // wasn't set pre-099
     configManager.incrementStat('BTNumLaunches');         // this launch counts
     stats = configManager.getProp('BTStats');
@@ -102,21 +107,25 @@ function updateStats() {
     const lastSessionOperations = currentOps - (stats['BTSessionStartOps'] || 0);
     const lastSessionSaves = currentSaves - (stats['BTSessionStartSaves'] || 0);
 
-    // Record general usage summary stats
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'NumLaunches',
-                             'value': stats['BTNumLaunches']});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'NumSaves',
-                             'value': stats['BTNumSaves']});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'NumTabOperations',
-                             'value': stats['BTNumTabOperations'] || 0});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'LastSessionMinutes',
-                             'value': lastSessionMinutes});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'LastSessionSaves',
-                             'value': lastSessionSaves});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'LastSessionOperations',
-                             'value': lastSessionOperations});
-    gtag('event', 'LaunchStat', {'event_category': 'Usage', 'event_label': 'DaysSinceInstall',
-                             'value': daysSinceInstall});
+    // Record general usage summary stats, they don't apply on first install
+    if (!InitialInstall) {
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumLaunches',
+                                     'value': stats['BTNumLaunches']});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumSaves',
+                                     'value': stats['BTNumSaves']});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumTabOperations',
+                                     'value': stats['BTNumTabOperations'] || 0});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumNodes',
+                                     'value': AllNodes.length});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionMinutes',
+                                     'value': lastSessionMinutes});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionSaves',
+                                     'value': lastSessionSaves});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionOperations',
+                                     'value': lastSessionOperations});
+        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'DaysSinceInstall',
+                                     'value': daysSinceInstall});
+    }
 
     // Overwrite data from previous session now that its recorded
     configManager.setStat('BTSessionStartTime', Date.now());

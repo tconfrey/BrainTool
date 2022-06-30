@@ -13,7 +13,7 @@ const messageManager = (() => {
         "Double click on a table row to highlight its' open window, if any.",
         "Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
-        "Remember to Refresh if you've been editing the BrainTool.org file directly.",
+        "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
         `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
         "You can save individual gmails or google docs into the BT tree.",
         "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
