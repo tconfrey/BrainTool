@@ -102,7 +102,7 @@ const configManager = (() => {
               (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
         const $radio = $('#themeToggle :radio[name=theme]');
         $radio.filter(`[value=${theme}]`).prop('checked', true);
-        window.postMessage({'function': 'localStore', 'data': {'Theme': theme}});
+        configManager.setProp('BTTheme', theme);
         // Change theme by setting attr on document which overides a set of vars. see top of bt.css
         document.documentElement.setAttribute('data-theme', theme);
         $("img").removeClass('LIGHT', 'DARK').addClass(theme);  // swap some icons
