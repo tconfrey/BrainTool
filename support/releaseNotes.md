@@ -6,7 +6,32 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
-# Welcome to BrainTool 0.9.9
+# Welcome to 0.9.9a
+This is a minor point release because there are no changes requiring updates on the Web Stores, but it has some major functionality! In addition to releasing some ongoing UI improvements my goal with 099a is to get feedback on the beta version of local file syncing. I have not been able to test this functionality across a wide set of environments so I'm considering it in beta and encouraging anyone interested to give it a try and let me know (via the [discussion group](https://groups.google.com/u/0/g/braintool-discussion) ) if you have any feedback (positive or negative).
+
+## Local File Sync
+Local file sync opens up a lot of potential for saving, versioning and backing up your BrainTool data. The file location used by BrainTool can be hooked up to DropBox, a git repository or any other cloud syncing mechanism.
+
+Local sync is mutually exclusive with GDrive syncing, you can only sync to one place. Syncing can be turned on via the Settings screen (click the new Settings icon, top right). If you are already syncing to GDrive and want to change you will first need to turn off GDrive syncing (via 'Actions', again top right). On initiation you will be asked to select a folder for BT to access. The browser will ask you to grant permission first for Read-only access to the folder and then for read-write access.
+
+The ability to write to a local file from a web app is a newish capability and heavily secured within the browser. Every time you re-open the BT Topic Manager you will need to re-grant permissions for BT to write to the local folder. Note that the **Brave** browser developers have chosen not to implement local file access and so this feature cannot be made available on Brave.
+
+## Settings, Actions and Help panels
+The previous overlay panel put access to settings behind multiple mouse clicks and was confusing for many users. We've broken out those functions into separate panels which can be accessed directly from the top level Topic Manager. Settings and Actions are top right, Help is bottom right. Other than Local file sync, the available settings and actions are unchanged.
+
+## Tips, Messages and Warnings 
+A colored panel below the topic tree now shows any required informational messages on startup and subsequently provides access to a set of tips on BT usage. If a sync file is out of date the panel shows a 'Warning' message and provides a shortcut to the refresh function with a single click.
+
+## Minor UI changes
+In addition to the above:
+- Some colors have been tweaked to improve contrast and readability.
+- The application as a whole now does a better job of handling wide and narrow Topic Manager windows.
+- The topic card editor makes better use of space and use a fixed width font to improve org-mode compatibility.
+
+## Telemetry 
+While your privacy is a key aspect of the BrainTool value proposition and we do not have any access to your data, we do need to collect some information on how the application itself is being used. On startup the app now records (to Google Analytics) the number of saved topics and pages, the number of file saves/updates, the number of tab operations performed, the number of times you've launched the app, days since install and how long your last session of using it was.
+
+# BrainTool 0.9.9
 
 Inching closer to 1.0! I'm getting such great feedback from users that I can't resist the temptation to incorporate the improvements before closing on 1.0. See [Pricing](../pricing.md) for a special offer for pre-1.0 subscribers.
 

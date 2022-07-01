@@ -7,21 +7,21 @@ audience: user
 ---
 
 # User Guide
-BrainTool is a 'Topic' Manager. Topics are the basic unit of organization. The BrainTool Topic Manager shows your topic hierarchy and provides tools for editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any web page or resource that you want to keep track of.
+BrainTool is a 'Topic' Manager. Topics are the basic unit of organization. The BrainTool Topic Manager shows your topic hierarchy and provides tools for editing and curating your topics. The BrainTool Saver lets you quickly assign a topic to any web page or resource that you want to keep track of.
 <div class="row">
 <div class="cell left">
-<img src="/site/topic-manager.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
+<img src="/site/TopicManager.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
 </div>
 <div class="cell right">
-<img src="/site/bookmarker.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
+<img src="/site/Saver.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
 </div>
 </div>
 
-A topic is a category or a tag or any way you want to group a set of web pages. Topics can be nested inside each other to any depth. All topics and links have associated notes. By making it easy to quickly save a web page under a specific topic and drop in a text note, BrainTool allows you to build up your own topic map - a map of all of the information you want to keep track of.
+A topic is a category or a tag or any way you want to group a set of web pages. Topics can be nested inside each other to any depth. All topics and linked pages have associated notes. By making it easy to quickly save a web page under a specific topic and drop in a text note, BrainTool allows you to build up your own topic map - a map of all of the information you want to keep track of.
 
-Getting your links and notes into BT is easy but once there they give you a unique ability to control your browser and navigate your online resources. From the Topic Manager you can open and close individual links or all links for a topic, and see which links are open and pop any one to the top. Everything is controllable via keyboard commands as well as the mouse. This ability to navigate sites and tabs from the Topic Manager can greatly improve your browser workflow.
+Getting your links and notes into BT is easy, but once there they give you a unique ability to control your browser and navigate your online resources. From the Topic Manager you can open and close individual pages or all pages for a topic, as well as see which pages are open and pop any one to the top. Everything is controllable via keyboard commands in addition to the mouse. This ability to navigate sites and tabs from the Topic Manager can greatly improve your browser workflow.
 
-Finally, all of the above takes place in the browser. But BrainTool doesn't want to lock all this valuable information away! Underlying what you see on the screen is a plain text based representation. You can turn on a continuous sync to a Google Drive file or manually save versions of your topic map. Beyond just being a backup this allows you to access and edit your notes and links in any text editor. 
+Finally, all of the above takes place in the browser. But BrainTool doesn't want to lock all this valuable information away! Underlying what you see on the screen is a plain text based representation. You can turn on a continuous sync to a local or Google Drive file or manually save versions of your topic map. Beyond just being a backup this allows you to access and edit your notes and links in any text editor. 
 
 
 ## Installation
@@ -33,19 +33,21 @@ Install BrainTool from the <a href="https://chrome.google.com/webstore/detail/br
 <img src="/site/initialInstall.png" alt="Install" style="border:solid; border-width:thin; width:90%; margin-left:2rem;">
 </div>
 </div>
-BrainTool is launched by clicking the icon, or using the Alt/Option-b keyboard accelerator. On first click it will open the Topic Manager which comes pre-populated with a default set of topics. You can add your data into this structure or create your own. On the first launch BT will re-size your current browser window to make room for the Topic Manager. This is a one-time operation to make sure you see the side-panel, you should feel free to re-arrange your windows as you see fit.
+BrainTool is launched by clicking the icon, or using the Alt/Option-b keyboard accelerator. On first click it will open the Topic Manager which comes pre-populated with a default set of topics. You can add your data into this structure or create your own. On the first launch BT will shift your current browser window to make room for the Topic Manager. This is a one-time operation to make sure you see the side-panel, you should feel free to re-arrange your windows as you see fit. The Topic Manager will re-open in the position it was last closed from.
 
-## Assigning a Topic - the Bookmarker
+## Assigning a Topic - the Saver
 <div class="row">
 <div class="cell left" style="text-align:justify">
-To save the current web page to BrainTool just hit the icon or keyboard accelerator. This will open the BT Bookmarker with the notes field selected. Add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree. The 'all pages' toggle allows you to save all open pages in the browser window that do not already have a topic assigned.
+To save the current web page into BrainTool just hit the icon or keyboard accelerator. This will open the BT Saver with the Topic field selected. 
+<br/><br/>
+The topic selector shows an overview of your current topics in a navigable tree. You can select one with your mouse or just start typing. Auto-complete will show possible topic options. Hit enter to select. If BT has a good guess as to the topic it might be pre-populated. In this case either just hit enter to use it, or delete to clear out the suggestion. 
+<br/><br/>
+Then add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree. The 'all pages' toggle allows you to save all open pages in the browser window that do not already have a topic assigned.
 </div>
 <div class="cell right">
-<img src="/site/BT-popup.gif" alt="popup" style="border:solid; border-width:thin; width:90%; margin-left:2rem;">
+<img src="/site/SaverSuggestions.png" alt="popup" style="border:solid; border-width:thin; width:90%; margin-left:2rem;">
 </div>
 </div>
-
-The topic selector then shows an overview of your current topics in a navigable tree. You can select one with your mouse or just start typing. Auto-complete will show possible topic options, hit enter to select. If BT has a good guess as to the topic it might be pre-populated. In this case either just hit enter to use it, or delete to clear out the suggestion. 
 
 If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces. If you leave the topic blank (ie just hit enter) the page will be assigned to the generic 'Scratch' topic.
 
@@ -54,29 +56,33 @@ Hitting Enter will save the page into your topic map and close the Bookmarker. Y
 ## The Topic Manager
 Once you have a set of pages saved into your personal braintool you can use the Topic Manager to control the browser. You can select it as you would any other browser window, or double click the icon or use the accelerator Alt/Option-b-b (ie hit b twice) to pop it into focus.
 
-The Topic Manager shows your topic hierarchy in an expandable table. The small triangles next to topics allows you to expand or collapse the hierarchy. Links that are open in a tab show in pale green as do topics which have one or more of their links open.
+The Topic Manager shows your topic hierarchy in an expandable table. The small triangles next to topics allows you to expand or collapse the hierarchy. Pages that are open in a tab show in pale blue as do topics which have one or more of their pages open.
 
-Hovering your mouse over a row in the table reveals a set of buttons that perform operations on that row. As shown, right to left, the operations are as follows:
+Hovering your mouse over a row in the table reveals a set of buttons that perform operations on that row. As shown below, right to left, the operations are as follows:
+
 <img src="/site/rowButtons.png" alt="Row Buttons" style="width:80%; margin-left:5rem;">
-- **Delete:** Delete the row's page or topic. If it's a topic also delete all its children. In the latter case a confirmation warning will be shown.
-- **Open/Close:** Open the page in a tab or all the topics pages in a set of tabs, or close links if open. See Options below for details on groupings - tabs for a topic can be separated into tab groups or dedicated windows.
-- **Edit:** Show the Topic card associated with each entry. This allows you to change the topic's title or a links label or url, as well as to edit the notes for the item.
-- **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states. Note also that adding :TODO after the Topic name in the Bookmarker will mark the item as a TODO.
-- **Add Child:** Create a new child topic under this one and open its Topic card.
-- **Outdent:** Move a node up the topic hierarchy.
-- **Move:** Allow the node to be dragged elsewhere in the hierarchy and dropped into a new position. If it's a topic node all its children will be moved along with it.
 - **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
-All these tools can also be accessed using keyboard accelerators.
+- **Close:** Close an open tab or all open tabs for a topic.
+- **Open Tab:** Open the page in a tab or all the topics pages in a set of tabs.
+- **Open in Window:** Open in a new browser window. This can be useful to separate out groups of tabs.
+- **Edit:** Show the Topic card associated with each entry. This allows you to change the topic's title or a pages label or url, as well as to edit the notes for the item.
+- **Add Child:** Create a new child topic under this one and open its Topic card.
+- **Promote:** Move a node up the topic hierarchy.
+- **Move:** Allow the node to be dragged elsewhere in the hierarchy and dropped into a new position. If it's a topic node all its children will be moved along with it.
+- **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states. Note also that adding :TODO after the Topic name in the Saver will mark the item as a TODO.
+- **Delete:** Delete the row's page or topic. If it's a topic also delete all its children. In the latter case a confirmation warning will be shown.
+
+Note not all tools apply to every item and so not all will be shown every time. All the tools can also be accessed using keyboard accelerators.
 
 ## Keyboard Accelerators
 <div class="row">
 <div class="cell left">
-<img src="/site/keyboardAccelerators.png" alt="Key commands" style="border:solid; border-width:thin; width:90%; margin-right:2rem;">
+<img src="/site/Help.png" alt="Key commands" style="border:solid; border-width:thin; width:90%; margin-right:2rem;">
 </div>
 <div class="cell right">
 BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will show all the available keyboard commands.
 <br/><br/>
-One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in dark green in the tree.
+One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in white in the tree.
 </div>
 </div>
 ## Search
@@ -85,64 +91,73 @@ S is the Search accelerator, or just click into the search box. As you type the 
 
 Hitting Alt/Opt-s will select the next matching row. If search hits the bottom row without a match the search box will show in pale red. Hitting Opt-s again will loop the search around to the top row.
 
-R is Reverse search, it works like search but searches upward from the selection (or from the bottom row). At any point you can use -s or -r to find the next or previous match.
+R is Reverse search, it works like search but searches upward from the selection (or from the bottom row). At any point you can use alt-s or -r to find the next or previous match.
 
 Hitting Enter exits search leaving you with the selected row which you can then operate on (eg open in a browser window by hitting enter again, or edit by typing 'e').
 
 Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
 
-In addition to showing the selected row, whether it was hidden or not and whether the matching text was visible or not, search will also indicate any other matches in visible rows, if the matching text is visible it will be highlighted otherwise the matching item will be shown in gray.
+In addition to the key commands, buttons for Up, Down and eXit are shown next to the search box and can be used when search is active.
 
-In addition to the key commands buttons for Up, Down and eXit are shown next to the search box when it is active.
+There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Control-Your-Browser-with-the-Keyboard%}) (using an older version of the UI).
 
-There's also a brief demo video on [this recent blog post]({% post_url 2021-10-06-Control-Your-Browser-with-the-Keyboard%}).
-
-## Actions: Import/Export, Syncing and Options
-The green bar at the top of the side-panel houses the search input and the stats bar, which shows details on your topic cards and saves. Clicking the triangle button on the left will open the Welcome card which shows useful links and tips and any BrainTool announcements. Note that after the first launch the Welcome card shows briefly every time you re-open BT and then closes automatically. On first launch it will wait for you to close it to give you a chance to orient yourself.
-
-From the Welcome card there's a button to import your bookmarks. It's a good idea to do this early in your use of BT and then to organize your bookmarked links into your topic hierarchy. After a first import the button is moved inside the Actions card which is also accessible from the Welcome card.
-
+## Settings and Actions
+Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.
 <div class="row">
 <div class="cell left">
-<img src="/site/welcomeCard.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
+<img src="/site/Settings.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
 </div>
 <div class="cell right">
-<img src="/site/optionsCard.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
+<img src="/site/Actions.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
 </div>
 </div>
 
+### Actions
 There are a number of Import and Export tools. You can import from browser bookmarks, an org-mode text file or an exported file from the TabsOutliner extension. You can export your topic hierarchy back out to browser bookmarks or to a local org-mode format text file. If org-mode and TabsOutliner are not familiar to you don't worry about it, they are not important! (Note that importing can take some time if you have a lot of data.)
 
-Via the 'Topic Manager in:' selector you can change the default location of the Topic Manager such that it opens in a standard browser tab rather than the standalone side panel. IMHO this is a less than ideal setup but was added as a user request. To effect the change, toggle the setting and restart BrainTool.
+If file syncing is enabled (see below) Actions also shows a button allowing a file refresh and another to turn syncing off.
 
-A controllable option on the card determines how BT topics are shown in browser windows, tabs groups and tabs. The default, Tab Groups, uses the new tab group functionality in Chrome and Edge (as well as Brave and some other Chromium-based browsers) to give a visual indication in the browser of which tabs are associated with the same topic. Tab Groups can be named and colored by right clicking on the tab group indicator in the browser. (Unfortunately the ability to automatically name or color the tab group is not available to the BT extension.)
+### Settings
+Via the 'Topic Manager appears in:' selector you can change the default location of the Topic Manager such that it opens in a standard browser tab rather than the standalone side panel. To effect the change, toggle the setting and restart BrainTool.
 
-The alternatives to Tab Group grouping are to open each topic's tabs in separate Windows or do Nothing and open tabs wherever the browser puts them automatically (as it would with any new link you open).
+A controllable option on the panel determines whether BT tabs are grouped by tab groups or opened as individual tabs wherever the browser puts them. The default, Tab Groups, uses the new tab group functionality in Chrome and Edge (as well as Brave and some other Chromium-based browsers) to give a visual indication in the browser of which tabs are associated with the same topic. Tab Groups can be named and colored by right clicking on the tab group indicator in the browser. (Unfortunately the ability for BT to automatically name or color the tab group will not be available until the next version of BT which upgrades to Googles new extension API 'Manifest V3')
 
-Next there is the option to link your personal braintool topic map to a file associated with a Google Drive account. If you have a Google account you can walk through an authorization step to allow BT to write all your data into a file you can access via Drive (in addition to saving it in browser storage). Note that if you do edit the file externally you will need to manually sync it back into BT via the 'Refresh from File' button. If you use multiple browsers or machines with the same Google account you can share your braintool topics across them (again with a manual sync to import changes made elsewhere).
+Next there is the option to link your personal braintool topic map to a file on your local machine, or associated with a Google Drive account. If you have a Google account you can walk through an authorization step to allow BT to write all your data into a file you can access via Drive (in addition to saving it in browser storage). Alternatively you can sync to a local file which can then subsequently also be saved to DropBox, github or some other cloud storage. 
+
+Note that you can only sync to one external file source. With GDrive Google will automatically keep incremental versions of your BrainTool file which can help with recovery if you overwrite or delete your data, whereas the local file will be changed on each update. In either case you should consider periodically exporting your data (via Actions) to save a backup copy.
+
+If you edit the file externally BT will warn you that your data is out of date the next time the Topic Manager gets focus and will offer to refresh from the external version.  You can also use the 'Refresh from File' button in the Actions panel at any point. If you use multiple browsers or machines with the same Google account or with access to the same local file you can share your braintool topics across them (again with a sync to import changes made elsewhere).
+
+The next Setting controls whether BT uses the new Dark Mode theme.
 
 Finally you have the option to upgrade to a Premium version of BrainTool based on a monthly or annual subscription. See the [pricing](../pricing) page for details.
 
-# Full list of Tip text
-The BT Welcome card shows a random tip each time it's opened. Here are all the tips for reference. Send suggestions for inclusion to braintool.extension@gmail.com and maybe they'll end up in the app!
+# Warnings, Messages and Tips
+The BT Message pane is shown each time the Topic Manager is invoked. It shows a Warning if there is a file version mismatch, a Message if there's something new to bring to your attention or else a random tip on the use of BT. The pane can be closed using the button the left. Messages and tips can be cycled through using the More ('>>') button on the right.
 
+Here are all the tips for reference. Send suggestions for inclusion to braintool.extension@gmail.com and maybe they'll end up in the app!
 
-- Add ':' at the end of a topic in the popup to create a new subtopic.
+- Add ':' at the end of a topic in the BT Saver to create a new subtopic.
 - Double click on a table row to highlight its' open window, if any.
-- Type ':TODO' after a topic to make the item a TODO in the BT tree.
+- Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.
 - Create topics like ToRead or ToWatch to keep track of pages you want to come back to.
-- Remember to Refresh if you've been editing the BrainTool.org file directly. (Also make sure your updates are sync'd to your GDrive.)
-- Alt-b is the BrainTool accelerator key. You can change that in extension settings.
+- Remember to Refresh if you've been editing the BrainTool.org file directly.
+- Alt/Option-b is the BrainTool accelerator key. You can change that in extension settings
 - You can save individual gmails or google docs into the BT tree.
-- 'Group', 'Stick' and 'Close' support different workflows when filing your tabs.
 - Save LinkedIn pages under specific topics to keep track of your contacts in context.
-- Use the TODO button on a row to toggle between TODO, DONE and none.
+- Use the TODO (star) button on a row to toggle between TODO, DONE and none.
 - See BrainTool.org for the BrainTool blog and other info.
-- Check out the Bookmark import/export functions under Options.
-- You can click on the topics shown in the BT popup instead of typing out the name.
-- Close and re-open the Welcome card to get a new tip!
-- Double tap Option-b, or double click the icon, to surface the BrainTool side panel.
-- When you have an Edit card open, the up/down arrows will open the next/previous card.
+- Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!
+- Check out the Bookmark import/export functions under Actions
+- You can click on the topics shown in the Saver instead of typing out the name.
+- Use the forward (>>) button on the right to cycle through tips
+- Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.
+- When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.
 - Click on a row to select it then use keyboard commands. 'h' for a list of them.
-- You can also store local files and folders in BrainTool. Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.
-- Try hitting '1','2','3' etc to collapse to that level.
+- You can also store local files and folders in BrainTool. <br/>Enter something like users/tconfrey/Documents/' in the browser address bar.
+- Try hitting '1','2','3' etc to collapse the tree to that level.
+- Import public topic trees and useful links from braintool.org/topicTrees.
+- Try the new DARK theme. It's under Settings
+
+
+For more information see the [FAQ and How-to page](../support) or reach out on the [BrainTool discussion group](https://groups.google.com/u/0/g/braintool-discussion).

@@ -17,10 +17,27 @@
     --btNoteFontSize: 10px;
     --btNoteLineHeight: 12px;
 
+    --btTitleFontSize: 16px;
+    --btTitleFontWeight: 700;
+    --btTitleLineHeight: 19px;
+
+    --btSubtitleFontSize: 14px;
+    --btSubtitleFontWeight: 700;
+    --btSubtitleLineHeight: 19px;
+
+    --btFootnoteFontSize: 10px;
+    --btFootnoteFontWeight: 400;
+    --btFootnoteLineHeight: 12px;
+
+    --btSettingsFontSize: 10px;
+    --btSettingsFontWeight: 400;
+    --btSettingsLineHeight: 12px;
+    --btSettingsFontColor: rgba(255, 255, 255, 0.7);
+
     /* Items below differ in the DARK theme */
     
-    --btColor: #2a3f3e;
-    --btNoteColor: #808285;
+    --btColor: #3C4749;  /* was #2a3f3e;*/
+    --btNoteColor: #636363; /* was #808285; */
     --btTopicBackground: #bcc4c5;
     --btPageBackground: #d4dadb;
 
@@ -41,7 +58,8 @@
     --btGeneralBorderShadow: #3f673f90;
     --btButtonBackground: #7bb07b;
 
-    --btHeaderBackground: linear-gradient(180deg, #D1D3D4 0%, #BDCBCB 100%);
+    --btHeaderBackground: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
+    --btFooterBackground: linear-gradient(#e6e6e7, #c3cbcb, #a8b3b4);
     --btEmptyBackground: whitesmoke;
     --btRowBorderColor: white;
     --btHeaderBorder: #ddd;
@@ -60,11 +78,15 @@
     --btDialogBackground: #eeeeee;
     --btTextAreaBackground: #fff;
     --btDrawAttention: var(--btGeneralBorder);
+
+    --btTipBackground: #F598D4;
+    --btWarningBackground: #F31D1D;
+    --btMessageBackground: #B9CDDF;
 }
 
 [data-theme="DARK"] {
 
-    --btColor: #b6c3c3;
+    --btColor: #aebabc; /* was #b6c3c3; */
     --btNoteColor: #aab6b8;
     --btTopicBackground: #3d4749;
     --btPageBackground: #626A6C;
@@ -89,6 +111,7 @@
     --btButtonBackground: #7bb07b;
 
     --btHeaderBackground: linear-gradient(180deg, #6C7777 0%, #475354 100%);
+    --btFooterBackground: linear-gradient(#6c7777, #475354);
     --btEmptyBackground: #2d2d2d;
     --btRowBorderColor: #2d2d2d;
     --btHeaderBorder: #2d2d2d;
@@ -107,6 +130,8 @@
     --btDialogBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
     --btTextAreaBackground: #000;
     --btDrawAttention: var(--btGeneralBorder);
+
+    --btTipBackground: #CE88B5;
 }
 a {
     color: var(--btLinkColor);
@@ -127,52 +152,124 @@ body {
     margin-right: 0px;
 }
 
-#controls_header {
+/*
+ * Header Bar 
+ */
+
+#controlsHeader {
+    z-index: 3;
+}
+
+#topBar {
+    position: fixed;
+    width: 100%;
+    height: 54px;
+    left: 0px;
+    top: 0px;
     background: var(--btHeaderBackground);
-    border-left: 1px solid var(--btHeaderBorder);
-    border-right: 1px solid var(--btHeaderBorder);
-    border-bottom: 1px solid var(--btHeaderBorder);
-}
-
-.stat_span {
-    position: relative;
-    bottom: 5px;
-    padding-right: 8px;
-    font-size: var(--btTopicFontSize);
-    font-family: var(--btFont);
-}
-
-#stats_row {
-    height: 27px;
     color: var(--btColor);
-    position: absolute;
-    top: 1px;
-    right: 0px;
-    padding-right: 5px;
-    border-radius: 3px;
+    z-index: 2;
 }
 
 #brain {
-    padding-left: 4px;
-    padding-top: 3px;
+    background: var(--btControlsBackground);
+    height: 30px;
+    width: 30px;
+    border-radius: 3px;
+    padding: 2px;
+    margin-left: 10px;
+    margin-top: 8px;
+}
+#topBarRight {
+    position: absolute;
+    width: 78px;
+    height: 46px;
+    right: 0px;
+    top: 0px;
+    font-size: 11px;
+}
+#topBarRight div {
+    cursor: pointer;
+}
+#topBarRight img {
+    position: relative;
+    top: 3px;
+    height: 14px;
+    width: 14px;
+}
+#settingsButton {
+    padding-right: 15px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+    padding-left: 5px;
+}
+#settingsButton.open {    
+    background: rgba(42, 63, 62, 0.9);
+    color:  rgba(255, 255, 255, 0.7);
+}
+#actionsButton {
+    padding-right: 15px;
+    padding-left: 2px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+}
+#actionsButton.open {    
+    background: rgba(42, 63, 62, 0.9);
+    color:  rgba(255, 255, 255, 0.7);
+}
+#footerHelp.open {    
+    background: rgba(42, 63, 62, 0.9);
+    color:  rgba(255, 255, 255, 0.7);
 }
 
-#search {
-    height: 25px;
-    position: absolute;
-    top: 4px;
-    left: calc((100% - 300px) / 2);
+/* Set version of icon based on theme, light icon for dark theme */
+#settingsIcon.DARK {
+    content:url("resources/settingsIconLight.png");
 }
+#settingsIcon.LIGHT {
+    content:url("resources/settingsIcon.png");
+}
+#actionsIcon.DARK {
+    content:url("resources/actionsIconLight.png");
+}
+#actionsIcon.LIGHT {
+    content:url("resources/actionsIcon.png");
+}
+
 #search_entry {
-    margin-top: 1px;
+    position: absolute;
+    left: 75px;
+    top: 12px;
     border: none;
-    width: 175px;
+    width: calc((100% - 190px) * 0.9);
     color: var(--btInputForeground);
     background: var(--btInputBackground);
     border-radius: 12px;
-    padding-left: 10px;
-    height: 15px;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-left: 5px;
+    padding-left: 15px;
+    height: 25px;
 }
+
+#searchCancelButton {
+    position: absolute;
+    cursor: pointer;
+    top: 17px;
+    left: 62px;
+}
+#searchUpBtn {
+    position: absolute;
+    cursor: pointer;
+    top: 12px;
+    left: calc((100% - 155px) * 0.9 + 72px);
+}
+#searchDownBtn {
+    position: absolute;
+    cursor: pointer;
+    top: 25px;
+    left: calc((100% - 155px) * 0.9 + 72px);
+}
+    
 .hint {
     /* alex */
     font-family: var(--btFont);
@@ -183,20 +280,25 @@ body {
     color: var(--btHintColor);
     z-index: 3;
     position: absolute;
-    top: 3px;
-    left: 20px;
+    top: 18px;
+    left: 90px;
 }
 .hintText {
     position: relative;
-    top: -6px;
+    top: -4px;
 }
 #newTopLevelTopic {
+    position: fixed;
+    top: 54px;
     width: 100%;
     height: 25px;
     text-align: center;
     background: #2A3F3E;
     color: #85E20E;
     cursor: pointer;
+    font-family: var(--btFont);
+    font-size: var(--btTopicFontSize);
+    z-index: 2;
 }
 #newTopLevelTopic span {
     position: relative; 
@@ -221,113 +323,127 @@ body {
     background-color: #E59A98 !important;
 }
 
-#open_close_image {
-    margin-top: 2px;
-    width: 25px;
+/*
+ * BT Settings
+ */
+
+.settingsActions {
+    display: none;
+    position: fixed;
+    width: 100%;
+    top: 26px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background: rgba(42, 63, 62, 0.9);
+    font-family: var(--btFont);
+    color: #ffffff;
+    text-align: center;
+    z-index: 3;
+}
+#settings {    
+    top: 26px;
+}
+#actions {
+    top: 52px;
+}
+.settingsActions hr{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    margin-left: 25px;
+    margin-right: 25px;
+}
+.settingsTitle {
+    font-size: var(--btTitleFontSize);
+    font-weight: var(--btTitleFontWeight);
+    line-height: var(--btTitleLineHeight);
+    margin-bottom: 15px;
+}
+.settingsSubtitle {
+    font-size: var(--btSubtitleFontSize);
+    font-weight: var(--btSubtitleFontWeight);
+    line-height: var(--btSubtitleLineHeight);
+}
+.settingsFootnote {
+    font-size: var(--btFootnoteFontSize);
+    font-weight: var(--btFootnoteFontWeight);
+    line-height: var(--btFootnoteLineHeight);
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 15px;
+}
+.settingsText {   
+    font-size: var(--btSettingsFontSize);
+    font-weight: var(--btSettingsFontWeight);
+    line-height: var(--btSettingsLineHeight);
+    color: var(--btSettingsFontColor);
+    margin-top: 15px;
+}
+#help {
+    position: fixed;
+    bottom: 26px;
+    top: auto;
+    max-height: 60%;
+    overflow-y: auto;
+}
+#help .settingsSubtitle {
+    font-size: 12px;
     cursor: pointer;
 }
-/* Animation on More SVG image to draw attention when closing. 
-https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
-#open_close_image.animate_more {
-    height: 25px;
-    margin-top: 0px;
-    animation: filter-animation 1.5s 2;
+#help .helpAction:hover {
+    color: #a0ec5f;
 }
-@keyframes filter-animation {
-    0% {
-        filter: invert(0%) sepia(4%) saturate(7484%)
-                hue-rotate(171deg) brightness(95%) contrast(105%);
-    }
-    50% {
-        filter: invert(93%) sepia(2%) saturate(5452%)
-                hue-rotate(63deg) brightness(116%) contrast(69%);
-    }
-    100% {
-        filter: invert(0%) sepia(4%) saturate(7484%)
-                hue-rotate(171deg) brightness(95%) contrast(105%);
-    }
+    
+.settingsInput {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 15px;
 }
-
-#controls {
-    position: fixed;
-    right: 0px;
-    left: 0px;
-    top: 0px;
+#settings input {
+    accent-color: #000;
+}
+#settingsSubscription button {
+    height: 35px;
+    width: 34%;
+    background: linear-gradient(180deg, #A0EC5F 0%, #55BA00 100%);
+    border-radius: 5px;
+    font-size: var(--btTitleFontSize);
+    font-weight: var(--btTitleFontWeight);
+    color: white;
     border: none;
-    z-index: 3;
-    font-family: var(--btFont);
-    font-size: var(--btTopicFontSize);
-}                    
-
-#controls_screen {
-    position: relative;
-    overflow: hidden;
-    display: block;
-    background: var(--btControlsBackground);
-    top: -27px;
-    margin-left: 1px;
-    margin-right: 1px;
-    text-align: center;
-    letter-spacing: var(--btLetterSpacing);
-    color: var(--btControlsHeaderSecondaryColor);
-    border-top: 1px solid var(--btControlsDividerColor);
-    border-bottom: 1px solid var(--btControlsDividerColor);
 }
-#controls_screen a:link {
-  text-decoration: underline;
+#monthlySub {
+    background: linear-gradient(180deg, rgba(160, 236, 95, 0.8) 0%, rgba(85, 186, 0, 0.8) 100%) !important;
 }
-#controls_screen hr {
-    width: 90%;
-    border: 0.5px solid var(--btControlsDividerColor);
-}
-
-#welcome {
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 0px;
-    margin-bottom: 26px;
-    letter-spacing: var(--btLetterSpacing);
-    color: var(--btControlsHeaderPrimaryColor);
-}
-
-#openingTips {
-    margin-left: 20px;
-    margin-right: 20px;
-    font-size: 15px;
-    line-height: 1.4em;
-    padding: 3px;
-    border: 2px solid var(--btGeneralBorder) ;
-    border-radius: 3px;
-    text-align: left;
-}
-#openingTips p {
-    margin-block-start: 0.3em;
-    margin-block-end: 0.3em;
-}
-
-#tip {
-    margin-bottom: 10px;
-    font-size: 12px;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-#logo_image {
+#settingsSyncStatus button {
+    height: 30px;
     width: 30%;
-    display: block;
-    margin-left: auto;
-    margin-right:auto;
-    margin-top: 10px;
+    background: var(--btFooterBackground);
+    border-radius: 1px;
+    font-size: var(--btTopicFontSize);
+    font-weight: var(--btSubtitleFontWeight);
+    color: var(--btTooltipBackground);
+    border: none;
 }
+#settingsSubscription a {
+    color: #a0ec5f; 
+}
+.dropdown_text {    
+    color: var(--btTooltipBackground);
+}
+
+
+/* 
+ * Row Buttons
+ */
 
 #buttonRow {
     position: absolute;
     padding-right: 0px;
     border-radius: 0px;
     cursor: pointer;
-    right: 0px;
+    right: 2px;
     height: calc(var(--btRowHeight) - 2px);
-
 }
 .rowButton {
     height: 28px;
@@ -347,7 +463,11 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
     filter: invert(0);
 }
 
-.modal {
+/* 
+ * Card editor
+ */
+
+#editOverlay {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 5; /* Sit on top */
@@ -359,28 +479,29 @@ https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-e
   background-color: #00000020;
 }
 
-dialog {
-    border: 2px solid var(--btGeneralBorder) ;
+#dialog {
     border-radius: 3px;
-    box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
     padding: 30px;
     padding-top: 2px;
     margin-top: 0px;
     position: fixed;
     background: var(--btDialogBackground);
+    color: var(--btControlsHeaderPrimaryColor);
+}
+dialog button {
+    color: var(--btControlsHeaderPrimaryColor);
 }
 
-dialog textarea {
+#dialog textarea {
     resize: none;
     width: 100%;
     border: 1px solid #ddd;
     border-radius: 2px;
-    font-family: var(--btControlsFont);
     background: var(--btTextAreaBackground);
     color: var(--btColor);
     font-size: 11px;
 }
-dialog input {
+#dialog input {
     border: 1px solid #ddd;
     width: 100%;
     border-radius: 2px;
@@ -388,93 +509,59 @@ dialog input {
     background: var(--btTextAreaBackground);
     color: var(--btColor);
 }
-dialog #title-text,#topicName {
+#dialog #title-text,#topicName {
     white-space: nowrap;
 }
-dialog #text-text {
+#dialog #text-text {
     height: 11em;
 }
-dialog #title-url {
+#dialog #title-url {
     height: 2em;
     font-size: 0.6em;
     font-style: italic;
 }
-dialog #distinguishedName {
+#dialog #distinguishedName {
     font-family:var(--btControlsFont);
     color: var(--btColor);
     text-align: center;
 }
-dialog li::marker {
+#dialog li::marker {
     color: var(--btGeneralBorder);
 }
-
-#important_buttons {
-    width: 90%;
-    margin: auto;
-    padding-top: 30px;
-    padding-bottom: 20px;
-    margin-bottom: 0px;
-    display: flex;
-    justify-content: space-around;
-}
-
-.important_button {   
-    border-style: none;
-    border-radius: 5px;
-    color: white;
-    background-color: rgba(88, 186, 0, 0.8);
-    width: 180px;
+#dialog button {
+    border: none;
     height: 30px;
-    font-size: 12px;
-    font-family: var(--btControlsFont);
+    width: 40%;
+    border-radius: 5px;
+    color: var(--btTooltipForeground);
 }
-
-.buttonDiv {
-    margin: auto;
-    padding-top: 4px;
-    display: flex;
-    justify-content: space-around;
-    position: absolute;
-    bottom: 10px;
-    width: 80%;
+#update {
+    background-color: #58BA00;
+    margin-right: -5px;
 }
-
-.control_overlay {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-
-    /* same as edit dialog */
-    border: 2px solid var(--btGeneralBorder) ;
-    border-radius: 3px;
-    box-shadow: 7px 7px 5px var(--btGeneralBorderShadow);
-
-    background-color: var(--btOptionsBackground);
-    width: 90%;    
+#update:disabled {
+    background-color: var(--btButtonBackground);
 }
+#cancel {
+    background-color: #ff5555c8;
+}
+    
+/* 
+ * Key commands under Help
+ */
 
-.overlay_table {
-    background: var(--btOptionsBackground);
+#keyCommandsTable {
+    font-size: var(--btTopicFontSize);
     margin-left: auto;
     margin-right: auto;
-    font-size: 12px;
-    border-spacing: 1px;
 }
-
-.options_table td {
-    padding-top: 18px;
-}
-
-.option_td {
+#keyCommands .keyCol {
     margin-left: auto;
     margin-right: auto;
     text-align: left;
 }
 
-.help_vertical_td {
+#keyCommands .verticalCol {
     writing-mode: vertical-rl;
     text-align: center;
     padding-right: 10px;
@@ -486,7 +573,7 @@ dialog li::marker {
     border-color: grey;
 }
 
-#optionsClose {
+#helpClose {
     position: absolute;
     cursor: pointer;
     right: 3px;
@@ -495,46 +582,46 @@ dialog li::marker {
     filter: var(--btInvert);
 }
 
-#inner {
-    width: 240px;
-    margin: 0 auto;
-}
-
 button:not([disabled]):hover {
     color: #222;
     background-color: var(--btButtonBackground);
     cursor: pointer;
 }
 
-/* button for import/export */
+/* split button for import/export */
 .button_text {
-    color: #435554;
-    font-family: var(--btControlsFont);
-    font-size: 15px;
+    font-size: var(--btTopicFontSize);
+    font-weight: var(--btSubtitleFontWeight);
+    color: rgba(42, 63, 62, 0.85);
 }
 .split_image {
     opacity: 0.6;
     margin-top: 1px;
 }
 
-.general_button {
-    width: 130px;
-    border-radius: 3px 3px 3px 3px;
-    border: 1px solid #ddd;
+#permissions {
+    background-color: var(--btNoteColor);
+    color: var(--btTooltipForeground);
+}
+
+#actions button, #permissions button {
+    height: 30px;
+    width: 100%;
+    background: var(--btFooterBackground);
+    border-radius: 1px;
+    border: none;
     padding: 5px 5px 5px 8px;
-    font-size: 15px;
+}
+#actions button:hover, #permissions button:hover {
+    background-image: none;
+    background-color: #a0ec5f;
+}
+#settingsSyncStatus button {
+    width: 30%;
 }
 .dropdown_button {
-    border-radius: 3px 3px 0px 0px;
-}
-button.tinyButton {
-    border-radius: 3px 3px 3px 3px;
-    font-size: 11px;
-    border: 1px solid var(--btColor);
-    position: relative;
-    top: -7px;
-}
-    
+    border-radius: 1px 1px 0px 0px;
+}   
 .dropdown_text {
     float: left;
 }
@@ -544,17 +631,19 @@ button.tinyButton {
 
 .dropdown {
     display: inline-block;
+    width: 30%;
 }
 
 .dropdown_content {
     display: none;
     position: absolute;
+    text-align: left;
     background-color: #eee;
-    border: 1px solid #ddd;
-    border-radius: 0px 4px 4px 4px;
+    border: solid 1px rgba(42, 63, 62, 0.9);
+    border-radius: 0px 1px 1px 1px;
     z-index: 1;
-    width: 160px;
-    transform: translate(0px, -4px);
+    width: 27%;
+    transform: translate(-1px, -1px);
 }
 
 .dropdown_content a {
@@ -568,10 +657,10 @@ button.tinyButton {
 .dropdown_content div {  
     cursor: pointer;
     float: left;
-    padding: 5px 0px 5px 8px;
-    width: 152px;
+    padding: 5px 0px 5px 5px;
+    width: calc(100% - 5px);
 }
-.dropdown_content div:hover {background-color: var(--btButtonBackground)}  
+.dropdown_content div:hover {background-color: #a0ec5f;}
 .dropdown:hover .dropdown_content {
     display: block;
 }
@@ -584,68 +673,134 @@ span.elipse {
      padding-left: 0.1em;
 }
 
-textarea {
-    font-size: .8em;
-    line-height: 1.2;
-}
-
-/* prevents selection being scrolled off top, nb edited in toggleMenu */
+/* prevents selection being scrolled off top */
 .treetable tr {
   scroll-margin-top: 375px;
 }
 
+#content {
+    background-color: var(--btInputBackground);
+}
 
 body.waiting * {
     cursor: progress !important;
 }
 
-
-/* 3-way chooser for window mapping */
-.toggle-radio > input + label {
-    background:#eee;
-    border:solid #ddd;
-    border-width:1px; /* 0 1px 0;*/
-}
-.toggle-radio > input:first-of-type + label {
-    margin-right: -5px;
-}
-.toggle-radio > input:last-of-type + label {
-    margin-left: -5px
+#backgroundLogo {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    left: calc(50% - 100px/2);
+    top: calc(50% - 100px/2 + 0.5px);
+    z-index: -1;
 }
 
-/* Rounded corners */
-.toggle-radio input:first-of-type + label {border-radius:3px 0 0 3px;}
-.toggle-radio input:last-of-type + label {border-radius:0 3px 3px 0;}
+/* 
+ * Tip Container
+ */
 
-.toggle-radio > input:checked + label {
-    background: var(--btButtonBackground);
-    cursor: default;
+#messageContainer {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    width: 100%;
+    height: 40px;
+    background: var(--btTipBackground); 
+    font-family: Roboto;
+    font-weight: 400;
+    font-size: 11px;
+    color: #954073;
+    text-align: center;
+    padding-top: 9px;
 }
-/* CORE STYLES */
-.toggle-radio {
-    display:inline-block;
-    vertical-align:middle;
+#messageClose {
+    position: absolute;
+    cursor: pointer;
+    top: 7px;
+    left: 15px;
 }
-.toggle-radio > input[type='radio'] {display:none;}
-.toggle-radio > input + label {
-    display:inline-block;
-    margin-bottom:0;
-    padding:5px 10px;
-    cursor:pointer;
-    align-items:center;}
-
-/* Transitions */
-.toggle-radio > input:checked + label {transition:background 300ms linear;}
-
-
-/* tweaks to above for panel|tab 2-way selector */
-#panel_toggle {
-    float: left;
+#messageNext {
+    position: absolute;
+    cursor: pointer;
+    top: 7px;
+    right: 15px;
 }
-
-.toggle-radio2 > input:first-of-type + label {
-    margin-right: 0px;
+#messageContainer.warning {
+    background: var(--btWarningBackground);
+    color: #fff;
 }
-.toggle-radio2 > input + label {
-    padding:5px 25px;
+#messageContainer.message {
+    background: var(--btMessageBackground);
+    color: #59718C; 
+}
+#messageContainer.message > img {
+    filter : hue-rotate(180deg);
+}
+#message .emoji {
+    font-size: 18px;
+    vertical-align: middle;
+}
+#message a {
+    color: initial;
+}
+/* 
+ * Footer
+ */
+
+#footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 30px;
+    background-image: var(--btFooterBackground); 
+    font-family: Roboto;
+    font-weight: 400;
+    line-height: 11px;
+    color: var(--btColor);
+}
+#footerSavedIcon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 16px;
+    top: 6px;
+}
+#footerSavedInfo {
+    position: absolute;
+    height: 11px;
+    left: 38px;
+    top: 9px;
+    font-size: 10px;
+}
+#footerHelp {
+    cursor: pointer;
+    position: absolute;
+    right: 0px;
+    font-size: 11px;
+    
+    padding-right: 15px;
+    padding-bottom: 6px;
+    padding-left: 5px;
+    margin-top: 2px;
+}
+#footerHelpIcon {
+    position: relative;
+    top: 4px;
+    left: 3px;
+}
+#footerHelpIcon.DARK {
+    content:url("resources/helpLight.png");
+}
+#footerHelpIcon.LIGHT {
+    content:url("resources/help.png");
+}
+#footerInfo {
+    position: absolute;
+    height: 12px;
+    left: calc(50% - 138px/2 + 39px);
+    top: 9px;
+    font-size: 10px;
+}
+#footerOpenInfo {
+    color: #0097C6;
 }

@@ -4,11 +4,11 @@
 
 * 👋  Welcome, lets get started
 Follow these steps to get up and running quickly.
-** TODO Review the sample Topic Hierarchy
+** TODO Review these sample Topics
 BrainTool is organized as a hierarchy of topics. 
 The structure is yours to define.
-** TODO Import and organize some Bookmarks
-Open the Options/Actions menu (top left) and click Import Bookmarks. 
+** TODO Import and organize Bookmarks
+Open the Actions menu (top right) and select Browser Bookmarks under Import.
 ** TODO Try saving some tabs
 Play with the Saver tool to categorize, save and close out some old tabs.
 
@@ -19,34 +19,36 @@ Keep all your links and notes for each project in one place.
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-An example home improvement type project.
+Expand and collapse the tree from the hierarchy on the left.
 
 *** Contractors
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Click the T button to open all links under Contractors in a tab group.
+Hover the mouse over a row to see the tools you can use on it. 'More Tools' shows them all.
 **** [[https://braintool.org/overview.html][The Expensive guys]]
-Click the link or use the T button to open in a Tab.
+Click the link or use the T tool to open in a Tab.
 
 **** [[https://braintool.org/posts][The cheap guy]]
-W opens in a new window.
+The W tool opens in a new window.
 
 **** [[https://northriverbuilders.com/][North River Builders]]
+Add text notes to saved pages...
 Just right! Nile was great to talk to. Really engaged with the project. Good project management software, great portfolio.
 
 *** Cabinetry
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
-Another set of links could live here.
 
+Click the T tool to open all links under Cabinetry in a tab group.
 **** [[http://www.crown-point.com/][Crown Point Cabinetry]]
 
 *** Appliances
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
+Another set of links could live here.
 **** [[https://clarkeliving.com/][demo showroom in Boston]]
 
 ** Knowledge Worker Sample Project

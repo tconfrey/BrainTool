@@ -88,8 +88,8 @@ function windowOpen(home = 'PANEL', location) {
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
     //const url = "https://BrainTool.org/app/";
-    //const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
-    const url = "https://BrainTool.org/versions/"+version+'/app/';
+    const url = "http://localhost:8000/versions/"+version+"/app/";
+    //const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
     // Default open in side panel

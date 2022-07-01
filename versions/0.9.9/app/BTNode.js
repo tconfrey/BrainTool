@@ -181,8 +181,11 @@ class BTNode {
             const node = AllNodes[nodeId];
             if (!node) return;
 
-            // recurse to delete children if any
-            node.childIds.forEach(_deleteNode);
+            // recurse to delete children if any. NB copy array cos the remove below changes it
+            const childIds = node.childIds.slice();
+            for (let cid of childIds) {
+                _deleteNode(cid);
+            };
             
             // Remove from parent
             const parent = AllNodes[node.parentId];
@@ -190,6 +193,7 @@ class BTNode {
                 parent.removeChild(nodeId);
 
             BTNode.undoStack.push(node);
+            console.log('deleteing id=', nodeId);
             delete(AllNodes[nodeId]);
         }
         _deleteNode(nodeId);
@@ -275,7 +279,7 @@ class BTNode {
                         let tpath = AllNodes[id].displayTag;
                         let parent = AllNodes[id].parentId;
                         for (let i = 1; i < level; i++) {
-                            if (parent) {
+                            if (parent && AllNodes[parent]) {
                                 tpath = AllNodes[parent].displayTag + ":" + tpath;
                                 parent = AllNodes[parent].parentId;
                             }
