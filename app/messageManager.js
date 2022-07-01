@@ -30,6 +30,7 @@ const messageManager = (() => {
         "Try hitting '1','2','3' etc to collapse the tree to that level.",
         "Import public topic trees and useful links from braintool.org/topicTrees.",
         "Try the new DARK theme. It's under Settings.",
+        "If you make the Topic Manager window narrow enough it will hide the notes and switch to a single column view",
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
