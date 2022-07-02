@@ -78,8 +78,8 @@ function updateStats() {
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
     // Record this launch and software version
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'Version',
-                             'value': "0.9.9a"});    
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': '0.9.9a',
+                             'value': 1});    
     if (InitialInstall) {
         gtag('event', 'Install', {'event_category': 'General', 'event_label': 'Version',
                                   'value': InitialInstall});
