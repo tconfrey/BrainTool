@@ -345,6 +345,10 @@ class BTAppNode extends BTNode {
         // open this nodes url
         if (!this.URL || this._opening) return;
 
+        // record stats
+        gtag('event', 'openRow', {'event_category': 'TabOperation'});
+        configManager.incrementStat('BTNumTabOperations');
+
         // if this node is a link to a topic tree load it up
         if (this.isTopicTree()) {
             if (!this.childIds.length || confirm('Re-add this topic tree?'))
@@ -370,6 +374,10 @@ class BTAppNode extends BTNode {
 
     openAll(newWin = false) {
         // open this node and any children. NB order taken care of by tabOpened -> groupAndPosition
+
+        // record stats
+        gtag('event', 'openAll', {'event_category': 'TabOperation'});
+        configManager.incrementStat('BTNumTabOperations');
 
         // if we don't care about grouping just open each tab
         if (GroupingMode == 'NONE') {
@@ -553,9 +561,13 @@ class BTAppNode extends BTNode {
         while (hits = reg.exec(outputStr)) {
             const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
             if (hits[1].indexOf('id:') == 0)             // internal org links get highlighted, but not as hrefs
-                outputStr = outputStr.substring(0, hits.index) + "<span class='file-link'>" + h2 + "</span>" + outputStr.substring(hits.index + hits[0].length);
-            else                
-                outputStr = outputStr.substring(0, hits.index) + "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" + outputStr.substring(hits.index + hits[0].length);
+                outputStr = outputStr.substring(0, hits.index) +
+                "<span class='file-link'>" + h2 + "</span>" +
+                outputStr.substring(hits.index + hits[0].length);
+            else
+                outputStr = outputStr.substring(0, hits.index) +
+                "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" +
+                outputStr.substring(hits.index + hits[0].length);
         }
         return outputStr;
     }

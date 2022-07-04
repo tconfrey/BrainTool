@@ -1150,9 +1150,6 @@ function openRow(e, newWin = false) {
     $("#openWindow").hide();
     $("#openTab").hide();
     $("#closeRow").show();
-
-    gtag('event', 'openRow', {'event_category': 'TabOperation'});
-    configManager.incrementStat('BTNumTabOperations');
 }
 
 function closeRow(e) {
