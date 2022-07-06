@@ -195,6 +195,7 @@ const gDriveFileManager = (() => {
                     try {
 		                await refreshTable(true);
 		                configManager.setProp('BTTimestamp', driveTimestamp);
+                        messageManager.removeWarning(); // warning may have been set, safe to remove
                         
                         // later in flow property save was overwriting w old data on upgrade,
                         // so resave here to get disk version written to memory etc.

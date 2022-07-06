@@ -78,16 +78,16 @@ function updateStats() {
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
     // Record this launch and software version
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': 'Version',
-                             'value': "0.9.9a"});    
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': '0.9.9a',
+                             'value': 1});    
     if (InitialInstall) {
-        gtag('event', 'Install', {'event_category': 'General', 'event_label': 'Version',
-                                  'value': InitialInstall});
+        gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall,
+                                  'value': 1});
         configManager.setStat('BTInstallDate', Date.now());
     }
     if (UpgradeInstall)
-        gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': 'Version',
-                                  'value': UpgradeInstall});
+        gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall,
+                                  'value': 1});
 
     // Calculate some other stat info (and do some one-time setup of installDate and numSaves)
     // Since numSaves was not recorded as a stat previously, use BTVersion from org file
@@ -1150,9 +1150,6 @@ function openRow(e, newWin = false) {
     $("#openWindow").hide();
     $("#openTab").hide();
     $("#closeRow").show();
-
-    gtag('event', 'openRow', {'event_category': 'TabOperation'});
-    configManager.incrementStat('BTNumTabOperations');
 }
 
 function closeRow(e) {
