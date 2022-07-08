@@ -804,3 +804,18 @@ body.waiting * {
 #footerOpenInfo {
     color: #0097C6;
 }
+
+.left > img {
+    height: 12px;
+    width: 12px;    
+    position: relative;
+    padding-right: 5px;
+    top: 2px;
+}
+
+img.faviconOn {
+    display: inline;
+}
+img.faviconOff {
+    display: none;
+}

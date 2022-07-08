@@ -131,10 +131,20 @@ class BTAppNode extends BTNode {
      *
      ***/
 
+    favicon() {
+        // return img tag w pointer to favicon for url
+        if (!this.URL) return "";
+        const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
+        const domain = new URL(this.URL).hostname;
+        return `<img src="http://www.google.com/s2/favicons?domain=${domain}" loading="lazy" class="${favClass}">`;
+        //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
+    }
+    
     HTML() {
         // Generate HTML for this nodes table row
         let outputHTML = "";
 	    let childlessTop = "";
+        let favicon = (this.isTopic())? "" : this.favicon();
         outputHTML += `<tr data-tt-id='${this.id}' `;
         if (this.parentId || this.parentId === 0)
             outputHTML += `data-tt-parent-id='${this.parentId}'`;
@@ -143,7 +153,7 @@ class BTAppNode extends BTNode {
 
         outputHTML += (this.isTopic()) ? "class='topic'" : "";
 	    
-        outputHTML += `><td class='left ${childlessTop}'><span class='btTitle'>${this.displayTitle()}</span></td>`;
+        outputHTML += `><td class='left ${childlessTop}'>${favicon}<span class='btTitle'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
