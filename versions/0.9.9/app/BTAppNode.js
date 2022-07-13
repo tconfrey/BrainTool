@@ -131,10 +131,20 @@ class BTAppNode extends BTNode {
      *
      ***/
 
+    favicon() {
+        // return img tag w pointer to favicon for url
+        if (!this.URL) return "";
+        const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
+        const domain = new URL(this.URL).hostname;
+        return `<img src="http://www.google.com/s2/favicons?domain=${domain}" loading="lazy" class="${favClass}">`;
+        //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
+    }
+    
     HTML() {
         // Generate HTML for this nodes table row
         let outputHTML = "";
 	    let childlessTop = "";
+        let favicon = (this.isTopic())? "" : this.favicon();
         outputHTML += `<tr data-tt-id='${this.id}' `;
         if (this.parentId || this.parentId === 0)
             outputHTML += `data-tt-parent-id='${this.parentId}'`;
@@ -143,7 +153,7 @@ class BTAppNode extends BTNode {
 
         outputHTML += (this.isTopic()) ? "class='topic'" : "";
 	    
-        outputHTML += `><td class='left ${childlessTop}'><span class='btTitle'>${this.displayTitle()}</span></td>`;
+        outputHTML += `><td class='left ${childlessTop}'>${favicon}<span class='btTitle'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
@@ -210,6 +220,7 @@ class BTAppNode extends BTNode {
 	    const dn = this.getDisplayNode();
 	    $(dn).find("span.btTitle").html(this.displayTitle());
 	    $(dn).find("span.btText").html(this.displayText());
+	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
 	    $(dn).find("a").each(function() {				  // reset link click intercept
 	        this.onclick = handleLinkClick;
 	    });
@@ -802,6 +813,20 @@ class BTLinkNode extends BTAppNode {
     }
     get protocol() {
         return this._protocol;
+    }
+
+    get text() {
+        return this._text;
+    }
+    
+    set text(txt) {
+        // When text is added this link is promoted to a headline. To prevent a dup link
+        // on next read replace the [[url][ttl]] in parent text with [url][ttl]
+        // so that it no longer has link syntax.
+        const parent = AllNodes[this.parentId];
+        const nonLink = this._title.slice(1, -1);
+        parent.text = parent.text.replace(this._title, nonLink);
+        this._text = txt;
     }
 
     orgTextwChildren() {

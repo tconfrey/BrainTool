@@ -5,7 +5,7 @@
  * 1) config.js embedded in extension package and passed in msg
  * 2) Config obj kept in local storage
  * 3) metaProps - Org properties read from bt.org file and stored as properties on AllNodes[]
- * 4) stats, separated out but stored in local storage under the BTStats property
+ * 4) stats, listed, but stored in local storage under the BTStats property
  * NB BTId is both in meta and local for recovery purposes
  * 
  ***/
@@ -16,8 +16,8 @@ const configManager = (() => {
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
         'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTStats', 'BTLastShownMessageIndex'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme'],
-        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons'],
+        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
 
@@ -39,7 +39,7 @@ const configManager = (() => {
 	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
         if (Properties.orgProps.includes(prop)) {
-            setMetaProp(prop, value);                     // see parser.js
+            setMetaProp(prop, value);                                   // see parser.js
         }	 
     };
 
@@ -58,11 +58,27 @@ const configManager = (() => {
         return null;
     };
 
+    function checkNewDayOfUse(prev, current) {
+        // last active timestamp same day as this timestamp?
+        const prevDate = new Date(prev).toLocaleDateString();           // eg 2/8/1966
+        const currentDate = new Date(current).toLocaleDateString();
+        if (prevDate != currentDate) {
+            const oldDaysOfUse = Config['BTStats']['BTDaysOfUse'] || 0;
+            Config['BTStats']['BTDaysOfUse'] = oldDaysOfUse + 1;
+            gtag('event', 'DayOfUse', {'event_category': 'Usage',
+                                       'event_label': 'NumDaysOfUse',
+                                       'value': Config['BTStats']['BTDaysOfUse']});
+        }
+    }
+
     function incrementStat(statName) {
         // numLaunches, numSaves, numTabOps, update lastactivity as side effect
         const oldVal = Config['BTStats'][statName] || 0;
+        const date = Date.now();
+        const previousActivityTime = Config['BTStats']['BTLastActivityTime'] || 0;
         Config['BTStats'][statName] = oldVal + 1;
-        Config['BTStats']['BTLastActivityTime'] = Date.now();
+        Config['BTStats']['BTLastActivityTime'] = date;
+        checkNewDayOfUse(previousActivityTime, date);                   // see above
 	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     };
 
@@ -97,23 +113,32 @@ const configManager = (() => {
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
         }
 
+        // do we load Favicons? Read value, set ui and re-save in case defaulted
+        const favicons = configManager.getProp('BTFavicons') || 'OFF';
+        let $radio = $('#faviconToggle :radio[name=favicon]');
+        $radio.filter(`[value=${favicons}]`).prop('checked', true);
+        configManager.setProp('BTFavicons', favicons);
+
         // Theme saved or set from OS
         const theme = configManager.getProp('BTTheme') ||
               (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
-        const $radio = $('#themeToggle :radio[name=theme]');
+        $radio = $('#themeToggle :radio[name=theme]');
         $radio.filter(`[value=${theme}]`).prop('checked', true);
         configManager.setProp('BTTheme', theme);
         // Change theme by setting attr on document which overides a set of vars. see top of bt.css
         document.documentElement.setAttribute('data-theme', theme);
-        $("img").removeClass('LIGHT', 'DARK').addClass(theme);  // swap some icons
+        $('#topBar > img').removeClass('LIGHT', 'DARK').addClass(theme);  // swap some icons
+        $('#footer > img').removeClass('LIGHT', 'DARK').addClass(theme);
 
+        /* BTId !=> subscription, checkout can be abandoned. launchApp checks for valid sub. don't need to do anything here
         // Subscription show to subscribe or info + link
         let btid = getProp('BTId') || getMetaProp('BTId');   // try both since might be just read in
         if (btid) {
             $('#settingsSubscriptionAdd').hide();
             $('#settingsSubscriptionStatus').show();
             $('#subId').text(btid);
-        }        
+        }      
+        */  
     }
 
     // Register listener for radio button changes in Options
@@ -131,6 +156,14 @@ const configManager = (() => {
             configManager.setProp('BTManagerHome', newHome);
             // Let extension know
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+            saveBT();
+        });
+        $('#faviconToggle :radio').change(function () {
+            const favicons = $(this).val();
+            const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
+            configManager.setProp('BTFavicons', favicons);
+            // Turn on or off
+            $('#content img').removeClass('faviconOff', 'faviconOn').addClass(favClass);
             saveBT();
         });
         $('#themeToggle :radio').change(function () {
@@ -169,12 +202,14 @@ const configManager = (() => {
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#settingsButton').removeClass('open');
-                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#topBar > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#footer > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
             }, 250);
         } else {
             $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#settingsButton').addClass('open');
-            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
@@ -194,12 +229,14 @@ const configManager = (() => {
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#actionsButton').removeClass('open');
-                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#topBar > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#footer > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
             }, 250);
         } else {
             $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#actionsButton').addClass('open');
-            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
@@ -214,12 +251,14 @@ const configManager = (() => {
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#footerHelp').removeClass('open');
-                $('img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+                $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
             }, 250);
         } else {
             $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#footerHelp').addClass('open');
-            $('img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }

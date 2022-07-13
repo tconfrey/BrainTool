@@ -1052,12 +1052,12 @@ function editRow(e) {
     $("#content").addClass('editOverlaid');
     $("#editOverlay").css("display", "block");
     const fullWidth = $($("#editOverlay")[0]).width();
-    const dialogWidth = Math.min(fullWidth - 80, 600);
+    const dialogWidth = Math.min(fullWidth - 63, 600);    // 63 = padding + border == visible width
     const height = dialogWidth / 1.618;                   // golden!
     const otherRows = node.isTag() ? 100 : 120;           // non-text area room needed
     $("#text-text").height(height - otherRows);           // notes field fits but as big as possible
 
-    if ((top + height + 120) < $(window).height())
+    if ((top + height + 140) < $(window).height())
         $(dialog).css("top", bottom+80);
     else
         // position above row to avoid going off bottom of screen (or the top)

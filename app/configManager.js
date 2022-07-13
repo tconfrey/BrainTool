@@ -5,7 +5,7 @@
  * 1) config.js embedded in extension package and passed in msg
  * 2) Config obj kept in local storage
  * 3) metaProps - Org properties read from bt.org file and stored as properties on AllNodes[]
- * 4) stats, separated out but stored in local storage under the BTStats property
+ * 4) stats, listed, but stored in local storage under the BTStats property
  * NB BTId is both in meta and local for recovery purposes
  * 
  ***/
@@ -17,7 +17,7 @@ const configManager = (() => {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
         'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTStats', 'BTLastShownMessageIndex'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons'],
-        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps'],
+        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
 
@@ -39,7 +39,7 @@ const configManager = (() => {
 	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
         if (Properties.orgProps.includes(prop)) {
-            setMetaProp(prop, value);                     // see parser.js
+            setMetaProp(prop, value);                                   // see parser.js
         }	 
     };
 
@@ -58,11 +58,27 @@ const configManager = (() => {
         return null;
     };
 
+    function checkNewDayOfUse(prev, current) {
+        // last active timestamp same day as this timestamp?
+        const prevDate = new Date(prev).toLocaleDateString();           // eg 2/8/1966
+        const currentDate = new Date(current).toLocaleDateString();
+        if (prevDate != currentDate) {
+            const oldDaysOfUse = Config['BTStats']['BTDaysOfUse'] || 0;
+            Config['BTStats']['BTDaysOfUse'] = oldDaysOfUse + 1;
+            gtag('event', 'DayOfUse', {'event_category': 'Usage',
+                                       'event_label': 'NumDaysOfUse',
+                                       'value': Config['BTStats']['BTDaysOfUse']});
+        }
+    }
+
     function incrementStat(statName) {
         // numLaunches, numSaves, numTabOps, update lastactivity as side effect
         const oldVal = Config['BTStats'][statName] || 0;
+        const date = Date.now();
+        const previousActivityTime = Config['BTStats']['BTLastActivityTime'] || 0;
         Config['BTStats'][statName] = oldVal + 1;
-        Config['BTStats']['BTLastActivityTime'] = Date.now();
+        Config['BTStats']['BTLastActivityTime'] = date;
+        checkNewDayOfUse(previousActivityTime, date);                   // see above
 	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
     };
 

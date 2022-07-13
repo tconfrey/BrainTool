@@ -35,7 +35,8 @@ const messageManager = (() => {
     ];
     const messageArray = [
         "Welcome to BrainTool 0.9.9a, a new minor release.<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
-        "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions)."
+        "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
+        "A preview version of favicon display is now available. See Settings."
     ];
     let Warning = false, Message = false, lastShownMessageIndex = 0;
 

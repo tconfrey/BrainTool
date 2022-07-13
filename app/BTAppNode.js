@@ -220,6 +220,7 @@ class BTAppNode extends BTNode {
 	    const dn = this.getDisplayNode();
 	    $(dn).find("span.btTitle").html(this.displayTitle());
 	    $(dn).find("span.btText").html(this.displayText());
+	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
 	    $(dn).find("a").each(function() {				  // reset link click intercept
 	        this.onclick = handleLinkClick;
 	    });
@@ -812,6 +813,20 @@ class BTLinkNode extends BTAppNode {
     }
     get protocol() {
         return this._protocol;
+    }
+
+    get text() {
+        return this._text;
+    }
+    
+    set text(txt) {
+        // When text is added this link is promoted to a headline. To prevent a dup link
+        // on next read replace the [[url][ttl]] in parent text with [url][ttl]
+        // so that it no longer has link syntax.
+        const parent = AllNodes[this.parentId];
+        const nonLink = this._title.slice(1, -1);
+        parent.text = parent.text.replace(this._title, nonLink);
+        this._text = txt;
     }
 
     orgTextwChildren() {
