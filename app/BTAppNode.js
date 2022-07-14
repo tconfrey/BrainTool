@@ -134,10 +134,16 @@ class BTAppNode extends BTNode {
     favicon() {
         // return img tag w pointer to favicon for url
         if (!this.URL) return "";
-        const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
-        const domain = new URL(this.URL).hostname;
-        return `<img src="http://www.google.com/s2/favicons?domain=${domain}" loading="lazy" class="${favClass}">`;
-        //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
+        try {
+            const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
+            const domain = new URL(this.URL).hostname;
+            return `<img src="http://www.google.com/s2/favicons?domain=${domain}" loading="lazy" class="${favClass}">`;
+            //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
+        }
+        catch(err) {
+            console.warn(`error parsing url for favicon. \n URL:[${this.URL}]. \n Err: ${err}`);
+            return "";
+        }
     }
     
     HTML() {
