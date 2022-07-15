@@ -6,6 +6,8 @@
  *
  ***/
 
+'use strict';
+
 var Keys;
 try {
     importScripts('config.js');
@@ -271,7 +273,7 @@ async function initializeExtension(msg, sender) {
 			               });
         InitialInstall = null; UpdateInstall = null;
     }
-    updateBTIcon('', 'BrainTool', '#5E954E');
+    updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
 }
 
@@ -512,7 +514,7 @@ function setBadge(tabId) {
         } else {
             marquee(data.currentTag, 0);
             chrome.action.setTitle({'title' : data.currentText || 'BrainTool'});
-            chrome.action.setBadgeBackgroundColor({'color' : '#5E954E'});
+            chrome.action.setBadgeBackgroundColor({'color' : '#59718C'});
         }
     });
 }
