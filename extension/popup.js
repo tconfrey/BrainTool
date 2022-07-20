@@ -6,18 +6,23 @@
  ***/
 'use strict';
 
-//const BackgroundPage = chrome.extension.getBackgroundPage();
 var BTTab;
 var CurrentTab;
 var ReadOnly = false;                   // capture whether tab is already stored in BT
 var Tabs;                               // tabs in current window
 var newInstall = false;                 // set below, ignore some events if = true
 
-// show Alt or Option appropriately in visible text (Mac v PC)
-const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
-const altOpt = document.getElementById('alt_opt');
-altOpt.textContent = OptionKey;
-
+function createWindow(wargs) {
+    // Open Topic Manager, handle bounds error that happens if Mgr moved off visible screen
+    chrome.windows.create(wargs, function(window) {
+        if (window) return(window);
+        else {
+            console.warn('error in windowOpen:', chrome.runtime.lastError?.message);
+            wargs.top = 50; wargs.left = 50;
+            chrome.windows.create(wargs);
+        }
+    });
+}
 
 chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
@@ -59,7 +64,7 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
     return;
 });
 
-async function popupAction (home, location) {
+function popupAction (home, location) {
     // Activate popup -> populate form if app is open, otherwise open app
     
     if (BTTab)
@@ -115,8 +120,7 @@ function windowOpen(home = 'PANEL', location) {
 	        // shift current win left to accomodate side-panel. nb state can't be 'maximized'
 	        location || chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
                                                            left: (mainwin.left + 300)});
-            // then open Topic Manager
-            chrome.windows.create(wargs);
+            createWindow(wargs);
         });
     } else {
         // open in tab
@@ -239,7 +243,7 @@ function saveCB(close) {
         tabsToStore.forEach(tab => {
             // Send msg per tab to BT app for processing w text, topic and title info
             const tabData = {'url': tab.url, 'title': allTabs ? tab.title : title,
-                             'tabId': tab.id, 'tabIndex': tab.index};
+                             'tabId': tab.id, 'tabIndex': tab.index, 'faviconUrl': tab.favIconUrl};
             tabsData.push(tabData);
         });
         message.tabsData = tabsData;

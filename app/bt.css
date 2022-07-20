@@ -173,10 +173,6 @@ body {
 
 #brain {
     background: var(--btControlsBackground);
-    height: 30px;
-    width: 30px;
-    border-radius: 3px;
-    padding: 2px;
     margin-left: 10px;
     margin-top: 8px;
 }

@@ -5,15 +5,44 @@
  *
 ***/
 
+
+function getFromLocalStorage(key) {
+    // Promisification of storage.local.get
+    return new Promise(resolve => {
+	    chrome.storage.local.get(key, function(item) {
+	        resolve(item[key]);
+	    });
+    });
+}
+
+
+function setToLocalStorage(obj) {
+    // Promisification of storage.local.set
+    return new Promise(resolve => {
+	    chrome.storage.local.set(obj, function() {
+            if (chrome.runtime.lastError)
+                alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
+	        resolve();
+	    });
+    });
+}
+
 // Listen for messages from the App
-window.addEventListener('message', function(event) {
+window.addEventListener('message', async function(event) {
     // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
         return;
     console.log(`Content-IN ${event.data.function} from TopicManager:`, event);
-    if (event.data.function == 'localStore')
+    if (event.data.function == 'localStore') {
         // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
-        chrome.storage.local.set(event.data.data);
+        try {
+            await setToLocalStorage(event.data.data);
+        }
+        catch (e) {
+            const err = chrome.runtime.lastError.message || e;
+            console.warn("Error saving to storage:", err, "\nContact BrainTool support");
+        }
+    }
     else {
         // handle all other default type messages
         event.data["from"] = "btwindow";
@@ -58,15 +87,6 @@ if (!window.LOCALTEST && NotLoaded) {
 }
 
 
-function getFromLocalStorage(key) {
-    // Promisification of storage.local.get
-    return new Promise(resolve => {
-	chrome.storage.local.get(key, function(item) {
-	    resolve(item[key]);
-	});
-    });
-}
-
 async function launchApp(msg) {
     // Launchapp msg comes from extension code w GDrive app IDs
     // inject btfile data into msg either from local storage or the initial .org on server
@@ -90,9 +110,9 @@ async function launchApp(msg) {
     let BTId = await getFromLocalStorage('BTId');
     let Config = await getFromLocalStorage('Config');
     if (BTId)
-	msg["bt_id"] = BTId;
+	    msg["bt_id"] = BTId;
     if (Config)
-	msg["Config"] = Config;
+	    msg["Config"] = Config;
     
     msg["from"] = "btextension";
     msg["BTFileText"] = btdata;

@@ -130,21 +130,6 @@ class BTAppNode extends BTNode {
      * UI Management
      *
      ***/
-
-    favicon() {
-        // return img tag w pointer to favicon for url
-        if (!this.URL) return "";
-        try {
-            const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
-            const domain = new URL(this.URL).hostname;
-            return `<img src="http://www.google.com/s2/favicons?domain=${domain}" loading="lazy" class="${favClass}">`;
-            //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
-        }
-        catch(err) {
-            console.warn(`error parsing url for favicon. \n URL:[${this.URL}]. \n Err: ${err}`);
-            return "";
-        }
-    }
     
     HTML() {
         // Generate HTML for this nodes table row
@@ -234,6 +219,36 @@ class BTAppNode extends BTNode {
 	    if (this.childIds.length)                         // set correctly
 	        $(dn).children('.left').removeClass('childlessTop');
     }
+
+    favicon() {
+        // return img tag w pointer to favicon for url
+        if (!this.faviconUrl) return "";
+        const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
+        return `<img src="${this.faviconUrl}" loading="lazy" class="${favClass}">`;
+        //return `<img src="https://icons.duckduckgo.com/ip3/${domain}.ico"/>`;
+    }
+
+    static async populateFavicons() {
+        // iterate thru nodes adding favicon icon either from local storage or goog
+        AllNodes.forEach(async n => {
+            if (!n || n.isTopic() || !n.URL) return;
+            const host = new URL(n.URL).hostname;
+            const favUrl =
+                  n.faviconUrl ||
+                  await localFileManager.get(host) ||
+                  `http://www.google.com/s2/favicons?domain=${host}`;
+            n.faviconUrl = favUrl;
+            const dn = n.getDisplayNode();
+            const fav = n.favicon();
+            $(fav).insertBefore($(dn).find('.btTitle'));
+        });
+    }
+
+    /***
+     *
+     * Search support
+     *
+     ***/
     
     showForSearch() {
 	    // show this node in the tree cos its the search hit (might be folded)

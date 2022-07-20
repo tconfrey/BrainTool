@@ -7,7 +7,7 @@
 
 'use strict'
 
-const OptionKey = (navigator.appVersion.indexOf("Mac")!=-1) ? "Option" : "Alt";
+const OptionKey = (navigator.userAgentData.platform == "macOS") ? "Option" : "Alt";
 
 var InitialInstall = false;
 var UpgradeInstall = false;
@@ -189,11 +189,12 @@ function handleInitialTabs(tabs) {
 function brainZoom(iteration = 0) {
     // iterate thru icons to swell the brain
 /* TODO Change to new icon in new header */
-    const iterationArray = [0,1,2,3,4,3,2,1,0];
+    const iterationArray = ['01','02', '03','04','05','06','07','08','09','10','05','04', '03','02','01'];
+    //['01','02', '03','04','05','06','07','08','09','10','09','08','07','06','05','04', '03','02','01'];
     const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
     
     if (iteration == iterationArray.length) {
-        $("#brain").attr("src", "../extension/images/BrainTool48.png");
+        $("#brain").attr("src", "../extension/images/BrainTool128.png");
         return;
     }
     $("#brain").attr("src", path);
@@ -256,6 +257,7 @@ function generateTable() {
         outputHTML += node.HTML();
     });
     outputHTML += "</table>";
+    BTAppNode.populateFavicons();                         // fille in async
     return outputHTML;
 }
 
@@ -726,11 +728,13 @@ function storeTabs(data) {
         const title = cleanTitle(tabData.title);
         const tabId = tabData.tabId;
         const tabIndex = tabData.tabIndex;
+        const favUrl = tabData.faviconUrl;
         let node = BTAppNode.findFromTab(tabId);
         if (!node) {
             node = new BTAppNode(`[[${url}][${title}]]`, topicNode.id,
                                  note || "", topicNode.level + 1);
             node.tabId = tabId;
+            node.faviconUrl = favUrl;
             if (keyword) node.keyword = keyword;
             $("table.treetable").treetable("loadBranch", ttNode, node.HTML());
         } else {
@@ -738,11 +742,21 @@ function storeTabs(data) {
             node.text = note || "";
             if (keyword) node.keyword = keyword;
             node.redisplay();
+            node.faviconUrl = favUrl;
             let tabData = {tabId: tabId, windowId: windowId, groupId: 0};
             tabActivated(tabData);       // set local storage for any subsequent popup open
         }
         node.tabIndex = tabData.tabIndex;
         newNodes.push(node);
+
+        // save the hostname<->favicon mapping locally for Favicon feature.
+        try {
+            const u = new URL(url);
+            localFileManager.set(u.hostname, favUrl);
+        }
+        catch (e) {
+            console.warn('URL/Favicon storage error: ', e);
+        };
     });
 
     // sort tree based on position in parents child array
@@ -819,7 +833,7 @@ function tabUpdated(data) {
         tabOpened(data, true);
         
         // acknowledge nav to BT node with brain animation
-        window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
+//        window.postMessage({'function' : 'brainZoom', 'tabId' : tabId});
         return;
     }
 

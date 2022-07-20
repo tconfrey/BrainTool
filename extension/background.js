@@ -320,7 +320,7 @@ function updateBTIcon(text, title, color) {
 		{'color' : color});
 }
 
-function openTabs(msg, sender, tries=0) {
+function openTabs(msg, sender) {
     // open list of {nodeId, url} pairs, potentially in new window
     
     function openTabsInWin(tabInfo, winId = null) {
@@ -338,6 +338,7 @@ function openTabs(msg, sender, tries=0) {
     const newWin = msg.newWin;
     const defaultWinId = msg.defaultWinId;                                 // 0 or winId of siblings
     const [first, ...rest] = msg.tabs;
+    
     if (newWin)
         // Create new win w first url, then iterate on rest
         chrome.windows.create({'url': first.url}, win => {
@@ -345,8 +346,16 @@ function openTabs(msg, sender, tries=0) {
             openTabsInWin(rest, win.id);
         });
     else
-        // else just iterate on all adding to current window
-        openTabsInWin(msg.tabs, defaultWinId);                              
+        // else check window exists & iterate on all adding to current window
+        chrome.windows.get(defaultWinId, (w) => {
+            if (!w) {
+                // in rare error case win may no longer exist => set to null
+                console.warn(`Error in openTabs. ${chrome.runtime.lastError?.message}`);
+                openTabsInWin(msg.tabs);
+            } else {
+                openTabsInWin(msg.tabs, defaultWinId);
+            }
+        });
 }
 
 function openTabGroups(msg, sender) {
@@ -551,7 +560,7 @@ function brainZoom(msg, sender, iteration = 0) {
 
 function brainZoom(msg, sender, iteration = 0) {
     // iterate thru icons to swell the brain
-    const iterationArray = [0,1,2,3,4,3,2,1,0];
+    const iterationArray = ['01','02', '03','04','05','06','07','08','09','10','05','04', '03','02','01'];
     const path = 'images/BrainZoom'+iterationArray[iteration]+'.png';
     const default_icon = {
         "16": "images/BrainTool16.png",
@@ -565,6 +574,7 @@ function brainZoom(msg, sender, iteration = 0) {
         setTimeout(function() {setBadge(msg.tabId);}, 150);
         return;
     }
+    chrome.action.setBadgeText({'text': '', 'tabId': msg.tabId});
     chrome.action.setIcon({'path': path, 'tabId': msg.tabId}, () => {
         // if action was Close tab might be closed by now
         if (chrome.runtime.lastError)

@@ -216,6 +216,8 @@ const localFileManager = (() => {
     }
 
     return {
+        set: set,
+        get: get,
         saveBT: saveBT,
         authorizeLocalFile: authorizeLocalFile,
         checkBTFileVersion: checkBTFileVersion,
