@@ -236,7 +236,7 @@ class BTAppNode extends BTNode {
             const favUrl =
                   n.faviconUrl ||
                   await localFileManager.get(host) ||
-                  `http://www.google.com/s2/favicons?domain=${host}`;
+                  `https://www.google.com/s2/favicons?domain=${host}`;
             n.faviconUrl = favUrl;
             const dn = n.getDisplayNode();
             const fav = n.favicon();
