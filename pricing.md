@@ -8,7 +8,7 @@ audience: nonuser
 
 # Special One-Time Offers!
 In advance of the 1.0 BrainTool release a free lifetime subscription coupon is being offered to any existing user who contributes to it's success by performing one of the following<sup>*</sup>:
-- Posting an honest 5 star review on the [Chrome](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) or [Edge](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol) Web Store.
+- ~~Posting an honest 5 star review on the [Chrome](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) or [Edge](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol) Web Store.~~ <br/> *This option is no longer available due to a strict interpretation of the Google terms of Service.*
 <!-- - Filling out this survey:[link] -->
 - A positive review or mention on a social network feed<sup>**</sup>, newsletter, blog post etc.
 - Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
