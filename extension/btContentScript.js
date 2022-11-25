@@ -32,7 +32,7 @@ window.addEventListener('message', async function(event) {
     // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
         return;
-    console.log(`Content-IN ${event.data.function} from TopicManager:`, event);
+    console.log(`Content-IN ${event.data.function} from TopicManager:`, event.data);
     if (event.data.function == 'localStore') {
         // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
         try {

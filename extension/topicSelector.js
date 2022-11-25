@@ -24,8 +24,9 @@ const TopicSelector = (() => {
         const topics = topicsMap.map(t => t.name);
 
         if (guess) {
-            TopicElt.value = guess;
             TopicHint.style.display = "none";                      // hide hint
+            TopicElt.value = guess;
+            TopicElt.select();
             Guessed = true;
         }
         AwesomeWidget = new Awesomplete(TopicElt, {
@@ -106,6 +107,10 @@ const TopicSelector = (() => {
         const text = topic.textContent;
         TopicElt && (TopicElt.value = text);
         AwesomeWidget.evaluate();
+        // might be >1 item matching, find right one.
+        let index = 0;
+        while (AwesomeWidget.suggestions[index].value != text) index++;
+        AwesomeWidget.goto(index);
         AwesomeWidget.select();
         TopicHint.style.display = "none";                      // hide hint
         SelectionCB();                                         // done

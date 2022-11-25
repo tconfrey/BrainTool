@@ -38,7 +38,16 @@ const messageManager = (() => {
         "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
         "A preview version of favicon display is now available. See Settings."
     ];
-    let Warning = false, Message = false, lastShownMessageIndex = 0;
+    const introSlidesArray = [
+        "<p>This window is the Topic Manager. It allows you to open and close tabs and browser windows and to organize them into nested topics.</p>",
+        "<p>The BrainTool Bookmarker tool lives in the browser bar and allows you to set the topic for the current tab and add a note.</p>",
+        "<p>Use BrainTool to organize all the tabs you want to save and come back to. Add notes to aid retrieval and todo's to track tasks.</p>",
+        "<p>Everything is kept in plain text in a private local file that you own and can inspect, or under your personal Google Drive account for cloud access.</p>",
+        "<p>See the Settings and Actions above and Help below. And watch for Messages, Warnings and Tips on startup.</p>",
+        "<p>Now lets get started organizing your online life!</p><input type='checkbox' id='bookmarks' name='bookmarks' checked><label for='bookmarks'>Import Bookmarks</label><input type='checkbox' id='tabs' name='tabs' checked><label for='tabs'>Save current session to Scratch</label><button onclick='messageManager.hideIntro()'>OK</button>"
+    ];
+    
+    let Warning = false, Message = false, lastShownMessageIndex = 0, lastShownSlideIndex = 0;
 
     
     function showTip() {
@@ -120,12 +129,59 @@ const messageManager = (() => {
             showTip();
     };
 
+
+    function showIntro() {
+        // Show intro slides
+        showSlide();
+        $("#editOverlay").css("display", "block");
+        $("#dialog").css("display", "none");
+        $("#intro").css("display", "block");
+    }
+
+    function hideIntro() {
+        // Show intro slides
+        $("#editOverlay").css("display", "none");
+        $("#intro").css("display", "none");
+    }
+
+    function showSlide() {
+        // Inject html for current slide index
+        if (lastShownSlideIndex == 0) $("#introPrev").hide();
+        else $("#introPrev").show();
+        $("#slide").html(introSlidesArray[lastShownSlideIndex]);
+        if (lastShownSlideIndex == (introSlidesArray.length - 1))
+            $("#introNext").hide();
+        else
+            $("#introNext").show();
+    }
+
+    function nextSlide() {
+        lastShownSlideIndex += 1;
+        showSlide();
+    }
+
+    function prevSlide() {
+        lastShownSlideIndex -= 1;
+        showSlide();
+    }
+
+
+
+
+
+
+
+    
     return {
         setupMessages: setupMessages,
         showMessage: showMessage,
         hideMessage: hideMessage,
         showWarning: showWarning,
-        removeWarning: removeWarning
+        removeWarning: removeWarning,
+        showIntro: showIntro,
+        hideIntro: hideIntro,
+        nextSlide: nextSlide,
+        prevSlide: prevSlide
     };
 })();
 

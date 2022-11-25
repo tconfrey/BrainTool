@@ -11,8 +11,8 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://BrainTool.org/app/*"],
-            //"matches": ["http://localhost:8000/app/*"],
+            //"matches": ["https://BrainTool.org/app/*"],
+            "matches": ["http://localhost:8000/app/*"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }

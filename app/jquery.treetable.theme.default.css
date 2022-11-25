@@ -40,11 +40,6 @@ table.treetable td.search {
     white-space: normal;
 }
 
-#content.editOverlaid {
-    border-left-color: rgb(0,0,0,0);
-    border-right-color: rgb(0,0,0,0);
-}
-
 table.treetable tbody tr td {
   cursor: default;
   padding: .3em .1em;           /* changed from 1.0 to left align for better use of space*/
@@ -122,7 +117,7 @@ table.treetable span.btText {
     white-space: pre-line;
     display: -webkit-box;
     overflow-y: hidden;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: var(--btNoteLineClamp);
     -webkit-box-orient: vertical;
     /* https://stackoverflow.com/questions/33058004/applying-an-ellipsis-to-multiline-text
     display: block;
@@ -151,7 +146,7 @@ table.treetable tr.attention {
 table.treetable td.dropOver {
     border-bottom-style: solid;
     border-bottom-color: var(--btDrawAttention);
-    border-bottom-width: 5px;
+    border-bottom-width: 8px;
 }
 
 table.treetable tr.collapsed span.indenter a {

@@ -93,8 +93,8 @@ function windowOpen(home = 'PANEL', location) {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    const url = "https://BrainTool.org/app/";
-   // const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
+   // const url = "https://BrainTool.org/app/";
+    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
    // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
@@ -139,22 +139,29 @@ SaveAndCloseBtn.addEventListener('click', () => saveCB(true));
 
 // Logic for saveTab/saveAllTabs toggle
 const SavePage =  document.getElementById("savePage");
-const SaveAll =  document.getElementById("saveAllPages");
-SaveAll.addEventListener('change', e => {
-    if (SaveAll.checked) SavePage.checked = false
+const SaveWindow =  document.getElementById("saveAllPages");
+const SaveSession =  document.getElementById("saveAllSession");
+
+SavePage.addEventListener('change', e => {
+    if (SavePage.checked) {SaveWindow.checked = false; SaveSession.checked = false;}
+    else SaveWindow.checked = true;
+    updateForAll();
+});
+SaveWindow.addEventListener('change', e => {
+    if (SaveWindow.checked) {SavePage.checked = false; SaveSession.checked = false;}
     else SavePage.checked = true;
     updateForAll();
 });
-SavePage.addEventListener('change', e => {
-    if (SavePage.checked) SaveAll.checked = false;
-    else SaveAll.checked = true;
+SaveSession.addEventListener('change', e => {
+    if (SaveSession.checked) {SavePage.checked = false; SaveWindow.checked = false;}
+    else SavePage.checked = true;
     updateForAll();
 });
 function updateForAll(all) {
     // handle AllPages toggle
     const onePageElements = document.getElementsByClassName("onePage");
     const allPageElements = document.getElementsByClassName("allPages");
-    if (SaveAll.checked) {
+    if (SaveWindow.checked || SaveSession.checked) {
         Array.from(onePageElements).forEach(e => e.style.display = "none");
         Array.from(allPageElements).forEach(e => e.style.display = "block");
     } else  {
@@ -174,8 +181,8 @@ function popupOpen(tab) {
     
     // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
-        ['tags', 'currentTabId', 'currentTag', 'currentText', 'currentTitle',
-         'windowTopic', 'groupTopic', 'mruTopic', 'mruTime', 'saveAndClose'],
+        ['tags', 'currentTabId', 'currentTag', 'currentText',
+         'currentTitle', 'mruTopics', 'saveAndClose'],
         data => {
             console.log(`title [${tab.title}], len: ${tab.title.length}, substr:[${tab.title.substr(0, 100)}]`);
             let title = (tab.title.length < 150) ? tab.title :
@@ -200,12 +207,10 @@ function popupOpen(tab) {
 
             // New page. Guess at topic and open card
             Topics = data.tags;
-            if (data.windowTopic || data.groupTopic || data.mruTopic) {
-                // pre-fill to Window or Group topic, or mru if less than 3 mins old
-                const now = new Date();
-                const mruAge = data.mruTime ? (now - new Date(data.mruTime)) : 0;
-                Guess = (data.groupTopic || data.windowTopic ||
-                         ((mruAge < 180000) ? data.mruTopic : ''));
+            if (data.mruTopics) {
+                // pre-fill to mru topic for window
+                const windowId = tab.windowId;
+                Guess = data.mruTopics[windowId] || '';
             }
             TopicSelector.setup(Guess, Topics, topicSelected);
             TopicCard.setupNew(tab.title, tab, cardCompleted);
@@ -224,16 +229,23 @@ function cardCompleted() {
     saveCB(close);       
 }
 
-function saveCB(close) {
+async function saveCB(close) {
     // save topic card for page, optionally close tab
     // Call out to BT app which handles everything
     const title = TopicCard.title();
     const note = TopicCard.note();
     const url = CurrentTab.url;
     const newTopic = OldTopic || TopicSelector.topic();
-    const allTabs = SaveAll.checked;
+    const allTabs = SaveWindow.checked;
+    const wholeSession = SaveSession.checked;
     const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
-    if (allTabs || title) {
+
+    if (wholeSession) {
+        // send message to background to save whole session
+        await chrome.runtime.sendMessage(
+            {'from': 'popup', 'function': 'importSession', 'close': close, 'topic': newTopic});
+    }
+    else if (allTabs || title) {
         // need a topic and either an applied url/title or alltabs
         
         let message = {'function': 'storeTabs', 'tag': newTopic, 'note': note,
@@ -247,14 +259,13 @@ function saveCB(close) {
             tabsData.push(tabData);
         });
         message.tabsData = tabsData;
-        chrome.tabs.sendMessage(BTTab, message);
+        await chrome.tabs.sendMessage(BTTab, message);
         
-        // now send tabopened to bt or close tab to bg. Then send group to bt as necessary
         if (!close)              // if tab isn't closing animate the brain
-            chrome.runtime.sendMessage(
+            await chrome.runtime.sendMessage(
                 {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
     }
-    chrome.storage.local.set({'saveAndClose': close});
+    await chrome.storage.local.set({'saveAndClose': close});
     window.close();
 }
 

@@ -16,7 +16,7 @@ const configManager = (() => {
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
         'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTStats', 'BTLastShownMessageIndex'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
@@ -40,6 +40,7 @@ const configManager = (() => {
         }
         if (Properties.orgProps.includes(prop)) {
             setMetaProp(prop, value);                                   // see parser.js
+            saveBT();
         }	 
     };
 
@@ -107,38 +108,49 @@ const configManager = (() => {
 
         // does the topic manager live in a tab or a window?
         const managerHome = configManager.getProp('BTManagerHome');
+        let $radio;
         if (managerHome) {
-            const $radio = $('#panelToggle :radio[name=location]');
+            $radio = $('#panelToggle :radio[name=location]');
             $radio.filter(`[value=${managerHome}]`).prop('checked', true);
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
         }
 
         // do we load Favicons? Read value, set ui and re-save in case defaulted
-        const favicons = configManager.getProp('BTFavicons') || 'OFF';
-        let $radio = $('#faviconToggle :radio[name=favicon]');
+        const favSet = configManager.getProp('BTFavicons');
+        const favicons = favSet || 'OFF';
+        $radio = $('#faviconToggle :radio[name=favicon]');
         $radio.filter(`[value=${favicons}]`).prop('checked', true);
-        configManager.setProp('BTFavicons', favicons);
+        if (!favSet) configManager.setProp('BTFavicons', favicons);
 
+        // NONOTES?
+        const notes = configManager.getProp('BTNotes') || 'NOTES';
+        $radio = $('#notesToggle :radio[name=notes]');
+        $radio.filter(`[value=${notes}]`).prop('checked', true);
+        checkCompactMode((notes == 'NONOTES'));                         // turn off if needed
+
+        // Dense?
+        const dense = configManager.getProp('BTDense') || 'NOTDENSE';
+        $radio = $('#denseToggle :radio[name=dense]');
+        $radio.filter(`[value=${dense}]`).prop('checked', true);
+        document.documentElement.setAttribute('data-dense', dense);
+
+        // Large?
+        const large = configManager.getProp('BTSize') || 'NOTLARGE';
+        $radio = $('#largeToggle :radio[name=large]');
+        $radio.filter(`[value=${large}]`).prop('checked', true);
+        document.documentElement.setAttribute('data-size', large);
+        
         // Theme saved or set from OS
-        const theme = configManager.getProp('BTTheme') ||
+        const themeSet = configManager.getProp('BTTheme');
+        const theme = themeSet ||
               (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
         $radio = $('#themeToggle :radio[name=theme]');
         $radio.filter(`[value=${theme}]`).prop('checked', true);
-        configManager.setProp('BTTheme', theme);
+        if (!themeSet) configManager.setProp('BTTheme', theme);
         // Change theme by setting attr on document which overides a set of vars. see top of bt.css
         document.documentElement.setAttribute('data-theme', theme);
-        $('#topBar > img').removeClass('LIGHT', 'DARK').addClass(theme);  // swap some icons
-        $('#footer > img').removeClass('LIGHT', 'DARK').addClass(theme);
-
-        /* BTId !=> subscription, checkout can be abandoned. launchApp checks for valid sub. don't need to do anything here
-        // Subscription show to subscribe or info + link
-        let btid = getProp('BTId') || getMetaProp('BTId');   // try both since might be just read in
-        if (btid) {
-            $('#settingsSubscriptionAdd').hide();
-            $('#settingsSubscriptionStatus').show();
-            $('#subId').text(btid);
-        }      
-        */  
+        $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass(theme);  // swap some icons
+        $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(theme);
     }
 
     // Register listener for radio button changes in Options
@@ -158,6 +170,27 @@ const configManager = (() => {
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
             saveBT();
         });
+        $('#notesToggle :radio').change(function () {
+            const newN = $(this).val();
+            configManager.setProp('BTNotes', newN);
+            // do it
+            checkCompactMode((newN == 'NONOTES'));
+            saveBT();
+        });
+        $('#denseToggle :radio').change(function () {
+            const newD = $(this).val();
+            configManager.setProp('BTDense', newD);
+            // do it
+            document.documentElement.setAttribute('data-dense', newD);
+            saveBT();
+        });
+        $('#largeToggle :radio').change(function () {
+            const newL = $(this).val();
+            configManager.setProp('BTSize', newL);
+            // do it
+            document.documentElement.setAttribute('data-size', newL);
+            saveBT();
+        });
         $('#faviconToggle :radio').change(function () {
             const favicons = $(this).val();
             const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
@@ -170,6 +203,8 @@ const configManager = (() => {
             const newTheme = $(this).val();
             configManager.setProp('BTTheme', newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
+            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
+            $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
             // Let extension know
             window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
             saveBT();
@@ -184,6 +219,8 @@ const configManager = (() => {
             if (success) {
                 $("#settingsSync").hide();
                 $("#settingsSyncStatus").show();
+                $("#syncType").text((newVal == 'gdrive') ? "GDrive" : "Local File");
+                $("#actionsSyncStatus").show();
             }
             return success;
         });
@@ -202,21 +239,21 @@ const configManager = (() => {
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#settingsButton').removeClass('open');
-                $('#topBar > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
-                $('#footer > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
             }, 250);
         } else {
             $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#settingsButton').addClass('open');
-            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
-            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
 
-    function closeActionsDisplay() {
+    function closeConfigDisplays() {
         // close if open
         if ($('#actions').is(':visible')) toggleActionsDisplay();
+        if ($('#settings').is(':visible')) toggleSettingsDisplay();
+        if ($('#help').is(':visible')) toggleHelpDisplay();
     }
         
     function toggleActionsDisplay() {
@@ -229,36 +266,33 @@ const configManager = (() => {
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#actionsButton').removeClass('open');
-                $('#topBar > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
-                $('#footer > img').removeClass('DARK', 'LIGHT').addClass(iconColor);
+                $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
             }, 250);
         } else {
             $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#actionsButton').addClass('open');
-            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
-            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
 
     function toggleHelpDisplay(panel) {
         // open/close help panel
-
-        const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
         
-        if ($('#help').is(':visible')) {            
+        const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+        if ($('#help').is(':visible')) {
+            // now visible => action is close
             $('#help').slideUp({duration: 250, 'easing': 'easeInCirc'});
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#footerHelp').removeClass('open');
-                $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
-                $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+                $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(iconColor);
             }, 250);
         } else {
+            // now visible => action is open
             $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#footerHelp').addClass('open');
-            $('topBar > img').removeClass('LIGHT', 'DARK').addClass('DARK');
-            $('footer > img').removeClass('LIGHT', 'DARK').addClass('DARK');
+            $('#footer img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
@@ -298,7 +332,7 @@ const configManager = (() => {
         toggleSettingsDisplay: toggleSettingsDisplay,
         toggleHelpDisplay: toggleHelpDisplay,
         toggleActionsDisplay: toggleActionsDisplay,
-        closeActionsDisplay: closeActionsDisplay,
+        closeConfigDisplays: closeConfigDisplays,
         toggleKeyCommands: toggleKeyCommands,
         initializeInstallDate: initializeInstallDate
     };

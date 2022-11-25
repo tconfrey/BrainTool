@@ -68,19 +68,22 @@
                 </div>
                 <div id="actionsButton" onclick="configManager.toggleActionsDisplay()">
                     <span>Actions</span>
-                    <img id="actionsIcon" src="resources/actionsIcon.png" style="padding-left:3px;"/>
+                    <img id="actionsIcon" src="resources/actionsIcon.png" style="padding-left:5px;"/>
                 </div>
                 
             </div>
             
         </div>
         <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
-          <span>+ ADD A NEW TOP LEVEL TOPIC</span>
+            <span>+ ADD A NEW TOP LEVEL TOPIC</span>
         </div>
       </div>
-
-      <div class="settingsActions" id="settings">
-        <div class="settingsTitle">BrainTool Settings</div>
+      <div class="settingsActions" id="settings" style="margin-bottom: 5px">
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.toggleSettingsDisplay()">
+          
+          <div class="settingsTitle">BrainTool Settings</div>
         <hr/>
         <div id="settingsLocation">
           <div class="settingsSubtitle">The Topic Manager appears in:</div>
@@ -129,7 +132,13 @@
               <label for="settingsSyncNone">No sync</label>
             </span>
           </div>
-          <div class="settingsFootnote">* You will need to grant appropriate permissions<br/>NB Local syncing is in beta, report problems to braintool.extension@gmail.com</div>
+          <div class="settingsFootnote">* You will need to grant appropriate permissions</div>
+          <hr/>
+        </div>
+        
+        <div id="settingsSyncStatus" style="display:none">
+            <div class="settingsSubtitle"><span id="syncType"></span> Sync Enabled</div>
+          <div class="settingsFootnote">Disable current syncing (under Actions) to change this setting</div>
           <hr/>
         </div>
 
@@ -149,18 +158,63 @@
         </div>
 
         <div id="settingsFavicons">
-          <div class="settingsSubtitle">Favicons?</div>
-          <div id="faviconToggle" class="settingsInput">
-            <span>
-              <input type="radio" id="settingsFaviconOn" name="favicon" value="ON" checked>
-              <label for="settingsFaviconOn">Yes</label>
-            </span>
-            <span>
-              <input type="radio" id="settingsThemeDark" name="favicon" value="OFF">
-              <label for="settingsFaviconOff">No</label>
-              <span>
-          </div>
-          <hr/>
+            <div class="settingsSubtitle">Show Favicons?</div>
+            <div id="faviconToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsFaviconOn" name="favicon" value="ON" checked>
+                    <label for="settingsFaviconOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsThemeDark" name="favicon" value="OFF">
+                    <label for="settingsFaviconOff">No</label>
+                    <span>
+            </div>
+            <hr/>
+        </div>
+
+        <div id="settingsDense">
+            <div class="settingsSubtitle">Dense?</div>
+            <div id="denseToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsDenseOn" name="dense" value="DENSE" >
+                    <label for="settingsDenseOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsDenseOff" name="dense" value="NOTDENSE" checked>
+                    <label for="settingsDenseOff">No</label>
+                    <span>
+            </div>
+            <hr/>
+        </div>
+
+        <div id="settingsNotes">
+            <div class="settingsSubtitle">Show Notes?</div>
+            <div id="notesToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsNotesOn" name="notes" value="NOTES" checked>
+                    <label for="settingsNotesOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsNotesOff" name="notes" value="NONOTES">
+                    <label for="settingsNotesOff">No</label>
+                    <span>
+            </div>
+            <hr/>
+        </div>
+
+        <div id="settingsLarge">
+            <div class="settingsSubtitle">Large Font?</div>
+            <div id="largeToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsLargeOn" name="large" value="LARGE" >
+                    <label for="settingsLargeOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsLargeOff" name="large" value="NOTLARGE" checked>
+                    <label for="settingsLargeOff">No</label>
+                    <span>
+            </div>
+            <hr/>
         </div>
         
         <div id="settingsSubscription">
@@ -172,7 +226,7 @@
               <button onClick="createSubscription(Monthly)" id="monthlySub">$3.99/Month</button>
             </div>
             <i>Coupons applied at checkout</i>
-            <div class="settingsFootnote">By subscribing, you not only support further development of BrainTool<br/>but also gain unlimited pages and other goodies.<br/>
+            <div class="settingsFootnote">By subscribing, you support further development of BrainTool<br/>and get unlimited saved pages.<br/>
               <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a>
             </div>
           </div>
@@ -184,65 +238,71 @@
       </div>
 
       <div class="settingsActions" id="actions">
-        <div class="settingsTitle">BrainTool Actions</div>
-        <hr/>
-        <div id="actionsImportExport">
-          <div class="settingsSubtitle">Import/Export:</div>
-
-          <div id="settingsDropdowns" class="settingsInput">
-            <div class="dropdown">
-		      
-              <button class="button_text general_button dropdown_button">
-		        <span class="dropdown_text">Import:</span>
-		        <span class="button_image_wrapper">
-                  <img class="split_image" height="12" width="12" src="resources/expanded.png">
-		        </span>		    
-              </button>
-		      
-              <div class="dropdown_content">                    
-                <div onClick="importBookmarks()">
-                  <label class="button_text">Browser Bookmarks</label>
-                </div>
-                
-                <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">
-                  <label for="org_upload" class="button_text">An Org-mode file</label>
-                  <input type="file" id="org_upload" name="org_upload" accept=".org"
-                         style="display:none" onchange="importOrgFile()">
-                </div>
-                
-                <div style="border-top: solid 1px #ddd" onClick="$('#to_upload').val('');">
-                  <label for="to_upload" class="button_text">A TabsOutliner export</label>
-                  <input type="file" id="to_upload" name="to_upload" accept=".tree"
-                         style="display:none" onchange="importTabsOutliner()">
-                </div>
-              </div>
-              
-            </div>
-            
-            <div class="dropdown">
-		      
-              <button class="button_text general_button dropdown_button">
-		        <span class="dropdown_text">Export To:</span>
-		        <span class="button_image_wrapper">
-                  <img class="split_image" height="12" width="12" src="resources/expanded.png">
-		        </span>		    
-              </button>
-		      
-		      <div class="dropdown_content">
-                <div onClick="exportBookmarks()">
-		          <label class="button_text">Browser Bookmarks</label>
-                </div>
-
-		        <div style="border-top: solid 1px #ddd">
-                  <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none" onclick="exportOrgFile()">Local Org-mode file</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <hr/>
           
-          <div id="settingsSyncStatus" style="display:none">
-            <div class="settingsSubtitle" id="autoSaveLabel"></div>
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.toggleActionsDisplay()">
+          
+          <div class="settingsTitle">BrainTool Actions</div>
+          <hr/>
+          <div id="actionsImportExport">
+              <div class="settingsSubtitle">Import/Export:</div>
+
+              <div id="settingsDropdowns" class="settingsInput">
+                  <div class="dropdown">
+		              
+                      <button class="button_text general_button dropdown_button">
+		                  <span class="dropdown_text">Import:</span>
+		                  <span class="button_image_wrapper">
+                              <img class="split_image" height="12" width="12" src="resources/expanded.png">
+		                  </span>		    
+                      </button>
+		              
+                      <div class="dropdown_content">                    
+                          <div onClick="importBookmarks()">
+                              <label class="button_text">Browser Bookmarks</label>
+                          </div>
+                          
+                          <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">
+                              <label for="org_upload" class="button_text">An Org-mode file</label>
+                              <input type="file" id="org_upload" name="org_upload" accept=".org"
+                                     style="display:none" onchange="importOrgFile()">
+                          </div>
+                          
+                          <div style="border-top: solid 1px #ddd" onClick="$('#to_upload').val('');">
+                              <label for="to_upload" class="button_text">A TabsOutliner export</label>
+                              <input type="file" id="to_upload" name="to_upload" accept=".tree"
+                                     style="display:none" onchange="importTabsOutliner()">
+                          </div>
+                      </div>
+                      
+                  </div>
+                  
+                  <div class="dropdown">
+		              
+                      <button class="button_text general_button dropdown_button">
+		                  <span class="dropdown_text">Export To:</span>
+		                  <span class="button_image_wrapper">
+                              <img class="split_image" height="12" width="12" src="resources/expanded.png">
+		                  </span>		    
+                      </button>
+		              
+		              <div class="dropdown_content">
+                          <div onClick="exportBookmarks()">
+		                      <label class="button_text">Browser Bookmarks</label>
+                          </div>
+
+		                  <div style="border-top: solid 1px #ddd">
+                              <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none" onclick="exportOrgFile()">Local Org-mode file</a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <hr/>
+          
+          <div id="actionsSyncStatus" style="display:none">
+              
+              <div class="settingsSubtitle" id="autoSaveLabel"></div>
             <div class="settingsInput">
               <button id="refresh" class="button_text" onclick="refreshTable(true)">Refresh from File</button>
               <button class="button_text" onclick="stopSyncing()">Stop Syncing</button>
@@ -256,7 +316,7 @@
       
       <div class="settingsActions" id="help">
           
-          <img id="helpClose" type="image" class="split_image" alt="Close" title="Close"
+          <img class="panelClose" type="image" alt="Close" title="Close"
                src="resources/close.png"  height="17" width="20"
                onclick="configManager.toggleHelpDisplay()">
           <div class="settingsTitle">Help and Support</div>
@@ -346,7 +406,6 @@
           <div>
               <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org')">BrainTool Website</div>
           </div>
-          <hr/>
       </div>
 
       
@@ -443,42 +502,38 @@
     </div>
     
     <div id="editOverlay">
-      <dialog id="dialog" >
-        <table style="width:100%;">
-          <tr id="dn">
-            <td style="padding-bottom: 2px">
-              <div id="distinguishedName"></div>
-            </td>
-          </tr>
-          <tr id="topic"> 
-            <td>
-              <div id="newTopicNameHint" class="hint">
-                <span>Name the Topic</span>
-              </div>
-              <input type="text" id="topicName" class="editNode" tabindex="0">
-            </td>
-          </tr> 
-          <tr> 
-            <td><input type="text" id="title-text" class="editNode" tabindex="1" value='title'></td>
-          </tr>
-          <tr> 
-            <td><textarea id="title-url" class="editNode" tabindex="2">url</textarea></td>
-          </tr>
-          <tr>
-            <td><textarea id="text-text" class="editNode" tabindex="3"></textarea></td>
-          </tr>
-          <tr><td>
-              <div class="buttonDiv" style="display:flex; justify-content: space-between; margin-top: 10px;">
-                  <button id="cancel" class="editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
-                  <button id="update" class="editNode" tabindex="4" onClick="updateRow()">Update</button>
-              </div>
-          </td></tr>
-        </table>
+        <dialog id="dialog" >
+            <div id="distinguishedName"></div>
+
+            <div id="topic">
+                <span id="newTopicNameHint" class="hint" >Name the Topic</span>
+                <input type="text" id="topicName" class="editNode" tabindex="0">
+            </div>
+            <input type="text" id="title-text" class="editNode" tabindex="1" value='title'>
+            <textarea id="title-url" class="editNode" tabindex="2">url</textarea>
+            <textarea id="text-text" class="editNode" tabindex="3"></textarea>
+
+            <div class="buttonDiv" style="display:flex; justify-content: space-between; margin-top: 10px;">
+                <button id="cancel" class="editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
+                <button id="update" class="editNode" tabindex="4" onClick="updateRow()">Update</button>
+            </div>
       </dialog>
+
       <dialog id="permissions" style="display:none; top: 100px">
         <p>BrainTool needs to re-establish local file access.<br/>The browser will now ask for your permission.</p>
         <button id="grant">OK</button>
       </dialog>
+      
+      <div id="intro" style="display:none">
+        <img id="introClose" src="resources/closeTip.png" height="14" width="14" onclick="messageManager.hideIntro()" />
+        <div id="introTitle"><b>Welcome to BrainTool</b></div>
+        <div id="slide"></div>
+        <img id="introNext" src="resources/nextTip.png" height="18" width="18"
+             onclick="messageManager.nextSlide()" />
+        <img id="introPrev" src="resources/prevTip.png" height="18" width="18"
+             onclick="messageManager.prevSlide()" />
+      </div>
+      
     </div>
     
     <script src="orga-bundlev2.js"></script>

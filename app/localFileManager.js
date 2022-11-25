@@ -67,6 +67,12 @@ const localFileManager = (() => {
             return promisifyRequest(store.transaction);
         });
     }
+    function clear(customStore = defaultGetStore()) {
+        return customStore('readwrite', (store) => {
+            store.clear();
+            return promisifyRequest(store.transaction);
+        });
+    }
     // ------------------------------------------------
 
     let LocalDirectoryHandle, LocalFileHandle;
@@ -151,10 +157,12 @@ const localFileManager = (() => {
             // wait for click on grant button
             let p = new Promise(function (resolve, reject) {
                 var listener = async () => {
+                    $("#editOverlay").off('click', listener);
                     await LocalFileHandle.requestPermission({mode: 'readwrite'});
                     resolve(event);
                 };
                 $("#grant").on('click', listener);
+                $("#editOverlay").on('click', listener);
             });
             await p;
 
@@ -211,8 +219,9 @@ const localFileManager = (() => {
 
     function reset() {
         // utility to clear out memory of localFileHandle
-        del('localFileHandle');
-        del('localDirectoryHandle');
+        clear();
+        //del('localFileHandle');
+        //del('localDirectoryHandle');
     }
 
     return {

@@ -46,7 +46,7 @@ async function saveBT(localOnly = false) {
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     if (localOnly) return;                       // return if we're just remember folded state
 
-    brainZoom();                                 // swell the brain
+    setTimeout(brainZoom, 1000);                 // swell the brain
     console.log("Recording save event and writing to any backing store");
     if (InitialInstall) {
         gtag('event', 'FirstSave', {'event_category': 'General'});
@@ -73,7 +73,7 @@ async function authorizeLocalFile() {
     const success = await localFileManager.authorizeLocalFile();
     if (!success) return false;
 
-    setMetaProp('BTGDriveConnected', 'false');
+    confirManager.setProp('BTGDriveConnected', 'false');
     configManager.setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
     alert('Local file sync established. See Actions to disable.');
@@ -117,7 +117,7 @@ function stopSyncing() {
     // BTN CB, stop syncing wherever.
     LocalFileConnected = false;
     GDriveConnected = false;
-    configManager.setProp('GDriveConnected', false);
+    configManager.setProp('BTGDriveConnected', false);
     localFileManager.reset();
     updateSyncSettings();
     alert('Sync has been disabled. See Settings to re-enable.');
@@ -162,12 +162,16 @@ function updateSyncSettings(connected = false, time = null) {
     if (connected) {
         $("#settingsSync").hide();
         $("#settingsSyncStatus").show();
-        const filetype = GDriveConnected ? 'GDrive' : 'Local';
+        $("#actionsSyncStatus").show();
+        const filetype = GDriveConnected ? 'GDrive' : 'Local File';
         $("#autoSaveLabel").text(`${filetype} sync is on.`);
+        $("#syncType").text(filetype);
         updateStatsRow(time);                                           // last saved time etc
     }  else {
         $("#settingsSync").show();
         $("#settingsSyncStatus").hide();
+        $("#actionsSyncStatus").hide();
+        $("#settingsSyncNone").prop('checked', true);
     }
 }
 
