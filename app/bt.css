@@ -16,6 +16,9 @@
     --btNoteFontWeight: normal;
     --btNoteFontSize: 10px;
     --btNoteLineHeight: 12px;
+    --btNoteLineClamp: 2;  /* # of notes lines shown */
+
+    --btRowButtonMarginTop: auto;
 
     --btTitleFontSize: 16px;
     --btTitleFontWeight: 700;
@@ -57,6 +60,7 @@
     --btGeneralBorder: #3f673f;
     --btGeneralBorderShadow: #3f673f90;
     --btButtonBackground: #7bb07b;
+    --btButtonHighlight: black;
 
     --btHeaderBackground: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
     --btFooterBackground: linear-gradient(#e6e6e7, #c3cbcb, #a8b3b4);
@@ -77,17 +81,18 @@
 
     --btDialogBackground: #eeeeee;
     --btTextAreaBackground: #fff;
-    --btDrawAttention: var(--btGeneralBorder);
+    --btDrawAttention: var(--btColor);
 
     --btTipBackground: #F598D4;
     --btWarningBackground: #F31D1D;
     --btMessageBackground: #B9CDDF;
+    --btOpenInfo: #0097C6;
 }
 
 [data-theme="DARK"] {
 
-    --btColor: #aebabc; /* was #b6c3c3; */
-    --btNoteColor: #aab6b8;
+    --btColor: whitesmoke; /* was #aebabc #b6c3c3; */
+    --btNoteColor: ghostwhite; /* #aab6b8 */
     --btTopicBackground: #3d4749;
     --btPageBackground: #626A6C;
 
@@ -101,11 +106,12 @@
     
     --btTooltipForeground: rgba(42, 63, 62, 0.85);
     --btTooltipBackground: #fff;
-    --btInvert: invert(1);
     
-    --btRowSelected: #e5e5e5;
+    --btRowSelected: #202020; /* #e5e5e5; */
     --btRowHovered: #525a5c;
-    
+    --btRowButtonBackground: whitesmoke;
+    --btButtonHighlight: white;
+
     --btGeneralBorder: #7bb07b;
     --btGeneralBorderShadow: #7bb07b90;
     --btButtonBackground: #7bb07b;
@@ -122,17 +128,41 @@
     --btControlsHeaderSecondaryColor: rgba(255, 255, 255, 0.7);
     --btControlsDividerColor: rgba(255, 255, 255, 0.3);
 
-    --btLinkColor: #b8c3c3;
+    --btLinkColor: #e0e5e5;
     --btLinkOpenedColor: #78c6de;
     --btLinkSelectedOpenedColor: #5bc1e1;
     --btSearchResult: var(--btGeneralBorder);
+    --btOpenInfo: #7ce0ff;
 
     --btDialogBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
-    --btTextAreaBackground: #000;
-    --btDrawAttention: var(--btGeneralBorder);
+    --btTextAreaBackground: #202020;
+    --btDrawAttention: var(--btButtonBackground);
 
-    --btTipBackground: #CE88B5;
+    /* --btTipBackground: #CE88B5; */
 }
+
+[data-dense="DENSE"] {
+    --btNoteLineClamp: 1;
+    --btRowHeight: 20px;
+    --btRowButtonMarginTop: -5px;
+}
+
+[data-size="LARGE"] {
+    --btTopicFontSize: 16px;
+    --btTopicLineHeight: 18px;
+
+    --btPageFontSize: 14px;
+    --btPageLineHeight: 16px;
+
+    --btNoteFontSize: 14px;
+    --btNoteLineHeight: 16px;
+    --btRowButtonMarginTop: -1px;
+    --btRowHeight: 35px;
+}
+[data-dense="DENSE"][data-size="LARGE"] {
+    --btRowHeight: 24px;
+}
+    
 a {
     color: var(--btLinkColor);
 }
@@ -172,13 +202,12 @@ body {
 }
 
 #brain {
-    background: var(--btControlsBackground);
     margin-left: 10px;
     margin-top: 8px;
 }
 #topBarRight {
     position: absolute;
-    width: 78px;
+    width: 80px;
     height: 46px;
     right: 0px;
     top: 0px;
@@ -186,6 +215,7 @@ body {
 }
 #topBarRight div {
     cursor: pointer;
+    font-family: var(--btFont);
 }
 #topBarRight img {
     position: relative;
@@ -305,12 +335,18 @@ body {
     left: 40px;
     top: 15px;
 }
+#nameHint {
+    position: relative;
+    top: 3px;
+    left: -20px;
+}
 
 /* style when input is active */
-:focus-visible {
+:focus-visible, button:not([disabled]):hover {
     outline-width: 1px;
-    outline-color: var(--btGeneralBorder);
+    outline-color: var(--btButtonHighlight);
     outline-style: groove;
+    cursor: pointer;
 }
 .highlight {
     background-color: lime;
@@ -330,21 +366,26 @@ body {
     top: 26px;
     padding-top: 15px;
     padding-bottom: 15px;
-    background: rgba(42, 63, 62, 0.9);
+    border-top: 1px solid black;
+    border-bottom: 2px solid black;
+    background: rgba(42, 63, 62, 0.95);
     font-family: var(--btFont);
     color: #ffffff;
     text-align: center;
     z-index: 3;
+    max-height: 80%;
+    overflow-y: scroll;
 }
 #settings {    
     top: 26px;
 }
 #actions {
     top: 52px;
+    height: 200px;
 }
 .settingsActions hr{
-    margin-top: 15px;
-    margin-bottom: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.4);
     margin-left: 25px;
@@ -393,7 +434,7 @@ body {
 .settingsInput {
     display: flex;
     justify-content: space-evenly;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 #settings input {
     accent-color: #000;
@@ -411,7 +452,7 @@ body {
 #monthlySub {
     background: linear-gradient(180deg, rgba(160, 236, 95, 0.8) 0%, rgba(85, 186, 0, 0.8) 100%) !important;
 }
-#settingsSyncStatus button {
+#actionsSyncStatus button {
     height: 30px;
     width: 30%;
     background: var(--btFooterBackground);
@@ -448,6 +489,8 @@ body {
     padding: 0px;
     margin-left: -2px;
     margin-right: -2px;
+    margin-top: var(--btRowButtonMarginTop);
+    background-color: var(--btRowButtonBackground);
 }
 
 #tools {
@@ -472,19 +515,23 @@ body {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  background-color: #00000020;
+  background-color: #00000040;
+  backdrop-filter: blur(1px);
 }
 
-#dialog {
+#dialog{
     border-radius: 3px;
-    padding: 30px;
-    padding-top: 2px;
+    padding: 10px 30px 20px 30px;
     margin-top: 0px;
     position: fixed;
     background: var(--btDialogBackground);
     color: var(--btControlsHeaderPrimaryColor);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
-dialog button {
+
+#grant {
     color: var(--btControlsHeaderPrimaryColor);
 }
 
@@ -497,6 +544,9 @@ dialog button {
     color: var(--btColor);
     font-size: 11px;
 }
+#text-text {
+    flex-grow: 1;
+}
 #dialog input {
     border: 1px solid #ddd;
     width: 100%;
@@ -508,21 +558,17 @@ dialog button {
 #dialog #title-text,#topicName {
     white-space: nowrap;
 }
-#dialog #text-text {
-    height: 11em;
-}
-#dialog #title-url {
+#title-url {
     height: 2em;
     font-size: 0.6em;
     font-style: italic;
 }
-#dialog #distinguishedName {
+#distinguishedName {
     font-family:var(--btControlsFont);
-    color: var(--btColor);
+    color: var(--btButtonHighlight);
+    white-space: nowrap;
     text-align: center;
-}
-#dialog li::marker {
-    color: var(--btGeneralBorder);
+    overflow: scroll;
 }
 #dialog button {
     border: none;
@@ -540,6 +586,50 @@ dialog button {
 }
 #cancel {
     background-color: #ff5555c8;
+}
+
+/* 
+ * Intro slides
+ */
+
+#intro {
+    border-radius: 3px;
+    border-style: solid;
+    width: calc(100% - 3px);
+    position: fixed;
+    top: 120px;
+    height: 300px;
+    background: var(--btDialogBackground);
+    color: var(--btControlsHeaderPrimaryColor);
+    font-family: var(--btFont);
+}
+#slide {
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 40px;
+}
+#introClose {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+}
+#introTitle {
+    text-align: center;
+    margin-top: 10px;
+    font-size: var(--btTitleFontSize);
+}
+#introNext {
+    position: absolute;
+    top: 150px;
+    right: 10px;
+    cursor: pointer;
+}
+#introPrev {
+    position: absolute;
+    top: 150px;
+    left: 10px;
+    cursor: pointer;
 }
     
 /* 
@@ -569,19 +659,11 @@ dialog button {
     border-color: grey;
 }
 
-#helpClose {
-    position: absolute;
+.panelClose {
+    position: fixed;
     cursor: pointer;
-    right: 3px;
-    top: 3px;
-    z-index: 4;
-    filter: var(--btInvert);
-}
-
-button:not([disabled]):hover {
-    color: #222;
-    background-color: var(--btButtonBackground);
-    cursor: pointer;
+    right: 15px;
+    filter: invert(1);
 }
 
 /* split button for import/export */
@@ -612,7 +694,7 @@ button:not([disabled]):hover {
     background-image: none;
     background-color: #a0ec5f;
 }
-#settingsSyncStatus button {
+#actionsSyncStatus button {
     width: 30%;
 }
 .dropdown_button {
@@ -671,7 +753,8 @@ span.elipse {
 
 /* prevents selection being scrolled off top */
 .treetable tr {
-  scroll-margin-top: 375px;
+  scroll-margin-top: 100px;
+  scroll-margin-bottom: 75px;
 }
 
 #content {
@@ -709,17 +792,20 @@ body.waiting * {
     text-align: center;
     padding-top: 9px;
 }
+#message {
+    padding: 0px 20px 0px 20px;
+}
 #messageClose {
     position: absolute;
     cursor: pointer;
     top: 7px;
-    left: 15px;
+    left: 8px;
 }
 #messageNext {
     position: absolute;
     cursor: pointer;
     top: 7px;
-    right: 15px;
+    right: 8px;
 }
 #messageContainer.warning {
     background: var(--btWarningBackground);
@@ -798,7 +884,7 @@ body.waiting * {
     font-size: 10px;
 }
 #footerOpenInfo {
-    color: #0097C6;
+    color: var(--btOpenInfo);
 }
 
 .left > img {
@@ -814,4 +900,45 @@ img.faviconOn {
 }
 img.faviconOff {
     display: none;
+}
+
+.tabgroup {
+    padding: 3px 5px 3px 5px !important;
+    border-radius: 5px;
+}
+.tggrey {
+    background: grey;
+    color: white !important;
+}
+.tgblue {
+    background: rgb(24, 89, 226);
+    color: white !important;
+}
+.tgred {
+    background: rgb(206, 26, 29);
+    color: white !important;
+}
+.tgyellow {
+    background: rgb(247, 155, 6);
+    color: black !important;
+}
+.tggreen {
+    background: green;
+    color: white !important;
+}
+.tgpink {
+    background: rgb(194, 0, 113);
+    color: white !important;
+}
+.tgpurple {
+    background: rgb(142, 28, 240);
+    color: white !important;
+}
+.tgcyan {
+    background: rgb(14, 104, 111);
+    color: white !important;
+}
+.tgorange {
+    background: orange;
+    color: black !important;
 }
