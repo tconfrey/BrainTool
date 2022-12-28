@@ -55,3 +55,5 @@ To further support efficient browser operation and in homage to its roots, Brain
 BrainTool stores your information in [Org-mode](https://orgmode.org) syntax. You can sync to an Org file, keep your braintool data in there, and then use other tools to edit it also.
 
 For a deeper dive into various aspects see [the blog](/posts). The [privacy policy](/BrainToolPrivacyPolicy.pdf), [pricing](/pricing) and [vision](/overview) pages might also be of interest.
+
+BrainTool has recently been selected by [Windows Report](https://windowsreport.com) as one of the [best tab extensions for Chrome](https://windowsreport.com/chrome-tab-manager/). Windows Report is a highly trusted web resource for all things Windows, including news and tips for tech users.
