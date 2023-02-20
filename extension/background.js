@@ -138,15 +138,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
  ***/
 
 chrome.tabs.onAttached.addListener(async (tabId, otherInfo) => {
-    // listen for tabs being closed and let BT know
+    // listen for tab event 
     const [BTTab, BTWin] = await getBTTabWin();
     console.log('attached event:', otherInfo);
 });
 
 chrome.tabs.onMoved.addListener(async (tabId, otherInfo) => {
-    // listen for tabs being closed and let BT know
+    // listen for tabs being moved and let BT know
     const [BTTab, BTWin] = await getBTTabWin();
     const tab = await chrome.tabs.get(tabId);
+    if (!tab || tab.status == 'loading') return;
     const indicies = await tabIndices();
     const prevIndex = otherInfo.fromIndex;
     console.log('moved event:', otherInfo, tab);
@@ -177,9 +178,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
     }
-    if (changeInfo.groupId && (tab.status != 'loading')) {
+    if (changeInfo.groupId && (tab.status == 'complete') && tab.url) {
         // tab moved to/from TG, wait til loaded so url etc is filled in
-        const tab = await chrome.tabs.get(tabId);
         const indices = await tabIndices();
         chrome.tabs.sendMessage(
             BTTab, {'function': 'tabPositioned', 'tabId': tabId, 'groupId': tab.groupId,
