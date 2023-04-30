@@ -15,8 +15,8 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTStats', 'BTLastShownMessageIndex'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTGDriveConnected', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     

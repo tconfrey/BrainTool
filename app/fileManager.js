@@ -73,7 +73,7 @@ async function authorizeLocalFile() {
     const success = await localFileManager.authorizeLocalFile();
     if (!success) return false;
 
-    confirManager.setProp('BTGDriveConnected', 'false');
+    configManager.setProp('BTGDriveConnected', 'false');
     configManager.setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
     alert('Local file sync established. See Actions to disable.');
