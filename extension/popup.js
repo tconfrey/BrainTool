@@ -24,7 +24,7 @@ function createWindow(wargs) {
     });
 }
 
-chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], val => {
+chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], async val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
 	const welcomeDiv = document.getElementById('welcome');
 	const messageDiv = document.getElementById('message');
@@ -59,15 +59,27 @@ chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLoc
     // Else just normal popup either in tab or side panel
     const home = val['ManagerHome'] || 'PANEL';
     const location = val['ManagerLocation'];
-    popupAction(home, location);
+    await popupAction(home, location);
     chrome.runtime.connect();           // tell background popup is open
     return;
 });
 
-function popupAction (home, location) {
+async function popupAction (home, location) {
     // Activate popup -> populate form if app is open, otherwise open app
-    
-    if (BTTab)
+    let btOpen = false;
+    if (BTTab) {
+        // Check if BT tab still exists
+        btOpen = true;
+        try {
+            await chrome.tabs.get(BTTab);
+        } catch (e) {
+            // tab no longer exists, clear it
+            chrome.storage.local.remove('BTTab');
+            BTTab = null;
+            btOpen = false;
+        }
+    }
+    if (btOpen)
         chrome.tabs.query(              // find active tab to open popup from
             {currentWindow: true}, list => {
                 Tabs = list;
