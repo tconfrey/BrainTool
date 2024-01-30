@@ -887,12 +887,9 @@ function tabNavigated(data) {
     }
 
     const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
-    if (urlNode) {
-        // nav into a bt node from an open tab
-        const parentId = urlNode.parentId;
-        const currentTopicWin = AllNodes[parentId]?.windowId;
-
-        // handle same as directed tab opens
+    const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
+    if (urlNode && (!parentsWindow || (parentsWindow == windowId))) {
+        // nav into a bt node from an open tab, ignore is parent/TG open elsewhere else - handle like tab open
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
         return;
@@ -1016,10 +1013,6 @@ function tabPositioned(data) {
         // node has tgId but no topic found => node moved out from topic => deleteNode
         deleteNode(tabNode.id);
         return;
-        /* Was:
-        dropUnderNodeId = AllNodes[tabNode.parentId].parentId;
-        tabNode.tabGroupId = 0;
-         */
     }
     // now use move fn from drag/drop to put tabnode in place if not already in place
     // NB can get here if a BT node nav's away then back, don't want to move (== save) in that case
