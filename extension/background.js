@@ -173,7 +173,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status == 'complete') {
         // tab navigated to/from url
         chrome.tabs.sendMessage(
-            BTTab, {'function': 'tabUpdated', 'tabId': tabId, 'groupId': tab.groupId,
+            BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId,
                     'tabURL': tab.url, 'windowId': tab.windowId});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
@@ -193,6 +193,7 @@ chrome.tabs.onActivated.addListener(async (info) => {
     // Let app know there's a new top tab
     const [BTTab, BTWin] = await getBTTabWin();
     if (!info.tabId || !BTTab) return;
+    console.log(`tabs.onActiviated fired, info: [${info}]`);
     chrome.tabs.get(info.tabId, tab => {
         if (!tab) return;
         chrome.tabs.sendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId,

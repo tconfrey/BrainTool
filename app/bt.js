@@ -707,7 +707,7 @@ function tabOpened(data, highlight = false) {
 }
 
 function tabClosed(data) {
-    // handle tab closed message, also used by tabUpdated when BT tab is navigated away
+    // handle tab closed message, also used by tabNavigated when BT tab is navigated away
 
     function propogateClosed(parentId) {
         // node not open and recurse to parent
@@ -856,7 +856,7 @@ function storeTabs(data) {
     }
 }
 
-function tabUpdated(data) {
+function tabNavigated(data) {
     // tab updated event, could be nav away or to a BT node
 
     const tabId = data.tabId;
@@ -917,14 +917,14 @@ function tabActivated(data) {
                   'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
     if (node) {
         node.tagPath || node.generateUniqueTagPath();
+        changeSelected(node);            // select in tree
         m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
     }
-    else
+    else {
         m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
+        clearSelected();
+    }
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
-    
-    // Set Highlight to this node
-    if (node) changeSelected(node);            // show in table
 }
 
 function tabGrouped(data) {
@@ -992,6 +992,7 @@ function tabPositioned(data) {
         $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
         tabNode.populateFavicon();
         initializeUI();
+        changeSelected(tabNode);
     }
     let dropUnderNodeId = topicNode?.id;
 
@@ -1012,9 +1013,13 @@ function tabPositioned(data) {
             }
     }
     else if (tabNode?.tabGroupId) {
-        // node has tgId but no topic found => node moved out from topic, move to grandparent
+        // node has tgId but no topic found => node moved out from topic => deleteNode
+        deleteNode(tabNode.id);
+        return;
+        /* Was:
         dropUnderNodeId = AllNodes[tabNode.parentId].parentId;
         tabNode.tabGroupId = 0;
+         */
     }
     // now use move fn from drag/drop to put tabnode in place if not already in place
     // NB can get here if a BT node nav's away then back, don't want to move (== save) in that case
@@ -1059,15 +1064,21 @@ function setNodeOpen(node) {
     propogateOpened(parentId);
 }
 
+function clearSelected() {
+    // utility - unselect tt node if any
+    const currentSelection = $("tr.selected")[0];
+    if (currentSelection) {
+        const node = $(currentSelection).attr("data-tt-id");
+	    AllNodes[node].unshowForSearch();
+    }
+}
+
 function changeSelected(node) {
     // utility - make node visible and selected, unselected previous selection
 
     // Unselect current selection
-    let currentSelection = $("tr.selected")[0];
-    if (currentSelection) {
-        const prev = $(currentSelection).attr("data-tt-id");
-	    AllNodes[prev].unshowForSearch();
-    }
+    const currentSelection = $("tr.selected")[0];
+    clearSelected();
     if (!node) return;                          // nothing to select, we're done
     
 	const tableNode =  node.getDisplayNode();
@@ -1259,7 +1270,8 @@ function editRow(e) {
 }
 
 $(".editNode").on('input', function() {
-    // enable update button if one of the texts is edited
+    // enable update button if one of the texts is edited and title is not empty
+    if ($("#topicName").val()) return;
     $("#update").prop('disabled', false);
 });
 
@@ -1360,14 +1372,13 @@ function deleteRow(e) {
     // Delete selected node/row.
     const appNode = getActiveNode(e);
     if (!appNode) return false;
-    const nodeId = appNode.id;
     const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
     buttonHide();
 
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete whole subtree?')) {
-        $("table.treetable").treetable("removeNode", appNode.id);    // Remove from UI and treetable
-        deleteNode(nodeId);
+        // Remove from UI and treetable
+        deleteNode(appNode.id);
     }
 }
 
@@ -1406,6 +1417,8 @@ function deleteNode(id) {
         const tabIds = openTabs.map(t => t.tabId);
         window.postMessage({'function': 'ungroup', 'tabIds': tabIds});
     }
+
+    $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
     BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
     
     // Update parent display
@@ -1552,8 +1565,7 @@ function cancelEdit() {
     const nodeId = $(tr).attr('data-tt-id') || 0;
     const name = AllNodes[nodeId]?.title;
     if (!nodeId || name != '') return;
-    
-    $("table.treetable").treetable("removeNode", nodeId);    // Remove from UI and treetable
+
     deleteNode(nodeId);
 }
 

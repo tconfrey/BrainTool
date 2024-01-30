@@ -426,7 +426,7 @@ class BTAppNode extends BTNode {
             this.showNode();
             return;
         }
-        this.opening = true;      // avoid opening twice w double clicks. unset in tabUpdated
+        this.opening = true;      // avoid opening twice w double clicks. unset in tabNavigated
 
         const oldWinId = (this.parentId) ? AllNodes[this.parentId].windowId : 0;
         // tell extension to open when tabOpened message comes back we take care of grouping etc
@@ -936,9 +936,9 @@ class BTLinkNode extends BTAppNode {
 const Handlers = {
     "loadBookmarks": loadBookmarks,
     "importSession": importSession,
-    "tabActivated": tabActivated,
+    "tabActivated": tabActivated,                                  // User nav to Existing tab
     "tabGrouped": tabGrouped,
-    "tabUpdated": tabUpdated,
+    "tabNavigated": tabNavigated,
     "tabOpened" : tabOpened,
     "tabMoved" : tabMoved,
     "tabClosed" : tabClosed,
