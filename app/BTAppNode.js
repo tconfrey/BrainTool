@@ -452,7 +452,7 @@ class BTAppNode extends BTNode {
         else {                      // need to open all urls in single (possibly new) window
             const tabGroupsToOpen = this.listOpenableTabGroups();    // [{tg, [{id, url}]},..]
             window.postMessage({'function': 'openTabGroups', 'tabGroups': tabGroupsToOpen,
-                                'newWin': newWin});            
+                                'newWin': newWin});
         }
     }
 
@@ -725,7 +725,7 @@ class BTAppNode extends BTNode {
                 tabGroupTabs.push({'nodeId': id, 'url': node.URL});
         });
         const me = tabGroupTabs.length ?
-              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId,
+              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId, 'groupName': this.displayTag,
                'tabGroupTabs': tabGroupTabs} : [];
         const subtopics = this.childIds.flatMap(id => AllNodes[id].listOpenableTabGroups());
         return [me, ...subtopics].flat();
@@ -934,19 +934,21 @@ class BTLinkNode extends BTAppNode {
  ***/
 
 const Handlers = {
+    "launchApp": launchApp,                 // Kick the whole thing off
     "loadBookmarks": loadBookmarks,
-    "importSession": importSession,
     "tabActivated": tabActivated,                                  // User nav to Existing tab
-    "tabGrouped": tabGrouped,
-    "tabNavigated": tabNavigated,
-    "tabOpened" : tabOpened,
-    "tabMoved" : tabMoved,
-    "tabClosed" : tabClosed,
-    "storeTabs": storeTabs,
-    "launchApp": launchApp,
+    "tabGrouped": tabGrouped,            //!!!reconcile with tabJOinedTG
+    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged into a TG
+    "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
+    "tabNavigated": tabNavigated,           // User navigated a tab to a new url
+    "tabOpened" : tabOpened,                // New tab opened
+    "tabMoved" : tabMoved,                  // user moved a tab
+    "tabPositioned": tabPositioned          // tab moved by extension
+    "tabClosed" : tabClosed,                // tab closed
+    "storeTabs": storeTabs,                 // popup store operation - page, window or session
+    "importSession": importSession,     //!!!reconcile with storeTabs
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
-    "tabPositioned": tabPositioned
 };
 
 // Set handler for extension messaging

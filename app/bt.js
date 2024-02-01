@@ -523,7 +523,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     saveBT();
     BTAppNode.generateTags();
     if (dragNode.tabId && !browserAction) {
-        dragNode.moving = true;
+        dragNode.beingPositioned = true;                  // remember its BT, not user action
         const tabId = dragNode.tabId;
         const windowId = newParent.windowId || dragNode.windowId;
         const currentIndex = dragNode.tabIndex || 0;
@@ -638,29 +638,6 @@ function handleLinkClick(e) {
  * 
  ***/
 
-
-function tabMoved(data, highlight = false) {
-    // handle tab move, currently as a result of an earlier groupAndPosition
-    
-    const nodeId = data.nodeId;
-    const node = AllNodes[nodeId];
-    const tabId = data.tabId;
-    const tabGroupId = data.tabGroupId;
-    const tabIndex = data.tabIndex;
-    const windowId = data.windowId;
-    const parentId = AllNodes[nodeId]?.parentId || nodeId;
-    
-    node.tabId = tabId;         
-    node.windowId = windowId;
-    node.tabIndex = tabIndex;
-    node.opening = false;
-    AllNodes[parentId].windowId = windowId;
-    if (tabGroupId) {
-        AllNodes[parentId].tabGroupId = tabGroupId;
-        node.tabGroupId = tabGroupId;
-    }
-}
-
 function tabOpened(data, highlight = false) {
     // handle tab open message
     
@@ -702,7 +679,7 @@ function tabOpened(data, highlight = false) {
         // we never automatically move tabs between windows
         AllNodes[parentId].groupAndPosition();
     else
-        node.putInGroup();                          // don't group w others, just wrap in TG
+        node.tabGroupId || node.putInGroup();      // don't group w others, just wrap in TG if not already
     return;
 }
 
@@ -856,6 +833,28 @@ function storeTabs(data) {
     }
 }
 
+function tabPositioned(data, highlight = false) {
+    // handle tab move, currently as a result of an earlier groupAndPosition - see StoreTabs and tabOpened
+    
+    const nodeId = data.nodeId;
+    const node = AllNodes[nodeId];
+    const tabId = data.tabId;
+    const tabGroupId = data.tabGroupId;
+    const tabIndex = data.tabIndex;
+    const windowId = data.windowId;
+    const parentId = AllNodes[nodeId]?.parentId || nodeId;
+    
+    node.tabId = tabId;         
+    node.windowId = windowId;
+    node.tabIndex = tabIndex;
+    node.opening = false;
+    AllNodes[parentId].windowId = windowId;
+    if (tabGroupId) {
+        AllNodes[parentId].tabGroupId = tabGroupId;
+        node.tabGroupId = tabGroupId;
+    }
+}
+
 function tabNavigated(data) {
     // tab updated event, could be nav away or to a BT node
 
@@ -947,12 +946,14 @@ function tabGroupUpdated(data){
     // TG updated update associated topic as appropriate
 
     const tgId = data.tabGroupId;
+    const windowId = data.tabGroupWindowId;
     const color = data.tabGroupColor;
     const name = data.tabGroupName;
     const collapsed = data.tabGroupCollapsed;
     const node = BTAppNode.findFromGroup(tgId);
     const displayNode = node?.getDisplayNode();
     if (!node || !displayNode) return;
+    node.windowId = windowId;
     
     if (color)
         node.setTGColor(color);
@@ -966,8 +967,43 @@ function tabGroupUpdated(data){
     if (!collapsed) $("table.treetable").treetable("expandNode", node.id);
 }
 
-function tabPositioned(data) {
-    // tab's position changed, could be moving into and/or out-of/or around a TG
+function tabJoinedTG(data) {
+    // tab joined TG, update associated topic as appropriate
+
+    const tabId = data.tabId;
+    const tgId = data.groupId;
+    const tab = data.tab;
+    const index = data.tabIndex;
+    const indices = data.tabIndices;
+    const winId = data.windowId;
+    let tabNode = BTAppNode.findFromTab(tabId);
+    const topicNode = BTAppNode.findFromGroup(tgId);
+    if (!topicNode) return;                              // don't care
+    if (!tabNode) {
+        // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
+        tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
+                                "", topicNode.level + 1);
+        tabNode.tabId = tabId;
+        tabNode.tabGroupId = tgId;
+        tabNode.faviconUrl = tab.favIconUrl;
+        $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
+        tabNode.populateFavicon();
+        initializeUI();
+        changeSelected(tabNode);
+    }
+    positionInTopic(topicNode, tabNode, index, indices, winId);
+}
+
+function tabLeftTG(data) {
+    // user moved tab out of TG => no longer managed => deleteNode
+    
+    const tabId = data.tabId;
+    const tabNode = BTAppNode.findFromTab(tabId);
+    if (tabNode) deleteNode(tabNode.id);
+}
+
+function tabMoved(data) {
+    // tab's position changed, ie tab index in window, or new window. 
     // NB data.tabIndices maps tabId to index. need to reset globally since moves change other tabs
 
     const tabId = data.tabId;
@@ -979,8 +1015,15 @@ function tabPositioned(data) {
     const indices = data.tabIndices;
     const tab = data.tab;
     if (!tabNode && !topicNode) return;                                 // don't care
+    if (tabNode?.beingPositioned) {
+        // this message is a result of a BT move (see moveNode above) after a d'n'd
+        tabNode.beingPositioned = false;
+        updateTabIndices(indices);
+        return;
+    }
+
     if (!tabNode) {
-        // unmanaged tab dropped into managed TG => save it to the topic
+        // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
         tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
                                 "", topicNode.level + 1);
         tabNode.tabId = tabId;
@@ -991,47 +1034,33 @@ function tabPositioned(data) {
         initializeUI();
         changeSelected(tabNode);
     }
-    let dropUnderNodeId = topicNode?.id;
-
-    if (tabNode?.moving) {
-        // this message is a result of a requested move (see moveNode above) after a d'n'd
-        tabNode.moving = false;
-        updateTabIndices(indices);
-        return;
-    }
-    if (topicNode) {        
-        // find where tabNode should go under topicNode.
-        const leftIndex = topicNode.leftmostOpenTabIndex();
-        topicNode.windowId = winId;                       // might have changed (tg drag gets here)
-        if (index > leftIndex)
-            for (let [tabId, tabData] of Object.entries(indices)) {
-                if ((tabData.windowId == winId) && (tabData.index == (index - 1)))
-                    dropUnderNodeId = BTAppNode.findFromTab(tabId).id;
-            }
-    }
-    else if (tabNode?.tabGroupId) {
-        // node has tgId but no topic found => node moved out from topic => deleteNode
-        deleteNode(tabNode.id);
-        return;
-    }
-    // now use move fn from drag/drop to put tabnode in place if not already in place
-    // NB can get here if a BT node nav's away then back, don't want to move (== save) in that case
-    if (dropUnderNodeId && AllNodes[dropUnderNodeId]) {
-        const dropUnderNode = AllNodes[dropUnderNodeId];
-        
-        if (dropUnderNode.tabGroupId != tabNode.tabGroupId) return;
-        
-        const dispNode = tabNode.getDisplayNode();
-        const underDisplayNode = dropUnderNode.getDisplayNode();
-        if ($(dispNode).prev()[0] != underDisplayNode)
-            moveNode(tabNode, dropUnderNode, tabNode.parentId, true);
-        tabNode.setTGColor(dropUnderNode.tgColor);
-        tabNode.windowId = winId;
-        updateTabIndices(indices);
-    }
+    if (topicNode) positionInTopic(topicNode, tabNode, index, indices, winId);
 }
     
 // Utility functions for the above
+
+function positionInTopic(topicNode, tabNode, index, indices, winId) {
+    // Position tab node under topic node as per tab ordering in browser
+    
+    // first find where tabNode should go under topicNode.
+    let dropUnderNode = topicNode;
+    const leftIndex = topicNode.leftmostOpenTabIndex();
+    if (index > leftIndex) {
+        for (let [tabId, tabData] of Object.entries(indices)) {
+            if ((tabData.windowId == winId) && (tabData.index == (index - 1)))
+                dropUnderNode = BTAppNode.findFromTab(tabId);
+        }
+    } 
+    if (dropUnderNode.tabGroupId != tabNode.tabGroupId) return;
+    
+    const dispNode = tabNode.getDisplayNode();
+    const underDisplayNode = dropUnderNode.getDisplayNode();
+    if ($(dispNode).prev()[0] != underDisplayNode)
+        moveNode(tabNode, dropUnderNode, tabNode.parentId, true);
+    tabNode.setTGColor(dropUnderNode.tgColor);
+    tabNode.windowId = winId;
+    updateTabIndices(indices);
+}
 
 function cleanTitle(text) {
     // NOTE: Regex is from https://stackoverflow.com/a/11598864
@@ -1091,7 +1120,7 @@ function changeSelected(node) {
 }
 
 function updateTabIndices(indices) {
-    // hash of tabId:{tabIndex, windowId} sent from background after tabPositioned
+    // hash of tabId:{tabIndex, windowId} sent from background after tabMoved
     let tab;
     for (let [tabId, tabData] of Object.entries(indices)) {
         tab = BTAppNode.findFromTab(tabId);
