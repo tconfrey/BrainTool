@@ -491,10 +491,11 @@ class BTAppNode extends BTNode {
     
     putInGroup() {
         // wrap this one nodes tab in a group
-        if (!this.tabId || !this.windowId) return;
+        if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
         const groupName = this.isTopic() ? this.displayTag : AllNodes[this.parentId]?.displayTag;
-        window.postMessage({'function': 'groupAll', 'groupName': groupName,
-                            'tabIds': [this.tabId], 'windowId': this.windowId});
+        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
+                            'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
+                            'groupName': groupName});
     }
     
     closeTab() {
@@ -506,7 +507,7 @@ class BTAppNode extends BTNode {
             node.closeTab();
         });
     }
-
+/* no longer used
     createTabGroup() {
         // create tg from topic node w children
         if (!this.hasOpenChildren()) return;
@@ -515,7 +516,7 @@ class BTAppNode extends BTNode {
         window.postMessage({'function': 'groupAll', 'groupName': this.displayTag,
                             'tabIds': openTabIds, 'windowId': this.windowId});
     }
-
+*/
     updateTabGroup() {
         // set TG in browser to appropriate name/folded state
         if (this.tabGroupId && this.isTopic())

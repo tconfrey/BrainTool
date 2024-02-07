@@ -127,6 +127,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                                                     'result': 'denied'});
                 }
             });
+        return;
     }
     if (msg.type == 'LOCALTEST') {
         // Running under test so there is no external BT top level window
@@ -134,7 +135,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             check();
             LocalTest = true;
         });
+        return;
     }
+    console.warn("Background received unhandled message!!!!: ", msg);
 });
 
 
