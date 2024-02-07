@@ -253,6 +253,17 @@ class BTAppNode extends BTNode {
         });
     }
 
+    storeFavicon() {
+        // store favicon in browser local storage
+        try {
+            const host = this.URL.split(/[?#]/)[0];              // strip off any query or hash
+            localFileManager.set(host, this.faviconUrl);
+        }
+        catch (e) {
+            console.warn(`Error storing favicon: ${e}`);
+        }
+    }
+
     async populateFavicon() {
         // add favicon icon either from local storage or goog
         if (this.isTopic() || !this.URL) return;
@@ -527,7 +538,7 @@ class BTAppNode extends BTNode {
             if (n.hasOpenChildren()) {
                 const openTabIds = n.childIds.flatMap(
                     c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-                window.postMessage({'function': 'groupAll', 'groupName': n.displayTag,
+                window.postMessage({'function': 'moveOpenTabsToTG', 'groupName': n.displayTag,
                                     'tabIds': openTabIds, 'windowId': n.windowId});
             }
         });
@@ -936,19 +947,20 @@ class BTLinkNode extends BTAppNode {
 const Handlers = {
     "launchApp": launchApp,                 // Kick the whole thing off
     "loadBookmarks": loadBookmarks,
-    "tabActivated": tabActivated,                                  // User nav to Existing tab
-    "tabGrouped": tabGrouped,            //!!!reconcile with tabJOinedTG
-    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged into a TG
+    "tabActivated": tabActivated,           // User nav to Existing tab
+    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
     "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
     "tabNavigated": tabNavigated,           // User navigated a tab to a new url
     "tabOpened" : tabOpened,                // New tab opened
     "tabMoved" : tabMoved,                  // user moved a tab
-    "tabPositioned": tabPositioned          // tab moved by extension
+    "tabPositioned": tabPositioned,         // tab moved by extension
     "tabClosed" : tabClosed,                // tab closed
-    "storeTabs": storeTabs,                 // popup store operation - page, window or session
-    "importSession": importSession,     //!!!reconcile with storeTabs
+    "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
+    //"tabGrouped": tabGrouped,                         // merged with tabJOinedTG
+    //"storeTabs": storeTabs,                           // replaced by saveTabs. popup store operation - page, window or session
+    //"importSession": importSession,                   // erplaced by saveTabs.
 };
 
 // Set handler for extension messaging

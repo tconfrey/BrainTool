@@ -151,11 +151,12 @@ SaveAndCloseBtn.addEventListener('click', () => saveCB(true));
 
 // Logic for saveTab/saveAllTabs toggle
 const SavePage =  document.getElementById("savePage");
-const SaveWindow =  document.getElementById("saveAllPages");
+const SaveWindow =  document.getElementById("saveWindow");
+const SaveTG =  document.getElementById("saveTG");
 const SaveSession =  document.getElementById("saveAllSession");
 
 SavePage.addEventListener('change', e => {
-    if (SavePage.checked) {SaveWindow.checked = false; SaveSession.checked = false;}
+    if (SavePage.checked) {SaveWindow.checked = false; SaveSession.checked = false; SaveTG.checked = false;}
     else SaveWindow.checked = true;
     updateForAll();
 });
@@ -164,8 +165,13 @@ SaveWindow.addEventListener('change', e => {
     else SavePage.checked = true;
     updateForAll();
 });
+SaveTG.addEventListener('change', e => {
+    if (SaveTG.checked) {SavePage.checked = false; SaveSession.checked = false;}
+    else SavePage.checked = true;
+    updateForAll();
+});
 SaveSession.addEventListener('change', e => {
-    if (SaveSession.checked) {SavePage.checked = false; SaveWindow.checked = false;}
+    if (SaveSession.checked) {SavePage.checked = false; SaveWindow.checked = false; SaveTG.checked = false;}
     else SavePage.checked = true;
     updateForAll();
 });
@@ -173,7 +179,7 @@ function updateForAll(all) {
     // handle AllPages toggle
     const onePageElements = document.getElementsByClassName("onePage");
     const allPageElements = document.getElementsByClassName("allPages");
-    if (SaveWindow.checked || SaveSession.checked) {
+    if (SaveWindow.checked || SaveSession.checked || SaveTG.checked) {
         Array.from(onePageElements).forEach(e => e.style.display = "none");
         Array.from(allPageElements).forEach(e => e.style.display = "block");
     } else  {
@@ -188,8 +194,12 @@ function popupOpen(tab) {
     const messageElt = document.getElementById('message');
     const saverDiv = document.getElementById("saver");
     const titleH2 = document.getElementById('title');
+    const saveTG = document.getElementById('saveTGSpan');
+    const saveWindow = document.getElementById('saveWindowSpan');
     saverDiv.style.display = 'block';
     messageElt.style.display = 'none';
+    if (tab.groupId > 0) {saveWindow.style.display = 'none';}
+    else  {saveTG.style.display = 'none';}
     
     // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
@@ -242,16 +252,15 @@ function cardCompleted() {
 }
 
 async function saveCB(close) {
-    // save topic card for page, optionally close tab
-    // Call out to BT app which handles everything
+    // Call out to background to do the save
     const title = TopicCard.title();
     const note = TopicCard.note();
-    const url = CurrentTab.url;
     const newTopic = OldTopic || TopicSelector.topic();
-    const allTabs = SaveWindow.checked;
-    const wholeSession = SaveSession.checked;
-    const tabsToStore = allTabs ? Tabs : new Array(CurrentTab);
+    const saveType = SavePage.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
 
+    await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
+                                      'close': close, 'topic': newTopic, 'note': note, 'title': title});
+    /*
     if (wholeSession) {
         // send message to background to save whole session
         await chrome.runtime.sendMessage(
@@ -272,11 +281,11 @@ async function saveCB(close) {
         });
         message.tabsData = tabsData;
         await chrome.tabs.sendMessage(BTTab, message);
-        
-        if (!close)              // if tab isn't closing animate the brain
-            await chrome.runtime.sendMessage(
-                {'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
+
     }
+    */
+    if (!close)              // if tab isn't closing animate the brain
+        await chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
     await chrome.storage.local.set({'saveAndClose': close});
     window.close();
 }
