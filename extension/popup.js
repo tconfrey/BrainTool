@@ -150,29 +150,29 @@ SaveAndGroupBtn.addEventListener('click', () => saveCB(false));
 SaveAndCloseBtn.addEventListener('click', () => saveCB(true));
 
 // Logic for saveTab/saveAllTabs toggle
-const SavePage =  document.getElementById("savePage");
+const SaveTab =  document.getElementById("saveTab");
 const SaveWindow =  document.getElementById("saveWindow");
 const SaveTG =  document.getElementById("saveTG");
 const SaveSession =  document.getElementById("saveAllSession");
 
-SavePage.addEventListener('change', e => {
-    if (SavePage.checked) {SaveWindow.checked = false; SaveSession.checked = false; SaveTG.checked = false;}
+SaveTab.addEventListener('change', e => {
+    if (SaveTab.checked) {SaveWindow.checked = false; SaveSession.checked = false; SaveTG.checked = false;}
     else SaveWindow.checked = true;
     updateForAll();
 });
 SaveWindow.addEventListener('change', e => {
-    if (SaveWindow.checked) {SavePage.checked = false; SaveSession.checked = false;}
-    else SavePage.checked = true;
+    if (SaveWindow.checked) {SaveTab.checked = false; SaveSession.checked = false;}
+    else SaveTab.checked = true;
     updateForAll();
 });
 SaveTG.addEventListener('change', e => {
-    if (SaveTG.checked) {SavePage.checked = false; SaveSession.checked = false;}
-    else SavePage.checked = true;
+    if (SaveTG.checked) {SaveTab.checked = false; SaveSession.checked = false;}
+    else SaveTab.checked = true;
     updateForAll();
 });
 SaveSession.addEventListener('change', e => {
-    if (SaveSession.checked) {SavePage.checked = false; SaveWindow.checked = false; SaveTG.checked = false;}
-    else SavePage.checked = true;
+    if (SaveSession.checked) {SaveTab.checked = false; SaveWindow.checked = false; SaveTG.checked = false;}
+    else SaveTab.checked = true;
     updateForAll();
 });
 function updateForAll(all) {
@@ -256,7 +256,7 @@ async function saveCB(close) {
     const title = TopicCard.title();
     const note = TopicCard.note();
     const newTopic = OldTopic || TopicSelector.topic();
-    const saveType = SavePage.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
+    const saveType = SaveTab.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
 
     await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
                                       'close': close, 'topic': newTopic, 'note': note, 'title': title});
