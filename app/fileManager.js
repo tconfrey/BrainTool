@@ -236,9 +236,16 @@ function _importTabsOutliner() {
     }
     const file = uploader.files[0];
     fr.onload=function(){
-        const orgForTabsO = tabsToBT(fr.result);
-        insertOrgFile(file.name, orgForTabsO);
-        gtag('event', 'TOImport', {'event_category': 'Import'});
+        try {
+            const orgForTabsO = tabsToBT(fr.result);
+            insertOrgFile(file.name, orgForTabsO);
+            gtag('event', 'TOImport', {'event_category': 'Import'});
+        }
+        catch(e) {
+            console.log("Error converting TabsOutliner file");
+            $('body').removeClass('waiting');
+            return;
+        }
     };
     fr.readAsText(file);
     this.value = null;                        // needed to re-trigger if same file selected again

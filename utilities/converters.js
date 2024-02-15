@@ -1,7 +1,7 @@
 /***
  *
  * Conversion utilities. Currently just from TabsOutliner json format
- * Use in conjunction with associated converters.md file
+ * Used by BT import or in conjunction with associated converters.md file
  * 
  ***/
 
@@ -17,7 +17,14 @@ function getDateString(googleTimestamp = null) {
 function tabsToBT(tabsStr) {
     // take a TO export str and output a BT orgmode equivalent
     
-    const tabsJson = JSON.parse(tabsStr);
+    let tabsJson;
+    try {
+        tabsJson = JSON.parse(tabsStr);
+    }
+    catch (e) {
+        alert("Error parsing TabsOutliner malformed json");
+        throw(e);
+    }
     const lastIndex = tabsJson.length - 1;
     let node, title, numwin = 1;
     let dateStr = getDateString().replace(':', ';');
@@ -37,9 +44,12 @@ function tabsToBT(tabsStr) {
         }
         // Handle tab/link type elements
         if (info.data && info.data.url) {
+            // Create org header row
             node = '*'.repeat(nesting.length+1);
-            title = (info.marks && info.marks.customTitle) ? info.marks.customTitle : info.data.title;
+            title = info.data.title || 'Title';
             node += ` [[${info.data.url}][${title}]]\n`;
+            // Add note if any - its stored in marks.customTitle
+            if (info?.marks?.customTitle) node+= `${info.marks.customTitle}\n`;
             BTText += node;
         }
     });
