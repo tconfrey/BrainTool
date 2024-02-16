@@ -77,6 +77,16 @@ QUnit.module("Test inbound browser update messages", function() {
     QUnit.test("Test inbound browser update messages", async function(assert) {
         // iterate thru messageSets defined in btContent.test.js asking content script to send them in to app
         const messageSets = ['openTab', 'openTG', 'dragTabIntoTG', 'navigateTabIntoTG', 'storeTab', 'storeTabs', 'storeWindow', 'storeSession']
+        // Add a comment line below for each element of messageSets
+        // openTab: single tab opened and wrapped
+        // openTG: 
+        // dragTabIntoTG: BT page into TG1
+        // navigateTabIntoTG: 
+        // storeTab: New Scratch topic w LogSeq tab
+        // storeTabs: another tab under scratch
+        // storeWindow: 3 more tabs under scratch
+        // storeSession: new Session topic with Window subtopics with 2&3 tabs
+
         var done = assert.async();
         // iterate thru messagesets 
         for (const messageSet of messageSets) {

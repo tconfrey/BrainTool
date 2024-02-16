@@ -1,15 +1,15 @@
 /***
- *
- *    A version of the content script to drive a set of extensions<->app message handling tests
+*
+*    A version of the content script to drive a set of extensions<->app message handling tests
 ***/
 
 
 function getFromLocalStorage(key) {
     // Promisification of storage.local.get
     return new Promise(resolve => {
-	    chrome.storage.local.get(key, function(item) {
-	        resolve(item[key]);
-	    });
+        chrome.storage.local.get(key, function(item) {
+            resolve(item[key]);
+        });
     });
 }
 
@@ -17,11 +17,11 @@ function getFromLocalStorage(key) {
 function setToLocalStorage(obj) {
     // Promisification of storage.local.set
     return new Promise(resolve => {
-	    chrome.storage.local.set(obj, function() {
+        chrome.storage.local.set(obj, function() {
             if (chrome.runtime.lastError)
-                alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
-	        resolve();
-	    });
+            alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
+            resolve();
+        });
     });
 }
 
@@ -29,7 +29,7 @@ function setToLocalStorage(obj) {
 window.addEventListener('message', async function(event) {
     // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
-        return;
+    return;
     console.log(`Content-IN ${event.data.function} from TopicManager:`, event.data);
     if (event.data.function == 'localStore') {
         // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
@@ -55,23 +55,23 @@ window.addEventListener('message', async function(event) {
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
-
+    
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
     response();
-
+    
     console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
-    case 'loadBookmarks':
+        case 'loadBookmarks':
         chrome.storage.local.get('bookmarks', data => {
             msg.data = data;
             window.postMessage(msg);
         });
         chrome.storage.local.remove('bookmarks');             // clean up space
         break;
-    case 'launchApp':           // set up btfiletext before passing on to app, see below
+        case 'launchApp':           // set up btfiletext before passing on to app, see below
         launchAppTests(msg);
         break;
-    default:
+        default:
         // handle all other default type messages
         msg["from"] = "btextension";
         window.postMessage(msg);
@@ -138,39 +138,35 @@ const messageSets =
     {"function":"tabPositioned","tabId":5,"nodeId":6,"tabGroupId":1,"windowId":1,"tabIndex":3,"from":"btextension"},
     {"function":"tabGroupUpdated","tabGroupId":1,"tabGroupColor":"grey","tabGroupName":"TG1","tabGroupCollapsed":false,"from":"btextension"},
 ],
- 'storeTab' : [
-     {"function":"saveTabs","topic":"new topic","note":"","close":"GROUP","type":"Tab","tabs":
-      [{"url":"https://logseq.com/","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":10,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"}],"from":"btextension"},
+'storeTab' : [
+    {"function":"saveTabs","topic":"new topic","note":"","close":"GROUP","type":"Tab","tabs":
+    [{"url":"https://logseq.com/","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":10,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"}],"from":"btextension"},
 ],
- 'storeTabs' : [
-     {"function":"saveTabs","topic":"3 tabs","note":"","type":"TG","tabs":
-      [{"url":"chrome://extensions/","windowId":1,"title":"Extensions","tabId":1,"tabIndex":0,"faviconUrl":""},
-       {"url":"https://logseq.com/downloads","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":2,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"},
-       {"url":"https://blog.logseq.com/","windowId":1,"title":"Logseq Blog","tabId":3,"tabIndex":2,"faviconUrl":"https://blog.logseq.com/content/images/size/w256h256/2022/04/logseq-favicon.png"}],"from":"btextension"},
+'storeTabs' : [
+    {"function":"saveTabs","topic":"3 tabs","note":"","type":"TG","tabs":
+    [{"url":"chrome://extensions/","windowId":1,"title":"Extensions","tabId":1,"tabIndex":0,"faviconUrl":""},
+    {"url":"https://logseq.com/downloads","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":2,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"},
+    {"url":"https://blog.logseq.com/","windowId":1,"title":"Logseq Blog","tabId":3,"tabIndex":2,"faviconUrl":"https://blog.logseq.com/content/images/size/w256h256/2022/04/logseq-favicon.png"}],"from":"btextension"},
 ],
- 'storeWindow' : [
-     {"function":"saveTabs","topic":"BTWindow","note":"","type":"Window","windowId":1,"tabs":
-      [{"url":"https://braintool.org/support/releaseNotes","title":"BrainTool Release Notes | BrainTool - Beyond Bookmarks","tabId":14,"tabIndex":0,"faviconUrl":"https://braintool.org/favicon.ico?"},
-       {"url":"https://braintool.org/support/userGuide.html","title":"BrainTool User Guide | BrainTool - Beyond Bookmarks","tabId":15,"tabIndex":1,"faviconUrl":"https://braintool.org/favicon.ico?"},
-       {"url":"https://braintool.org/","title":"Go beyond Bookmarks with BrainTool, the online Topic Manager | BrainTool - Beyond Bookmarks","tabId":16,"tabIndex":2,"faviconUrl":"https://braintool.org/favicon.ico?"}],"from":"btextension"},
- ],
- 'storeSession' : [
-     {"function":"importSession",
-      "windows": {"3":{"windowId":3,"windowName":"Window3",
-                                "tabs":[{"id":1465380077,"groupId":-1,"windowId":3,"tabIndex":0,"title":"Extensions","pinned":false,"faviconUrl":"","url":"chrome://extensions/"}],
-                                "tabGroups":{"1197213122":{"collapsed":false,"color":"grey","id":1197213122,"title":"wikipedia","windowId":3,
-                                                           "tabs":[{"id":1465380078,"groupId":1197213122,"windowId":3,"tabIndex":1,"title":"Three-body problem - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Three-body_problem"},
-                                                                   {"id":1465380084,"groupId":1197213122,"windowId":3,"tabIndex":2,"title":"Coriolis force - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Coriolis_force"},
-                                                                   {"id":1465380083,"groupId":1197213122,"windowId":3,"tabIndex":3,"title":"Lagrange point - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Lagrange_point"}]}}},
-                  "4":{"windowId":4,"windowName":"Window4",
-                                "tabs":[{"id":1465380086,"groupId":-1,"windowId":4,"tabIndex":0,"title":"amazon.com curved display - Google Search","pinned":false,"faviconUrl":"https://www.google.com/favicon.ico","url":"https://www.google.com/search?q=amazon.com+curved+display&oq=amazon.com+curved+display&aqs=chrome..69i57.9182j0j1&sourceid=chrome&ie=UTF-8"},
-                                        {"id":1465380087,"groupId":-1,"windowId":4,"tabIndex":1,"title":"Amazon.com: Dell Curved Gaming, ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico", "url":"https://www.amazon.com/Dell-Curved-Monitor-Refresh-Display/dp/B095X7RV77/ref=asc_df_B095X7RV77"},
-                                        {"id":1465380088,"groupId":-1,"windowId":4,"tabIndex":2,"title":"Our 5 Best Curved Monitor For Developers ","pinned":false,
-                                         "faviconUrl":"https://images.top5-usa.com/image/fetch/c_scale,f_auto/https%3A%2F%2Fd1ttb1lnpo2lvz.cloudfront.net%2F10599b72%2Ffavicon.ico", "url":"https://www.top5-usa.com/curved-monitor-for-developers"},
-                                        {"id":1465380089,"groupId":-1,"windowId":4,"tabIndex":3,"title":"Amazon.com: Viotek SUW49C 49-Inch Super Ultrawide ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico","url":"https://www.amazon.com/dp/B07L44N45F?tag=top5-usa-20&linkCode=osi&th=1"}],
-                                "tabGroups":{}}},
-      "topic":"2window session","close":false,"from":"btextension"}
- ]
+'storeWindow' : [
+    {"function":"saveTabs","topic":"BTWindow","note":"","type":"Window","windowId":1,"tabs":
+    [{"url":"https://braintool.org/support/releaseNotes","title":"BrainTool Release Notes | BrainTool - Beyond Bookmarks","tabId":14,"tabIndex":0,"faviconUrl":"https://braintool.org/favicon.ico?"},
+    {"url":"https://braintool.org/support/userGuide.html","title":"BrainTool User Guide | BrainTool - Beyond Bookmarks","tabId":15,"tabIndex":1,"faviconUrl":"https://braintool.org/favicon.ico?"},
+    {"url":"https://braintool.org/","title":"Go beyond Bookmarks with BrainTool, the online Topic Manager | BrainTool - Beyond Bookmarks","tabId":16,"tabIndex":2,"faviconUrl":"https://braintool.org/favicon.ico?"}],
+    "from":"btextension"},
+],
+'storeSession' : [
+    // data is of the form: {'function': 'saveTabs', 'saveType':Tab|TG|Window|Session, 'tabs': [], 'note': msg.note,  'close': msg.close}
+    // tabs: [{'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url, 'topic': topic, 'title': msg.title, favIconUrl: t.favIconUrl}]
+    {"function":"saveTabs","note":"","type":"Session","tabs":
+     [{"tabId":1465380078,"groupId":1197213122,"windowId":3,"tabIndex":0,"topic":"Session1:Window1","title":"Three-body problem - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Three-body_problem"},
+      {"tabId":1465380084,"groupId":1197213122,"windowId":3,"tabIndex":1,"topic":"Session1:Window1","title":"Coriolis force - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Coriolis_force"},
+    {"tabId":1465380083,"groupId":1197213122,"windowId":3,"tabIndex":2,"topic":"Session1:Window1","title":"Lagrange point - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Lagrange_point"},
+    {"tabId":1465380086,"groupId":-1,"windowId":4,"tabIndex":0,"topic":"Session1:Window2","title":"amazon.com curved display - Google Search","pinned":false,"faviconUrl":"https://www.google.com/favicon.ico","url":"https://www.google.com/search?q=amazon.com+curved+display&oq=amazon.com+curved+display&aqs=chrome..69i57.9182j0j1&sourceid=chrome&ie=UTF-8"},
+    {"tabId":1465380087,"groupId":-1,"windowId":4,"tabIndex":1,"topic":"Session1:Window2","title":"Amazon.com: Dell Curved Gaming, ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico", "url":"https://www.amazon.com/Dell-Curved-Monitor-Refresh-Display/dp/B095X7RV77/ref=asc_df_B095X7RV77"},
+    {"tabId":1465380088,"groupId":-1,"windowId":4,"tabIndex":2,"topic":"Session1:Window2","title":"Our 5 Best Curved Monitor For Developers ","pinned":false, "faviconUrl":"https://images.top5-usa.com/image/fetch/c_scale,f_auto/https%3A%2F%2Fd1ttb1lnpo2lvz.cloudfront.net%2F10599b72%2Ffavicon.ico", "url":"https://www.top5-usa.com/curved-monitor-for-developers"},
+    {"tabId":1465380089,"groupId":-1,"windowId":4,"tabIndex":3,"topic":"Session1:Window2","title":"Amazon.com: Viotek SUW49C 49-Inch Super Ultrawide ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico","url":"https://www.amazon.com/dp/B07L44N45F?tag=top5-usa-20&linkCode=osi&th=1"}]
+}]
 };
 
 async function launchAppTests(msg) {
@@ -180,9 +176,9 @@ async function launchAppTests(msg) {
     let BTId = await getFromLocalStorage('BTId');
     let Config = await getFromLocalStorage('Config');
     if (BTId)
-	    msg["bt_id"] = BTId;
+    msg["bt_id"] = BTId;
     if (Config)
-	    msg["Config"] = Config;
+    msg["Config"] = Config;
     
     msg["from"] = "btextension";
     msg["BTFileText"] = BTFileText;
