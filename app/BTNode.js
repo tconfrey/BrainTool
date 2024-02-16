@@ -135,16 +135,29 @@ class BTNode {
     static compareURLs(first, second) {
         // sometimes I get trailing /'s other times not, also treat http and https as the same,
         // also google docs immediately redirect to the exact same url but w /u/1/d instead of /d
-        // also navigation within window via # anchors is ok
+        // also navigation within window via # anchors is ok, but note not #'s embedded earlier in the url (eg http://sdf/#asdf/adfasdf)
         // also maybe ?var= arguments are ok? Not on many sites (eg hn) where there's a ?page=123.
         //              => .replace(/\?.*$/, "")
-        // also if its a gmail url need to match exactly
+
+        // Define an array of transformations for cases where differnt URLs should be considered the same BTNode
+        // Each transformation is an array where the first element is the regular expression and the second element is the replacement.
+        const transformations = [
+            [/https/g, "http"],             // http and https are the same
+            [/\/u\/1\/d/g, "/d"],           // google docs weirdness 
+            [/\/www\./g, "/"],              // www and non-www are the same
+            [/#(?!.*\/).*$/g, ""],          // ignore # anchors that are not at the end of the url
+            [/\/$/g, ""]                    // ignore trailing /
+        ];
 
         if (first.indexOf("mail.google.com/mail") >= 0) {
+            // if its a gmail url need to match exactly
             return (first == second);
         } else {        
-            first = first.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
-            second = second.replace("https", "http").replace(/\/u\/1\/d/, "/d").replace(/\/www\./, "/").replace(/#.*$/, "").replace(/\/$/, "");
+            // Apply each transformation to the URLs.
+            for (const [regex, replacement] of transformations) {
+                first = first.replace(regex, replacement);
+                second = second.replace(regex, replacement);
+            }
             return (first == second);
         }
     }

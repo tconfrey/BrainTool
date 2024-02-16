@@ -1187,7 +1187,7 @@ function positionInTopic(topicNode, tabNode, index, indices, winId) {
                 dropUnderNode = BTAppNode.findFromTab(tabId);
         }
     } 
-    if (dropUnderNode.tabGroupId != tabNode.tabGroupId) return;
+    if (dropUnderNode?.tabGroupId != tabNode.tabGroupId) return;
     
     const dispNode = tabNode.getDisplayNode();
     const underDisplayNode = dropUnderNode.getDisplayNode();

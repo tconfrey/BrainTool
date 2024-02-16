@@ -1,7 +1,7 @@
 window.LOCALTEST = true;
 QUnit.config.reorder = false;
 QUnit.config.testTimeout = 45000;
-gtag = function() { /* I don;t exist under test */};
+gtag = function() { /* I don't exist under test */};
 
 QUnit.module("BTNode tests", function() {
 
@@ -9,7 +9,6 @@ QUnit.module("BTNode tests", function() {
         if (details.name != "BTNode tests") return;
         console.log("BTNode tests. Set up goes here");
         AllNodes = [];
-        GroupingMode = GroupOptions.NONE;
     });
 
     QUnit.test("Basic BTNode Tests", function(assert) {
@@ -28,7 +27,17 @@ QUnit.module("BTNode tests", function() {
 	    node2.title = "Pre [[https://testing/1/2/3][]]";
 	    assert.equal (node2.displayTag, "Pre https://testing/1/2/3", "display Tag defaults ok");
     });
-
+    QUnit.test('compareURLs', function(assert) {
+        assert.ok(BTNode.compareURLs('http://example.com', 'http://example.com'), 'Identical URLs should return true');
+        assert.ok(BTNode.compareURLs('http://example.com', 'https://example.com'), 'URLs differing only by http/https should return true');
+        assert.ok(BTNode.compareURLs('http://example.com', 'http://example.com/'), 'URLs differing only by trailing slash should return true');
+        assert.ok(BTNode.compareURLs('http://docs.google.com/u/1/d/abc', 'http://docs.google.com/d/abc'), 'Google Docs URLs differing only by /u/1/d and /d should return true');
+        assert.notOk(BTNode.compareURLs('http://example.com', 'http://example.org'), 'Different URLs should return false');
+        assert.ok(BTNode.compareURLs('http://example.com/u/0/123#inbox', 'http://example.com/u/0/123#outbox'), 'Anything after final # should be ignored');
+        assert.notOk(BTNode.compareURLs('http://example.com/u/0/123#inbox/app/456', 'http://example.com/u/0/123#outbox/app/456'), 'But only if after final /');
+        assert.ok(BTNode.compareURLs('http://mail.google.com/mail/u/0/#inbox', 'http://mail.google.com/mail/u/0/#inbox'), 'Identical Gmail URLs should return true');
+        assert.notOk(BTNode.compareURLs('http://mail.google.com/mail/u/0/#inbox', 'http://mail.google.com/mail/u/0/#sent'), 'Different Gmail URLs should return false');
+      });
     QUnit.test("Functional BTNode Tests", function(assert) {
 	    const n1 = new BTNode("Top Level");
 	    const n2 = new BTNode("Second Level", n1.id);
@@ -58,6 +67,25 @@ QUnit.module("BTNode tests", function() {
     });
 });
 
+QUnit.module("Test inbound browser update messages", function() {
+    QUnit.moduleStart(async function(details) {
+        if (details.name != "Test inbound browser update messages") return;
+        AllNodes = [];
+        await new Promise(resolve => setTimeout(resolve, 1000));         // delay to allow launchApp to run and load nodes
+    });
+
+    QUnit.test("Test inbound browser update messages", async function(assert) {
+        // iterate thru messageSets defined in btContent.test.js asking content script to send them in to app
+        const messageSets = ['openTab', 'openTG', 'dragTabIntoTG', 'navigateTabIntoTG', 'storeTab', 'storeTabs', 'storeWindow', 'storeSession']
+        var done = assert.async();
+        // iterate thru messagesets 
+        for (const messageSet of messageSets) {
+            window.postMessage({function: "sendTestMessages", "messageSet": messageSet});
+            await new Promise(resolve => setTimeout(resolve, 500));         // half second delay
+            assert.ok(true, "Browser says " + messageSet);
+        }
+    });
+});
 
 QUnit.module("Org parsing tests", function() {
 
@@ -258,7 +286,7 @@ QUnit.module("App tests", function() {
     QUnit.moduleStart(function(details) {
         if (details.name != "App tests") return;
         console.log("here first?");
-        GroupingMode = GroupOptions.NONE;
+        //GroupingMode = GroupOptions.NONE;
         window.FileText = "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n";
     });
 

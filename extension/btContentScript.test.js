@@ -41,6 +41,10 @@ window.addEventListener('message', async function(event) {
             console.warn("Error saving to storage:", err, "\nContact BrainTool support");
         }
     }
+    else if (event.data.function == 'sendTestMessages') {
+        // call sendMessages with name of message set
+        sendTestMessages(event.data.messageSet);
+    }
     else {
         // handle all other default type messages
         event.data["from"] = "btwindow";
@@ -102,7 +106,7 @@ const BTFileText =
 *** [[https://www.theregister.com][The Register]]
 *** [[https://www.theguardian.com/us][The Guardian]]
 `;
-const messages = 
+const messageSets = 
 {'openTab' : [
     {"function":"tabOpened","nodeId":3,"tabIndex":3,"tabId":1,"windowId":1,"tabGroupId":0,"from":"btextension"},
     {"function":"tabActivated","tabId":1,"windowId":1,"groupId":-1,"from":"btextension"},
@@ -121,7 +125,7 @@ const messages =
     {"function":"tabPositioned","tabId":2,"nodeId":3,"tabGroupId":1,"windowId":1,"tabIndex":3,"from":"btextension"},
     {"function":"tabPositioned","tabId":2,"nodeId":4,"tabGroupId":1,"windowId":1,"tabIndex":4,"from":"btextension"},
     {"function":"tabPositioned","tabId":3,"nodeId":5,"tabGroupId":1,"windowId":1,"tabIndex":5,"from":"btextension"},
-    {"function":"tabGroupUpdated","tabGroupId":1,"tabGroupColor":"blue","tabGroupName":"TG1","tabGroupCollapsed":false,"from":"btextension"}
+    {"function":"tabGroupUpdated","tabGroupId":1,"tabGroupColor":"blue","tabGroupName":"TG1","tabGroupCollapsed":false,"from":"btextension"},
 ],
 'dragTabIntoTG' : [
     {"function":"tabMoved","tabId":4,"groupId":1,"tabIndex":4,"windowId":1,"tabIndices":{"1465379101":{"index":0,"windowId":1},"1465379250":{"index":0,"windowId":1},"1":{"index":1,"windowId":1},"2":{"index":2,"windowId":1},"3":{"index":3,"windowId":1},"4":{"index":4,"windowId":1}},"tab":{"active":true,"audible":false,"autoDiscardable":true,"discarded":false,"favIconUrl":"https://braintool.org/favicon.ico?","groupId":1,"height":563,"highlighted":true,"id":4,"incognito":false,"index":4,"mutedInfo":{"muted":false},"openerTabId":1465379253,"pinned":false,"selected":true,"status":"complete","title":"BrainTool User Guide | BrainTool - Beyond Bookmarks","url":"https://braintool.org/support/userGuide.html","width":914,"windowId":1},"from":"btextension"},
@@ -133,14 +137,45 @@ const messages =
     {"function":"tabPositioned","tabId":3,"nodeId":4,"tabGroupId":1,"windowId":1,"tabIndex":2,"from":"btextension"},
     {"function":"tabPositioned","tabId":5,"nodeId":6,"tabGroupId":1,"windowId":1,"tabIndex":3,"from":"btextension"},
     {"function":"tabGroupUpdated","tabGroupId":1,"tabGroupColor":"grey","tabGroupName":"TG1","tabGroupCollapsed":false,"from":"btextension"},
-]
+],
+ 'storeTab' : [
+     {"function":"saveTabs","topic":"new topic","note":"","close":"GROUP","type":"Tab","tabs":
+      [{"url":"https://logseq.com/","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":10,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"}],"from":"btextension"},
+],
+ 'storeTabs' : [
+     {"function":"saveTabs","topic":"3 tabs","note":"","type":"TG","tabs":
+      [{"url":"chrome://extensions/","windowId":1,"title":"Extensions","tabId":1,"tabIndex":0,"faviconUrl":""},
+       {"url":"https://logseq.com/downloads","windowId":1,"title":"Logseq: A privacy-first, open-source knowledge base","tabId":2,"tabIndex":1,"faviconUrl":"https://asset.logseq.com/static/img/logo.png"},
+       {"url":"https://blog.logseq.com/","windowId":1,"title":"Logseq Blog","tabId":3,"tabIndex":2,"faviconUrl":"https://blog.logseq.com/content/images/size/w256h256/2022/04/logseq-favicon.png"}],"from":"btextension"},
+],
+ 'storeWindow' : [
+     {"function":"saveTabs","topic":"BTWindow","note":"","type":"Window","windowId":1,"tabs":
+      [{"url":"https://braintool.org/support/releaseNotes","title":"BrainTool Release Notes | BrainTool - Beyond Bookmarks","tabId":14,"tabIndex":0,"faviconUrl":"https://braintool.org/favicon.ico?"},
+       {"url":"https://braintool.org/support/userGuide.html","title":"BrainTool User Guide | BrainTool - Beyond Bookmarks","tabId":15,"tabIndex":1,"faviconUrl":"https://braintool.org/favicon.ico?"},
+       {"url":"https://braintool.org/","title":"Go beyond Bookmarks with BrainTool, the online Topic Manager | BrainTool - Beyond Bookmarks","tabId":16,"tabIndex":2,"faviconUrl":"https://braintool.org/favicon.ico?"}],"from":"btextension"},
+ ],
+ 'storeSession' : [
+     {"function":"importSession",
+      "windows": {"3":{"windowId":3,"windowName":"Window3",
+                                "tabs":[{"id":1465380077,"groupId":-1,"windowId":3,"tabIndex":0,"title":"Extensions","pinned":false,"faviconUrl":"","url":"chrome://extensions/"}],
+                                "tabGroups":{"1197213122":{"collapsed":false,"color":"grey","id":1197213122,"title":"wikipedia","windowId":3,
+                                                           "tabs":[{"id":1465380078,"groupId":1197213122,"windowId":3,"tabIndex":1,"title":"Three-body problem - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Three-body_problem"},
+                                                                   {"id":1465380084,"groupId":1197213122,"windowId":3,"tabIndex":2,"title":"Coriolis force - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Coriolis_force"},
+                                                                   {"id":1465380083,"groupId":1197213122,"windowId":3,"tabIndex":3,"title":"Lagrange point - Wikipedia","pinned":false,"faviconUrl":"https://en.wikipedia.org/static/favicon/wikipedia.ico","url":"https://en.wikipedia.org/wiki/Lagrange_point"}]}}},
+                  "4":{"windowId":4,"windowName":"Window4",
+                                "tabs":[{"id":1465380086,"groupId":-1,"windowId":4,"tabIndex":0,"title":"amazon.com curved display - Google Search","pinned":false,"faviconUrl":"https://www.google.com/favicon.ico","url":"https://www.google.com/search?q=amazon.com+curved+display&oq=amazon.com+curved+display&aqs=chrome..69i57.9182j0j1&sourceid=chrome&ie=UTF-8"},
+                                        {"id":1465380087,"groupId":-1,"windowId":4,"tabIndex":1,"title":"Amazon.com: Dell Curved Gaming, ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico", "url":"https://www.amazon.com/Dell-Curved-Monitor-Refresh-Display/dp/B095X7RV77/ref=asc_df_B095X7RV77"},
+                                        {"id":1465380088,"groupId":-1,"windowId":4,"tabIndex":2,"title":"Our 5 Best Curved Monitor For Developers ","pinned":false,
+                                         "faviconUrl":"https://images.top5-usa.com/image/fetch/c_scale,f_auto/https%3A%2F%2Fd1ttb1lnpo2lvz.cloudfront.net%2F10599b72%2Ffavicon.ico", "url":"https://www.top5-usa.com/curved-monitor-for-developers"},
+                                        {"id":1465380089,"groupId":-1,"windowId":4,"tabIndex":3,"title":"Amazon.com: Viotek SUW49C 49-Inch Super Ultrawide ","pinned":false,"faviconUrl":"https://www.amazon.com/favicon.ico","url":"https://www.amazon.com/dp/B07L44N45F?tag=top5-usa-20&linkCode=osi&th=1"}],
+                                "tabGroups":{}}},
+      "topic":"2window session","close":false,"from":"btextension"}
+ ]
 };
 
 async function launchAppTests(msg) {
     // Launchapp msg comes from extension code w GDrive app IDs
     // inject test btfile data and then just pass on to app
-    
-
     // also pull out subscription id if exists (=> premium)
     let BTId = await getFromLocalStorage('BTId');
     let Config = await getFromLocalStorage('Config');
@@ -154,14 +189,14 @@ async function launchAppTests(msg) {
     window.postMessage(msg);
 }
 
-async function sendMessages(messageSet) {
+async function sendTestMessages(messageSet) {
     // Iterate through messages and send to content script
     // Called manually from dev tools on client console with name of message set from above
-    if (!messages[messageSet]) {
+    if (!messageSets[messageSet]) {
         console.error(`Message set ${messageSet} not found`);
         return;
     }
-    for (const msg of messages[messageSet]) {
+    for (const msg of messageSets[messageSet]) {
         console.log(`Content-OUT ${msg.function} to Extension:`, msg);
         window.postMessage(msg);
         await new Promise(resolve => setTimeout(resolve, 500));
