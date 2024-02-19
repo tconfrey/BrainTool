@@ -99,8 +99,10 @@ QUnit.module("Test inbound browser update messages", function() {
 
 QUnit.module("Org parsing tests", function() {
 
-    QUnit.moduleStart(function(details) {
+    QUnit.moduleStart(async function(details) {
         if (details.name != "Org parsing tests") return;
+        await new Promise(resolve => setTimeout(resolve, 1000));         // delay to allow launchApp to run and load nodes
+        AllNodes = [];
     });
 
     QUnit.test("Basic node parse", function(assert) {
