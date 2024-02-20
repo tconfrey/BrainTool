@@ -110,7 +110,7 @@ function windowOpen(home = 'PANEL', location) {
     // const url = "https://BrainTool.org/versions/"+version+'/app/';
     //
     // Disgregard App store version id as used above since it must be monotonically increasing number format
-    const url = "https://BrainTool.org/versions/Release-Candidate/app/';
+    const url = "https://BrainTool.org/versions/Release-Candidate/app/";
     console.log('loading from ', url);
 
     // Default open in side panel
