@@ -1430,7 +1430,7 @@ function editRow(e) {
 
 $(".editNode").on('input', function() {
     // enable update button if one of the texts is edited and title is not empty
-    if (!$("#topicName").val()) return;
+    // if (!$("#topicName").val()) return;
     $("#update").prop('disabled', false);
 });
 
@@ -1443,11 +1443,9 @@ $("#editOverlay").click(function(e) {
     }
 });
 
-function checkCompactMode(force = false) {
-    // when window is too small drop the notes column, also used when set in settings
-    const width = $(window).width();
-    const notesPref = configManager.getProp('BTNotes');
-    if (force || width < 350 || (notesPref == 'NONOTES')) {
+function setCompactMode(on) {
+    // Display changes to set or unset single column mode
+    if (on) {
         $("#content").addClass('compactMode');
         $("#search").css('left', 'calc((100% - 175px) / 2)');
         $("#searchHint .hintText").css('display', 'none');
@@ -1456,6 +1454,13 @@ function checkCompactMode(force = false) {
         $("#search").css('left', 'calc((100% - 300px) / 2)');
         $("#searchHint .hintText").css('display', 'inline');
     }
+}
+
+function checkCompactMode(force = false) {
+    // when window is too small drop the notes column, also used when set in settings
+    const width = $(window).width();
+    const notesPref = configManager.getProp('BTNotes');
+    setCompactMode(force || width < 350 || (notesPref == 'NONOTES'));
     updateStatsRow();
 }
 $(window).resize(() => checkCompactMode());
@@ -1925,6 +1930,9 @@ function disableSearch(e = null) {
     // reattach only after this keyup, if any, is done
     $(document).unbind('keyup');
     setTimeout(()=>$(document).on("keyup", keyUpHandler), 500);
+
+    // reset compact mode (ie no notes) which might have changed while showing matching search results
+    checkCompactMode();
 }
 
 function searchButton(e, action) {
@@ -1959,6 +1967,7 @@ let ExtendedSearchCB = null;                                  // callback to per
 function search(keyevent) {
     // called on keyup for search_entry, could be Search or Reverse-search,
     // key is new letter or opt-s/r (search for next) or del 
+    // set timeout to run a second pass extendedSearch after initial search hit is found.
 
     if (keyevent.code == "Escape") {
         $("#search_entry").blur();

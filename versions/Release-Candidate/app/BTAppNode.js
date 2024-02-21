@@ -345,6 +345,7 @@ class BTAppNode extends BTNode {
 	        textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
 	        textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
 	        $(node).find("span.btText").html(textStr);
+            setCompactMode(false);                                 // match might be hidden if single column
 	        match = true;
 	    }
 	    if (match)
