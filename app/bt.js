@@ -79,7 +79,8 @@ function updateStats() {
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
     // Record this launch and software version
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': '0.9.9a',
+    const BTVersion = configManager.getProp('BTVersion');
+    gtag('event', 'Launch', {'event_category': 'General', 'event_label': BTVersion,
                              'value': 1});    
     if (InitialInstall) {
         gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall,
@@ -91,11 +92,9 @@ function updateStats() {
                                   'value': 1});
 
     // Calculate some other stat info (and do some one-time setup of installDate and numSaves)
-    // Since numSaves was not recorded as a stat previously, use BTVersion from org file
     let stats = configManager.getProp('BTStats');
-    if (!stats['BTNumSaves']) configManager.setStat('BTNumSaves',
-                                                    parseInt(configManager.getProp('BTVersion')));
-    if (!stats['BTInstallDate']) configManager.initializeInstallDate(); // wasn't set pre-099
+    if (!stats['BTNumSaves']) configManager.setStat('BTNumSaves', 0);
+    if (!stats['BTInstallDate']) configManager.initializeInstallDate();
     configManager.incrementStat('BTNumLaunches');         // this launch counts
     stats = configManager.getProp('BTStats');
     

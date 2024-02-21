@@ -354,6 +354,7 @@ async function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
     const BTTab = sender.tab.id;
     const BTWin = sender.tab.windowId;
+    const BTVersion = chrome.runtime.getManifest().version;
     chrome.storage.local.set({'BTTab': BTTab, 'BTWin': BTWin});
 
     let allTabs = await getOpenTabs();
@@ -365,7 +366,7 @@ async function initializeExtension(msg, sender) {
         {'function': 'launchApp', 'client_id': Keys.CLIENT_ID,
          'api_key': Keys.API_KEY, 'fb_key': Keys.FB_KEY,
          'stripe_key': Keys.STRIPE_KEY,
-         'initial_install': InitialInstall, 'upgrade_install': UpdateInstall,
+         'initial_install': InitialInstall, 'upgrade_install': UpdateInstall, 'BTVersion': BTVersion,
          'all_tabs': allTabs, 'all_tgs': allTGs});
 
     // check to see if a welcome is called for. repeat popup setting on bt win for safety.

@@ -25,6 +25,7 @@ const configManager = (() => {
         // takes message from background/Content script and pulls out settings
         Config = msg.Config || {};
         if (!Config['BTStats']) Config['BTStats'] = {};
+        if (msg.BTVersion) Config['BTVersion'] = msg.BTVersion;
         Keys.CLIENT_ID = msg.client_id;
         Keys.API_KEY = msg.api_key;
         Keys.FB_KEY = msg.fb_key;
@@ -70,9 +71,6 @@ const configManager = (() => {
     function metaPropertiesToString(ary) {
         // return the string to be used to output meta properties to .org file
         let str = "";    
-        if (!configManager.getProp('BTVersion'))
-            configManager.setProp('BTVersion', 1);
-
         Properties['orgProps'].forEach(function(prop) {
             if (getProp(prop)) 
                 str += `#+PROPERTY: ${prop} ${getProp(prop)}\n`;
