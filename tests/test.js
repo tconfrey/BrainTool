@@ -292,6 +292,48 @@ para text2 `;
 
 });
 
+QUnit.module('configManager tests', hooks => {
+    hooks.beforeEach(() => {
+        // Reset the Config and Keys objects before each test
+        
+        configManager.setConfigAndKeys({
+            Config: {
+                BTStats: {
+                    BTNumLaunches: 1,
+                    BTSessionStartTime: 0,
+                    BTNumSaves: 1,
+                },
+            },
+            client_id: '',
+            api_key: '',
+            fb_key: '',
+            stripe_key: ''
+        });
+    });
+
+    QUnit.test('setProp and getProp', assert => {
+
+        // iterate through allprops and set/get each one
+        const allprops = ['BTTimestamp', 'BTFileID', 'BTGDriveConnected', 
+        'BTLastShownMessageIndex', 'BTCohort',  'BTGroupingMode', 'BTManagerHome', 
+        'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 
+        'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'];
+        for (const prop of allprops) {
+            configManager.setProp(prop, 'test');
+            assert.equal(configManager.getProp(prop), 'test', prop + ' should be set to "test"');
+        }
+    });
+
+    QUnit.test('incrementStat', assert => {
+        configManager.incrementStat('BTNumLaunches');
+        assert.equal(configManager.getProp('BTNumLaunches'), 2, 'BTNumLaunches should be incremented');
+    });
+
+    QUnit.test('setStat', assert => {
+        configManager.setStat('BTSessionStartTime', 1234567890);
+        assert.equal(configManager.getProp('BTSessionStartTime'), 1234567890, 'BTSessionStartTime should be set to 1234567890');
+    });
+});
 
 QUnit.module("App tests", function() {
 
