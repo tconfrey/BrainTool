@@ -622,7 +622,7 @@ class BTAppNode extends BTNode {
 
     static generateOrgFile() {
         // iterate thru nodes to do the work
-        let orgText = metaPropertiesToString(AllNodes.metaProperties);
+        let orgText = configManager.metaPropertiesToString();
         
         // find and order the top level nodes according to table position
         const topNodes = AllNodes.filter(node => node && !node.parentId);

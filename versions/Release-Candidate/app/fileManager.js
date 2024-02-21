@@ -66,6 +66,7 @@ async function saveBT(localOnly = false) {
     messageManager.removeWarning();              // remove stale warning if any
     gtag('event', event, {'event_category': 'Save', 'event_label': 'NumNodes', 'value': AllNodes.length});
     configManager.incrementStat('BTNumSaves');
+    configManager.setProp('BTVersion', parseInt(configManager.getProp('BTVersion')) + 1);
 }
 
 async function authorizeLocalFile() {

@@ -40,14 +40,14 @@ async function launchApp(msg) {
     // BTId in local store and from org data should be the same. local store is primary
     if (msg?.Config?.BTId) {
 	    BTId = msg.Config.BTId;
-        if (getMetaProp('BTId') && (BTId != getMetaProp('BTId')))
-	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${getMetaProp('BTId')}`);
-	    setMetaProp('BTId', BTId);
+        if (configManager.getProp('BTId') && (BTId != configManager.getProp('BTId')))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${configManager.getProp('BTId')}`);
+        configManager.setProp('BTId', BTId);
     } else {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
-	    if (getMetaProp('BTId')) {
-	        BTId = getMetaProp('BTId');
-            configManager.setProp('BTId', BTId);
+	    if (configManager.getProp('BTId')) {
+	        BTId = configManager.getProp('BTId');
+            //configManager.setProp('BTId', BTId);
 	    }
     }
     
@@ -1774,8 +1774,6 @@ function loadBookmarks(msg) {
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
-    // remmember this import
-    configManager.setProp('BTLastBookmarkImport', dateString);
     processImport(importNode.id);                             // see above
 }
 

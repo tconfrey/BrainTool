@@ -16,7 +16,7 @@ const configManager = (() => {
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
         'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTLastBookmarkImport', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
@@ -39,26 +39,69 @@ const configManager = (() => {
 	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
         if (Properties.orgProps.includes(prop)) {
-            setMetaProp(prop, value);                                   // see parser.js
-            saveBT();
+            Config[prop] = value;       
+            //setMetaProp(prop, value);                                   // see parser.js
+            //saveBT();
         }	 
+        if (Properties.stats.includes(prop)) {
+            Config['BTStats'][prop] = value;
+    	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+        }
     };
 
     function getProp(prop) {
-        // getter for sync props
+        // getter for sync props, fetch from appropriate place based on Config array above
 
         if (Properties.localStorageProps.includes(prop)) {
             return Config[prop];
         }
         if (Properties.orgProps.includes(prop)) {
-            return getMetaProp(prop);
+            return Config[prop];
         }
         if (Properties.keys.includes(prop)) {
             return Keys[prop];
         }
+        if (Properties.stats.includes(prop)) {
+            return Config['BTStats'][prop];
+        }
         return null;
     };
 
+    function metaPropertiesToString(ary) {
+        // return the string to be used to output meta properties to .org file
+        let str = "";    
+        if (!configManager.getProp('BTVersion'))
+            configManager.setProp('BTVersion', 1);
+
+        Properties['orgProps'].forEach(function(prop) {
+            if (getProp(prop)) 
+                str += `#+PROPERTY: ${prop} ${getProp(prop)}\n`;
+        });
+        return str;
+    }
+    
+    /* 
+    function getMetaProp(propName) {
+        // return the value of the meta property if it exists
+        let val = '';
+        if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
+        AllNodes.metaProperties.forEach(prop => {
+            if (prop.name == propName)
+                val = prop.value;
+        });
+        return val;
+    }
+    function setMetaProp(propName, val) {
+        // set or change the value of the meta property
+        if (!AllNodes.metaProperties) AllNodes.metaProperties = [];
+        const index = AllNodes.metaProperties.findIndex(prop => prop.name == propName);
+        if (index > -1)
+            AllNodes.metaProperties[index] = {'name': propName, 'value': val};
+        else
+            AllNodes.metaProperties.push({'name': propName, 'value': val});
+    }
+    */
+    
     function checkNewDayOfUse(prev, current) {
         // last active timestamp same day as this timestamp?
         const prevDate = new Date(prev).toLocaleDateString();           // eg 2/8/1966
@@ -84,24 +127,16 @@ const configManager = (() => {
     };
 
     function setStat(statName, statValue) {
-        // eg sessionStartTime
-        Config['BTStats'][statName] = statValue;
-	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+        // just another prop eg sessionStartTime
+        setProp(statName, statValue);
     };  
     
     function updatePrefs() {
-        // update preferences based on data read into AllNodes.metaProperties
+        // update preferences based on orgProperties read in from file
 
         let groupMode = configManager.getProp('BTGroupingMode');
         if (groupMode) {
             const $radio = $('#tabGroupToggle :radio[name=grouping]');
-
-            // v099 move away from have a WINDOW default, new window now a choice on opening
-            if (groupMode == 'WINDOW') {
-                groupMode = 'TABGROUP';
-                configManager.setProp('BTGroupingMode', groupMode);
-            }            
-            
             $radio.filter(`[value=${groupMode}]`).prop('checked', true);
             GroupingMode = groupMode;
 	    }
@@ -309,23 +344,16 @@ const configManager = (() => {
         // best guess at install date cos wasn't previously set
         // Use bookmark import data if set. Otherwise assume 2x saves/day up to 1 year
         if (Config['BTStats']['BTInstallDate']) return;
-        if (getProp('BTLastBookmarkImport')) {
-            const datestr = getProp('BTLastBookmarkImport').replace(';', ':');
-            const date = Date.parse(datestr);
-            if (date) {
-                setStat('BTInstallDate', date);
-                return;
-            }
-        }
         const saveDays = Math.min(Config['BTStats']['BTNumSaves'] / 2, 365);
         const guessedInstallDate = Date.now() - (saveDays * 24 * 60 * 60000);
-        setStat('BTInstallDate', guessedInstallDate);
+        setProp('BTInstallDate', guessedInstallDate);
     }
 
     return {
         setConfigAndKeys: setConfigAndKeys,
         setProp: setProp,
         getProp: getProp,
+        metaPropertiesToString: metaPropertiesToString,
         setStat: setStat,
         incrementStat: incrementStat,
         updatePrefs: updatePrefs,

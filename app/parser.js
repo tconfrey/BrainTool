@@ -172,46 +172,6 @@ function orgaNodeRawText(organode) {
     return string;
 }
 
-function metaPropertiesToString(ary) {
-    // return the string to be used to output meta properties to .org file
-    // ary is as captured in original parse, array of {name: value:}
-    if (!ary || !ary.length) return "";
-    let str = "";
-    let metaprops = [];
-
-    if (!getMetaProp('BTVersion'))
-        ary.push({'name' : 'BTVersion', 'value' : 0});
-    ary.forEach(function(prop) {
-        if (prop.name == 'BTVersion')                            // increment version
-            prop.value++;
-        str += `#+PROPERTY: ${prop.name} ${prop.value}\n`;
-        metaprops.push(prop);
-    });
-    AllNodes.metaProperties = metaprops;        // update AllNodes for next time around
-    return str;
-}
-
-function getMetaProp(propName) {
-    // return the value of the meta property if it exists
-    let val = '';
-    if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
-    AllNodes.metaProperties.forEach(prop => {
-        if (prop.name == propName)
-            val = prop.value;
-    });
-    return val;
-}
-
-function setMetaProp(propName, val) {
-    // set or change the value of the meta property
-    if (!AllNodes.metaProperties) AllNodes.metaProperties = [];
-    const index = AllNodes.metaProperties.findIndex(prop => prop.name == propName);
-    if (index > -1)
-        AllNodes.metaProperties[index] = {'name': propName, 'value': val};
-    else
-        AllNodes.metaProperties.push({'name': propName, 'value': val});
-}
-
 function generateLinesAndColumns(filetext) {
     // return an array of the original lines and columns for use in regnerating orga
 
