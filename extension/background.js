@@ -788,8 +788,8 @@ async function saveTabs(msg, sender) {
         if (t.id == BTTab || t.pinned) return;
         const tab = {'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url,
                      'favIconUrl': t.faviconUrl, 'tabIndex': t.tabIndex, 'title': t.title};
-        const tgName = tgNames[t.groupId] || '';
-        const [topic, todo] = msg.topic.split(':');                 // topic might have trailing :TODO or :DONE. split it off
+        const tgName = tgNames[t.groupId] || '';                    // might want tabgroup name as topic
+        const [topic, todo] = msg.topic.split(/:(TODO|DONE)$/, 2);  // entered topic might have trailing :TODO or :DONE. split it off
         if (saveType == 'Tab' && t.id == currentTab.id) {
             tab['topic'] = topic+(todo ? ':'+todo : '');
             tab['title'] = msg.title;                               // original or popup-edited tab title
