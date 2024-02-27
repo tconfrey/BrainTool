@@ -46,7 +46,7 @@
 	            <span id="searchCancelButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
                     <img src="resources/closeSearch.png" height="12" width="12"/>
                 </span>
-                <div id="searchHint" class="hint">
+                <div id="searchHint" class="hint searchHint">
                     <img src="resources/searchGlass.svg"/>
                     <span class="hintText">Click here or 's' to search</span>
                 </div>
@@ -165,7 +165,7 @@
                     <label for="settingsFaviconOn">Yes</label>
                 </span>
                 <span>
-                    <input type="radio" id="settingsThemeDark" name="favicon" value="OFF">
+                    <input type="radio" id="settingsFaviconOff" name="favicon" value="OFF">
                     <label for="settingsFaviconOff">No</label>
                     <span>
             </div>
@@ -350,7 +350,7 @@
                   </tr>
                   <tr >
                       <td class="keyCol row_divider">Tab</td>
-                      <td class="row_divider">Expand/Collapse the sub tree</td>
+                      <td class="row_divider">Subtree cycle expand one level/all-levels/collapse</td>
                   </tr>
                   <tr>
                       <td rowspan="2" class="row_divider verticalCol">Browse&nbsp;</td>
@@ -506,8 +506,9 @@
             <div id="distinguishedName"></div>
 
             <div id="topic">
-                <span id="newTopicNameHint" class="hint" >Name the Topic</span>
                 <input type="text" id="topicName" class="editNode" tabindex="0">
+                <span id="newTopicNameHint" class="hint" >Name the Topic</span>
+                </input>
             </div>
             <input type="text" id="title-text" class="editNode" tabindex="1" value='title'>
             <textarea id="title-url" class="editNode" tabindex="2">url</textarea>

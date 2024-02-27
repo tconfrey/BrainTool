@@ -1374,9 +1374,9 @@ function editRow(e) {
     // populate dialog
     const dn = node.fullTagPath();
     if (dn == node.displayTag)
-        $("#dn").hide();    
+        $("#distinguishedName").hide();    
     else {
-        $("#dn").show();
+        $("#distinguishedName").show();
         const upto = dn.lastIndexOf(':');
         const displayStr = dn.substr(0, upto);
         $("#distinguishedName").text(displayStr);
@@ -1395,7 +1395,7 @@ function editRow(e) {
     } else {
         $("#title-url").show();
         $("#title-text").show();
-        $("#title-text").val(node.displayTag);
+        $("#title-text").val(BTAppNode.editableTagFromTitle(node.title));
         $("#topic").hide();
         $("#title-url").val(node.URL);
     }
@@ -1614,7 +1614,7 @@ function updateRow() {
         node.title = topic;
         if (changed) node.updateTabGroup();               // update browser (if needed)
     } else
-        node.title = `[[${url}][${title}]]`;
+        node.replaceURLandTitle(url, title);
     node.text = $("#text-text").val();
 
     // Update ui
@@ -2185,10 +2185,10 @@ function keyUpHandler(e) {
             if (!tt.treetable("node", node.id)) return;	      // no such node
             if (node?.level < lvl)
                 tt.treetable("expandNode", node.id);
-            if (node?.level == lvl)
+            if (node?.level >= lvl)
                 tt.treetable("collapseNode", node.id);
         });
-	    rememberFold();                                       // save to storage
+        rememberFold();                                       // save to storage
     }
 
     if (!currentSelection) return;
@@ -2228,13 +2228,21 @@ function keyUpHandler(e) {
         }
     }
     
-    // tab == expand or collapse if node has children
+    // tab == cycle thru expand1, expandAll or collapse a topic node
     if (code == "Tab") {
         if (node.isTag()) {
-            if (node.folded)
-                $("table.treetable").treetable("expandNode", nodeId);
-            else
-                $("table.treetable").treetable("collapseNode", nodeId);
+            if (node.folded) {
+                node.unfoldOne();                   // BTAppNode fn to unfold one level & remember for next tab
+                keyUpHandler.lastSelection = currentSelection;
+            } else {
+                if (currentSelection == keyUpHandler.lastSelection) {
+                    node.unfoldAll();               // BTAppNode fn to unfold all levels, reset lastSelection so next tab will fold
+                    keyUpHandler.lastSelection = null;
+                } else {
+                    $("table.treetable").treetable("collapseNode", nodeId);
+                }
+            }
+            rememberFold();                         // save to storage
         }
         e.preventDefault();
         return;

@@ -305,6 +305,8 @@ body {
     line-height: var(--btPageLineHeight);
     color: var(--btHintColor);
     z-index: 3;
+}
+.searchHint {
     position: absolute;
     top: 18px;
     left: 90px;
@@ -331,9 +333,9 @@ body {
     top: 5px;
 }
 #newTopicNameHint {
-    position: relative;
-    left: 40px;
-    top: 15px;
+    position: absolute;
+    left: 10px;
+    top: 4px;
 }
 #nameHint {
     position: relative;
@@ -543,6 +545,7 @@ body {
     background: var(--btTextAreaBackground);
     color: var(--btColor);
     font-size: 11px;
+    margin-top: 10px;
 }
 #text-text {
     flex-grow: 1;
@@ -569,6 +572,10 @@ body {
     white-space: nowrap;
     text-align: center;
     overflow: scroll;
+}
+#topic {
+    position: relative;
+    top: 10px;
 }
 #dialog button {
     border: none;

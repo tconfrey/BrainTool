@@ -781,6 +781,10 @@ async function saveTabs(msg, sender) {
     // Create a hash of TGIds to TG names
     const tgNames = {};
     allTGs.forEach(tg => tgNames[tg.id] = tg.title);
+    // ditto for windowIds
+    const winNames = {};
+    let numWins = 1;
+    allTabs.forEach(t => winNames[t.windowId] = 'Window-'+numWins++);
 
     // Loop thru tabs, decide based on msg.type if it should be saved and if so add to array to send to BTTab
     const tabsToSave = [];
@@ -789,6 +793,7 @@ async function saveTabs(msg, sender) {
         const tab = {'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url,
                      'favIconUrl': t.faviconUrl, 'tabIndex': t.tabIndex, 'title': t.title};
         const tgName = tgNames[t.groupId] || '';                    // might want tabgroup name as topic
+        const winName = winNames[t.windowId] || '';                 // might want window name as topic
         const [topic, todo] = msg.topic.split(/:(TODO|DONE)$/, 2);  // entered topic might have trailing :TODO or :DONE. split it off
         if (saveType == 'Tab' && t.id == currentTab.id) {
             tab['topic'] = topic+(todo ? ':'+todo : '');
@@ -804,7 +809,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'Session') {
-            tab['topic'] = (topic||"📝 Scratch")+':Window'+t.windowId + (tgName ? ':'+tgName : '')+(todo ? ':'+todo : '');
+            tab['topic'] = (topic+":" || "📝 Scratch:") + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
             tabsToSave.push(tab);
         }
     });

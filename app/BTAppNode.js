@@ -206,6 +206,28 @@ class BTAppNode extends BTNode {
         // return treetable node (nb not jquery node)
         return $("table.treetable").treetable("node", this.id);
     }
+
+    unfoldOne() {
+        // open this one node to show its kids but collapse kids
+
+        // iterate thru children calling collapsenode
+        this.childIds.forEach(id => {
+            const node = AllNodes[id];
+            if (node?.isTag()) {
+                $("table.treetable").treetable("collapseNode", id);
+            }
+        });
+        // then expand this one node
+        $("table.treetable").treetable("expandNode", this.id);
+    }
+    unfoldAll() {
+        // open this node and all children
+        $("table.treetable").treetable("expandNode", this.id);
+        this.childIds.forEach(id => {
+            const node = AllNodes[id];
+            if (node?.isTag()) node.unfoldAll();
+        });
+    }
     
     createDisplayNode(atTop = false) {
         // call out to treetable w nodes html, really its create or return
@@ -487,7 +509,7 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': this.displayTag});
+                            'groupName': BtAppNode.displayTagFromTitle(this.displayTag)});
     }
     
     putInGroup() {
