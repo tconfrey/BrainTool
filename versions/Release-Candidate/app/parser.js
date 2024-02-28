@@ -29,13 +29,11 @@ function parseBTFile(fileText) {
     // See [[https://github.com/orgapp/orgajs/issues/82]]
     const filePropertyRegex = /(^#\+PROPERTY: .*$\n)+/m;       // multi-line match prop statements
     const match = filePropertyRegex.exec(fileText);
-    AllNodes.metaProperties = [];
     if (!match) return;
     const propValRegex = /PROPERTY: (.*?) (.*)/g;
     let m;
     while ((m = propValRegex.exec(match[0])) !== null) {
-	    if (m[1] == "BTExternalFileVersion") continue;	       // confusing and not used. remove
-        AllNodes.metaProperties.push({'name' : m[1], 'value' : m[2]});
+        configManager.setProp(m[1], m[2]);
     }
 }
 

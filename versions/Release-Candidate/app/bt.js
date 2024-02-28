@@ -267,7 +267,7 @@ function generateTable() {
 }
 
 
-function processBTFile() {
+function processBTFile(fileText = BTFileText) {
     // turn the org-mode text into an html table, extract Topics
 
     // First clean up from any previous state
@@ -275,7 +275,7 @@ function processBTFile() {
     AllNodes = [];
     
     try {
-        parseBTFile(BTFileText);
+        parseBTFile(fileText);
     }
     catch(e) {
         alert('Could not process BT file. Please check it for errors and restart');

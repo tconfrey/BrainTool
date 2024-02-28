@@ -27,7 +27,7 @@ class BTAppNode extends BTNode {
 
         // Three attributes of org ndes to track
         this.drawers = {};
-        this.tags = [];
+        this.tags = [];         // the org-mode tags for this org header (ie BT Topic or link)
         this.planning = "";
         
         AllNodes[this._id] = this;

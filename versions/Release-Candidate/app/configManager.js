@@ -15,8 +15,9 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex'],
-        'orgProps': ['BTCohort',  'BTVersion', 'BTGroupingMode', 'BTId', 'BTManagerHome', 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize'],
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 
+                                'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTGroupingMode'],
+        'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
@@ -68,7 +69,7 @@ const configManager = (() => {
         return null;
     };
 
-    function metaPropertiesToString(ary) {
+    function metaPropertiesToString() {
         // return the string to be used to output meta properties to .org file
         let str = "";    
         Properties['orgProps'].forEach(function(prop) {

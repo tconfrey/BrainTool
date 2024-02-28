@@ -176,7 +176,7 @@ text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Unprocessed elements", function(assert) {
@@ -200,7 +200,7 @@ text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Text Markup", function(assert) {
@@ -215,7 +215,7 @@ text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 4);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Tags and todos", function(assert) {
@@ -230,7 +230,7 @@ text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 4);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Headline stuff", function(assert) {
@@ -245,7 +245,7 @@ value text `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 2);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Timestamps in Headlines", function(assert) {
@@ -257,7 +257,7 @@ para text2 `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     QUnit.test("Spaces before *", function(assert) {
@@ -269,23 +269,23 @@ para text2 `;
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 2);
         const output = BTAppNode.generateOrgFile();
-        assert.equal (output.replaceAll(/\s+/g, ' '), orgTree.replaceAll(/\s+/g, ' '));
+        assert.equal (output.replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), orgTree.replaceAll(/\s+/g, ' '));
     });
 
     
     QUnit.test("Properties", function(assert) {
         const orgTree =
-`#+PROPERTY: prop1 one
+`#+PROPERTY: BTCohort 123
 #+PROPERTY: BTVersion 3
 * Hello World `;
         const nextorgTree =
-`#+PROPERTY: prop1 one
-#+PROPERTY: BTVersion 4
+`#+PROPERTY: BTCohort 123
+#+PROPERTY: BTVersion 3
 * Hello World 
 `;
         processBTFile(orgTree);
-        assert.equal (AllNodes.metaProperties.length, 2, 'found three properties');
-        assert.equal (getMetaProp('prop1'), 'one', 'correct prop value');
+        assert.equal (configManager.metaPropertiesToString(), '#+PROPERTY: BTCohort 123\n#+PROPERTY: BTVersion 3\n');
+        assert.equal (configManager.getProp('BTVersion'), '3', 'correct prop value');
         const output = BTAppNode.generateOrgFile();
         assert.equal (output, nextorgTree, 'wrote back out correctly');
     });
@@ -366,30 +366,33 @@ QUnit.module("App tests", function() {
                     {"name":"Link","level":2},
                     {"name":"Top Level 2","level":1}
                 ];
-                assert.deepEqual(Tags, tgs, "Tags look good");
+                assert.deepEqual(Tags, tgs, "Topics look good");
                 var table = generateTable();
-                var t2 = `<table>
-<tr data-tt-id='1'>
-<td class='left'><span class='btTitle'><b>TODO: </b>BrainTool</span></td>
-<td class='right'><span class='btText'>BrainTool is a tool</span></td>
-</tr>
-<tr data-tt-id='2' data-tt-parent-id='1'>
-<td class='left'><span class='btTitle'>Category-Tag</span></td>
-<td class='right'><span class='btText'>They are the same</span></td>
-</tr>
-<tr data-tt-id='3' data-tt-parent-id='1'>
-<td class='left'><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td>
-<td class='right'><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td>
-</tr>
-<tr data-tt-id='4' data-tt-parent-id='3'>
-<td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td>
-<td class='right'><span class='btText'></span></td>
-</tr>
-<tr data-tt-id='5'><td class='left'><span class='btTitle'>Top Level 2</span></td><td class='right'><span class='btText'></span></td></tr>
-</table>`;
-                t2 = t2.replace(/[\t\n]+/g, "");
+                var t2 = `<table><tr data-tt-id='1' class='topic'>
+                <td class='left '><span class='btTitle'><span class='keyword'>TODO </span>BrainTool</span></td>
+                <td class='right'><span class='btText'>BrainTool is a tool</span></td>
+                </tr>
+                <tr data-tt-id='2' data-tt-parent-id='1'class='topic'>
+                <td class='left '><span class='btTitle'>Category-Tag</span></td>
+                <td class='right'><span class='btText'>They are the same</span></td>
+                </tr>
+                <tr data-tt-id='3' data-tt-parent-id='1'class='topic'>
+                <td class='left '><span class='btTitle'><a href='http://www.link.com' class='btlink'>Link</a></span></td>
+                <td class='right'><span class='btText'>URL with a name and <a href='http://google.com' class='btlink'>embedded links</a> scattered about.</span></td>
+                </tr>
+                <tr data-tt-id='4' data-tt-parent-id='3'>
+                <td class='left '><span class='btTitle'><a href='http://google.com' class='btlink'>embedded links</a></span></td>
+                <td class='right'><span class='btText'></span></td>
+                </tr>
+                <tr data-tt-id='5' class='topic'>
+                <td class='left childlessTop'><span class='btTitle'>Top Level 2</span></td>
+                <td class='right'><span class='btText'></span></td>
+                </tr>
+                </table>`;
+                t2 = t2.replace(/[\t\n\s]+/g, "");
+                table = table.replace(/[\t\n\s]+/g, "");
                 assert.equal(table, t2, "Table generated correctly");
-                assert.equal(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ''),
+                assert.equal(BTAppNode.generateOrgFile().replaceAll(/\s+/g, '').replace(/^#.*?(?=\*)/, ''),
                              window.FileText.replaceAll(/\s+/g, ''), "Regenerated file text ok");
 
                 assert.equal(BTNode.findFromTitle("Category-Tag"), AllNodes[2], "findFromTitle ok");
@@ -402,14 +405,13 @@ QUnit.module("App tests", function() {
     });
 
 
-    QUnit.test("Add New Tag", function(assert) {
+    QUnit.test("Add New Topic", function(assert) {
         AllNodes = [];
         BTNode.topIndex = 3;
         var node = new BTAppNode("Category-Tag", null, "Link: [[http://google.com][The Goog]]", 1);
-        addNewTag("foo");
-        assert.equal(AllNodes.length, 5, "Tag node added ok");
-        assert.deepEqual(node.HTML(), "<tr data-tt-id='3'><td class='left'><span class='btTitle'>Category-Tag</span></td><td class='right'><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>",  "HTML gen ok");
-        assert.deepEqual(BTAppNode.generateOrgFile().trim(), "* Category-Tag\nLink: [[http://google.com][The Goog]]\n\n* foo", "Org file ok");
+        assert.equal(AllNodes.length, 4, "Topic node added ok");
+        assert.deepEqual(node.HTML(), "<tr data-tt-id='3' class='topic'><td class='left childlessTop'><span class='btTitle'>Category-Tag</span></td><td class='right'><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>",  "HTML gen ok");
+        assert.deepEqual(BTAppNode.generateOrgFile().trim(), "* Category-Tag\nLink: [[http://google.com][The Goog]]", "Org file ok");
     });
 
     
@@ -433,7 +435,7 @@ QUnit.module("App tests", function() {
         AllNodes = []; BTNode.topIndex = 1;
         processBTFile(window.FileText);
 
-        storeTabs({tag: "tag1", tabsData: [{url: "http://google.com", title: "The Goog", tabId:100}]});
+        saveTabs({tag: "tag1", tabsData: [{url: "http://google.com", title: "The Goog", tabId:100}]});
         assert.equal(8, AllNodes.length, "tag and tab added ok");
         var node = AllNodes[6]; // newly created parent node
         assert.equal(node.childIds.length, 1, "parent knows about child");
@@ -441,9 +443,9 @@ QUnit.module("App tests", function() {
         assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://google.com][The Goog]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
         node = AllNodes[7]; // newly created node
         assert.deepEqual("<tr data-tt-id='7' data-tt-parent-id='6'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='right'><span class='btText'></span></td></tr>", node.HTML(), "HTML gen looks good");
-        storeTabs({tag: "tag2", tabsData: [{url: "http://yahoo.com", title: "Yahoodlers",  tabId: 123}]});
+        saveTabs({tag: "tag2", tabsData: [{url: "http://yahoo.com", title: "Yahoodlers",  tabId: 123}]});
         assert.equal(10, AllNodes.length, "second tag and tab added ok");
-        storeTabs({tag: "tag1", tabsData: [{url: "http://gdrive.com", title: "The Cloud"}]});
+        saveTabs({tag: "tag1", tabsData: [{url: "http://gdrive.com", title: "The Cloud"}]});
         assert.equal(11, AllNodes.length, "tab added to first tag ok");
         assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
     });
@@ -455,7 +457,7 @@ QUnit.module("App tests", function() {
         assert.equal(6, AllNodes.length, "nodes as expected");
         deleteNode(2);
         assert.notOk(AllNodes[2], "nodes as expected after deletion");
-        BTFileText = BTAppNode.generateOrgFile();
+        BTFileText = BTAppNode.generateOrgFile().replace(/^#.*?/, '');    // remove the properties line
         assert.deepEqual(BTFileText, "* TODO BrainTool\nBrainTool is a tool\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n", "file cleaned up ok");
     });
 
