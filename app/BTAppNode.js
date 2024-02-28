@@ -344,15 +344,15 @@ class BTAppNode extends BTNode {
 	    const node = this.getDisplayNode();
 	    let titleStr;
         if (this.keyword && reg.test(this.keyword)) {
-            titleStr = `<b class='highlight'>${this.keyword}</b> ${this.displayTag}`;
+            titleStr = `<b class='highlight tabgroup'>${this.keyword}</b> ${this.displayTag}`;
 	        $(node).find("span.btTitle").html(titleStr);
             match = true;
         } else if (reg.test(this.displayTag)) {
-	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        $(node).find("span.btTitle").html(titleStr);
 	        match = true;
 	    } else if (reg.test(this.url())) {
-	        const hurl = this.url().replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        const hurl = this.url().replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
 	        $(node).find("span.btTitle").html(titleStr);
 	        match = true;
@@ -365,7 +365,7 @@ class BTAppNode extends BTNode {
 	        const end = Math.min(index + 125, len);
 	        let textStr = this._text.substring(start, end);
 	        textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
-	        textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        textStr = textStr.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        $(node).find("span.btText").html(textStr);
             setCompactMode(false);                                 // match might be hidden if single column
 	        match = true;
@@ -388,7 +388,7 @@ class BTAppNode extends BTNode {
 	    let titleStr;
 	    // Look for match in title/topic, url and note
 	    if (reg.test(this.displayTag)) {
-	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        titleStr = this.displayTag.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
 	        $(node).find("span.btTitle").html(titleStr);
 	        lmatch = true;
 	    }
@@ -398,7 +398,7 @@ class BTAppNode extends BTNode {
 	    }
 	    if (reg.test(this.text)) {
 	        let textStr = this.text;
-	        textStr = textStr.replaceAll(reg, `<span class='highlight'>${sstr}</span>`);
+	        textStr = textStr.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
 	        $(node).find("span.btText").html(textStr);
 	        rmatch = true;
 	    }
@@ -429,6 +429,9 @@ class BTAppNode extends BTNode {
         if (this.tabId)
             window.postMessage(
                 {'function' : 'showNode', 'tabId': this.tabId});
+        else if (this.tabGroupId)
+            window.postMessage(
+                {'function' : 'showNode', 'tabGroupId': this.tabGroupId});
         else if (this.windowId)
             window.postMessage(
                 {'function' : 'showNode', 'windowId': this.windowId});
@@ -509,7 +512,7 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': BtAppNode.displayTagFromTitle(this.displayTag)});
+                            'groupName': BTAppNode.displayTagFromTitle(this.displayTag)});
     }
     
     putInGroup() {

@@ -610,7 +610,17 @@ function showNode(msg, sender) {
                                   () => check());
         });
     }
-    if (msg.windowId) {
+    else if (msg.tabGroupId) {
+        chrome.tabs.query({groupId: msg.tabGroupId}, function(tabs) {
+            if (tabs.length > 0) {
+                let firstTab = tabs[0];
+                chrome.windows.update(firstTab.windowId, {'focused' : true}, () => check());
+                chrome.tabs.highlight({'windowId' : firstTab.windowId, 'tabs': firstTab.index},
+                                      () => check());
+            }
+        });
+    }
+    else if (msg.windowId) {
         chrome.windows.update(msg.windowId, {'focused' : true}, () => check());
     }
 }

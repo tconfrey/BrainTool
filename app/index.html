@@ -43,7 +43,7 @@
             <div>                
                 <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                      height="40" width="40" >
-	            <span id="searchCancelButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
+	            <span id="searchCancelButton" class="searchButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
                     <img src="resources/closeSearch.png" height="12" width="12"/>
                 </span>
                 <div id="searchHint" class="hint searchHint">
@@ -51,7 +51,7 @@
                     <span class="hintText">Click here or 's' to search</span>
                 </div>
                 <input id="search_entry" type="text" size="20" autocomplete="off" >
-	            <span>
+	            <span class="searchButton" >
 	                <span id="searchUpBtn" onmousedown="searchButton(event, 'up')" title="Previous Match">
                         <img src="resources/arrowUp.png" height="8" width="10"/>
                     </span>
@@ -327,13 +327,13 @@
           <hr/>
           <div>
               <div id="helpKeys" class="settingsSubtitle helpAction" onclick="configManager.toggleKeyCommands()">
-                  Keyboard Commands (or just press 'h')
+                  Keyboard Commands (or just press 'h' or '?')
               </div>
               <div id="keyCommands" style="display:none;">
                   <table id="keyCommandsTable" style="border-spacing:4px;">
                   <tr>
                       <td rowspan="5" class="row_divider verticalCol">Nav</td>
-                      <td class="keyCol">s/r (<span class="alt_opt">Option</span>-s/r)</td>
+                      <td class="keyCol">s,r,/ (<span class="alt_opt">Option</span>-s/r)</td>
                       <td>Search/Reverse-search (next/prev match)</td>
                   </tr>
                   <tr>
@@ -508,7 +508,6 @@
             <div id="topic">
                 <input type="text" id="topicName" class="editNode" tabindex="0">
                 <span id="newTopicNameHint" class="hint" >Name the Topic</span>
-                </input>
             </div>
             <input type="text" id="title-text" class="editNode" tabindex="1" value='title'>
             <textarea id="title-url" class="editNode" tabindex="2">url</textarea>

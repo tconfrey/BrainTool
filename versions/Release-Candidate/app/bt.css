@@ -77,7 +77,7 @@
     --btLinkColor: #2a3f3e;
     --btLinkOpenedColor: rgba(5, 122, 159, 0.8);
     --btLinkSelectedOpenedColor: #057a9f;
-    --btSearchResult: lightgrey;
+    --btSearchResult: var(--btMessageBackground);
 
     --btDialogBackground: #eeeeee;
     --btTextAreaBackground: #fff;
@@ -131,7 +131,7 @@
     --btLinkColor: #e0e5e5;
     --btLinkOpenedColor: #78c6de;
     --btLinkSelectedOpenedColor: #5bc1e1;
-    --btSearchResult: var(--btGeneralBorder);
+    --btSearchResult: #2A3F3E; /* var(--btOpenInfo); */
     --btOpenInfo: #7ce0ff;
 
     --btDialogBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
@@ -295,6 +295,9 @@ body {
     top: 25px;
     left: calc((100% - 155px) * 0.9 + 72px);
 }
+.searchButton {
+    display: none;
+}
     
 .hint {
     /* alex */
@@ -351,7 +354,10 @@ body {
     cursor: pointer;
 }
 .highlight {
-    background-color: lime;
+    background-color: #85E20E;
+}
+.extendedHighlight {
+    background-color: #85E20EAA;
 }
 .failed {
     background-color: #E59A98 !important;

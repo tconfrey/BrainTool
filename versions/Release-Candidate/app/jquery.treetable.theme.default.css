@@ -31,15 +31,6 @@ table.treetable td.left {
     white-space: nowrap;
 }
 
-table.treetable td.searchLite {
-    background-color: var(--btSearchResult); 
-}
-
-table.treetable td.search {
-    text-overflow: initial;
-    white-space: normal;
-}
-
 table.treetable tbody tr td {
   cursor: default;
   padding: .3em .1em;           /* changed from 1.0 to left align for better use of space*/
@@ -77,6 +68,15 @@ table.treetable tr.topic {
     font-size: var(--btTopicFontSize);
     font-weight: var(--btTopicFontWeight);
     line-height: var(--btTopicLineHeight);
+}
+
+table.treetable td.searchLite {
+    background-color: var(--btSearchResult); 
+}
+
+table.treetable td.search {
+    text-overflow: initial;
+    white-space: normal;
 }
 
 table.treetable tr span.indenter a {

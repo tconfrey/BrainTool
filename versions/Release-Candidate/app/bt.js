@@ -177,7 +177,11 @@ function handleInitialTabs(tabs, tgs) {
         node.windowId = tab.windowId;
         node.tabIndex = tab.tabIndex;
         MRUTopicPerWindow[node.windowId] = node.tagPath;
-        if (tab.groupId > 0) node.tabGroupId = tab.groupId;
+        if (tab.groupId > 0) {
+            node.tabGroupId = tab.groupId;
+            const tg = tgs.find(tg => tg.id == tab.groupId);
+            if (tg) node.setTGColor(tg.color);
+        }
         if (node.parentId && AllNodes[node.parentId]) {
             AllNodes[node.parentId].windowId = node.windowId;
             AllNodes[node.parentId].tabGroupId = node.tabGroupId;
@@ -185,7 +189,7 @@ function handleInitialTabs(tabs, tgs) {
     });
     tgs.forEach((tg) => 
         tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
-                         'tabGroupCollapsed': tg.collapsed}));
+                         'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId}));
     // remember topic per window for suggestions in popup
     window.postMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
     updateStatsRow();
@@ -1692,8 +1696,7 @@ function _displayForEdit(newNode, atTop = false) {
     const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
     $("#newTopicNameHint").show();
     $("#topicName").off('keyup');
-    $("#topicName").on('keyup', () =>
-                       $("#newTopicNameHint").hide());
+    $("#topicName").on('keyup', () => $("#newTopicNameHint").hide());
     editRow(dummyEvent);
 }
 
@@ -1899,6 +1902,7 @@ function disableSearch(e = null) {
 
     // undo display of search hits
     $("span.highlight").contents().unwrap();
+    $("span.extendedHighlight").contents().unwrap();
     $("td").removeClass('search searchLite');
     
     BTAppNode.redisplaySearchedNodes();                      // fix searchLite'd nodes
@@ -1995,6 +1999,7 @@ function search(keyevent) {
 
     // undo effects of any previous hit
     $("span.highlight").contents().unwrap();
+    $("span.extendedHighlight").contents().unwrap();
     $("td").removeClass('search');
     
     if (sstr.length < 1) return;                              // don't search for nothing!
@@ -2018,8 +2023,8 @@ function search(keyevent) {
     while(nodeId > 0 && nodeId < AllNodes.length) {
 	    node = AllNodes[nodeId];
 	    nodeId = nodeId + inc;
-	    if (!node) continue;                                  // AllNodes is sparse
-	    if (node.search(sstr)) break;
+	    if (!node) continue;                                    // AllNodes is sparse
+	    if (node.search(sstr)) break;                           // searches and highlights
 	    node = null;
     }
     
@@ -2159,14 +2164,14 @@ function keyUpHandler(e) {
     }
 
     // s,r = Search, Reverse-search
-    if (code == "KeyS" || code == "KeyR") {
+    if (code == "KeyS" || code == "KeyR" || key == "/") {
 	    ReverseSearch = (code == "KeyR");
 	    enableSearch(e);
         return;
     }
 
-    // h = help
-    if (code == "KeyH") {
+    // h, ? = help
+    if (code == "KeyH" || key == "?") {
         if ($('#help').is(':visible') && !$('#keyCommands').is(':visible')) {
             configManager.toggleKeyCommands();
         } else {
