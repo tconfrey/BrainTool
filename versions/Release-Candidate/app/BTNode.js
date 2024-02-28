@@ -13,7 +13,7 @@ class BTNode {
         this._title = title;
         this._parentId = parentId;
         this._URL = BTNode.URLFromTitle(title);
-	    this._displayTag = BTNode.displayTagFromTitle(title);
+	    this._displayTag = BTNode.displayNameFromTitle(title);
         this._childIds = [];
         this._tagPath = '';
         this.generateUniqueTagPath();
@@ -32,7 +32,7 @@ class BTNode {
     set title(ttl) {
         this._title = ttl;
         this._URL = BTNode.URLFromTitle(ttl);         // regenerate URL when title is changed
-	    this._displayTag = BTNode.displayTagFromTitle(ttl);
+	    this._displayTag = BTNode.displayNameFromTitle(ttl);
     }
     get title() {
         return this._title;
@@ -124,8 +124,11 @@ class BTNode {
         return hits ? hits[1] : "";        
     }
     
-    static displayTagFromTitle(title) {
-        // Visible tag for this node. Pull tags out, use url if no tag
+    static displayNameFromTitle(title) {
+        // Visible title for this node. Pull displayed title out, use url if none
+
+        // first escape any html entities
+        title = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         let outputStr = title.replace(/\[\[(.*?)\]\[(.*?)\]\]/gm, (match, $1, $2) =>
 				                      {return $2 || $1;});
         return outputStr;

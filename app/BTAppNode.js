@@ -187,7 +187,10 @@ class BTAppNode extends BTNode {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
         let txt = "";
         if (this._keyword) txt += `<span class='keyword'>${this._keyword} </span>`; // TODO etc
-        return txt + BTAppNode._orgTextToHTML(this.title);
+
+        // first escape any html entities
+        let title = this.title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return txt + BTAppNode._orgTextToHTML(title);
     }
     
     url() {
@@ -512,7 +515,7 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': BTAppNode.displayTagFromTitle(this.displayTag)});
+                            'groupName': BTAppNode.displayNameFromTitle(this.displayTag)});
     }
     
     putInGroup() {

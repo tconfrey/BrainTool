@@ -207,7 +207,7 @@ function brainZoom(iteration = 0) {
         return;
     }
     $("#brain").attr("src", path);
-    const interval = 150; //iteration == 4 ? 200 : 100;
+    const interval = (iteration <= 4 ? 150 : 50);
     setTimeout(function() {brainZoom(++iteration);}, interval);
 
 }
