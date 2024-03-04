@@ -34,7 +34,7 @@ window.addEventListener('message', async function(event) {
         return;
     console.log(`Content-IN ${event.data.function} from TopicManager:`, event.data);
     if (event.data.function == 'localStore') {
-        // stores tags, preferences, current tabs tag/note info etc for popup/extensions use
+        // stores topics, preferences, current tabs topic/note info etc for popup/extensions use
         try {
             await setToLocalStorage(event.data.data);
         }

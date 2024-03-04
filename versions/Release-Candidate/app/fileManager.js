@@ -132,9 +132,8 @@ function stopSyncing() {
 
 
 function updateStatsRow(modifiedTime = null) {
-    // update #tags, urls, saves
-    const numTags = AllNodes.filter(n => n?.isTag()).length;
-    const numOpenTags = AllNodes.filter(n => n?.isTag() && n?.hasOpenChildren()).length;
+    // update #topics, urls, saves
+    const numTopics = AllNodes.filter(n => n?.isTopic()).length;
     const numLinks = AllNodes.filter(n => n?.URL).length;
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
@@ -145,7 +144,7 @@ function updateStatsRow(modifiedTime = null) {
     const saveInfo = $("#content").hasClass('compactMode') ? `${saveTime}` : `Last saved ${saveTime}`;
     const openInfo = $("#content").hasClass('compactMode') ? '' : `(${numOpenLinks} open)`;
     $("#footerSavedInfo").html(saveInfo);
-    $("#footerItemInfo").text(`${numTags} Topics, ${numLinks} pages`);
+    $("#footerItemInfo").text(`${numTopics} Topics, ${numLinks} pages`);
     $("#footerOpenInfo").html(openInfo);
 
     if (GDriveConnected) {                                  // set save icon to GDrive, not fileSave

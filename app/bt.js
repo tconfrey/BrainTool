@@ -176,7 +176,7 @@ function handleInitialTabs(tabs, tgs) {
         node.tabId = tab.id;
         node.windowId = tab.windowId;
         node.tabIndex = tab.tabIndex;
-        MRUTopicPerWindow[node.windowId] = node.tagPath;
+        MRUTopicPerWindow[node.windowId] = node.topicPath;
         if (tab.groupId > 0) {
             node.tabGroupId = tab.groupId;
             const tg = tgs.find(tg => tg.id == tab.groupId);
@@ -219,7 +219,7 @@ function brainZoom(iteration = 0) {
  ***/
 
 var ButtonRowHTML; 
-var Tags = new Array();        // track tags for future tab assignment
+var Topics = new Array();      // track topics for future tab assignment
 var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
@@ -295,10 +295,10 @@ function processBTFile(fileText = BTFileText) {
                              animationTime: 250, onNodeCollapse: nodeCollapse,
                              onNodeExpand: nodeExpand}, true);
 
-    BTAppNode.generateTags();
+    BTAppNode.generateTopics();
 
     // Let extension know about model
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags}});
+    window.postMessage({'function': 'localStore', 'data': {'topics': Topics}});
     window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     
     // initialize ui from any pre-refresh opened state
@@ -372,18 +372,17 @@ function initializeUI() {
     $("table.treetable tr").draggable({
         helper: function() {
             buttonHide();
-	        
             const clone = $(this).clone();
-	        $(clone).find('.btTitle').html('HELKP!');		   // empty clone of contents, for some reason
-//	        $(clone).find('.btText').html('');		   // ..seems to screw up the mouse cursor
+	        $(clone).find('.btTitle').html('HELKP!');		    // empty clone of contents, for some reason
+//	        $(clone).find('.btText').html('');		            // ..seems to screw up the mouse cursor
             $(clone).css('background-color', '#7bb07b');
 	        
-            $("table.treetable tr").off('mouseenter'); // turn off hover behavior during drag
+            $("table.treetable tr").off('mouseenter');          // turn off hover behavior during drag
             $("table.treetable tr").off('mouseleave');
             return clone;
         },     
-        start: dragStart,       // call fn below on start
-//        handle: "#move",           // use the #move button as handle
+        start: dragStart,                   // call fn below on start
+//        handle: "#move",                  // use the #move button as handle
         axis: "y",
         scrollSpeed: 5,
         //        containment: "#content",
@@ -392,29 +391,19 @@ function initializeUI() {
         cursor: "move",
         opacity: .75,
         stop: function( event, ui ) {
-            // turn hover bahavior back on
+            // turn hover bahavior back on and remove classes iused to track drag
             $("table.treetable tr").on('mouseenter', null, buttonShow);
             $("table.treetable tr").on('mouseleave', null, buttonHide);
+            $("table.treetable tr").droppable("enable");
             $("tr").removeClass("hovered");
-            $("tr").removeClass("dropOver");
+            $("td").removeClass("dropOver");
+            $("tr").removeClass("dragTarget");
+            $("tr").removeClass("ui-droppable-disabled");
         },
         revert: "invalid"       // revert when drag ends but not over droppable
     });
 
-    // make rows droppable
-    $("tr").droppable({
-        drop: function(event, ui) {
-            dropNode(event, ui);
-        },
-        over: function(event, ui) {
-            // highlight node a drop would drop into and underline the potential position
-            $(this).children('td').first().addClass("dropOver");
-        },
-        out: function(event, ui) {
-            // undo the above
-            $(this).children('td').first().removeClass("dropOver");
-        }
-    });
+    
     
     // Hide loading notice and show sync/refresh buttons as appropriate
     $("#loading").hide();
@@ -436,20 +425,40 @@ function reCreateButtonRow() {
 
 function dragStart(event, ui) {
     // Called when drag operation is initiated. Set dragged row to be full sized
+    console.log("dragStart");
     const w = $(this).css('width');
     const h = $(this).css('height');
     ui.helper.css('width', w).css('height', h);
-
-    $(this).addClass("dragTarget");
-
-    // collapse open subtree if any
     const nodeId = $(this).attr('data-tt-id');
     const node = AllNodes[nodeId];
-    node.dragging = true;
-    if (node.childIds.length && !node.folded) {
-        node.collapsedForDrag = true;
-        $("#content").treetable("collapseNode", nodeId);
-    }
+    
+    $(this).addClass("dragTarget");
+    // make rows droppable
+    $("table.treetable tr").droppable({
+        drop: function(event, ui) {
+            dropNode(event, ui);
+        },
+        over: function(event, ui) {
+            // highlight node a drop would drop into and underline the potential position, coudl be at top
+            $(this).children('td').first().addClass("dropOver");
+        },
+        out: function(event, ui) {
+            // undo the above
+            $(this).children('td').first().removeClass("dropOver");
+        }
+    });
+    let ids = node.getDescendantIds();
+    ids.push(node.id);
+    ids.forEach(id => {
+        // disable droppable for self and all descendants, can't drop into self!
+        $(`tr[data-tt-id='${id}']`).droppable("disable");
+    });
+            /* Ideally we'd collapse open subtree if any, but that makes the draggable think its over now-hidden rows
+            if (node.childIds.length && !node.folded) {
+                node.collapsedForDrag = true;
+                $("#content").treetable("collapseNode", nodeId);
+            }
+            */
 }
 
 function dropNode(event, ui) {
@@ -457,26 +466,18 @@ function dropNode(event, ui) {
     // NB if dropOver is expanded target becomes first child, if collapsed next sibling
     
     const dragTarget = $(".dragTarget")[0];
+    if (!dragTarget) return;                                // no target, no drop
     const dragNodeId = $(dragTarget).attr('data-tt-id');
     const dragNode = AllNodes[dragNodeId];
     const dropNode = $($(".dropOver")[0]).parent();
     const dropNodeId = $(dropNode).attr('data-tt-id');
     const dropBTNode = AllNodes[dropNodeId];
-    const treeTable = $("#content");
     const oldParentId = dragNode.parentId;
 
     if (dropNodeId && dropBTNode) {
         // move node and any associated tab/tgs
         moveNode(dragNode, dropBTNode, oldParentId);
     }
-    if (dragNode.collapsedForDrag)
-        $("#content").treetable("expandNode", dragNodeId);
-    
-    // Clean up
-    dragNode.dragging = false;
-    dragNode.collapsedForDrag = null;
-    $(dragTarget).removeClass("dragTarget").removeClass("hovered", 750);
-    $("td").removeClass("dropOver");
 }
 
 function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
@@ -485,7 +486,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     
     const treeTable = $("#content");
     let newParent, dragTr;
-    if (dropNode.isTag() && !dropNode.folded) {
+    if (dropNode.isTopic() && !dropNode.folded && dropNode.childIds.length) {
         // drop into dropNode as first child
         dragNode.reparentNode(dropNode.id, 0);
         newParent = dropNode;
@@ -495,6 +496,10 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     } else {
         // drop below dropNode w same parent
         const parentId = dropNode.parentId;
+        if (dragNode.id == parentId) {
+            console.log ("trying to drop onto self"); 
+            return;
+        }
         const parent = parentId ? AllNodes[parentId] : null;
         newParent = parent;
         dragNode.reparentNode(parentId,
@@ -524,7 +529,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
 
     // update the rest of the app, backing store and potentially move tab
     saveBT();
-    BTAppNode.generateTags();
+    BTAppNode.generateTopics();
     if (dragNode.tabId && !browserAction) {
         dragNode.beingPositioned = true;                  // remember its BT, not user action
         const tabId = dragNode.tabId;
@@ -537,7 +542,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
                             'windowId': windowId, 'index': index,
                             'tabGroupId': newParent?.tabGroupId});
     }
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {
@@ -620,7 +625,7 @@ function nodeCollapse() {
         $(this.row).addClass('opened');
     
     // Update File and browser, if collapse is not a result of a drag start
-    if (update && !node.dragging) {
+    if (update) {
         rememberFold();
         node.updateTabGroup();
     }
@@ -752,7 +757,9 @@ function saveTabs(data) {
 
     // Iterate tabs and create btappNodes as needed
     const changedTopicNodes = new Set();
-    data.tabs.reverse().forEach(tab=> {
+    data.tabs.forEach(tab=> {
+
+        // Handle existing node case: update and return
         const existingNode = BTAppNode.findFromTab(tab.tabId);
         if (existingNode) {
             if (note) {
@@ -761,11 +768,14 @@ function saveTabs(data) {
             }
             return;           // already saved, ignore other than making any note update
         }
+
+        // Deal with Topic
         const [topicDN, keyword] = BTNode.processTopicString(tab.topic || "📝 Scratch");
         const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
         changedTopicNodes.add(topicNode);
+
+        // Create and populate node
         const title = cleanTitle(tab.title);                    // get rid of unprintable characters etc
-        // create and populate node
         const node = new BTAppNode(`[[${tab.url}][${title}]]`, topicNode.id, note || "", topicNode.level + 1);
         node.tabId = tab.tabId; node.windowId = tab.windowId;
         topicNode.windowId = tab.windowId;
@@ -775,7 +785,6 @@ function saveTabs(data) {
         }
         node.faviconUrl = tab.favIconUrl; node.tabIndex = tab.tabIndex;
         if (keyword) node.keyword = keyword;
-        if (note) node.text = note;
 
         // handle display aspects of single node
         $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), node.HTML());
@@ -786,188 +795,20 @@ function saveTabs(data) {
 
     // update subtree of each changed topic node
     changedTopicNodes.forEach(node => {
-        if (['TG', 'Session'].includes(data.saveType)) node.childIds.reverse();            // reverse to get back to order of insertion when whole tg added
         node.redisplay();
         node.groupAndPosition();
     });
 
     // update topic list, sync extension, reset ui and save changes.
-    BTAppNode.generateTags();
+    BTAppNode.generateTopics();
     let lastTopic = Array.from(changedTopicNodes).pop();
     window.postMessage({'function': 'localStore', 
-                        'data': { 'tags': Tags, 'mruTopics': MRUTopicPerWindow, 'currentTag': lastTopic, 'currentText': note}});
+                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopic, 'currentText': note}});
     window.postMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
 
     initializeUI();
     saveBT();
 }
-
-/*  // StoreTabs and importSession replaced by more generic saveTabs above
-function storeTabs(data) {
-    // put tab(s) under storage w given topic. tabsData is a list, could be one or all tabs in window
-    // NB topicString may be topic, topic:hierarchy:nodes etc and may have a terminating :TODO
-    // Topic may be a new path, new path under parent, or existing but under parent to disambiguate
-    const topicString = data.tag;
-    const note = data.note;
-    const windowId = data.windowId;
-    const tabAction = data.tabAction;
-
-    // process topic info create topic hierarchy as needed. no topic => scratch
-    const [topicDN, keyword] = BTNode.processTopicString(topicString || "📝 Scratch");
-    const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
-    const ttNode = topicNode.getTTNode();
-
-    // update shared memory for popup
-    MRUTopicPerWindow[windowId] = topicDN;
-    BTAppNode.generateTags();                     // NB should really only do this iff needed
-    window.postMessage({'function': 'localStore', 'data':
-                        {'tags': Tags, 'mruTopics': MRUTopicPerWindow,
-                         'currentTag': topicNode.displayTag, 'currentText': note}});
-
-    // process tabs to store
-    const tabsData = data.tabsData.reverse();
-    let newNodes = [];
-
-    tabsData.forEach(tabData => {
-        // create each new node and add to tree
-        const url = tabData.url;
-        const title = cleanTitle(tabData.title);
-        const tabId = tabData.tabId;
-        const tabIndex = tabData.tabIndex;
-        const favUrl = tabData.faviconUrl;
-        let node = BTAppNode.findFromTab(tabId);
-        if (!node) {
-            node = new BTAppNode(`[[${url}][${title}]]`, topicNode.id,
-                                 note || "", topicNode.level + 1);
-            node.tabId = tabId;
-            node.faviconUrl = favUrl;
-            if (keyword) node.keyword = keyword;
-            $("table.treetable").treetable("loadBranch", ttNode, node.HTML());
-        } else {
-            node.title = `[[${url}][${title}]]`;
-            node.text = note || "";
-            if (keyword) node.keyword = keyword;
-            node.redisplay();
-            node.faviconUrl = favUrl;
-            let tabData = {tabId: tabId, windowId: windowId, groupId: 0};
-            tabActivated(tabData);       // set local storage for any subsequent popup open
-        }
-        node.tabIndex = tabData.tabIndex;
-        newNodes.push(node);
-
-        // save the url<->favicon mapping locally for Favicon feature.
-        try {
-            const u = url.split(/[?#]/)[0];               // take off any params
-            localFileManager.set(u, favUrl);
-        }
-        catch (e) {
-            console.warn('URL/Favicon storage error: ', e);
-        };
-    });
-
-    // sort tree based on position in parents child array
-    topicNode.redisplay();                        // in case changed by adding children
-    const compare = (a,b) => (a<b) ? -1 : (b<a) ? 1 : 0;
-    const childIds = topicNode.childIds;
-    $("table.treetable").treetable(
-        "sortBranch", ttNode, (a, b) => (compare(childIds.indexOf(a.id),
-                                                 childIds.indexOf(b.id))));
-    initializeUI();
-    saveBT();
-    changeSelected(newNodes[0]);                // select newly added node in tree
-
-    newNodes.forEach(node => node.populateFavicon());
-    // Execute tab action (close or save)
-    if (tabAction == 'CLOSE') {
-        newNodes.forEach(node => node.closeTab());
-        return;
-    }
-    newNodes.forEach(node => setNodeOpen(node));  // if not closing then show as open
-
-    // group w siblings if appropriate (they exist and are in same window)
-    if (GroupingMode != 'TABGROUP') return;
-    
-    // acknowledge now BT node with brain animation
-    window.postMessage({'function' : 'brainZoom', 'tabId' : newNodes[newNodes.length - 1].tabId});
-    if ((topicNode.windowId == windowId && topicNode.tabGroupId) || newNodes.length > 1)
-        topicNode.groupAndPosition();
-    else {
-        newNodes[0].windowId = windowId;
-        topicNode.windowId = windowId;
-        newNodes[0].putInGroup();
-    }
-}
-
-
-function importSession(msg) {
-    // handler for session sent via msg {winID: {tabs[], tgs:{tabs[]}}}
-
-    const wins = msg.windows;
-    const dateString = getDateString().replace(':', '&#8759;');      // 12:15 => :15 is a sub topic
-    const sessionName = "Session Import (" + dateString + ")";
-    const parentName = msg.topic || "📝 Scratch";
-    const parent = BTAppNode.findOrCreateFromTopicDN(parentName);
-    const sessionNode = new BTAppNode(sessionName, parent.id, "", parent.level + 1);
-    const closeP = msg.close;                                        // close tabs after saving?
-    const newTabNodes = [];
-
-    Object.values(wins).forEach(win => {
-        const wNode = new BTAppNode(win.windowName, sessionNode.id, "", sessionNode.level + 1);
-        wNode.windowId = win.windowId;
-        win.tabs.reverse().forEach(tab => {
-            // Find or create node for tab
-            let tabNode = BTAppNode.findFromTab(tab.id);
-            if (!tabNode) {
-                tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, wNode.id, "", wNode.level + 1);
-                tabNode.createDisplayNode();
-            }
-            newTabNodes.push(tabNode);
-            tabNode.windowId = tab.windowId;
-            tabNode.tabId = tab.id;
-            tabNode.tabIndex = tab.tabIndex;
-            tabNode.faviconUrl = tab.faviconUrl;
-            setNodeOpen(tabNode);
-            if (closeP) tabNode.closeTab();
-        });
-        Object.values(win.tabGroups).reverse().forEach(tg => {
-            if (BTAppNode.findFromGroup(tg.id)) return;              // already managed
-            const tgNode = new BTAppNode(tg.title, wNode.id, "", wNode.level + 1);
-            tgNode.tabGroupId = tg.id;
-            tg.tabs.reverse().forEach(tab => {
-                let tabNode = BTAppNode.findFromTab(tab.id);
-                if (!tabNode) {
-                    tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, tgNode.id, "", tgNode.level + 1);
-                    tabNode.createDisplayNode();
-                }
-                newTabNodes.push(tabNode);
-                tabNode.windowId = win.windowId;
-                tabNode.tabGroupId = tg.id;
-                tabNode.tabId = tab.id;
-                tabNode.tabIndex = tab.tabIndex;
-                tabNode.faviconUrl = tab.faviconUrl;
-                setNodeOpen(tabNode);
-                if (closeP) tabNode.closeTab();
-            });
-            tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color,
-                             'tabGroupName': tg.title, 'tabGroupCollapsed': tg.collapsed});
-        });
-        wNode.createTabGroup();                         // since win is topic, create Tabgroup
-    });
-
-    // save the hostname<->favicon mapping locally for Favicon feature.
-    try {
-        newTabNodes.forEach(n => {
-            const u = n.URL.split(/[?#]/)[0];             // remove any params
-            n.faviconUrl && localFileManager.set(u, n.faviconUrl);
-        });
-    }
-    catch (e) {
-        console.warn('URL/Favicon storage error: ', e);
-    };
-
-    processImport(sessionNode.id);
-}
-*/
 
 
 function tabPositioned(data, highlight = false) {
@@ -1046,15 +887,15 @@ function tabActivated(data) {
     const node = BTAppNode.findFromTab(tabId);
     const winNode = BTAppNode.findFromWindow(winId);
     const groupNode = BTAppNode.findFromGroup(groupId);
-    let m1, m2 = {'windowTopic': winNode ? winNode.tagPath : '',
-                  'groupTopic': groupNode ? groupNode.tagPath : '', 'currentTabId' : tabId};
+    let m1, m2 = {'windowTopic': winNode ? winNode.topicPath : '',
+                  'groupTopic': groupNode ? groupNode.topicPath : '', 'currentTabId' : tabId};
     if (node) {
-        node.tagPath || node.generateUniqueTagPath();
+        node.topicPath || node.generateUniqueTopicPath();
         changeSelected(node);            // select in tree
-        m1 = {'currentTag': node.tagPath, 'currentText': node.text, 'currentTitle': node.displayTag};
+        m1 = {'currentTopic': node.topicPath, 'currentText': node.text, 'currentTitle': node.displayTopic};
     }
     else {
-        m1 = {'currentTag': '', 'currentText': '', 'currentTitle': ''};
+        m1 = {'currentTopic': '', 'currentText': '', 'currentTitle': ''};
         clearSelected();
     }
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
@@ -1274,7 +1115,7 @@ function updateTabIndices(indices) {
 /*** 
  * 
  * Row Operations
- * buttonShow/Hide, Edit Dialog control, Open Tab/Tag(Window), Close, Delete, ToDo
+ * buttonShow/Hide, Edit Dialog control, Open Tab/Topic, Close, Delete, ToDo
  * NB same fns for key and mouse events. 
  * getActiveNode finds the correct node in either case from event
  * 
@@ -1376,8 +1217,8 @@ function editRow(e) {
     const dialog = $("#dialog")[0];
     
     // populate dialog
-    const dn = node.fullTagPath();
-    if (dn == node.displayTag)
+    const dn = node.fullTopicPath();
+    if (dn == node.displayTopic)
         $("#distinguishedName").hide();    
     else {
         $("#distinguishedName").show();
@@ -1390,16 +1231,16 @@ function editRow(e) {
             if (overflow > 0) $("#distinguishedName").animate({ scrollLeft: '+='+overflow}, 500);
         }, 500);
     }
-    if (node.isTag()) {
+    if (node.isTopic()) {
         $("#title-url").hide();
         $("#title-text").hide();
         $("#topic").show();        
-        $("#topicName").val($("<div>").html(node.displayTag).text());
-        node.displayTag && $("#newTopicNameHint").hide();
+        $("#topicName").val($("<div>").html(node.displayTopic).text());
+        node.displayTopic && $("#newTopicNameHint").hide();
     } else {
         $("#title-url").show();
         $("#title-text").show();
-        $("#title-text").val(BTAppNode.editableTagFromTitle(node.title));
+        $("#title-text").val(BTAppNode.editableTopicFromTitle(node.title));
         $("#topic").hide();
         $("#title-url").val(node.URL);
     }
@@ -1412,7 +1253,7 @@ function editRow(e) {
     const dialogWidth = Math.min(fullWidth - 63, 600);    // 63 = padding + border == visible width
     const height = dialogWidth / 1.618;                   // golden!
     /*
-    const otherRows = node.isTag() ? 100 : 120;           // non-text area room needed
+    const otherRows = node.isTopic() ? 100 : 120;           // non-text area room needed
     $("#text-text").height(height - otherRows);           // notes field fits but as big as possible
 */
     if ((top + height + 140) < $(window).height())
@@ -1492,7 +1333,7 @@ function getActiveNode(e) {
 }
 
 function openRow(e, newWin = false) {
-    // Open all links under this row in windows per tag
+    // Open all links under this row in windows per topic
 
     // First find all AppNodes involved - selected plus children
     const appNode = getActiveNode(e);
@@ -1539,7 +1380,7 @@ function deleteRow(e) {
     // Delete selected node/row.
     const appNode = getActiveNode(e);
     if (!appNode) return false;
-    const kids = appNode.childIds.length && appNode.isTag();         // Tag determines non link kids
+    const kids = appNode.childIds.length && appNode.isTopic();         // Topic determines non link kids
     buttonHide();
 
     // If children nodes ask for confirmation
@@ -1554,7 +1395,7 @@ function deleteNode(id) {
     id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
-    const wasTag = node.isTag();
+    const wasTopic = node.isTopic();
     const openTabs = node.listOpenTabs();
 
     function propogateClosed(parentId) {
@@ -1591,10 +1432,10 @@ function deleteNode(id) {
     // Update parent display
     propogateClosed(node.parentId);
     
-    // if wasTag remove from Tags and update extension
-    if (wasTag) {
-        BTAppNode.generateTags();
-        window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    // if wasTopic remove from Topics and update extension
+    if (wasTopic) {
+        BTAppNode.generateTopics();
+        window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
     }
     
     // Update File 
@@ -1613,7 +1454,7 @@ function updateRow() {
     const url = $("#title-url").val();
     const title = $("#title-text").val();
     const topic = $("#topicName").val();
-    if (node.isTag()) {
+    if (node.isTopic()) {
         const changed = (node.title != topic);
         node.title = topic;
         if (changed) node.updateTabGroup();               // update browser (if needed)
@@ -1630,9 +1471,9 @@ function updateRow() {
     saveBT();
 
     // Update extension
-    BTAppNode.generateTags();    
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
-    console.count('BT-OUT:tags_updated');
+    BTAppNode.generateTopics();
+    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    console.count('BT-OUT: Topics updated to local store');
 
     // reset ui
     closeDialog();
@@ -1672,16 +1513,16 @@ function promote(e) {
     node.reparentNode(newParentId);
     $("table.treetable").treetable("promote", node.id);
 
-    // save to file, update Tags etc
+    // save to file, update Topics etc
     saveBT();
-    BTAppNode.generateTags();
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    BTAppNode.generateTopics();
+    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
-function _displayForEdit(newNode, atTop = false) {
+function _displayForEdit(newNode) {
     // common from addNew and addChild below
 
-    newNode.createDisplayNode(atTop);
+    newNode.createDisplayNode();
     // highlight for editing
     const tr = $(`tr[data-tt-id='${newNode.id}']`);
     $("tr.selected").removeClass('selected');
@@ -1704,7 +1545,7 @@ function addNewTopLevelTopic() {
     // create new top level item and open edit card
 
     const newNode = new BTAppNode('', null, "", 1);
-    _displayForEdit(newNode, true);
+    _displayForEdit(newNode);
 }
 
 function addChild(e) {
@@ -1713,7 +1554,7 @@ function addChild(e) {
     // create child element
     const node = getActiveNode(e);
     if (!node) return;
-    const newNode = new BTAppNode('', node.id, "", node.level + 1);
+    const newNode = new BTAppNode('', node.id, "", node.level + 1, true);       // true => add to front of parent's children
     _displayForEdit(newNode);
     if (newNode.level == 2)          // remove special handling for top nodes w/o children
         $(`tr[data-tt-id='${node.id}'] td`).removeClass('childlessTop');
@@ -1828,7 +1669,7 @@ function exportBookmarks() {
     // generate minimal AllNodes for background to operate on
     const nodeList = AllNodes.map(n => {
         if (!n) return null;
-        return {'displayTag': n.displayTag, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
+        return {'displayTopic': n.displayTopic, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
     });
     const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
     window.postMessage({'function': 'localStore',
@@ -2235,7 +2076,7 @@ function keyUpHandler(e) {
     
     // tab == cycle thru expand1, expandAll or collapse a topic node
     if (code == "Tab") {
-        if (node.isTag()) {
+        if (node.isTopic()) {
             if (node.folded) {
                 node.unfoldOne();                   // BTAppNode fn to unfold one level & remember for next tab
                 keyUpHandler.lastSelection = currentSelection;
@@ -2275,7 +2116,7 @@ function keyUpHandler(e) {
     }
 
     // opt enter = new child
-    if (alt && code == "Enter" && node.isTag()) {
+    if (alt && code == "Enter" && node.isTopic()) {
         addChild(e);
     }
 
@@ -2380,7 +2221,7 @@ function undo() {
 
     initializeUI();
     saveBT();
-    BTAppNode.generateTags();        
-    window.postMessage({'function': 'localStore', 'data': {'tags': Tags }});
+    BTAppNode.generateTopics();
+    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
 
 }

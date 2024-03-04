@@ -8,17 +8,17 @@
 'use strict'
 
 class BTNode {
-    constructor(title, parentId = null) {
+    constructor(title, parentId = null, firstChild = false) {
         this._id = BTNode.topIndex++;
         this._title = title;
         this._parentId = parentId;
         this._URL = BTNode.URLFromTitle(title);
-	    this._displayTag = BTNode.displayNameFromTitle(title);
+	    this._displayTopic = BTNode.displayNameFromTitle(title);
         this._childIds = [];
-        this._tagPath = '';
-        this.generateUniqueTagPath();
+        this._topicPath = '';
+        this.generateUniqueTopicPath();
         if (parentId && AllNodes[parentId]) {
-            AllNodes[parentId].addChild(this._id, -1, this._URL != "");
+            AllNodes[parentId].addChild(this._id, false, firstChild);   // add to parent, index not passed, firstChild => front or back
         }
         // Global instance store. Check existence so staticBase, below, works.
         // NB Entries could be overwritten by derived class ctor:
@@ -32,7 +32,7 @@ class BTNode {
     set title(ttl) {
         this._title = ttl;
         this._URL = BTNode.URLFromTitle(ttl);         // regenerate URL when title is changed
-	    this._displayTag = BTNode.displayNameFromTitle(ttl);
+	    this._displayTopic = BTNode.displayNameFromTitle(ttl);
     }
     get title() {
         return this._title;
@@ -43,11 +43,11 @@ class BTNode {
     set URL(url) {
         this._URL = url;
     }
-    get displayTag() {
-	    return this._displayTag;
+    get displayTopic() {
+	    return this._displayTopic;
     }
-    get tagPath() {
-        return this._tagPath;
+    get topicPath() {
+        return this._topicPath;
     }
     set parentId(i) {
         this._parentId = i;
@@ -59,15 +59,13 @@ class BTNode {
     get childIds() {
         return this._childIds;
     }
-    addChild(id, index = -1, isURL = false) {
-        if (index < 0) {
-            if (isURL)          // add to front
-                this._childIds.unshift(parseInt(id));
-            else
-                this._childIds.push(parseInt(id));
-        }
-        else
+    addChild(id, index, firstChild = false) {
+        if (index)
             this._childIds.splice(index, 0, parseInt(id));
+        else if (firstChild)
+            this._childIds.unshift(parseInt(id));
+        else
+            this._childIds.push(parseInt(id));
     }
     removeChild(id) {
 	    let index = this._childIds.indexOf(parseInt(id));
@@ -77,23 +75,39 @@ class BTNode {
 
     findChild(childTopic) {
         // does this topic node have this sub topic
-        const childId = this.childIds.find(id => AllNodes[id].displayTag == childTopic);
+        const childId = this.childIds.find(id => AllNodes[id].displayTopic == childTopic);
         return childId ? AllNodes[childId] : null;
     }
+    
+    getDescendantIds() {
+        // return a list of all the descendant node ids
+        let descendants = [];
 
-    // only used in isTag
+        function dfs(node) {
+            for (let childId of node._childIds) {
+                let childNode = AllNodes[childId];
+                if (childNode) {
+                    descendants.push(childNode._id);
+                    dfs(childNode);
+                }
+            }
+        }
+
+        dfs(this);
+
+        return descendants;
+    }
+
+    // only used in isTopic
     _hasWebLinks() {
 	    // Calculate on demand since it may change based on node creation/deletion
 	    if (this.URL) return true;
 	    return this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
 
-    isTag() {
-        // Is this node used as a tag => has webLinked children
-        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
-    }
     isTopic() {
-        return this.isTag();           // same thing, should refactor
+        // Is this node used as a topic => has webLinked children
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
     }
     
     isTopicTree() {
@@ -106,6 +120,9 @@ class BTNode {
     reparentNode(newP, index = -1) {
         // move node from existing parent to new one, optional positional order
         
+        // throw an exception if newP = oldP
+        if (newP == this._id) throw "reparentNode: setting self to parent!";
+
         const oldP = this.parentId;
         if (oldP)
             AllNodes[oldP].removeChild(this.id);
@@ -134,7 +151,7 @@ class BTNode {
         return outputStr;
     }
 
-    static editableTagFromTitle(title) {
+    static editableTopicFromTitle(title) {
         // Just return the [[][title]] part of the title
         let match = title.match(/\[\[.*\]\[(.*)\]\]/);
         return match ? match[1] : '';
@@ -193,8 +210,8 @@ class BTNode {
     static topIndex = 1;    // track the index of the next node to create, static class variable.
     
     static processTopicString(topic) {
-        // Tag string passed from popup can be: tag, tag:TODO, parent:tag or parent:tag:TODO
-        // return array[tagpath, TODO]
+        // Topic string passed from popup can be: topic, topic:TODO, parent:topic or parent:topic:TODO
+        // return array[topicpath, TODO]
 
         topic = topic.trim();
         let match = topic.match(/(.*):TODO/);
@@ -243,40 +260,40 @@ class BTNode {
         return topNode;
     }
     
-    fullTagPath() {
+    fullTopicPath() {
         // distinguished name for this node
-        const myTag = this.isTag() ? this.displayTag : '';
+        const myTopic = this.isTopic() ? this.displayTopic : '';
         if (this.parentId && AllNodes[this.parentId])
-            return AllNodes[this.parentId].fullTagPath() + ':' + myTag;
+            return AllNodes[this.parentId].fullTopicPath() + ':' + myTopic;
         else
-            return myTag;        
+            return myTopic;        
     }
     
-    generateUniqueTagPath() {
-        // same tag can be under multiple parents, generate a unique tagPath
+    generateUniqueTopicPath() {
+        // same topic can be under multiple parents, generate a unique topicPath
         // only called from ctor. suplanted by below. can't really amke uniquee without looking at all topics
 
-        if (!this.isTag()) {
+        if (!this.isTopic()) {
             if (this.parentId && AllNodes[this.parentId])
-                this._tagPath = AllNodes[this.parentId].tagPath;
+                this._topicPath = AllNodes[this.parentId].topicPath;
             else
-                this._tagPath = this._displayTag;
+                this._topicPath = this._displayTopic;
             return;
         }
         
-        if (this.displayTag == "") {
-            this._tagPath = this._displayTag;
+        if (this.displayTopic == "") {
+            this._topicPath = this._displayTopic;
             return;
         }
-        const sameTag = AllNodes.filter(nn => nn && nn.isTag() && nn.displayTag == this.displayTag);
-        if (sameTag.length == 1) {
+        const sameTopic = AllNodes.filter(nn => nn && nn.isTopic() && nn.displayTopic == this.displayTopic);
+        if (sameTopic.length == 1) {
             // unique
-            this._tagPath = this._displayTag;
+            this._topicPath = this._displayTopic;
             return;
         }
-        sameTag.forEach(function(nn) {
-            const parentTag = AllNodes[nn.parentId] ? AllNodes[nn.parentId].displayTag : "";
-            nn._tagPath = parentTag + ":" + nn.displayTag;
+        sameTopic.forEach(function(nn) {
+            const parentTag = AllNodes[nn.parentId] ? AllNodes[nn.parentId].displayTopic : "";
+            nn._topicPath = parentTag + ":" + nn.displayTopic;
         });
     }
     
@@ -290,13 +307,13 @@ class BTNode {
         let level = 1;
         AllNodes.forEach((n) => {
             if (!n) return;
-            if (n.isTag()) {
-                if (topics[n.displayTag]) {
-                    topics[n.displayTag].push(n.id);
+            if (n.isTopic()) {
+                if (topics[n.displayTopic]) {
+                    topics[n.displayTopic].push(n.id);
                     flat = false;
                 }
                 else
-                    topics[n.displayTag] = Array(1).fill(n.id);
+                    topics[n.displayTopic] = Array(1).fill(n.id);
             }});
 
         // !flat => dup topic names (<99 to prevent infinite loop
@@ -307,11 +324,11 @@ class BTNode {
                     // replace dups w DN of increasing levels until flat
                     delete topics[topic];
                     ids.forEach(id => {
-                        let tpath = AllNodes[id].displayTag;
+                        let tpath = AllNodes[id].displayTopic;
                         let parent = AllNodes[id].parentId;
                         for (let i = 1; i < level; i++) {
                             if (parent && AllNodes[parent]) {
-                                tpath = AllNodes[parent].displayTag + ":" + tpath;
+                                tpath = AllNodes[parent].displayTopic + ":" + tpath;
                                 parent = AllNodes[parent].parentId;
                             }
                         }                        
@@ -328,16 +345,16 @@ class BTNode {
 
         // Now walk thru map and assign unique DN to topic nodes
         Object.entries(topics).forEach(([topic, id]) => {
-            AllNodes[id[0]]._tagPath = topic;
+            AllNodes[id[0]]._topicPath = topic;
         });
         
         // Finally set topic for link nodes to parent
         AllNodes.forEach(node => {
-            if (!node.isTag()) {
+            if (!node.isTopic()) {
                 if (node.parentId && AllNodes[node.parentId])
-                    node._tagPath = AllNodes[node.parentId].tagPath;
+                    node._topicPath = AllNodes[node.parentId].topicPath;
                 else
-                    node._tagPath = node._displayTag;
+                    node._topicPath = node._displayTopic;
             }
         });
     }

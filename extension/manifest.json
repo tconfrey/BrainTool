@@ -11,10 +11,10 @@
     },
     "content_scripts": [
         {
-            //"matches": ["https://BrainTool.org/app/*"],
-            "matches": ["http://localhost:8000/app/*"],
+            "othermatches": ["https://BrainTool.org/app/*"],
+            "matches": ["http://localhost:8000/*"],
             "run_at" : "document_idle",
-            "js": ["btContentScript.js"]
+            "js": ["btContentScript.test.js"]
         }
     ],
     "action": {

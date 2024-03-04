@@ -41,17 +41,17 @@ function check(msg='') {
 
 /* Document data kept in storage.local */
 const storageKeys = ["BTFileText",                // golden source of BT .org text data
-"TabAction",                 // remember popup default action
-"currentTabId",
-"currentTag",                // for setting badge text
-"currentText",
-"mruTopics",                 // mru items used to default mru topic in popup
-"newInstall",                // true/false, for popup display choice
-"newVersion",                // used for popup to indicate an update to user
-"permissions",               // perms granted
-"ManagerHome",               // open in Panel or Tab
-"ManagerLocation",           // {top, left, width, height} of panel
-"tags"];                     // used for popup display
+                     "TabAction",                 // remember popup default action
+                     "currentTabId",
+                     "currentTopic",                // for setting badge text
+                     "currentText",
+                     "mruTopics",                 // mru items used to default mru topic in popup
+                     "newInstall",                // true/false, for popup display choice
+                     "newVersion",                // used for popup to indicate an update to user
+                     "permissions",               // perms granted
+                     "ManagerHome",               // open in Panel or Tab
+                     "ManagerLocation",           // {top, left, width, height} of panel
+                     "topics"];                   // used for popup display
 
 chrome.runtime.onUpdateAvailable.addListener(deets => {
     // Handle update. Store version so popup can inform and then upgrade
@@ -663,13 +663,13 @@ function setBadge(tabId) {
         }
     }
     if (MarqueeEvent) clearTimeout(MarqueeEvent);
-    chrome.storage.local.get(['currentTag', 'currentText'], function(data) {
-        if (!data.currentTag) {
+    chrome.storage.local.get(['currentTopic', 'currentText'], function(data) {
+        if (!data.currentTopic) {
             chrome.action.setBadgeText({'text' : "", 'tabId' : tabId},
                                        () => check('Resetting badge text:'));
             chrome.action.setTitle({'title' : 'BrainTool'});
         } else {
-            marquee(data.currentTag, 0);
+            marquee(data.currentTopic, 0);
             chrome.action.setTitle({'title' : data.currentText || 'BrainTool'});
             chrome.action.setBadgeBackgroundColor({'color' : '#59718C'});
         }
@@ -722,7 +722,7 @@ function exportBookmarks() {
     function exportNodeAsBookmark(btNode, parentBookmarkId) {
         // export this node and recurse thru its children
         chrome.bookmarks.create(
-            {title: btNode.displayTag, url: btNode.URL, parentId: parentBookmarkId},
+            {title: btNode.displayTopic, url: btNode.URL, parentId: parentBookmarkId},
             (bmNode) => {
                 btNode.childIds.forEach(i => {exportNodeAsBookmark(AllNodes[i], bmNode.id); });
             });

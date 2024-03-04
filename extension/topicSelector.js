@@ -50,7 +50,7 @@ const TopicSelector = (() => {
     }
 
     function generateTopicMap(topicsArray) {
-        // given array of {name:"tag", level:2} generate the display string (name "tag1:tag1" allowed)
+        // given array of {name:"topic", level:2} generate the display string (name "topic1:topic2" allowed)
         const openCaret = `<span class='caret open' style='cursor: auto; opacity: 25%'>&nbsp;</span>`;
         const closedCaret = `<span class='caret closed'>&nbsp;</span>`;
         const noCaret = `<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`;
@@ -171,7 +171,7 @@ const TopicSelector = (() => {
 
         if (!AwesomeWidget.isOpened) return;
         
-        // We previously set a default if window already has a tag. Make it easy to delete.
+        // We previously set a default if window already has a topic. Make it easy to delete.
         // NB 2 keys cos if popup is opened via keypress it counts, opened via click does not!
         if (Guessed && (KeyCount < 2) && (e.key == "Backspace")) {
             TopicElt.value = "";

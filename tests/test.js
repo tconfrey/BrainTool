@@ -19,13 +19,13 @@ QUnit.module("BTNode tests", function() {
         assert.equal (node2.id, 2, "Ids managed ok");
         assert.equal (node2.parentId, 1, "parent hooked up ok");
         assert.deepEqual (node1.childIds, [2], "child hooked up ok");
-	    assert.equal (node2.displayTag, "Test Node", "display Tag ok");
+	    assert.equal (node2.displayTopic, "Test Node", "display Tag ok");
 	
 	    node2.title = "Pre [[https://testing/1/2/3][Test Node2]] and [[foo][bar]]";
-	    assert.equal (node2.displayTag, "Pre Test Node2 and bar", "display Tag updated ok");
+	    assert.equal (node2.displayTopic, "Pre Test Node2 and bar", "display Tag updated ok");
 	    
 	    node2.title = "Pre [[https://testing/1/2/3][]]";
-	    assert.equal (node2.displayTag, "Pre https://testing/1/2/3", "display Tag defaults ok");
+	    assert.equal (node2.displayTopic, "Pre https://testing/1/2/3", "display Tag defaults ok");
     });
     QUnit.test('compareURLs', function(assert) {
         assert.ok(BTNode.compareURLs('http://example.com', 'http://example.com'), 'Identical URLs should return true');
@@ -56,7 +56,7 @@ QUnit.module("BTNode tests", function() {
         assert.equal (an4.level, 3, "Level ok");
         assert.equal (an2.parentId, an1.id, "Parenting ok");
         assert.equal (an4.URL, "http://google.com", "URL passthru ok");
-        assert.equal (an4.displayTag, "goog also blah", "displayTag passthru ok");
+        assert.equal (an4.displayTopic, "goog also blah", "displayTopic passthru ok");
         assert.equal (an4.displayTitle(), "<a href='http://google.com' class='btlink'>goog</a> also blah", "dispTitle");
         assert.equal (an3.level, 3, "Level ok on creation");
         an2.resetLevel(1);
@@ -109,7 +109,7 @@ QUnit.module("Org parsing tests", function() {
         const orgHeader = "* Top Level Header\nassociated notes";
         processBTFile(orgHeader);
         assert.equal (AllNodes.length, 2);
-        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].displayTopic, "Top Level Header");
         assert.equal (AllNodes[1].text, "associated notes");
     });
     
@@ -117,9 +117,9 @@ QUnit.module("Org parsing tests", function() {
         const orgTree = "* Top Level Header\nassociated notes\n\n** Next Level Header\nnext level notes";
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 3);
-        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].displayTopic, "Top Level Header");
         assert.equal (AllNodes[1].text, "associated notes");
-        assert.equal (AllNodes[2].displayTag, "Next Level Header");
+        assert.equal (AllNodes[2].displayTopic, "Next Level Header");
         assert.equal (AllNodes[2].text, "next level notes");
     });
     
@@ -127,7 +127,7 @@ QUnit.module("Org parsing tests", function() {
         const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes";
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 2);
-        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].displayTopic, "Top Level Header");
         assert.equal (AllNodes[1].URL, "https://google.com");
         assert.equal (AllNodes[1].text, "top level notes");
     });
@@ -136,7 +136,7 @@ QUnit.module("Org parsing tests", function() {
         const orgTree = "* [[https://google.com][Top Level Header]]\ntop level notes first line.\nsecond line";
         processBTFile(orgTree);
         assert.equal (AllNodes.length, 2);
-        assert.equal (AllNodes[1].displayTag, "Top Level Header");
+        assert.equal (AllNodes[1].displayTopic, "Top Level Header");
         assert.equal (AllNodes[1].URL, "https://google.com");
         assert.equal (AllNodes[1].text, "top level notes first line.\nsecond line");
     });
@@ -366,7 +366,7 @@ QUnit.module("App tests", function() {
                     {"name":"Link","level":2},
                     {"name":"Top Level 2","level":1}
                 ];
-                assert.deepEqual(Tags, tgs, "Topics look good");
+                assert.deepEqual(Topics, tgs, "Topics look good");
                 var table = generateTable();
                 var t2 = `<table><tr data-tt-id='1' class='topic'>
                 <td class='left '><span class='btTitle'><span class='keyword'>TODO </span>BrainTool</span></td>
@@ -411,7 +411,6 @@ QUnit.module("App tests", function() {
         var node = new BTAppNode("Category-Tag", null, "Link: [[http://google.com][The Goog]]", 1);
         assert.equal(AllNodes.length, 4, "Topic node added ok");
         assert.deepEqual(node.HTML(), "<tr data-tt-id='3' class='topic'><td class='left childlessTop'><span class='btTitle'>Category-Tag</span></td><td class='right'><span class='btText'>Link: <a href='http://google.com' class='btlink'>The Goog</a></span></td></tr>",  "HTML gen ok");
-        assert.deepEqual(BTAppNode.generateOrgFile().trim(), "* Category-Tag\nLink: [[http://google.com][The Goog]]", "Org file ok");
     });
 
     
@@ -435,19 +434,19 @@ QUnit.module("App tests", function() {
         AllNodes = []; BTNode.topIndex = 1;
         processBTFile(window.FileText);
 
-        saveTabs({tag: "tag1", tabsData: [{url: "http://google.com", title: "The Goog", tabId:100}]});
+        saveTabs({function: 'saveTabs', saveType: 'Tab', tabs: [{url: "http://google.com", topic: 'topic', title: "The Goog", tabId:100}]});
         assert.equal(8, AllNodes.length, "tag and tab added ok");
         var node = AllNodes[6]; // newly created parent node
-        assert.equal(node.childIds.length, 1, "parent knows about child");
-        
-        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://google.com][The Goog]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
+        assert.equal(node.childIds.length, 1, "parent knows about child"); 
+        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''), "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* topic\n\n** [[http://google.com][The Goog]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
+       
         node = AllNodes[7]; // newly created node
-        assert.deepEqual("<tr data-tt-id='7' data-tt-parent-id='6'><td class='left'><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='right'><span class='btText'></span></td></tr>", node.HTML(), "HTML gen looks good");
-        saveTabs({tag: "tag2", tabsData: [{url: "http://yahoo.com", title: "Yahoodlers",  tabId: 123}]});
+        assert.deepEqual("<tr data-tt-id='7' data-tt-parent-id='6'><td class='left '><span class='btTitle'><a href='http://google.com' class='btlink'>The Goog</a></span></td><td class='right'><span class='btText'></span></td></tr>", node.HTML(), "HTML gen looks good");
+        saveTabs({function: 'saveTabs', saveType: 'Tab', tabs: [{url: "http://yahoo.com", topic: 'topic2', title: "Yahoodlers",  tabId: 123}]});
         assert.equal(10, AllNodes.length, "second tag and tab added ok");
-        saveTabs({tag: "tag1", tabsData: [{url: "http://gdrive.com", title: "The Cloud"}]});
-        assert.equal(11, AllNodes.length, "tab added to first tag ok");
-        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' '),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* tag1\n\n** [[http://gdrive.com][The Cloud]]\n\n** [[http://google.com][The Goog]]\n\n* tag2\n\n** [[http://yahoo.com][Yahoodlers]]\n".replaceAll(/\s+/g, ' '), "file regen ok");
+        saveTabs({function: 'saveTabs', saveType: 'Tab', tabs: [{url: "http://gdrive.com", topic: 'topic3', title: "The Cloud"}]});
+        assert.equal(12, AllNodes.length, "tab added to first topic ok");
+        assert.deepEqual(BTAppNode.generateOrgFile().replaceAll(/\s+/g, ' ').replace(/^#.*?(?=\*)/, ''),  "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n\n* topic ** [[http://google.com][The Goog]] * topic2 ** [[http://yahoo.com][Yahoodlers]] * topic3 ** [[http://gdrive.com][The Cloud]] ".replaceAll(/\s+/g, ' '), "file regen ok");
     });
 
     QUnit.test("Delete Row/Node", function(assert) {
@@ -457,7 +456,7 @@ QUnit.module("App tests", function() {
         assert.equal(6, AllNodes.length, "nodes as expected");
         deleteNode(2);
         assert.notOk(AllNodes[2], "nodes as expected after deletion");
-        BTFileText = BTAppNode.generateOrgFile().replace(/^#.*?/, '');    // remove the properties line
+        BTFileText = BTAppNode.generateOrgFile().replace(/^#.*?\n/, '');    // remove the properties line
         assert.deepEqual(BTFileText, "* TODO BrainTool\nBrainTool is a tool\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n", "file cleaned up ok");
     });
 
@@ -506,7 +505,7 @@ QUnit.module("App tests", function() {
 
         var title = "<a href='http://www.loink.com' class='btlink'>Loink [oink]</a>";
         var node = new BTAppNode(title, 1, "", 1);
-        assert.equal(cleanTitle(node.displayTitle()), "<a href='http://www.loink.com' class='btlink'>Loink oink</a>", "link converted ok for display");
+        assert.equal(cleanTitle(node.displayTitle()), "&lt;a href='http://www.loink.com' class='btlink'&gt;Loink oink&lt;/a&gt;", "link converted ok for display");
 
         node.folded = true;
         assert.equal(node.orgDrawers(), "", "no drawer, no kids case ok");

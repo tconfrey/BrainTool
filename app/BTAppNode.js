@@ -14,8 +14,8 @@ class BTAppNode extends BTNode {
      * Basic node accessor functions w associated logic
      *
      ***/
-    constructor(title, parentId, text, level) {
-        super(title, parentId);
+    constructor(title, parentId, text, level, firstChild = false) {
+        super(title, parentId, firstChild);
         this._text = text;
         this._level = level;
         this._folded = false;
@@ -168,7 +168,7 @@ class BTAppNode extends BTNode {
         let rest = htmlText.substring(250);
         let reg = /.*?<\/a>/gm;                                // non greedy to get first
         if (!reg.exec(rest))
-            // no closing a tag so we're ok
+            // no closing expression so we're ok
             return htmlText.substring(0,250)+ellipse;
 
         // there is a closing a, find if there's a starting one
@@ -184,7 +184,7 @@ class BTAppNode extends BTNode {
     }
     
     displayTitle() {
-        // Node title as shown in tree, <a> for url. Compare to BTNode.displayTag = plain tag text
+        // Node title as shown in tree, <a> for url. Compare to BTNode.displayTitle
         let txt = "";
         if (this._keyword) txt += `<span class='keyword'>${this._keyword} </span>`; // TODO etc
 
@@ -216,7 +216,7 @@ class BTAppNode extends BTNode {
         // iterate thru children calling collapsenode
         this.childIds.forEach(id => {
             const node = AllNodes[id];
-            if (node?.isTag()) {
+            if (node?.isTopic()) {
                 $("table.treetable").treetable("collapseNode", id);
             }
         });
@@ -228,14 +228,16 @@ class BTAppNode extends BTNode {
         $("table.treetable").treetable("expandNode", this.id);
         this.childIds.forEach(id => {
             const node = AllNodes[id];
-            if (node?.isTag()) node.unfoldAll();
+            if (node?.isTopic()) node.unfoldAll();
         });
     }
     
-    createDisplayNode(atTop = false) {
-        // call out to treetable w nodes html, really its create or return
+    createDisplayNode() {
+        // call out to treetable w nodes html, really its create or return. 
+        // atTop is special case handling in ttable for a new top level node
         if (this.getTTNode()) return this.getTTNode();
-        let displayParent = (this.parentId) ? AllNodes[this.parentId].createDisplayNode() : null;
+        const atTop = (this.level == 1) ? true : false;
+        const displayParent = (this.parentId) ? AllNodes[this.parentId].createDisplayNode() : null;
         $("table.treetable").treetable("loadBranch", displayParent, this.HTML(), atTop);
         return this.getTTNode();
     }
@@ -347,16 +349,16 @@ class BTAppNode extends BTNode {
 	    const node = this.getDisplayNode();
 	    let titleStr;
         if (this.keyword && reg.test(this.keyword)) {
-            titleStr = `<b class='highlight tabgroup'>${this.keyword}</b> ${this.displayTag}`;
+            titleStr = `<b class='highlight tabgroup'>${this.keyword}</b> ${this.displayTopic}`;
 	        $(node).find("span.btTitle").html(titleStr);
             match = true;
-        } else if (reg.test(this.displayTag)) {
-	        titleStr = this.displayTag.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
+        } else if (reg.test(this.displayTopic)) {
+	        titleStr = this.displayTopic.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        $(node).find("span.btTitle").html(titleStr);
 	        match = true;
 	    } else if (reg.test(this.url())) {
 	        const hurl = this.url().replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
-	        titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTag + "</a>";
+	        titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTopic + "</a>";
 	        $(node).find("span.btTitle").html(titleStr);
 	        match = true;
 	    }
@@ -390,8 +392,8 @@ class BTAppNode extends BTNode {
         
 	    let titleStr;
 	    // Look for match in title/topic, url and note
-	    if (reg.test(this.displayTag)) {
-	        titleStr = this.displayTag.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
+	    if (reg.test(this.displayTopic)) {
+	        titleStr = this.displayTopic.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
 	        $(node).find("span.btTitle").html(titleStr);
 	        lmatch = true;
 	    }
@@ -515,13 +517,13 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': BTAppNode.displayNameFromTitle(this.displayTag)});
+                            'groupName': BTAppNode.displayNameFromTitle(this.displayTopic)});
     }
     
     putInGroup() {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
-        const groupName = this.isTopic() ? this.displayTag : AllNodes[this.parentId]?.displayTag;
+        const groupName = this.isTopic() ? this.displayTopic : AllNodes[this.parentId]?.displayTopic;
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
                             'groupName': groupName});
@@ -542,7 +544,7 @@ class BTAppNode extends BTNode {
         if (!this.hasOpenChildren()) return;
         const openTabIds = this.childIds.flatMap(
             c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-        window.postMessage({'function': 'groupAll', 'groupName': this.displayTag,
+        window.postMessage({'function': 'groupAll', 'groupName': this.displayTopic,
                             'tabIds': openTabIds, 'windowId': this.windowId});
     }
 */
@@ -568,7 +570,7 @@ class BTAppNode extends BTNode {
             if (n.hasOpenChildren()) {
                 const openTabIds = n.childIds.flatMap(
                     c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-                window.postMessage({'function': 'moveOpenTabsToTG', 'groupName': n.displayTag,
+                window.postMessage({'function': 'moveOpenTabsToTG', 'groupName': n.displayTopic,
                                     'tabIds': openTabIds, 'windowId': n.windowId});
             }
         });
@@ -766,7 +768,7 @@ class BTAppNode extends BTNode {
                 tabGroupTabs.push({'nodeId': id, 'url': node.URL});
         });
         const me = tabGroupTabs.length ?
-              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId, 'groupName': this.displayTag,
+              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId, 'groupName': this.displayTopic,
                'tabGroupTabs': tabGroupTabs} : [];
         const subtopics = this.childIds.flatMap(id => AllNodes[id].listOpenableTabGroups());
         return [me, ...subtopics].flat();
@@ -813,25 +815,25 @@ class BTAppNode extends BTNode {
         return parent.leftmostOpenTabIndex() + this.indexInParent();
     }
 
-    static generateTags() {
-        // Iterate thru nodes and generate array of tags and their nesting
+    static generateTopics() {
+        // Iterate thru nodes and generate array of topics and their nesting
 
-        function tagsForNode(id) {
+        function topicsForNode(id) {
             // recurse over children
             if (!AllNodes[id]) return;
-            if (AllNodes[id].isTag())
-                Tags.push({'name' : AllNodes[id].tagPath, 'level' : AllNodes[id].level});
+            if (AllNodes[id].isTopic())
+                Topics.push({'name' : AllNodes[id].topicPath, 'level' : AllNodes[id].level});
             for (const nid of AllNodes[id].childIds)
-                tagsForNode(nid);
+                topicsForNode(nid);
         }
         
-        // first make sure each node has a unique tagPath
+        // first make sure each node has a unique topicPath
         BTNode.generateUniqueTopicPaths();
-        Tags = new Array();
+        Topics = new Array();
         $("#content tr").each(function() {
             const id = $(this).attr('data-tt-id');
             if (AllNodes[id]?.level == 1)
-                tagsForNode(id);
+                topicsForNode(id);
         });
     }
     
@@ -862,12 +864,12 @@ class BTAppNode extends BTNode {
 
     static findFromWindow(winId) {
         // find topic from win
-        return AllNodes.find(node => node && node.isTag() && node.windowId == winId);
+        return AllNodes.find(node => node && node.isTopic() && node.windowId == winId);
     }
     
     static findFromGroup(groupId) {
         // find topic from tab group
-        return AllNodes.find(node => node && node.isTag() && node.tabGroupId == groupId);
+        return AllNodes.find(node => node && node.isTopic() && node.tabGroupId == groupId);
     }
     
     static findOrCreateFromTopicDN(topicDN) {
@@ -878,7 +880,7 @@ class BTAppNode extends BTNode {
         const topTopic = (components && components.length) ? components[0] : topic;
 
         // Find or create top node
-        let topNode = AllNodes.find(node => node && node.displayTag == topTopic);
+        let topNode = AllNodes.find(node => node && node.displayTopic == topTopic);
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);
             topNode.createDisplayNode();
@@ -962,8 +964,8 @@ class BTLinkNode extends BTAppNode {
         // return "";
     }
 
-    isTag() {
-        // Link nodes are never tags
+    isTopic() {
+        // Link nodes are never topics
         return false;
     }
 }   

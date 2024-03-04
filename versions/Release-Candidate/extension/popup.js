@@ -105,12 +105,9 @@ function windowOpen(home = 'PANEL', location) {
 
     // Create window, remember it and highlight it
     const version = chrome.runtime.getManifest().version;
-    // const url = "https://BrainTool.org/app/";
-    // const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
-    // const url = "https://BrainTool.org/versions/"+version+'/app/';
-    //
-    // Disgregard App store version id as used above since it must be monotonically increasing number format
-    const url = "https://BrainTool.org/versions/Release-Candidate/app/";
+   // const url = "https://BrainTool.org/app/";
+    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
+   // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
 
     // Default open in side panel
@@ -206,7 +203,7 @@ function popupOpen(tab) {
     
     // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
-        ['tags', 'currentTabId', 'currentTag', 'currentText',
+        ['topics', 'currentTabId', 'currentTopic', 'currentText',
          'currentTitle', 'mruTopics', 'saveAndClose'],
         data => {
             console.log(`title [${tab.title}], len: ${tab.title.length}, substr:[${tab.title.substr(0, 100)}]`);
@@ -221,8 +218,8 @@ function popupOpen(tab) {
             }
             
             // BT Page => just open card
-            if (data.currentTag && data.currentTabId && (data.currentTabId == tab.id)) {
-                OldTopic = data.currentTag;
+            if (data.currentTopic && data.currentTabId && (data.currentTabId == tab.id)) {
+                OldTopic = data.currentTopic;
                 document.getElementById('topicSelector').style.display = 'none';
                 document.getElementById('saveCheckboxes').style.display = 'none';
                 TopicCard.setupExisting(tab, data.currentText,
@@ -231,7 +228,7 @@ function popupOpen(tab) {
             }
 
             // New page. Guess at topic and open card
-            Topics = data.tags;
+            Topics = data.topics;
             if (data.mruTopics) {
                 // pre-fill to mru topic for window
                 const windowId = tab.windowId;
@@ -263,30 +260,6 @@ async function saveCB(close) {
 
     await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
                                       'close': close, 'topic': newTopic, 'note': note, 'title': title});
-    /*
-    if (wholeSession) {
-        // send message to background to save whole session
-        await chrome.runtime.sendMessage(
-            {'from': 'popup', 'function': 'importSession', 'close': close, 'topic': newTopic});
-    }
-    else if (allTabs || title) {
-        // need a topic and either an applied url/title or alltabs
-        
-        let message = {'function': 'storeTabs', 'tag': newTopic, 'note': note,
-                       'windowId': CurrentTab.windowId,
-                       'tabAction': close ? "CLOSE" : "GROUP"};
-        let tabsData = [];
-        tabsToStore.forEach(tab => {
-            // Send msg per tab to BT app for processing w text, topic and title info
-            const tabData = {'url': tab.url, 'title': allTabs ? tab.title : title,
-                             'tabId': tab.id, 'tabIndex': tab.index, 'faviconUrl': tab.favIconUrl};
-            tabsData.push(tabData);
-        });
-        message.tabsData = tabsData;
-        await chrome.tabs.sendMessage(BTTab, message);
-
-    }
-    */
     if (!close)              // if tab isn't closing animate the brain
         await chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
     await chrome.storage.local.set({'saveAndClose': close});
