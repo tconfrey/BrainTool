@@ -262,8 +262,7 @@ const gDriveFileManager = (() => {
             }
             // Update and Save FileID and save timestamp
             configManager.setProp('BTFileID', BTFileID);
-            configManager.getProp('BTTimestamp') ||
-            configManager.setProp('BTTimestamp', driveTimestamp);
+            configManager.getProp('BTTimestamp') || configManager.setProp('BTTimestamp', driveTimestamp);
 
         } else {
             console.log('BrainTool.org file not found, creating..');
@@ -395,6 +394,7 @@ const gDriveFileManager = (() => {
             console.log("Writing BT file to gdrive");
             UnwrittenChangesTimer = null;
 
+            BTFileID = BTFileID || configManager.getProp('BTFileID');
             if (!BTFileID) {
                 alert("BTFileID not set, not saving");
                 return -1;
