@@ -949,28 +949,28 @@ function tabGroupUpdated(data){
 
 function tabJoinedTG(data) {
     // tab joined TG, update associated topic as appropriate
+    // NB Get here when an existing page is opened in its TG as well as page dropping into TG. Former is no-op
+    // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
 
     const tabId = data.tabId;
     const tgId = data.groupId;
+    const tabNode = BTAppNode.findFromTab(tabId);
+    const topicNode = BTAppNode.findFromGroup(tgId);
+    if (tabNode || !topicNode) return;                              // n/a || don't care
     const tab = data.tab;
     const index = data.tabIndex;
     const indices = data.tabIndices;
     const winId = data.windowId;
-    let tabNode = BTAppNode.findFromTab(tabId);
-    const topicNode = BTAppNode.findFromGroup(tgId);
-    if (!topicNode) return;                              // don't care
-    if (!tabNode) {
-        // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
-        tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
+   
+    tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
                                 "", topicNode.level + 1);
-        tabNode.tabId = tabId;
-        tabNode.tabGroupId = tgId;
-        tabNode.faviconUrl = tab.favIconUrl;
-        $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
-        tabNode.populateFavicon();
-        initializeUI();
-        changeSelected(tabNode);
-    }
+    tabNode.tabId = tabId;
+    tabNode.tabGroupId = tgId;
+    tabNode.faviconUrl = tab.favIconUrl;
+    $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
+    tabNode.populateFavicon();
+    initializeUI();
+    changeSelected(tabNode);
     positionInTopic(topicNode, tabNode, index, indices, winId);
 }
 
@@ -1022,7 +1022,11 @@ function tabMoved(data) {
 function positionInTopic(topicNode, tabNode, index, indices, winId) {
     // Position tab node under topic node as per tab ordering in browser
     
-    // first find where tabNode should go under topicNode.
+    // first update indices and find where tabNode should go under topicNode.
+    for (let [tabId, tabData] of Object.entries(indices)) {
+        let n = BTAppNode.findFromTab(tabId);
+        if (n) n.tabIndex = tabData.index;
+    }
     let dropUnderNode = topicNode;
     const leftIndex = topicNode.leftmostOpenTabIndex();
     if (index > leftIndex) {

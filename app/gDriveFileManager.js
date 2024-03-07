@@ -419,6 +419,7 @@ const gDriveFileManager = (() => {
                     SaveUnderway = false;
                     alert("BT - Error accessing GDrive.");
                     console.log("Error in writeBTFile: ", JSON.stringify(err));
+                    _renewTokenAndRetryWrite();
                     return;
                 });
             }
@@ -427,6 +428,19 @@ const gDriveFileManager = (() => {
                 alert("BT - Error saving to GDrive.");
                 console.log("Error in _writeBTFile: ", JSON.stringify(err));
                 return;
+            }
+        }
+
+        function _renewTokenAndRetryWrite() {
+        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
+            if (confirm("BT - Error accessing GDrive. Would you like to renew the token and try again?")) {
+                renewToken().then(() => {
+                    // Retry the current function here.
+                    _writeBTFile();
+                }).catch((error) => {
+                    // Clean up aisle five!!! Tell user to reconnect or something.
+                    console.error("Failed to renew token: ", error);
+                });
             }
         }
     }

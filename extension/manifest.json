@@ -14,7 +14,7 @@
             "othermatches": ["https://BrainTool.org/app/*"],
             "matches": ["http://localhost:8000/*"],
             "run_at" : "document_idle",
-            "js": ["btContentScript.test.js"]
+            "js": ["btContentScript.js"]
         }
     ],
     "action": {

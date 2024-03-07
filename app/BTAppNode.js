@@ -983,7 +983,7 @@ const Handlers = {
     "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
     "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
     "tabNavigated": tabNavigated,           // User navigated a tab to a new url
-    "tabOpened" : tabOpened,                // New tab opened
+    "tabOpened" : tabOpened,                // New tab opened by bg on our behalf
     "tabMoved" : tabMoved,                  // user moved a tab
     "tabPositioned": tabPositioned,         // tab moved by extension
     "tabClosed" : tabClosed,                // tab closed

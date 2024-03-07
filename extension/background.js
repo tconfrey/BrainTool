@@ -528,7 +528,7 @@ function openTabGroups(msg, sender) {
     });
 }
 
-function groupAndPositionTabs(msg, sender) {
+async function groupAndPositionTabs(msg, sender) {
     // array of {nodeId, tabId, tabIndex} to group in tabGroupId and order
 
     const tabGroupId = msg.tabGroupId;
@@ -541,12 +541,13 @@ function groupAndPositionTabs(msg, sender) {
     const tabIds = tabInfo.map(t => t.tabId);
     const groupArgs = tabGroupId ?
           {'tabIds': tabIds, 'groupId': tabGroupId} : windowId ?
-          {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} :
-          {'tabIds': tabIds};
+            {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} : {'tabIds': tabIds};
     console.log(`groupAndposition.groupArgs: ${JSON.stringify(groupArgs)}`);
     if (!tabIds.length) return;                                       // shouldn't happen, but safe
 
-    chrome.tabs.move(tabIds, {'index': tabInfo[0].tabIndex}, tabs => {
+    const firstTab = await chrome.tabs.get(tabIds[0]);
+    const tabIndex = tabInfo[0].tabIndex || firstTab.index;
+    chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
         // first move tabs into place
         check('groupAndPositionTabs-move');
         chrome.tabs.group(groupArgs, groupId => {
@@ -823,7 +824,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
     });
-    // Send save msg to BT. NB reverse tabs array cos push operations above reversed the displayed tab order in the browser
+    // Send save msg to BT.
     if (tabsToSave.length) btSendMessage(BTTab, {'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
     btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab
 
