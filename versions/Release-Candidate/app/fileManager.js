@@ -18,9 +18,9 @@ async function handleStartupFileConnection() {
     let launchType = 'UnsyncedLaunch';
 
     // Handle GDrive connection
-    if (configManager.getProp('BTGDriveConnected') == 'true') {
+    if (configManager.getProp('BTGDriveConnected')) {
         GDriveConnected = true;
-        gDriveFileManager.authorizeGapi();
+        authorizeGAPI(false);
         launchType = 'GDriveLaunch';
     }
 
@@ -73,7 +73,7 @@ async function authorizeLocalFile() {
     const success = await localFileManager.authorizeLocalFile();
     if (!success) return false;
 
-    configManager.setProp('BTGDriveConnected', 'false');
+    configManager.setProp('BTGDriveConnected', false);
     configManager.setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
     alert('Local file sync established. See Actions to disable.');
@@ -81,7 +81,19 @@ async function authorizeLocalFile() {
 }
 
 function authorizeGAPI(userInitiated) {
-    // just pass thru
+    // load apis and pass thru to gdrive file manager
+    if (!window.gapi) {
+        let gapiscript = document.createElement('script');
+        gapiscript.src = 'https://apis.google.com/js/api.js';               // URL of the Google API script
+        gapiscript.onload = gapiLoadOkay;
+        gapiscript.onerror = gapiLoadFail;
+        let gisscript = document.createElement('script');
+        gisscript.src = 'https://accounts.google.com/gsi/client';          // URL of the Google GIS script
+        gisscript.onload = gisLoadOkay;
+        gisscript.onerror = gisLoadFail;
+        document.head.appendChild(gapiscript);
+        document.head.appendChild(gisscript);
+    }
     gDriveFileManager.authorizeGapi(userInitiated);
 }   
 

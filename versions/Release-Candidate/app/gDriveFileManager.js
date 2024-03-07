@@ -8,6 +8,8 @@ var gapiLoadOkay, gapiLoadFail, gisLoadOkay, gisLoadFail
 
 const gDriveFileManager = (() => {
     const gapiLoadPromise = new Promise((resolve, reject) => {
+        // See index.html where apis.google.com etc are loaded, gapiLoadOkay is called from there this ensuring the lib is loaded
+        // when the promise is resolved.
         gapiLoadOkay = resolve;
         gapiLoadFail = reject;
     });
@@ -16,15 +18,51 @@ const gDriveFileManager = (() => {
         gisLoadFail = reject;
     });
 
-    // Array of API discovery doc URLs for APIs used by the quickstart
+    // URL of the api we need to load
     var DiscoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
     // Authorization scopes required by the API;
     // Need to be able to create/read/write BTFile
     var Scopes = 'https://www.googleapis.com/auth/drive.file';
-    //  Turns out query is supported by .file for app-created files and make approval simpler.
-    // https://www.googleapis.com/auth/drive.metadata.readonly';
     var tokenClient = null;
+
+    async function initClient(userInitiated = false) {
+
+        console.log("Initializing GDrive client app");
+        let timeout = setTimeout(checkLoginReturned, 60000);
+        try {
+            // First, load and initialize the gapi.client
+            await gapiLoadPromise;
+            await new Promise((resolve, reject) => {
+                gapi.load('client', {callback: resolve, onerror: reject});
+            });
+            await gapi.client.init({
+                apiKey: configManager.getProp('API_KEY'),
+                discoveryDocs: DiscoveryDocs
+            }); 
+            await gapi.client.load(DiscoveryDocs[0]);  // Load the Drive API
+
+            // Now load the GIS client. tokenClient will be used to obtain the access token
+            await gisLoadPromise;
+            await new Promise((resolve, reject) => {
+                try {
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: configManager.getProp('CLIENT_ID'), 
+                        scope: Scopes,
+                        prompt: '',
+                        callback:  '',  // defined at request time in await/promise scope.
+                    });
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                }
+            });
+            await findOrCreateBTFile(userInitiated);
+        } catch (e){
+            console.warn("Error in initClient:", e.toString());
+            return false;
+        }
+    }
 
     const handleFetchResponse = (response, jsonOrText=true) => {
         if (response.ok) {
@@ -36,7 +74,7 @@ const gDriveFileManager = (() => {
 
     const shouldUseGoogleDriveApi = () => {
         // return false;
-        return gapi.client.drive !== undefined
+        return gapi.client.drive !== undefined;
     }
 
     /**
@@ -46,65 +84,49 @@ const gDriveFileManager = (() => {
      * @param {boolean} jsonOrText - true if we want response.json(), other response.text() will be returned.
      */
     const fetchWrapper = async (url, jsonOrText = true) => {
-        if (getAccessToken() === null)
-            await getToken()
-        // Otherwise, if token exists, it might still be expired, so the wrapper function is needed
+        
+        await getAccessToken();
+        // Even if token exists, it might still be expired, so the wrapper function is needed
         return getTokenAndRetryFunctionAfterAuthError(fetch, [url,{
             headers: {
                 Authorization: `Bearer ${getAccessToken()}`
             }
         }]).then(resp => handleFetchResponse(resp, jsonOrText))
     }
-    async function getToken(err, shouldThrowError = false, callback) {
-        if ((getAccessToken() === null) || (err?.result.error.code == 401 || (err?.result.error.code == 403) &&
-            (err?.result.error.status == "PERMISSION_DENIED"))) {
-            // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
-            await new Promise((resolve, reject) => {
-                try {
-                    // Settle this promise in the response callback for requestAccessToken()
-                    tokenClient.callback = (resp) => {
-                        if (resp.error !== undefined) {
-                            reject(resp);
-                        }
-                        // GIS has automatically updated gapi.client with the newly issued access token.
-                        console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
-                        resolve(resp);
-                        configManager.setProp('BTGDriveConnected', 'true');
-                        GDriveConnected = true;
-                        // Todo: handle userInitiated parameter
-                        updateSigninStatus(true, false);
-                        if (callback)
-                            callback()
-                    };
-                    tokenClient.requestAccessToken();
-                } catch (err) {
-                    updateSigninStatus(false, err)
-                    reject(err)
-                    console.log(err)
-                }
-            });
-        } else {
-            // todo: check if err should be passed as second argument here?
-            updateSigninStatus(false)
-            // Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
-            if (shouldThrowError)
-                throw new Error(err);
-        }
+    
+    async function getAccessToken() {
+        // Get token or die trying
+        if (gapi.client.getToken()?.access_token) return gapi.client.getToken()?.access_token;
+
+        // else there's some kind of issue. retry and reset signinstatus
+        console.warn("BT - Error Google Access Token not available. Trying to reAuth...");
+        const token = await renewToken();
+        updateSigninStatus(gapi.client.getToken()?.access_token !== undefined);
+        return token;
+    }
+    
+    async function renewToken() {
+        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
+        await new Promise((resolve, reject) => {
+            try {
+                // Settle this promise in the response callback for requestAccessToken()
+                tokenClient.callback = (resp) => {
+                    if (resp.error !== undefined) reject(resp);
+                    
+                    // GIS has automatically updated gapi.client with the newly issued access token.
+                    console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
+                    resolve(resp);
+                };
+                tokenClient.requestAccessToken();
+            } catch (err) {
+                updateSigninStatus(false);
+                reject(err);
+                console.log(err);
+            }
+        });
     }
 
     /**
-     * This function replaces AuthObject.signOut
-     */
-    function revokeToken() {
-        let cred = gapi.client.getToken();
-        if (cred !== null) {
-            google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
-            gapi.client.setToken('');
-            GDriveConnected = false;
-        }
-    }
-    /**
-     * This is a replacement of previous gDriveFileManager.reAuth function
      * @param func - a function or a function generator
      * @param {any[]} args - parameters of the function
      * @returns {Promise<any>}
@@ -114,21 +136,32 @@ const gDriveFileManager = (() => {
     async function getTokenAndRetryFunctionAfterAuthError(func, args, isFunctionGenerated = false) {
         let func_ = func;
         try {
+            await getAccessToken()
             if (isFunctionGenerated) func_ = func()
             return func_(...args)
         } catch (err) {
-            await getToken(err, true)
-            if (isFunctionGenerated) func_ = func()
-            return func_(...args)
+            console.error("Error in getTokenAndRetryFunctionAfterAuthError: ", JSON.stringify(err));
         }
     }
+
+    function revokeToken() {
+        // Not actually ever needed, but here for completeness
+        let cred = gapi.client.getToken();
+        if (cred !== null) {
+            google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
+            gapi.client.setToken('');
+            GDriveConnected = false;
+        }
+    }
+
     async function saveBT(BTFileText) {
         try {
             // Save org version of BT Tree to gdrive.
-            await getTokenAndRetryFunctionAfterAuthError(writeBTFile, [BTFileText]);
+            await getAccessToken();
+            writeBTFile (BTFileText);
         } catch(err) {
             alert(`Changes saved locally. GDrive connection failed. Google says:\n${JSON.stringify(err)}`);
-            GDriveConnected = false;
+            updateSigninStatus(false);
             console.log("Error in saveBT:", err);
         }
     }
@@ -147,47 +180,6 @@ const gDriveFileManager = (() => {
         (async () => await initClient(userInitiated))()
     }
 
-    async function initClient(userInitiated = false) {
-
-        console.log("Initializing GDrive client app");
-        let timeout = setTimeout(checkLoginReturned, 60000);
-        try {
-            // First, load and initialize the gapi.client
-            await gapiLoadPromise;
-            await new Promise((resolve, reject) => {
-                // NOTE: the 'auth2' module is no longer loaded.
-                gapi.load('client', {callback: resolve, onerror: reject});
-            });
-            await gapi.client.init({
-                // NOTE: OAuth2 'scope' and 'client_id' parameters have moved to initTokenClient().
-            }).then(function() {  // Load the Calendar API discovery document.
-                gapi.client.load(DiscoveryDocs[0])
-            });
-
-            // Now load the GIS client
-            await gisLoadPromise;
-            await new Promise((resolve, reject) => {
-                try {
-                    tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: configManager.getProp('CLIENT_ID'), 
-                        scope: Scopes,
-                        prompt: '',
-                        callback: '',  // defined at request time in await/promise scope.
-                    });
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                    return false;
-                }
-            });
-            // toannc: updateSigninStatus is not done here, but instead moved into gDriveFileManager.getToken()
-            await findOrCreateBTFile(userInitiated)
-        } catch (e){
-            // toannc: updateSigninStatus is not done here, but instead moved into gDriveFileManager.getToken()
-            console.warn("Error in initClient:", e.toString());
-            return false;
-        }
-    }
     function checkLoginReturned() {
         // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger
         $('body').removeClass('waiting');
@@ -201,6 +193,49 @@ const gDriveFileManager = (() => {
     var BTFileID;
     async function findOrCreateBTFile(userInitiated) {
         // on launch or explicit user 'connect to Gdrive' action (=> userInitiated)
+
+        const files  = await connectAndFindFiles();
+        if (!files?.length) {
+            console.log('BrainTool.org file not found, creating..');
+            await createStartingBT();
+            return;
+        }
+
+        // One of more BrainTool.org files found, get the one that matches our BTFileID, or just the first
+        const savedFileId = configManager.getProp('BTFileID');
+        const file = files.find((f) => f.id == (savedFileId || 0)) || files[0];
+        BTFileID = file.id;
+        const driveTimestamp = Date.parse(file.modifiedTime);
+        if (userInitiated || (driveTimestamp > configManager.getProp('BTTimestamp'))) {
+            // if user just initiated connection but file exists ask to import
+            // or if we have a recorded version thats older than disk, ask to import
+            const msg = userInitiated ?
+                "BrainTool.org file already exists. Use its contents?" :
+                "BrainTool.org file is newer than browser data. Use newer?";
+            if (confirm(msg)) {
+                try {
+                    await refreshTable(true);
+                    configManager.setProp('BTTimestamp', driveTimestamp);
+                    messageManager.removeWarning(); // warning may have been set, safe to remove
+                    
+                    // later in flow property save was overwriting w old data on upgrade,
+                    // so resave here to get disk version written to memory etc.
+                    if (BTFileText) await gDriveFileManager.saveBT(BTFileText);
+                }
+                catch (err) {
+                    alert("Error parsing BrainTool.org file from GDrive:\n" + JSON.stringify(err));
+                    throw(err);
+                }
+            }
+        }
+        // Update and Save FileID and save timestamp
+        updateStatsRow(driveTimestamp);
+        configManager.setProp('BTFileID', BTFileID);
+        configManager.getProp('BTTimestamp') || configManager.setProp('BTTimestamp', driveTimestamp);
+    } 
+
+    async function connectAndFindFiles() {
+        // Connect to Drive api and search for and return potential BT files
         let response, files;
         try {
             if (shouldUseGoogleDriveApi()) {
@@ -214,8 +249,7 @@ const gDriveFileManager = (() => {
             else {
                 // Connect to GAPI using fetch as a backup method
                 const url = "https://www.googleapis.com/drive/v3/files?pageSize=1&fields=files(id,name,modifiedTime)&q=name='BrainTool.org' and not trashed";
-                files = await fetchWrapper(url)
-                    .then(resp => resp.files)
+                files = await fetchWrapper(url).then(resp => resp.files);
             }
         }
         catch (err) {
@@ -228,61 +262,18 @@ const gDriveFileManager = (() => {
             return;
         }
         GDriveConnected = true;
-        if (files && files.length > 0) {
-            const savedFileId = configManager.getProp('BTFileID');
-            const file = files.find((f) => f.id == (savedFileId || 0)) || files[0];
-            BTFileID = file.id;
-            const driveTimestamp = Date.parse(file.modifiedTime);
-            updateStatsRow(driveTimestamp);
-            if (userInitiated ||
-                (configManager.getProp('BTTimestamp') &&
-                    (driveTimestamp > configManager.getProp('BTTimestamp')))
-               )
-            {
-                // if user just initiated connection but file exists ask to import
-                // or if we have a recorded version thats older than disk, ask to import
-                const msg = userInitiated ?
-                    "BrainTool.org file already exists. Use its contents?" :
-                    "BrainTool.org file is newer than browser data. Use newer?";
-                if (confirm(msg)) {
-                    try {
-                        await refreshTable(true);
-                        configManager.setProp('BTTimestamp', driveTimestamp);
-                        messageManager.removeWarning(); // warning may have been set, safe to remove
-
-                        // later in flow property save was overwriting w old data on upgrade,
-                        // so resave here to get disk version written to memory etc.
-                        if (BTFileText) await gDriveFileManager.saveBT(BTFileText);
-                    }
-                    catch (err) {
-                        alert("Error parsing BrainTool.org file from GDrive:\n" + JSON.stringify(err));
-                        throw(err);
-                    }
-                }
-            }
-            // Update and Save FileID and save timestamp
-            configManager.setProp('BTFileID', BTFileID);
-            configManager.getProp('BTTimestamp') || configManager.setProp('BTTimestamp', driveTimestamp);
-
-        } else {
-            console.log('BrainTool.org file not found, creating..');
-            await createStartingBT();
-        }
+        return files;
     }
-
 
     async function createStartingBT() {
         // Upload current BTFileText to newly created BrainTool.org file on GDrive
 
         // get accessToken, pass retry cb for if not available
-        const accessToken = getAccessToken(createStartingBT);
-        if (!accessToken)
-            return;
+        const accessToken = await getAccessToken();
 
         var metadata = {
             'name': 'BrainTool.org',                   // Filename at Google Drive
             'mimeType': 'text/plain'                   // mimeType at Google Drive
-            /*      'parents': ['### folder ID ###'],      // Folder ID at Google Drive */
         };
 
         try {
@@ -320,6 +311,7 @@ const gDriveFileManager = (() => {
             return;
         }
         try {
+            await getAccessToken();
             if (shouldUseGoogleDriveApi()) {
                 BTFileText = await gapi.client.drive.files.get({
                     fileId: BTFileID,
@@ -333,24 +325,8 @@ const gDriveFileManager = (() => {
             configManager.setProp('BTTimestamp', remoteVersion);
         }
         catch(error) {
-            console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].\n Reauthenticating...`);
-            // Todo: check if this could cause infinite loop
-            getToken(getBTFile);
+            console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].`);
         }
-    }
-
-
-    function getAccessToken(cb) {
-        // Get token or die trying
-        const accessToken = gapi.client.getToken()?.access_token ? gapi.client.getToken().access_token : null;
-        if (accessToken)
-            return accessToken;
-
-        // else there's some kind of issue. retry
-        console.error("BT - Error Google Access Token not available. Trying to reAuth...");
-        if (cb)
-            getToken(undefined, undefined, cb)
-        return null;
     }
 
     window.LOCALTEST = false; // overwritten in test harness
@@ -376,7 +352,6 @@ const gDriveFileManager = (() => {
                 return await _writeBTFile();
             }
             catch(err) {
-                //alert("BT - Error accessing GDrive. Toggle GDrive authorization and retry");
                 console.log("Error in writeBTFile: ", JSON.stringify(err));
                 throw(err);
             }
@@ -396,36 +371,29 @@ const gDriveFileManager = (() => {
 
             BTFileID = BTFileID || configManager.getProp('BTFileID');
             if (!BTFileID) {
-                alert("BTFileID not set, not saving");
-                return -1;
-            }
-            if (typeof gapi === "undefined") {           // Should not happen
-                alert("BT - Error in writeBTFile. Google API not available.");
-                return -1;
+                alert("BTFileID not set, not saving to GDrive");
+                return;
             }
 
-            // check we're not overwriting remote file
-            const warn = await checkBTFileVersion();
-            if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite?\nNB changes have been made locally either way."))
-                return -1;
-
-            const metadata = {
-                'name': 'BrainTool.org',                 // Filename at Google Drive
-                'mimeType': 'text/plain'                 // mimeType at Google Drive
-            };
             try {
-                // get accessToken, pass retry cb for if not available
-                const accessToken = getAccessToken(writeBTFile);
-                if (!accessToken)
-                    return -1;
-
+                const accessToken = await getAccessToken();
+                if (!accessToken) throw new Error("Access token is not available");
+            
+                // check we're not overwriting remote file
+                const warn = await checkBTFileVersion();
+                if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite it?\nNB changes have been made locally either way."))
+                    return;
+                
+                // go about saving the file
+                SaveUnderway = true;
+                const metadata = {
+                    'name': 'BrainTool.org',                 // Filename at Google Drive
+                    'mimeType': 'text/plain'                 // mimeType at Google Drive
+                };
                 let form = new FormData();
                 console.log("writing BT file. accessToken = ", accessToken);
-                form.append('metadata', new Blob([JSON.stringify(metadata)],
-                    { type: 'application/json' }));
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
                 form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
-
-                SaveUnderway = true;
 
                 await fetch('https://www.googleapis.com/upload/drive/v3/files/'
                     + encodeURIComponent(BTFileID)
@@ -437,10 +405,9 @@ const gDriveFileManager = (() => {
                     }).then((res) => {
                     SaveUnderway = false;
                     if (!res.ok) {
-                        console.error("BT - error writing to GDrive, reauthenticating...");
+                        console.error("BT - error writing to GDrive");
                         console.log("GAPI response:\n", JSON.stringify(res));
-                        // reAuth(writeBTFile);
-                        return -1;
+                        return;
                     }
                     return res.json();
                 }).then(function(val) {
@@ -452,14 +419,14 @@ const gDriveFileManager = (() => {
                     SaveUnderway = false;
                     alert("BT - Error accessing GDrive.");
                     console.log("Error in writeBTFile: ", JSON.stringify(err));
-                    return -1;
+                    return;
                 });
             }
             catch(err) {
                 SaveUnderway = false;
                 alert("BT - Error saving to GDrive.");
                 console.log("Error in _writeBTFile: ", JSON.stringify(err));
-                return -1;
+                return;
             }
         }
     }
@@ -468,6 +435,7 @@ const gDriveFileManager = (() => {
         // query Drive for last modified time 
         if (!BTFileID || !GDriveConnected) return 0;
         try {
+            await getAccessToken();
             let response;
             if (shouldUseGoogleDriveApi()) {
                 response = await gapi.client.drive.files.get({
@@ -481,10 +449,6 @@ const gDriveFileManager = (() => {
             return Date.parse(response.modifiedTime);
         } catch (e) {
             console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
-            if (e.status == 401) {
-                console.error('Auth expired, calling reAuth and continuing');
-                getToken(e)
-            }
             return 0;
         }
     }
@@ -500,38 +464,27 @@ const gDriveFileManager = (() => {
 
     async function updateSigninStatus(signedIn, error=false, userInitiated = false) {
         // CallBack on GDrive signin state change
+        let alertText;
         if (error) {
-            let msg = "Error Authenticating with Google. Google says:\n'";
-            msg += (error.details) ? error.details : JSON.stringify(error);
-            msg += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
-            msg += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
-            alert(msg);
-            return;
+            alertText = "Error Authenticating with Google. Google says:\n'";
+            alertText += (error.details) ? error.details : JSON.stringify(error);
+            alertText += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
+            alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
         }
         if (signedIn) {
             gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
-            updateSyncSettings(true);            // common fileManager fn to show connectivity info
-            GDriveConnected = true;
-
-            // Upgrades from before 0.9 to 0.9+ need to load from GDrive before first save, and then resave
-            if (UpgradeInstall &&
-                (UpgradeInstall.startsWith('0.8') ||
-                    UpgradeInstall.startsWith('0.7') ||
-                    UpgradeInstall.startsWith('0.6')))
-            {
-                alert("From BrainTool 0.9 onwards Google Drive is optional. \nYou already enabled GDrive permissions so I'm reestablishing the connection...");
-                await refreshTable(true);                       // Read previous org from GDrive
-                saveBT();                                       // save to record it's now synced
-            }
             if (userInitiated) {
                 saveBT();                                       // also save if newly authorized
-                alert('GDrive connection established. See Actions to disable.');
+                alertText = 'GDrive connection established. See Actions to disable.';
             }
         } else {
-            alert("GDrive connection lost");
-            updateSyncSettings(false);
-            GDriveConnected = false;
+            alertText = "GDrive connection lost";
         }
+        alertText && alert(alertText);
+
+        updateSyncSettings(signedIn);            // common fileManager fn to show connectivity info
+        GDriveConnected = signedIn;
+        configManager.setProp('BTGDriveConnected', signedIn);
     }
 
     return {
