@@ -1278,7 +1278,7 @@ function editRow(e) {
 
 $(".editNode").on('input', function() {
     // enable update button if one of the texts is edited and title is not empty
-    // if (!$("#topicName").val()) return;
+    if (!$("#topicName").val()) return;
     $("#update").prop('disabled', false);
 });
 
@@ -1286,7 +1286,7 @@ $("#editOverlay").click(function(e) {
     // click on the backdrop closes the dialog
     if (e.target.id == 'editOverlay')
     {
-        closeDialog();
+        closeDialog(cancelEdit); 
         $("#buttonRow").show(100);
     }
 });

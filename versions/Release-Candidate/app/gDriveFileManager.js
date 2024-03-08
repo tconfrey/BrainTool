@@ -73,6 +73,7 @@ const gDriveFileManager = (() => {
     }
 
     const shouldUseGoogleDriveApi = () => {
+        // or alternative fetch via url
         // return false;
         return gapi.client.drive !== undefined;
     }
@@ -121,7 +122,7 @@ const gDriveFileManager = (() => {
             } catch (err) {
                 updateSigninStatus(false);
                 reject(err);
-                console.log(err);
+                console.log("Error renewing token: " + JSON.stringify(err));
             }
         });
     }
@@ -154,7 +155,8 @@ const gDriveFileManager = (() => {
         }
     }
 
-    async function saveBT(BTFileText) {
+    async function saveBT(fileText) {
+        BTFileText = fileText;
         try {
             // Save org version of BT Tree to gdrive.
             await getAccessToken();
@@ -190,7 +192,7 @@ const gDriveFileManager = (() => {
     /**
      * Find or initialize BT file at gdrive
      */
-    var BTFileID;
+    var BTFileID, BTFileText;
     async function findOrCreateBTFile(userInitiated) {
         // on launch or explicit user 'connect to Gdrive' action (=> userInitiated)
 
@@ -337,7 +339,7 @@ const gDriveFileManager = (() => {
         return SaveUnderway || UnwrittenChangesTimer;
     }
 
-    async function writeBTFile(BTFileText) {
+    async function writeBTFile() {
         // Notification of change to save. Don't write more than once every 15 secs.
         // If timer is already set then we're waiting for 15 secs so just return.
         // If a save is not underway and its been 15 secs call _write to save
@@ -362,88 +364,88 @@ const gDriveFileManager = (() => {
                 console.log("Holding BT file write");
             }
         }
-
-        async function _writeBTFile() {
-            // Write file contents into BT.org file on GDrive
-            // NB Have to be careful to keep SaveUnderway up to date on all exit paths
-            console.log("Writing BT file to gdrive");
-            UnwrittenChangesTimer = null;
-
-            BTFileID = BTFileID || configManager.getProp('BTFileID');
-            if (!BTFileID) {
-                alert("BTFileID not set, not saving to GDrive");
-                return;
-            }
-
-            try {
-                const accessToken = await getAccessToken();
-                if (!accessToken) throw new Error("Access token is not available");
-            
-                // check we're not overwriting remote file
-                const warn = await checkBTFileVersion();
-                if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite it?\nNB changes have been made locally either way."))
-                    return;
-                
-                // go about saving the file
-                SaveUnderway = true;
-                const metadata = {
-                    'name': 'BrainTool.org',                 // Filename at Google Drive
-                    'mimeType': 'text/plain'                 // mimeType at Google Drive
-                };
-                let form = new FormData();
-                console.log("writing BT file. accessToken = ", accessToken);
-                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-                form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
-
-                await fetch('https://www.googleapis.com/upload/drive/v3/files/'
-                    + encodeURIComponent(BTFileID)
-                    + '?uploadType=multipart&fields=id,version,modifiedTime',
-                    {
-                        method: 'PATCH',
-                        headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-                        body: form
-                    }).then((res) => {
-                    SaveUnderway = false;
-                    if (!res.ok) {
-                        console.error("BT - error writing to GDrive");
-                        console.log("GAPI response:\n", JSON.stringify(res));
-                        return;
-                    }
-                    return res.json();
-                }).then(function(val) {
-                    console.log(val);
-                    const mt = Date.parse(val.modifiedTime);
-                    configManager.setProp('BTTimestamp', mt);
-                    updateStatsRow(mt);	     // update stats when we know successful save
-                }).catch(function(err) {
-                    SaveUnderway = false;
-                    alert("BT - Error accessing GDrive.");
-                    console.log("Error in writeBTFile: ", JSON.stringify(err));
-                    _renewTokenAndRetryWrite();
-                    return;
-                });
-            }
-            catch(err) {
-                SaveUnderway = false;
-                alert("BT - Error saving to GDrive.");
-                console.log("Error in _writeBTFile: ", JSON.stringify(err));
-                return;
-            }
+    }
+    
+    async function _writeBTFile() {
+        // Write file contents into BT.org file on GDrive
+        // NB Have to be careful to keep SaveUnderway up to date on all exit paths
+        console.log("Writing BT file to gdrive");
+        UnwrittenChangesTimer = null;
+        
+        BTFileID = BTFileID || configManager.getProp('BTFileID');
+        if (!BTFileID) {
+            alert("BTFileID not set, not saving to GDrive");
+            return;
         }
-
-        function _renewTokenAndRetryWrite() {
-        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
-            if (confirm("BT - Error accessing GDrive. Would you like to renew the token and try again?")) {
-                renewToken().then(() => {
-                    // Retry the current function here.
-                    _writeBTFile();
-                }).catch((error) => {
-                    // Clean up aisle five!!! Tell user to reconnect or something.
-                    console.error("Failed to renew token: ", error);
-                });
-            }
+        
+        try {
+            const accessToken = await getAccessToken();
+            if (!accessToken) throw new Error("Access token is not available");
+            
+            // check we're not overwriting remote file
+            const warn = await checkBTFileVersion();
+            if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite it?\nNB changes have been made locally either way."))
+            return;
+            
+            // go about saving the file
+            SaveUnderway = true;
+            const metadata = {
+                'name': 'BrainTool.org',                 // Filename at Google Drive
+                'mimeType': 'text/plain'                 // mimeType at Google Drive
+            };
+            let form = new FormData();
+            console.log("writing BT file. accessToken = ", accessToken);
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', new Blob([BTFileText], {type: 'text/plain'}));
+            
+            await fetch('https://www.googleapis.com/upload/drive/v3/files/'
+            + encodeURIComponent(BTFileID)
+            + '?uploadType=multipart&fields=id,version,modifiedTime',
+            {
+                method: 'PATCH',
+                headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                body: form
+            }).then((res) => {
+                SaveUnderway = false;
+                if (!res.ok) {
+                    console.error("BT - error writing to GDrive");
+                    console.log("GAPI response:\n", JSON.stringify(res));
+                    return;
+                }
+                return res.json();
+            }).then(function(val) {
+                console.log(val);
+                const mt = Date.parse(val.modifiedTime);
+                configManager.setProp('BTTimestamp', mt);
+                updateStatsRow(mt);	     // update stats when we know successful save
+            }).catch(function(err) {
+                SaveUnderway = false;
+                console.log("Error in writeBTFile: ", JSON.stringify(err));
+                renewTokenAndRetry(_writeBTFile);
+                return;
+            });
+        }
+        catch(err) {
+            SaveUnderway = false;
+            alert("BT - Error saving to GDrive.");
+            console.log("Error in _writeBTFile: ", JSON.stringify(err));
+            return;
         }
     }
+
+    function renewTokenAndRetry(cb) {
+        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
+        if (confirm("BT - Error accessing GDrive. Security token expired. Renew the token and try again?")) {
+            renewToken().then(() => {
+                // Retry the current function here.
+                cb();
+            }).catch((error) => {
+                // Clean up aisle five!!! Tell user to reconnect or something.
+                console.error("Failed to renew token: ", error);
+            });
+        }
+    }
+
 
     async function getBTModifiedTime() {
         // query Drive for last modified time 
@@ -463,6 +465,7 @@ const gDriveFileManager = (() => {
             return Date.parse(response.modifiedTime);
         } catch (e) {
             console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
+            renewTokenAndRetry(checkBTFileVersion);
             return 0;
         }
     }
