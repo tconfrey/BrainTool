@@ -8,7 +8,7 @@ var gapiLoadOkay, gapiLoadFail, gisLoadOkay, gisLoadFail
 
 const gDriveFileManager = (() => {
     const gapiLoadPromise = new Promise((resolve, reject) => {
-        // See index.html where apis.google.com etc are loaded, gapiLoadOkay is called from there this ensuring the lib is loaded
+        // See fileManager where apis.google.com etc are loaded, gapiLoadOkay is called from there this ensuring the lib is loaded
         // when the promise is resolved.
         gapiLoadOkay = resolve;
         gapiLoadFail = reject;
@@ -49,8 +49,8 @@ const gDriveFileManager = (() => {
                     tokenClient = google.accounts.oauth2.initTokenClient({
                         client_id: configManager.getProp('CLIENT_ID'), 
                         scope: Scopes,
-                        prompt: '',
-                        callback:  '',  // defined at request time in await/promise scope.
+                        prompt: 'consent',          // Need to ask on initial connection cos token expires
+                        callback:  '',              // defined at request time in await/promise scope.
                     });
                     resolve();
                 } catch (err) {
@@ -61,14 +61,6 @@ const gDriveFileManager = (() => {
         } catch (e){
             console.warn("Error in initClient:", e.toString());
             return false;
-        }
-    }
-
-    const handleFetchResponse = (response, jsonOrText=true) => {
-        if (response.ok) {
-            return jsonOrText ? response.json() : response.text(); // or response.text() for plain text
-        } else {
-            throw new Error(`HTTP error! Status: ${response.status}`);
         }
     }
 
@@ -94,6 +86,13 @@ const gDriveFileManager = (() => {
             }
         }]).then(resp => handleFetchResponse(resp, jsonOrText))
     }
+    const handleFetchResponse = (response, jsonOrText=true) => {
+        if (response.ok) {
+            return jsonOrText ? response.json() : response.text(); // or response.text() for plain text
+        } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    }
     
     async function getAccessToken() {
         // Get token or die trying
@@ -118,7 +117,13 @@ const gDriveFileManager = (() => {
                     console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
                     resolve(resp);
                 };
-                tokenClient.requestAccessToken();
+                tokenClient.error_callback = (err) => {
+                    console.error("Error requesting access token in renewToken: ", JSON.stringify(err));
+                    updateSigninStatus(false, err);
+                    reject(err);
+                }
+                let rsp = tokenClient.requestAccessToken();
+                console.log("Requesting token: " + JSON.stringify(rsp));
             } catch (err) {
                 updateSigninStatus(false);
                 reject(err);
@@ -127,12 +132,28 @@ const gDriveFileManager = (() => {
         });
     }
 
+    async function renewTokenAndRetry(cb) {
+        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
+        // might be a callback to call after token is renewed
+        if (confirm("BT - Error accessing GDrive. Security token expired. Renew the token and try again?")) {
+            try {
+                await renewToken();
+                cb && cb();
+            } catch (error) {
+                // Clean up, aisle five!!! 
+                console.error("Failed to renew token: ", error);
+                updateSigninStatus(false, error);
+            }
+        }
+    }
+
     /**
      * @param func - a function or a function generator
      * @param {any[]} args - parameters of the function
      * @returns {Promise<any>}
      * @param {boolean} isFunctionGenerated - true if this is a higher-order function that generates the main function.
      * This handles the case where the function is method of Gapi that may change after a token is granted.
+     * Called from connnectAndFindFiles and the fetch wrapper
      */
     async function getTokenAndRetryFunctionAfterAuthError(func, args, isFunctionGenerated = false) {
         let func_ = func;
@@ -433,19 +454,6 @@ const gDriveFileManager = (() => {
         }
     }
 
-    function renewTokenAndRetry(cb) {
-        // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
-        if (confirm("BT - Error accessing GDrive. Security token expired. Renew the token and try again?")) {
-            renewToken().then(() => {
-                // Retry the current function here.
-                cb();
-            }).catch((error) => {
-                // Clean up aisle five!!! Tell user to reconnect or something.
-                console.error("Failed to renew token: ", error);
-            });
-        }
-    }
-
 
     async function getBTModifiedTime() {
         // query Drive for last modified time 
@@ -484,10 +492,10 @@ const gDriveFileManager = (() => {
         let alertText;
         if (error) {
             alertText = "Error Authenticating with Google. Google says:\n'";
-            alertText += (error.details) ? error.details : JSON.stringify(error);
+            alertText += (error.message) ? error.message : JSON.stringify(error);
             alertText += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
-            alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
-        }
+            alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies and popups are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
+        } else { 
         if (signedIn) {
             gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
             if (userInitiated) {
@@ -496,6 +504,7 @@ const gDriveFileManager = (() => {
             }
         } else {
             alertText = "GDrive connection lost";
+            }
         }
         alertText && alert(alertText);
 
