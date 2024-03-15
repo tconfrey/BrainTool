@@ -122,7 +122,7 @@ const gDriveFileManager = (() => {
                     updateSigninStatus(false, err);
                     reject(err);
                 }
-                let rsp = tokenClient.requestAccessToken();
+                let rsp = tokenClient.requestAccessToken({'prompt': ''});       // ideally don't prompt user again
                 console.log("Requesting token: " + JSON.stringify(rsp));
             } catch (err) {
                 updateSigninStatus(false);
@@ -144,6 +144,8 @@ const gDriveFileManager = (() => {
                 console.error("Failed to renew token: ", error);
                 updateSigninStatus(false, error);
             }
+        } else {
+            updateSigninStatus(false);
         }
     }
 
@@ -172,7 +174,7 @@ const gDriveFileManager = (() => {
         if (cred !== null) {
             google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
             gapi.client.setToken('');
-            GDriveConnected = false;
+            updateSigninStatus(false);
         }
     }
 
@@ -281,7 +283,8 @@ const gDriveFileManager = (() => {
                 msg += "\nGoogle says:" + err.result.error.message;
             alert(msg);
             console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
-            // revokeToken()
+            updateSigninStatus(false);
+            revokeToken();
             return;
         }
         GDriveConnected = true;
@@ -457,8 +460,8 @@ const gDriveFileManager = (() => {
 
     async function getBTModifiedTime() {
         // query Drive for last modified time 
-        if (!BTFileID || !GDriveConnected) return 0;
         try {
+            if (!BTFileID || !GDriveConnected) throw new Error("BTFileID not set or GDrive not connected");
             await getAccessToken();
             let response;
             if (shouldUseGoogleDriveApi()) {
@@ -518,6 +521,7 @@ const gDriveFileManager = (() => {
         authorizeGapi: authorizeGapi,
         checkBTFileVersion: checkBTFileVersion,
         savePendingP: savePendingP,
-        getBTFile: getBTFile
+        getBTFile: getBTFile,
+        revokeToken: revokeToken,
     };
 })();

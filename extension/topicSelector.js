@@ -18,17 +18,26 @@ const TopicSelector = (() => {
     let KeyCount = 0;
     let SelectionCB;
 
+    function setGuess(guess) {
+        // set the guess for the topic
+        AwesomeWidget.open();
+        TopicElt.value = guess || "";
+        Guessed = true;
+        TopicElt.select();
+        TopicHint.style.display = "none";                      // hide hint
+    }
+    function clearGuess() {
+        // clear the guess for the topic
+        TopicElt.value = "";
+        Guessed = false;
+        TopicHint.style.display = "block";                      // show hint
+        AwesomeWidget.close();
+    }
+
     function setup (guess, topicsMap, selectionCB) {
         // configure topic selector display. main entry point to component
         TopicsElt.innerHTML = generateTopicMap(topicsMap);
         const topics = topicsMap.map(t => t.name);
-
-        if (guess) {
-            TopicHint.style.display = "none";                      // hide hint
-            TopicElt.value = guess;
-            TopicElt.select();
-            Guessed = true;
-        }
         AwesomeWidget = new Awesomplete(TopicElt, {
 	        list: topics, autoFirst: true, tabSelect: true, sort: false
         });
@@ -38,6 +47,7 @@ const TopicSelector = (() => {
         TopicElt.addEventListener('keyup', handleTopicKeyUp);
         TopicHint.addEventListener('click', (e) => TopicElt.focus());
         SelectionCB = selectionCB;                   // save for later
+        guess ? setGuess(guess) : clearGuess();
         
         const topicElts = document.querySelectorAll('.topic');
         topicElts.forEach(elt => elt.addEventListener('click', e => selectTopic(e)));
@@ -208,6 +218,8 @@ const TopicSelector = (() => {
     function topic() {return TopicElt.value;}
     return {
         setup: setup,
-        topic: topic
+        topic: topic,
+        setGuess: setGuess,
+        clearGuess: clearGuess
     }
 })();

@@ -486,7 +486,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     
     const treeTable = $("#content");
     let newParent, dragTr;
-    if (dropNode.isTopic() && !dropNode.folded && dropNode.childIds.length) {
+    if (dropNode.isTopic() && !dropNode.folded ) {
         // drop into dropNode as first child
         dragNode.reparentNode(dropNode.id, 0);
         newParent = dropNode;

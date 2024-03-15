@@ -158,48 +158,70 @@ const SaveSession =  document.getElementById("saveAllSession");
 SaveTab.addEventListener('change', e => {
     if (SaveTab.checked) {SaveWindow.checked = false; SaveSession.checked = false; SaveTG.checked = false;}
     else SaveWindow.checked = true;
-    updateForAll();
+    updateForSelection();
 });
 SaveWindow.addEventListener('change', e => {
     if (SaveWindow.checked) {SaveTab.checked = false; SaveSession.checked = false;}
     else SaveTab.checked = true;
-    updateForAll();
+    updateForSelection();
 });
 SaveTG.addEventListener('change', e => {
     if (SaveTG.checked) {SaveTab.checked = false; SaveSession.checked = false;}
     else SaveTab.checked = true;
-    updateForAll();
+    updateForSelection();
 });
 SaveSession.addEventListener('change', e => {
     if (SaveSession.checked) {SaveTab.checked = false; SaveWindow.checked = false; SaveTG.checked = false;}
     else SaveTab.checked = true;
-    updateForAll();
+    updateForSelection();
 });
-function updateForAll(all) {
+function updateForSelection() {
     // handle AllPages toggle
     const onePageElements = document.getElementsByClassName("onePage");
     const allPageElements = document.getElementsByClassName("allPages");
-    if (SaveWindow.checked || SaveSession.checked || SaveTG.checked) {
+    const tgElements = document.getElementsByClassName("tgPages");
+    if (SaveWindow.checked || SaveSession.checked) {
         Array.from(onePageElements).forEach(e => e.style.display = "none");
+        Array.from(tgElements).forEach(e => e.style.display = "none");
         Array.from(allPageElements).forEach(e => e.style.display = "block");
-    } else  {
-        Array.from(onePageElements).forEach(e => e.style.display = "block");
+        TopicSelector.clearGuess();
+    } 
+    if (SaveTG.checked) {
+        Array.from(onePageElements).forEach(e => e.style.display = "none");
         Array.from(allPageElements).forEach(e => e.style.display = "none");
+        Array.from(tgElements).forEach(e => e.style.display = "block");
+        TopicSelector.clearGuess();
+    }
+    if (SaveTab.checked) {
+        Array.from(tgElements).forEach(e => e.style.display = "none");
+        Array.from(allPageElements).forEach(e => e.style.display = "none");
+        Array.from(onePageElements).forEach(e => e.style.display = "block");
+        TopicSelector.setGuess(Guess);
     }
 }
 
-function popupOpen(tab) {
+async function popupOpen(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new
     CurrentTab = tab;
+    const tg = (tab.groupId > 0) ? await chrome.tabGroups.get(tab.groupId) : null;
     const messageElt = document.getElementById('message');
     const saverDiv = document.getElementById("saver");
     const titleH2 = document.getElementById('title');
-    const saveTG = document.getElementById('saveTGSpan');
+    const saveTGSpan = document.getElementById('saveTGSpan');
+    const saveTG = document.getElementById('saveTG');
+    const saveTab = document.getElementById('saveTab');
     const saveWindow = document.getElementById('saveWindowSpan');
     saverDiv.style.display = 'block';
     messageElt.style.display = 'none';
-    if (tab.groupId > 0) {saveWindow.style.display = 'none';}
-    else  {saveTG.style.display = 'none';}
+    if (tg) {
+        // tab is part of a TG => set the saveTg checkbox to be checked and run the update function
+        document.getElementById('tgName').textContent = tg.title;
+        saveWindow.style.display = 'none';
+        saveTG.checked = true;
+        saveTab.checked = false;
+    } else  {
+        saveTGSpan.style.display = 'none';
+    }
     
     // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
@@ -236,17 +258,16 @@ function popupOpen(tab) {
             }
             TopicSelector.setup(Guess, Topics, topicSelected);
             TopicCard.setupNew(tab.title, tab, cardCompleted);
+            updateForSelection();
         });
 }
 
 function topicSelected() {
     // CB from topic selector, highlight note text
-
     document.querySelector('#note').focus();
 }
 function cardCompleted() {
     // CB from enter in notes field of card
-
     const close = (SaveAndCloseBtn.classList.contains('activeButton')) ? true : false;
     saveCB(close);       
 }

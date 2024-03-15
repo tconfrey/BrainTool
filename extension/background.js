@@ -776,6 +776,14 @@ function exportBookmarks() {
   console.log('allWins = ', allWins);
   }
 */
+function createSessionName() {
+    // return a name for the current session, 'session-Mar12
+    const d = new Date();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    const monthName = monthNames[d.getMonth()];
+    const day = String(d.getDate()).padStart(2, '0');
+    return 'Session-' + monthName + day + ":";
+}
 
 async function saveTabs(msg, sender) {
     // handle save for popup. msg.type Could be Tab, TG, Window or Session.
@@ -799,6 +807,7 @@ async function saveTabs(msg, sender) {
 
     // Loop thru tabs, decide based on msg.type if it should be saved and if so add to array to send to BTTab
     const tabsToSave = [];
+    const sessionName = createSessionName();
     allTabs.forEach(t => {
         if (t.id == BTTab || t.pinned) return;
         const tab = {'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url,
@@ -820,7 +829,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'Session') {
-            tab['topic'] = (topic+":" || "📝 Scratch:") + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
+            tab['topic'] = (topic ? topic+":" : "📝 Scratch:") + sessionName + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
             tabsToSave.push(tab);
         }
     });

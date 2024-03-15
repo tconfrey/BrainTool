@@ -84,6 +84,9 @@ h3 {
     line-height: 14px;
     margin-bottom: 6px;
 }
+.tgPages {
+    display: none;
+}
 
 hr {
     border-top: 1px solid #BCC4C5;
