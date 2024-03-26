@@ -954,7 +954,7 @@ function tabJoinedTG(data) {
 
     const tabId = data.tabId;
     const tgId = data.groupId;
-    const tabNode = BTAppNode.findFromTab(tabId);
+    let tabNode = BTAppNode.findFromTab(tabId);
     const topicNode = BTAppNode.findFromGroup(tgId);
     if (tabNode || !topicNode) return;                              // n/a || don't care
     const tab = data.tab;
