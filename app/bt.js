@@ -187,9 +187,10 @@ function handleInitialTabs(tabs, tgs) {
             AllNodes[node.parentId].tabGroupId = node.tabGroupId;
         }
     });
-    tgs.forEach((tg) => 
-        tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
-                         'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId}));
+    if (tgs)
+        tgs.forEach((tg) => 
+            tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
+                            'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId}));
     // remember topic per window for suggestions in popup
     window.postMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
     updateStatsRow();
@@ -1277,8 +1278,8 @@ function editRow(e) {
 }
 
 $(".editNode").on('input', function() {
-    // enable update button if one of the texts is edited and title is not empty
-    if (!$("#topicName").val()) return;
+    // enable update button if one of the texts is edited. Avoid creating new nodes with empty titles
+    if ($("#topicName").is(":visible") && (!$("#topicName").val())) return;
     $("#update").prop('disabled', false);
 });
 
