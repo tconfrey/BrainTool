@@ -1,4 +1,4 @@
-#+PROPERTY: BTParentTopic Resource:Public Topic Trees
+#+PROPERTY: BTParentTopic Resources:Public Topic Trees
 * BrainTool Comparatives
 Lots of activity in the space across the 3 billion Chromium users, implying a significant demand but its very frothy, hard to rise above the noise. 
 

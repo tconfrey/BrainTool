@@ -790,7 +790,7 @@ async function saveTabs(msg, sender) {
     // msg: {'close','topic', 'note', 'title', 'currentWindowId' }
     // Create array of appropriate tab data and send to BT window
 
-    const currentTabs = await chrome.tabs.query({'active': true, 'windowId': msg.currentWindowId});
+    const currentTabs = msg.currentWindowId ? await chrome.tabs.query({'active': true, 'windowId': msg.currentWindowId}) : [];
     const currentTab = currentTabs[0];
     const saveType = msg.type;
     const [BTTab, BTWin] = await getBTTabWin();

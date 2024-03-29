@@ -14,14 +14,26 @@ var newInstall = false;                 // set below, ignore some events if = tr
 
 function createWindow(wargs) {
     // Open Topic Manager, handle bounds error that happens if Mgr moved off visible screen
-    chrome.windows.create(wargs, function(window) {
-        if (window) return(window);
+    try {
+    chrome.windows.create(wargs, async function(window) {
+        if (window)  {
+            // for some reason  position is not always set correctly, so update it explicitly 
+            await chrome.windows.update(window.id, 
+                {'left': wargs.left, 'top': wargs.top, 'width': wargs.width, 'height' : wargs.height, 
+                'focused': true, 'drawAttention': true});
+            console.log('Updated window:', window);
+        }
         else {
             console.warn('error in windowOpen:', chrome.runtime.lastError?.message);
-            wargs.top = 50; wargs.left = 50;
+            wargs.top = 50; wargs.left = 0;
             chrome.windows.create(wargs);
         }
     });
+    } catch (e) {
+        console.warn('error in createWindow, trying again:', e);
+        wargs.top = 50; wargs.left = 0;
+        chrome.windows.create(wargs);
+    }
 }
 
 chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], async val => {
@@ -91,7 +103,7 @@ async function popupAction (home, location) {
 }
 
 document.getElementById("okButton").addEventListener('click', e => windowOpen());
-function windowOpen(home = 'PANEL', location) {
+async function windowOpen(home = 'PANEL', location) {
     // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
     // home == tab => create manager in a tab, PANEL => in a side panel, default
     // location {top, left, width, height} filled in by bg whenever Topic Manager is resized
@@ -112,7 +124,7 @@ function windowOpen(home = 'PANEL', location) {
 
     // Default open in side panel
     if (home != "TAB") {
-        chrome.windows.getCurrent(mainwin => {
+        chrome.windows.getCurrent(async mainwin => {
             // create topic manager window where last placed or aligned w current window left/top
             const wargs = location ? {
                 'url' : url,
@@ -130,8 +142,8 @@ function windowOpen(home = 'PANEL', location) {
                 'width' : 500, 'height' : mainwin.height
             };
 	        // shift current win left to accomodate side-panel. nb state can't be 'maximized'
-	        location || chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-                                                           left: (mainwin.left + 300)});
+	        if (!location) await chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
+                                                           left: (mainwin.left + 150)});
             createWindow(wargs);
         });
     } else {

@@ -1,4 +1,4 @@
-#+PROPERTY: BTParentTopic Resource:Public Topic Trees:Productivity and Personal Knowledge Management
+#+PROPERTY: BTParentTopic Resources:Public Topic Trees:Productivity and Personal Knowledge Management
 
 * Productivity
 BrainTool is a Topic Manager. A new category of personal productivity tool! Here are some other personal productivity resources.

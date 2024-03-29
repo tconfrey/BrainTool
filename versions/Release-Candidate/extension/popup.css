@@ -18,6 +18,10 @@
     --btInputBackground: white;
     --btInputForeground: #2d2d2d;
     --awesompleteBackground: linear-gradient(to bottom right, white, hsla(0,0%,100%,.8));
+    --btSlideTextColor: #0C4F6B;
+    --btSlideHeaderBackground: linear-gradient(#DFE3E2 0%, #C3CBCB 80.6%, #C8CFD0 100%);
+    --btTitleFontSize: 16px;
+    --btTitleFontWeight: 700;
 }
 
 [data-theme="DARK"] {
@@ -39,11 +43,12 @@
 
 body {
     width: 440px;
+    height:550px;
     max-height: 600px;
     padding-bottom: 50px;
     overflow: hidden;
     margin: 0px;
-    background: var(--btBodyBackground); 
+    background: white;
     
     font-family: var(--btFont);
     font-style: normal;
@@ -54,6 +59,9 @@ body {
 #welcome p {
     text-align: left;
     margin-left: 15px;
+    font-size: 13px;
+    line-height: 20px;
+    margin-top: 20px;
 }
 
 .allPages {
@@ -200,7 +208,7 @@ button {
     border: none;
     color: white;
     font: var(--btFont);
-    font-size: 12px;               
+    font-size: 16px;               
 }
 button.activeButton {
     opacity: 1.0;
@@ -215,6 +223,29 @@ button.activeButton {
     float:right;
 }
 
+/* Copied from TopicManager intro slides styling */
+#slideHeader {
+    background: linear-gradient(#DFE3E2 0%, #C3CBCB 80.6%, #C8CFD0 100%);
+    height: 70px;
+}
+#headerImage {
+    object-fit: contain;
+    position: relative;
+    left: -150px;
+}
+#introTitle {
+    text-align: center;
+    width: 100%;
+    position:relative;
+    top: -40px;
+    color: #0C4F6B;
+    font-weight: var(--btTitleFontWeight);
+    font-size: var(--btTitleFontSize);
+}
+#introImage {
+    object-fit: contain;
+    margin-right: 20px;
+}
 
 /* open == expanded */
 span.caret.open {

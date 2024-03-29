@@ -34,17 +34,17 @@ const messageManager = (() => {
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to BrainTool 0.9.9a, a new minor release.<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
-        "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
-        "A preview version of favicon display is now available. See Settings."
+        "Welcome to the BrainTool 1.0 release candidate!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
+        "Browser Tab Group to BrainTool Topic syncing is now enabled."
     ];
     const introSlidesArray = [
-        "<p>This window is the Topic Manager. It allows you to open and close tabs and browser windows and to organize them into nested topics.</p>",
-        "<p>The BrainTool Bookmarker tool lives in the browser bar and allows you to set the topic for the current tab and add a note.</p>",
-        "<p>Use BrainTool to organize all the tabs you want to save and come back to. Add notes to aid retrieval and todo's to track tasks.</p>",
-        "<p>Everything is kept in plain text in a private local file that you own and can inspect, or under your personal Google Drive account for cloud access.</p>",
-        "<p>See the Settings and Actions above and Help below. And watch for Messages, Warnings and Tips on startup.</p>",
-        "<p>Now lets get started organizing your online life!</p><input type='checkbox' id='bookmarks' name='bookmarks' checked><label for='bookmarks'>Import Bookmarks</label><input type='checkbox' id='tabs' name='tabs' checked><label for='tabs'>Save current session to Scratch</label><button onclick='messageManager.hideIntro()'>OK</button>"
+        `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,
+        `<p>The BrainTool <b>Bookmarker</b> tool lives in the browser bar.</p><p>It allows you to save the current tab, tab group, window or session under a named <b>Topic</b>, along with an optional note.</p><p>Pin it for easy access.</p><img class="introImage" src="resources/slide2.png"/>`,
+        `<p>Use BrainTool to organize all the tabs you want to save and come back to. Hover over a row for tools to open and close groups of tabs, add notes and todo's or edit the topic hierarchy.</p><img class="introImage" src="resources/slide3.png"/>`,
+        `<p>Everything is kept in plain text in a private local file that you own and can edit, or under your personal Google Drive account for cloud access.</p><img class="introImage" src="resources/slide4.png"/>`,
+        `<p>See Search, Settings and Actions in the Header and Help below. Watch for Messages, Warnings and Tips on startup.</p><img class="introImage" src="resources/slide5.png"/>`,
+        `<p>Those are the basics. See the Help section and linked manuals and tutorial videos for more.</p><p>Now lets get started organizing your online life!</p><p>We've set you up with a sample <b>Topic</b> hierarchy. You might want to also pull in your bookmarks or save your current session (either one can be done later).</p>`
     ];
     
     let Warning = false, Message = false, lastShownMessageIndex = 0, lastShownSlideIndex = 0;
@@ -139,7 +139,7 @@ const messageManager = (() => {
     }
 
     function hideIntro() {
-        // Show intro slides
+        // Hide intro slides
         $("#editOverlay").css("display", "none");
         $("#intro").css("display", "none");
     }
@@ -149,10 +149,16 @@ const messageManager = (() => {
         if (lastShownSlideIndex == 0) $("#introPrev").hide();
         else $("#introPrev").show();
         $("#slide").html(introSlidesArray[lastShownSlideIndex]);
-        if (lastShownSlideIndex == (introSlidesArray.length - 1))
+        if (lastShownSlideIndex == (introSlidesArray.length - 1)) {
             $("#introNext").hide();
-        else
+            $("#slideFooter").show();
+            $("#introButtons").css("display", "flex");
+        } else {
             $("#introNext").show();
+            $("#slideFooter").hide();
+            $("#introButtons").css("display", "none");
+        }
+        $("#slideNum").text(lastShownSlideIndex+1);
     }
 
     function nextSlide() {
@@ -165,13 +171,23 @@ const messageManager = (() => {
         showSlide();
     }
 
+    function dontShowIntro() {
+        // Set a flag to not show intro again, indicate checked
+        configManager.setProp('BTDontShowIntro', true);
+        $("#dontShow").show();
+        $("#slideFooter").css("color", "lightgrey");
+    }
+    function bookmarksIntro() {
+        // Close slides and Import bookmarks
+        hideIntro();
+        importBookmarks();
+    }
+    function sessionIntro() {
+        // Close slides and Import bookmarks
+        hideIntro();
+        importSession();
+    }
 
-
-
-
-
-
-    
     return {
         setupMessages: setupMessages,
         showMessage: showMessage,
@@ -181,7 +197,10 @@ const messageManager = (() => {
         showIntro: showIntro,
         hideIntro: hideIntro,
         nextSlide: nextSlide,
-        prevSlide: prevSlide
+        prevSlide: prevSlide,
+        dontShowIntro: dontShowIntro,
+        bookmarksIntro: bookmarksIntro,
+        sessionIntro: sessionIntro
     };
 })();
 

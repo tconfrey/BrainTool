@@ -72,6 +72,9 @@ async function launchApp(msg) {
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
     checkCompactMode();                                   // drop note col if to narrow
     updateStats();                                        // record numlaunches etc
+
+    if (!configManager.getProp('BTDontShowIntro'))
+        messageManager.showIntro();
 }
 
 function updateStats() {
@@ -753,6 +756,7 @@ function saveTabs(data) {
     // tabs: [{'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url, 'topic': topic, 'title': msg.title, favIconUrl: t.favIconUrl}] 
     // topic is potentially topic-dn:window##:TGName:TODO
     console.log('saveTabs: ', data);
+    if (data.from == "btwindow") return;                  // ignore our own messages
     const note = data.note;
     const close = data.close;
 
@@ -1613,8 +1617,8 @@ function loadBookmarks(msg) {
         return;
     }
 
-    const dateString = getDateString().replace(':', '&#8759;');        // 12:15 => :15 is a sub topic
-    const importName = "&#x1F516; Bookmark Import (" + dateString + ")";
+    const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
+    const importName = "🔖 Bookmark Import (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
     msg.data.bookmarks.children.forEach(node => {
@@ -1695,7 +1699,10 @@ function groupingUpdate(from, to) {
         BTAppNode.groupAll();
 }
 
-
+function importSession() {
+    // Send msg to result in subsequent session save
+    window.postMessage({'function': 'saveTabs', 'type': 'Session', 'topic': '', 'from':'btwindow'});
+}
 
 /***
  * 

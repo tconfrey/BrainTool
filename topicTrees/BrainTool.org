@@ -1,4 +1,4 @@
-#+PROPERTY: BTParentTopic Resource:Public Topic Trees:BrainTool
+#+PROPERTY: BTParentTopic Resources:Public Topic Trees:BrainTool
 * BrainTool Resources
   :PROPERTIES:
   :VISIBILITY: folded

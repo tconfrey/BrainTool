@@ -39,7 +39,7 @@
     
     <div>
       <div id="controlsHeader" >
-        <div id="topBar">
+        <div id="topBar" class="topBanner">
             <div>                
                 <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                      height="40" width="40" >
@@ -525,13 +525,30 @@
       </dialog>
       
       <div id="intro" style="display:none">
-        <img id="introClose" src="resources/closeTip.png" height="14" width="14" onclick="messageManager.hideIntro()" />
-        <div id="introTitle"><b>Welcome to BrainTool</b></div>
-        <div id="slide"></div>
-        <img id="introNext" src="resources/nextTip.png" height="18" width="18"
-             onclick="messageManager.nextSlide()" />
-        <img id="introPrev" src="resources/prevTip.png" height="18" width="18"
-             onclick="messageManager.prevSlide()" />
+        <div class="topBanner" id="slideHeader">
+          <img id="headerImage" src="resources/headerImage.png" height="100%" />
+          <div id="introTitle">Welcome to BrainTool</div>
+          <div id="introSubtitle">Slide <span id="slideNum">1</span> of 6</div>
+          <img id="introClose" src="resources/close.png" height="17" width="20" onclick="messageManager.hideIntro()" />
+        </div>
+        <div id="slide"><!-- Filled in by messageManager --></div>
+        <div id="introButtons">
+          <div id="bookmarksIntro" class="introButton"
+               onclick="messageManager.bookmarksIntro()">Import Bookmarks</div>
+          <div id="sessionIntro" class="introButton"
+               onclick="messageManager.sessionIntro()">Import browser session</div>
+          <div id="justIntro" class="introButton"
+               onclick="messageManager.hideIntro()">Just get started</div>
+        </div>
+        <div id="introNext" class="introNavButton" onclick="messageManager.nextSlide()">Next
+          <img id="introNext-" src="resources/nextSlide.png" height="18" width="18" />
+        </div>
+        <div id="introPrev" class="introNavButton" onclick="messageManager.prevSlide()">&nbsp;&nbsp;&nbsp;Previous
+          <img id="introPrev-" src="resources/prevSlide.png" height="18" width="18" />
+        </div>
+        <div id="slideFooter" onclick="messageManager.dontShowIntro()">Don't show me this slideshow again
+          <img id="dontShow" src="resources/actionsIconLight.png" height="15" width="15" />
+        </div>
       </div>
       
     </div>

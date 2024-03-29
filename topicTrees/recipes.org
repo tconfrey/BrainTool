@@ -1,4 +1,4 @@
-#+PROPERTY: BTParentTopic Resource:Public Topic Trees:Recipes
+#+PROPERTY: BTParentTopic Resources:Public Topic Trees:Recipes
 * Dinners
 
 ** [[https://www.wellplated.com/sauteed-cabbage/][Sauteed Cabbage | Easy, Healthy Recipe]]
