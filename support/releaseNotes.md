@@ -6,6 +6,55 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
+# 1.0 Release Candidate
+**Note that the Release Candidate is currently available by invitation only**. See below for 0.9.9a Release Notes. The [discussion group](https://groups.google.com/u/0/g/braintool-discussion) has more details. 
+
+This is an early release candidate of the 1.0 version of BrainTool (finally!). It has some significant functional changes and also migrates BT to the latest 'Manifest V3' version of the Chromium browser extension architecture. Given the scale of changes a select user group is being asked to manually install this version and provide feedback. See [Installing BrainTool from source](localInstall) for how to do that.
+
+## Manifest V3
+This change is not of great interest to a BT user but is mandated by Google (see this [notice](https://developer.chrome.com/blog/resuming-the-transition-to-mv3)) and required non-trivial code changes.
+
+## Full Tab Group Support
+One advantage of the manifest update is that it provides access to the tabgroup api so that BT can provide full synchronization between Topics and browser tabgroups. By default Topics are now represented by tabgroups. Tabs opened from BT open in a tabgroup labelled with the appropriate Topic. In the Topic Manager opened links and Topics are highlighted with the tabgroups color. Changing the tabgroups color in the browser is reflected in the Topic Manager. Name changes and expand/collapse operations are synced. 
+
+Additionally dragging a tab into a tabgroup will save that tab into the Topic in BT. Dragging a saved tab out of its tabgroup will remove it from BrainTool. 
+![TabGroups](../media/Release-Candidate-TG.png)
+## Session saving and Bookmarker Updates
+The BT Bookmarker now has the option to save a whole tabgroup (if the current tab is in one), and a complete session, in addition to the previous window and tab options. When saving a session, tab groups are saved as the corresponding BrainTool Topic. Any ungrouped tabs are put in a tabgroup named with a Window-N prefix and saved under a Topic with the same name in the Topic Manager. The Session itself is given a Session-date Topic name and saved under the Topic selected in the Bookmarker or the Scratch default Topic.
+
+## Preferences for Dense, Hide Notes and Large Font
+New preferences have been added for these items. 
+
+## New Introductory Screens
+
+<div class="row">
+<div class="cell left" style="text-align:justify; width: 30%">
+We've added a helpful BrainTool Buddy to give a gentle introduction to BT when it's initially installed and at launch thereafter, until turned off on the final screen.
+</div>
+<div class="cell right" style="width: 70%">
+<img src="../media/BT-Buddy.png" alt="BT Buddy" style="border:solid; border-width:thin; width:60%; margin-left:2rem;">
+</div>
+</div>
+## GDrive Auth Change
+Another Google mandated update is the change to use their [Auth 2.0](https://developers.google.com/identity/oauth2/web/guides/migration-to-gis) libraries for Google Drive authorization. Unfortunately the access provided to browser-based apps (ie those without a back-end server) is considered to be temporary access and to require explicit user interaction. As a result if you have GDrive saving turned on you will now need to walk through a Google popup every hour to grant BrainTool access. From my perspective the change renders this BT feature pretty unusable but I'm interested in feedback.
+
+## Usability Improvements
+- Rows in the Topic Manager can now be dragged by selecting anywhere on the row
+- The Tab key now iterates a selected Topic through three states: collapsed, open with its child nodes showing and open with its children all fully expanded.
+- Search has been improved to make it easier to see the current match and other visible matches.
+
+## Pricing and License Changes
+While not yet visible in the Release Candidate I'd appreciate feedback on these planned changes:
+- There will be no limits on numbers of nodes saved in BT (other than those due to browser storage limits)
+- In addition to monthly and yearly subscriptions a single purchase lifetime license will be offered with pricing as follows:
+  - Monthly $1.33/mo, Yearly $10.66/yr, Lifetime $20.99
+  - This (low, low) pricing reflects my goal of having BT be widely used and to encourage users to support its development. The extra change over $1/$10/$20 covers the Stripe transaction costs.
+- License enforcement will be as follows:
+  - 30 days all access.
+  - After 30 days messages of gentle encouragement will be shown at intervals.
+  - Functionally some setting preferences will be locked (Dark mode, Favicons etc) but otherwise the app will be fully functional.
+
+
 # Welcome to 0.9.9a
 This is a minor point release because there are no changes requiring updates on the Web Stores, but it has some major functionality! In addition to releasing some ongoing UI improvements my goal with 099a is to get feedback on the beta version of local file syncing. I have not been able to test this functionality across a wide set of environments so I'm considering it in beta and encouraging anyone interested to give it a try and let me know (via the [discussion group](https://groups.google.com/u/0/g/braintool-discussion) ) if you have any feedback (positive or negative).
 

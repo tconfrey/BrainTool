@@ -7,7 +7,7 @@ audience: user
 ---
 
 # User Guide
-BrainTool is a 'Topic' Manager. Topics are the basic unit of organization. The BrainTool Topic Manager shows your topic hierarchy and provides tools for editing and curating your topics. The BrainTool Saver lets you quickly assign a topic to any web page or resource that you want to keep track of.
+BrainTool is a 'Topic' Manager for your tabs. Topics are the basic unit of organization. The BrainTool Topic Manager shows your topic hierarchy and provides tools for editing and curating your topics. The BrainTool Saver lets you quickly assign a topic to any web page or resource that you want to keep track of.
 <div class="row">
 <div class="cell left">
 <img src="/site/TopicManager.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
