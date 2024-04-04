@@ -10,7 +10,7 @@ audience: user
 ## Background
 BrainTool is composed of two parts. The BT Extension that you downloaded from the App Store is code that's installed in the browsers extension system. It controls the BT icon in the toolbar and the Bookmarker popup window. It also listens for messages from the BT Topic Manager App and updates tabs accordingly and it sends back event notifications when tabs and windows open or change. On launch the popup code opens a browser tab to the braintool.org website. That tab displays the Topic Manager which is where the main logic of the application lives.
 
-The contents of the extension, the app and the braintool.org website are stored in github. The extension components are bundled up for the latest version of BT and submitted to Google (or Microsoft for Edge) in order to be available on the App Store, everything else is generously hosted by github served up from the repository. 
+The contents of the extension, the app and the braintool.org website are stored in github. The extension components are bundled up for the latest version of BT and submitted to Google (or Microsoft for Edge) in order to be available on the App Store, everything else is generously hosted by github and served up from the repository. 
 
 ## To Start
 In order to run a version of BT other than the App Store version you need to enable Developer mode on your browsers extension page and load an 'unpacked' version of the extension. The extensions page is reached by opening a tab to chrome://extensions, edge://extensions, or brave://extensions based on your browser type.

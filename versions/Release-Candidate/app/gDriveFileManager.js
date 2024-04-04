@@ -26,6 +26,16 @@ const gDriveFileManager = (() => {
     var Scopes = 'https://www.googleapis.com/auth/drive.file';
     var tokenClient = null;
 
+    // Just here to support the Release Client running
+    const preDash = 2 * 227 * 239 * 9091921;
+    const postDash = '9h93o6s934kfmph3uruess0729kdfqo7-'
+    const url = '.apps.googleusercontent.com';
+    const altCID = preDash + postDash.split('').reverse().join('') + url;
+    const preU = 'ZkfCSlQ6SAySazIA';
+    const postU = 'YzM1j7NkQMLg1HzlKR82vf';
+    const altapikey = preU.split('').reverse().join('') + '_' + postU.split('').reverse().join('');
+    // cut
+
     async function initClient(userInitiated = false) {
 
         console.log("Initializing GDrive client app");
@@ -37,7 +47,7 @@ const gDriveFileManager = (() => {
                 gapi.load('client', {callback: resolve, onerror: reject});
             });
             await gapi.client.init({
-                apiKey: configManager.getProp('API_KEY'),
+                apiKey: configManager.getProp('API_KEY') || altapikey,
                 discoveryDocs: DiscoveryDocs
             }); 
             await gapi.client.load(DiscoveryDocs[0]);  // Load the Drive API
@@ -47,7 +57,7 @@ const gDriveFileManager = (() => {
             await new Promise((resolve, reject) => {
                 try {
                     tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: configManager.getProp('CLIENT_ID'), 
+                        client_id: configManager.getProp('CLIENT_ID') || altCID,
                         scope: Scopes,
                         prompt: 'consent',          // Need to ask on initial connection cos token expires
                         callback:  '',              // defined at request time in await/promise scope.
