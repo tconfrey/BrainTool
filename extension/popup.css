@@ -208,7 +208,7 @@ button {
     border: none;
     color: white;
     font: var(--btFont);
-    font-size: 16px;               
+    font-size: 14px;               
 }
 button.activeButton {
     opacity: 1.0;
