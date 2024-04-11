@@ -1,6 +1,6 @@
 /*** 
  * 
- * Handles interacting w Stripe and Firebase for subscription management.
+ * Handles interacting w Stripe and Firebase for subscription and purchase management.
  * 
  *   initializeFirebase, signIn to get or create a new anonymous fb account, 
  *   getSub to get the users sub from fb account. subscribe() w product key
@@ -10,17 +10,30 @@
 
 var BTId;
 
-async function createSubscription(product) {
-    // handle monthly or annual subscribe
+async function handlePurchase(product) {
+    // handle monthly or annual subscribe. Load Stripe code, load and init FB, check for existing sub or purchase, then pass to Stripe to complete txn
 
-    FBDB || initializeFirebase();
+    // First Check if Stripe script is already loaded
+    if (!window.Stripe) {
+        // Load Stripe script
+        const script = document.createElement('script');
+        script.src = 'https://js.stripe.com/v3/';
+        script.async = true;
+        document.head.appendChild(script);
+        
+        // Wait for the script to load
+        await new Promise((resolve) => {
+            script.onload = resolve;
+        });
+    }
+    FBDB || await initializeFirebase();
     if (!FBDB) {
 	    console.error("Problem initializing Firebase");
 	    alert("Sorry Firebase initialization failed.");
 	    return;
     }
 
-    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place and a link to the Stripe portal from which you can manage or cancel your subscription at any time.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
+    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
 	    return;
 
     // Create user id, store in localStore and in BTFile text
@@ -30,20 +43,33 @@ async function createSubscription(product) {
 	    alert("Sorry Firebase user creation failed.");
 	    return;
     }
-    let sub = await getSub();
-
     // Save sub id as BTId in local storage and org file property
     configManager.setProp('BTId', BTId);
     await saveBT();
-    if (sub) {
-	    alert("Seems like you already have a subscription associated with this browser.");
-	    console.log("Subscription exists for this user:", sub);
-	    return;
+
+    if (product != OTP) {
+        // handle subscriptions different than one time purchase
+        let subscription = await getPurchase('subscriptions');
+        if (subscription) {
+	        alert("Seems like you already have a subscription associated with this browser. Close and restart BrainTool.");
+	        console.log("Subscription exists for this user:", JSON.stringify(subscription));
+	        return;
+        }    
+        // Create sub - redirects to Stripe, so execution will end here.
+        // on reload the BTId value set above will indicate a premium subscription
+        subscribe(product);
+    } else {
+        // handle one time purchase
+        let myproduct = await getPurchase('payments');
+        if (myproduct) {
+	        alert("Seems like you already have a license associated with this browser. Close and restart BrainTool.");
+	        console.log("License exists for this user:", JSON.stringify(myproduct));
+	        return;
+        }    
+        // redirects to Stripe, so execution will end here.
+        // on reload the BTId value set above will indicate a premium subscription
+        purchase(product);
     }
-    
-    // Create sub - redirects to Stripe, so execution will end here.
-    // on reload the BTId value set above will indicate a premium subscription
-    subscribe(product);
 }
 
 async function openStripePortal() {
@@ -70,13 +96,40 @@ const firebaseConfig = {
     appId: "1:177084785905:web:305c20b6239b97b3243550"
 };
 
-const Annual =  "price_1J0uJMJfoHixgzDGapSAEFMa"; // test: "price_1J0uYvJfoHixgzDGqVnNt5Zg";
-const Monthly = "price_1J0uI4JfoHixgzDGAnx2b087"; // test: "price_1J0uYFJfoHixgzDGiXtFAcdB";
+const Annual =  "price_1P4TJrJfoHixgzDGQX5G7EYQ";           // test: "price_1P4PTlJfoHixgzDGOkTBFq4s"; 
+const Monthly =  "price_1P4TJvJfoHixgzDGGuY6orEO";          // test: "price_1P4PRkJfoHixgzDGh1N8UMHA";
+const OTP = "price_1P4TK1JfoHixgzDGvFvSCdu9";               // test 20.99: "price_1P3kqcJfoHixgzDGJojQ5R3v";
 
 const FunctionLocation = 'us-east1';
 let FBDB = null;
 
-function initializeFirebase() {
+async function initializeFirebase() {
+    // First load scripts (lazy cos not needed until there's a license check or purchase)
+     const firebaseScripts = [
+        'https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js',     // must be first
+        'https://www.gstatic.com/firebasejs/8.6.5/firebase-functions.js',
+        'https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js',
+        'https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js',
+        // Add other Firebase scripts here...
+    ];
+    
+    // Load each script
+    for (const src of firebaseScripts) {
+        // Check if script is already loaded
+        if (!document.querySelector(`script[src="${src}"]`)) {
+            // Create new script element
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            document.head.appendChild(script);
+            
+            // Wait for the script to load
+            await new Promise((resolve) => {
+                script.onload = resolve;
+            });
+        }
+    }
+
     // Initialize Firebase w config + key
     const fbKey = configManager.getProp('FB_KEY');
     if (!fbKey) {
@@ -101,7 +154,7 @@ async function signIn() {
     // return current user if signed in, otherwise return a promise that resolves when
     // a new anonymous user is created
     
-    FBDB || initializeFirebase();
+    FBDB || await initializeFirebase();
     let uid = firebase.auth()?.currentUser?.uid;
     if (uid) return uid;
 
@@ -118,30 +171,88 @@ async function signIn() {
 	    });
     });
 }
-// NB Signout : firebase.auth().signOut());
+// NB Signout : firebase.auth().signOut();  // need to sign out to create new user during testing
+
+async function checkLicense() {
+    // Startup checks for license exists, expired etc
+
+    if(!BTId) {
+        console.log("No BTId => no license");
+        return false;
+    }
+    const licenseExpiry = configManager.getProp('BTExpiry');
+    if (BTId && licenseExpiry && (Date.now() < licenseExpiry)) {
+        console.log("Active license");
+        return true;
+    }
+
+    // Handle case where user just went thru Stripe flow, it passes back ?purchase=['product', 'subscription' or 'cancelled']
+    const urlParams = new URLSearchParams(window.location.search);
+    const purchase = urlParams.get('purchase');
+    if (purchase == 'cancelled') {
+        // need to reset BTId cos a user account was created prior to purchase
+        alert('Your purchase was cancelled. No changes were made.');
+        BTId = null; configManager.setProp('BTId', null);
+        saveBT();
+        return false;
+    }
+
+    // Either new purchase or expired license or manually copied in from elsewhere => Need to load fb code to check
+    // await load fb codebase
+    const product = await getPurchase('payments');
+    const subscription = await getPurchase('subscriptions');
+    if (product && purchase == 'product') {
+        alert('You now have a permanent license. Thank you for supporting BrainTool!');
+        configManager.setProp('BTExpiry', 8640000000000000);      // max date
+        return true;
+    }
+    if (subscription && purchase == 'subscription') {
+        alert('Your subscription is now active. Thank you for supporting BrainTool!');
+        configManager.setProp('BTExpiry', subscription.current_period_end.seconds * 1000);                // convert to ms for Date
+        return true;
+    }
+
+    configManager.setProp('BTExpiry', ((subscription?.current_period_end.seconds * 1000) || licenseExpiry));  // Sub exists but maybe expired
+    if (Date.now() < configManager.getProp('BTExpiry')) {
+        console.log("License renewed");
+        return true;
+    }
+    console.log("License expired");
+    alert("Looks like your subscription has expired. Create a new subscription or continue using the free version.");
+    return false;
+}
 
 
-
-function getSub() {
-    // Get subscription record for current user
-
-    FBDB || initializeFirebase();
-    return new Promise(function (resolve) {
-	    FBDB.collection('customers')
-	        .doc(BTId)
-	        .collection('subscriptions')
-	        .where('status', 'in', ['trialing', 'active'])
-	        .onSnapshot((snapshot) => {
-		        if (snapshot.empty) {
-		            console.log("No active subscriptions!");
-		            resolve(null);
-		        } else {		
-		            const subscription = snapshot.docs[0].data();		   // only one
-		            //const priceData = (await subscription.price.get()).data();
-		            console.log(`Sub: ${subscription}`);
-		            resolve(subscription);
-		        }
-	        });
+async function getPurchase(collection = 'subscriptions') {
+    // Get subscription or one time payment record ('payments') for current user
+    try {
+        FBDB || await initializeFirebase();
+    } catch(e) {
+        console.error("Error initializing Firebase in getPurchase");
+        console.log(JSON.stringify(e));
+        return null;
+    }
+    return new Promise((resolve, reject) => {
+        try {
+            FBDB.collection('customers')
+            .doc(BTId)
+            .collection(collection)
+            .where('status', 'in', ['trialing', 'active', 'succeeded'])
+            .onSnapshot((snapshot) => {
+                if (snapshot.empty) {
+                    console.log(`No active ${collection}!`);
+                    resolve(null);
+                } else {		
+                    const subscription = snapshot.docs[0].data();		   // only one
+                    console.log(`Sub: ${JSON.stringify(subscription)}`);
+                    resolve(subscription);
+                }
+            });
+        } catch(e) {
+            console.error("Error in getPurchase");
+            console.log(JSON.stringify(e)); 
+            reject(e);
+        }
     });
 }
 
@@ -157,8 +268,8 @@ async function subscribe(productPrice) {
 	    tax_rates: taxRates,
 	    allow_promotion_codes: true,
 	    line_items: [selectedPrice],
-	    success_url: window.location.href,
-	    cancel_url: window.location.href
+	    success_url: window.location.href + '?purchase=' + encodeURIComponent('subscription'),
+	    cancel_url: window.location.href + '?purchase=' + encodeURIComponent('cancelled'),
     };
     try {
         const docRef = await FBDB
@@ -182,9 +293,66 @@ async function subscribe(productPrice) {
 	        }
         });
     } catch(e) {
+        console.error("Error in subscribe with ", productPrice);
+        console.log(JSON.stringify(e));
+    }
+}
+
+const ReleaseCandidate = true;
+async function purchase(productPrice) {
+    // similar to above but One-Time-purchase
+    const checkoutSession = {
+        mode: "payment",
+        price: OTP, // One-time price created in Stripe
+	    allow_promotion_codes: true,
+        success_url: window.location.href + '?purchase=' + encodeURIComponent('product'),
+        cancel_url: window.location.href + '?purchase=' + encodeURIComponent('cancelled'),
+    };
+    try {
+        const docRef = await FBDB.collection("customers").doc(BTId).collection("checkout_sessions").add(checkoutSession);
+        // Wait for the CheckoutSession to get attached by the fb extension
+        docRef.onSnapshot((snap) => {
+	        const { error, sessionId } = snap.data();
+	        if (error) {
+	            alert(`An error occured: ${error.message}`);
+	        }
+	        if (sessionId) {
+	            // We have a session, let's redirect to Checkout
+	            // Init Stripe
+                if (ReleaseCandidate) {RCPurchase(sessionId); return;}      // !!! REMOVE FROM PROD and update FB Rules!!!
+                const stripeKey = configManager.getProp('STRIPE_KEY');
+	            const stripe = Stripe(stripeKey);
+	            stripe.redirectToCheckout({ sessionId });
+	        }
+        });
+    } catch(e) {
         console.error("Error in subscribe w ", productPrice);
         console.log(JSON.stringify(e));
     }
+}
+
+async function RCPurchase(sessionId) {
+    // Skip Stripe processing to allow free license for RC. Stripe won't charge 0 for a product or give 100% discount
+
+    const fakePayment = {
+        mode: "rc_stripe_bypass",
+        amount_total: 0,
+        status: "succeeded",
+        price: OTP,
+        object: "no_payment_intent",
+    }
+    const docRef = await FBDB.collection("customers").doc(BTId).collection("payments").add(fakePayment);
+    // Wait for the fakePayment to get attached by the fb extension
+    docRef.onSnapshot((snap) => {
+        const { error, sessionId } = snap.data();
+        if (error) {
+            alert(`An error occured in RCPurchase: ${error.message}`);
+            return;
+        }
+        alert("Your (free) purchase was successful. You now have a permanent license. Thank you for supporting BrainTool!");
+        configManager.setProp('BTExpiry', 8640000000000000);      // max date
+        updateLicenseSettings();
+    });
 }
 
 async function getStripePortalURL() {
@@ -198,11 +366,24 @@ async function getStripePortalURL() {
 	    rsp = await functionRef(
 	        { returnUrl: "https://braintool.org", 'BTId': BTId });
     } catch(e) {
-        const err = JSONstringify(e);
+        const err = JSON.stringify(e);
 	    console.error("Error in getPortal:", err);
         alert("Error accessing Stripe portal:\n", err);
 	    return ("https://braintool.org/support");
     }
     return rsp.data.url;
+}
+
+async function importKey() {
+    const key = prompt('Please enter your license key:');
+    if (key) {
+        BTId = key;
+        if (await checkLicense()) {
+            configManager.setProp('BTId', key);
+            saveBT();
+            alert('License key accepted. Thank you for supporting BrainTool!');
+            updateLicenseSettings();
+        }
+    }
 }
 

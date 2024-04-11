@@ -218,24 +218,27 @@
         </div>
         
         <div id="settingsSubscription">
-          <div class="settingsSubtitle">Subscription Status:</div>
+          <div class="settingsSubtitle">License Status:</div>
           <div id="settingsSubscriptionAdd">
-            <div class="settingsText">You are not currently subscribed.<br/>Please consider subscribing if you enjoy BrainTool. Thank you!</div>
+            <div class="settingsText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
             <div id="settingsSubscriptionButtons" class="settingsInput">
-              <button onclick="createSubscription(Annual)">$40/Year</button>
-              <button onClick="createSubscription(Monthly)" id="monthlySub">$3.99/Month</button>
+              <button onClick="handlePurchase(Monthly)" class="subButton">$1.33/ Month</button>
+              <button onclick="handlePurchase(Annual)"  class="subButton">$10.66/ Year</button>
+              <button onclick="handlePurchase(OTP)">Lifetime Free</button>
             </div>
             <i>Coupons applied at checkout</i>
-            <div class="settingsFootnote">By subscribing, you support further development of BrainTool<br/>and get unlimited saved pages.<br/>
-              <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a>
+            <div class="settingsFootnote">By purchasing, you support further development of BrainTool.<br/>
+              <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a><br/>
+              <div class="settingsFootnote" id="importKey" onclick="importKey()">Click here to manually enter a license code.</a>
+              </div>
             </div>
           </div>
           <div id="settingsSubscriptionStatus" style="display:none">
-            <div class="settingsText">You have a valid BrainTool subscription (ID = <span id="subId"></span>) <br/> Thank you for your support!</div>
-		    <a href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
+            <div class="settingsText" id="sub">You have a valid BrainTool subscription (ID = <span class="subId"></span>) <br/> Renews on <span id="renewDate"></span><br>Thank you for your support!</div>
+            <div class="settingsText" id="otp">You have a permanent BrainTool license (ID = <span class="subId"></span>) <br/> Thank you for your support!</div>
+            <a id="portalLink" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
           </div>
         </div>
-      </div>
 
       <div class="settingsActions" id="actions">
           
@@ -559,6 +562,7 @@
     <script src="configManager.js"></script>
     <script src="gDriveFileManager.js"></script>
     <script src="localFileManager.js"></script>
+    <script src="subscriptionManager.js"></script>
     <script src="bt.js"></script>
     <script src="messageManager.js"></script>
     <script src="BTAppNode.js"></script>
@@ -569,19 +573,20 @@
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoadOkay()" onerror="gapiLoadFail(event)"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoadOkay()" onerror="gisLoadFail(event)"></script>
     -->
+    <!-- Moved into subscriptionManager and loaded on demand
+        <script src="https://js.stripe.com/v3/"></script>
+    -->
 
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <!-- Moved into subscriptionManager and only loaded when there's a license-->
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first --
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-functions.js"></script>
-    <!-- See https://firebase.google.com/docs/web/setup#available-libraries -->
+    <!-- See https://firebase.google.com/docs/web/setup#available-libraries --
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
 
-    <!-- needed?   -->
+    <!-- needed?   --
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
-    <!-- Add Stripe.js -->
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="subscriptionManager.js"></script>
-
+    -->
   </body>
 </html>

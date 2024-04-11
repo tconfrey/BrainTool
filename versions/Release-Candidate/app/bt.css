@@ -422,12 +422,18 @@ body {
     color: rgba(255, 255, 255, 0.6);
     margin-top: 15px;
 }
+#importKey {
+    color: #a0ec5f;
+    margin-top: 5px;
+    cursor: pointer;
+}
 .settingsText {   
     font-size: var(--btSettingsFontSize);
     font-weight: var(--btSettingsFontWeight);
     line-height: var(--btSettingsLineHeight);
     color: var(--btSettingsFontColor);
     margin-top: 15px;
+    margin-bottom: 15px;
 }
 #help {
     position: fixed;
@@ -448,21 +454,23 @@ body {
     display: flex;
     justify-content: space-evenly;
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 #settings input {
     accent-color: #000;
 }
 #settingsSubscription button {
     height: 35px;
-    width: 34%;
+    width: 24%;
     background: linear-gradient(180deg, #A0EC5F 0%, #55BA00 100%);
     border-radius: 5px;
-    font-size: var(--btTitleFontSize);
+    font-size: var(--btSubtitleFontSize);
     font-weight: var(--btTitleFontWeight);
     color: white;
     border: none;
+    cursor: pointer;
 }
-#monthlySub {
+.subButton {
     background: linear-gradient(180deg, rgba(160, 236, 95, 0.8) 0%, rgba(85, 186, 0, 0.8) 100%) !important;
 }
 #actionsSyncStatus button {

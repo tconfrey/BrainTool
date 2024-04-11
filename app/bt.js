@@ -47,34 +47,41 @@ async function launchApp(msg) {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
 	    if (configManager.getProp('BTId')) {
 	        BTId = configManager.getProp('BTId');
-            //configManager.setProp('BTId', BTId);
 	    }
     }
     
-    // If subscription exists and not expired then user is premium
-    let sub = null;
-    if (BTId) {
-	    sub = await getSub();
-	    if (sub) {
-	        console.log('Premium subscription exists, good til:', new Date(sub.current_period_end.seconds * 1000));
-	        if ((sub.current_period_end.seconds * 1000) > Date.now()) {
-		        // valid subscription, toggle from sub buttons to portal link
-                $('#settingsSubscriptionAdd').hide();
-                $('#settingsSubscriptionStatus').show();
-                $('#subId').text(BTId);
-	        }
-	    }
-    }
+    // check for license, and if sub that its still valid
+    if (BTId && await checkLicense()) updateLicenseSettings();
 
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
 
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
-    checkCompactMode();                                   // drop note col if to narrow
+    checkCompactMode();                                   // drop note col if too narrow
     updateStats();                                        // record numlaunches etc
 
     if (!configManager.getProp('BTDontShowIntro'))
         messageManager.showIntro();
+}
+
+function updateLicenseSettings() {
+    // Update UI based on license status
+    
+    // valid subscription, toggle from sub buttons to portal link
+    $('#settingsSubscriptionAdd').hide();
+    $('#settingsSubscriptionStatus').show();
+    if (configManager.getProp('BTExpiry') == 8640000000000000) {
+        // permanant license
+        $('#otp').show();
+        $('#sub').hide();
+        $('#portalLink').hide();
+    } else {
+        // time limited sub
+        $('#otp').hide();
+        $('#sub').show();
+        $('#renewDate').text(new Date(configManager.getProp('BTExpiry')).toLocaleDateString());
+    }
+    $('.subId').text(BTId);
 }
 
 function updateStats() {
