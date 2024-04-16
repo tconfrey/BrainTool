@@ -7,13 +7,17 @@
 
 'use strict'
 
+const ReservedWords = {'TODO': 'Todo', 'DONE': 'Done'};             // can't name topics these org-mode reserved words
+
 class BTNode {
     constructor(title, parentId = null, firstChild = false) {
+
+        const _title = this.sanitizeTitle(title);
         this._id = BTNode.topIndex++;
-        this._title = title;
+        this._title = _title;
         this._parentId = parentId;
-        this._URL = BTNode.URLFromTitle(title);
-	    this._displayTopic = BTNode.displayNameFromTitle(title);
+        this._URL = BTNode.URLFromTitle(_title);
+	    this._displayTopic = BTNode.displayNameFromTitle(_title);
         this._childIds = [];
         this._topicPath = '';
         this.generateUniqueTopicPath();
@@ -25,14 +29,23 @@ class BTNode {
         if (typeof AllNodes !== 'undefined') AllNodes[this._id] = this;    
     }
 
+    sanitizeTitle(title) {
+        if (ReservedWords[title]) {
+            alert(`${title} is a reserved word in org-more, using ${ReservedWords[title]} instead`);
+            return ReservedWords[title];
+        }
+        return title;
+    }
+
     get id() {
         return this._id;
     }
     
     set title(ttl) {
-        this._title = ttl;
-        this._URL = BTNode.URLFromTitle(ttl);         // regenerate URL when title is changed
-	    this._displayTopic = BTNode.displayNameFromTitle(ttl);
+        const _ttl = this.sanitizeTitle(ttl);
+        this._title = _ttl;
+        this._URL = BTNode.URLFromTitle(_ttl);         // regenerate URL when title is changed
+	    this._displayTopic = BTNode.displayNameFromTitle(_ttl);
     }
     get title() {
         return this._title;
@@ -214,6 +227,7 @@ class BTNode {
         // return array[topicpath, TODO]
 
         topic = topic.trim();
+        if (ReservedWords[topic]) topic = ReservedWords[topic];  // can't name topics these org-mode reserved words
         let match = topic.match(/(.*):TODO/);
         if (match)                                // topicDN:TODO form
             return [match[1], "TODO"];
