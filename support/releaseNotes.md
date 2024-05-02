@@ -49,15 +49,16 @@ Another Google mandated update is the change to use their [Auth 2.0](https://dev
 - Search has been improved to make it easier to see the current match and other visible matches.
 
 ## Pricing and License Changes
-While not yet visible in the Release Candidate I'd appreciate feedback on these planned changes:
+I'd appreciate feedback on these planned changes:
 - There will be no limits on numbers of nodes saved in BT (other than those due to browser storage limits)
 - In addition to monthly and yearly subscriptions a single purchase lifetime license will be offered with pricing as follows:
-  - Monthly $1.33/mo, Yearly $10.66/yr, Lifetime $20.99
+  - Monthly $1.33/mo, Yearly $10.66/yr, Lifetime $21
   - This (low, low) pricing reflects my goal of having BT be widely used and to encourage users to support its development. The extra change over $1/$10/$20 covers the Stripe transaction costs.
 - License enforcement will be as follows:
   - 30 days all access.
   - After 30 days messages of gentle encouragement will be shown at intervals.
   - Functionally some setting preferences will be locked (Dark mode, Favicons etc) but otherwise the app will be fully functional.
+  NB Prior to upgrading on the app store and in recognition of the value of early feedback this release-candidate version has a no charge workflow for the permanent license. The created license code can be copied forward into the 1.0 version when its available.
 
 
 # Welcome to 0.9.9a
