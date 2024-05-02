@@ -8,6 +8,7 @@
     --btTopicFontWeight: 900;
     --btTopicFontSize: 12px;
     --btTopicLineHeight: 14px;
+    --btIndenterTopOffset: -8px;
 
     --btPageFontWeight: bold;
     --btPageFontSize: 10px;
@@ -19,6 +20,8 @@
     --btNoteLineClamp: 2;  /* # of notes lines shown */
 
     --btRowButtonMarginTop: auto;
+    --btFaviconPadding: 5px;
+    --btTabgroupPadding: 5px 7px 5px 7px !important;
 
     --btTitleFontSize: 16px;
     --btTitleFontWeight: 700;
@@ -32,13 +35,17 @@
     --btFootnoteFontWeight: 400;
     --btFootnoteLineHeight: 12px;
 
-    --btSettingsFontSize: 10px;
-    --btSettingsFontWeight: 400;
-    --btSettingsLineHeight: 12px;
-    --btSettingsFontColor: rgba(255, 255, 255, 0.7);
+    --btSettingsSubtextFontSize: 10px;
+    --btSettingsSubtextFontWeight: 400;
+    --btSettingsSubtextLineHeight: 12px;
+    --btSettingsSubtextFontColor: rgba(255, 255, 255, 0.7);
 
     --btSlideTextColor: #0C4F6B;
     --btSlideHeaderBackground: linear-gradient(#DFE3E2 0%, #C3CBCB 80.6%, #C8CFD0 100%);
+
+    --btMessageBackground: #F598D4;
+    --btWarningBackground: #F31D1D;
+    --btTipBackground: #B9CDDF;
 
     /* Items below differ in the DARK theme */
     
@@ -57,7 +64,7 @@
     --btTooltipBackground: rgba(42, 63, 62, 0.85);
     --btTooltipForeground: #fff;
     
-    --btRowSelected: # #e0ece0;
+    --btRowSelected: #e0ece0; /* linear-gradient(180deg, #bcc4c5 0%, #d4dadb 50%, #bcc4c5 100%);*/
     --btRowHovered: #AAB6B8;
     
     --btGeneralBorder: #3f673f;
@@ -80,15 +87,12 @@
     --btLinkColor: #2a3f3e;
     --btLinkOpenedColor: rgba(5, 122, 159, 0.8);
     --btLinkSelectedOpenedColor: #057a9f;
-    --btSearchResult: var(--btMessageBackground);
+    --btSearchResult: var(--btTipBackground);
 
     --btDialogBackground: #eeeeee;
     --btTextAreaBackground: #fff;
     --btDrawAttention: var(--btColor);
 
-    --btTipBackground: #F598D4;
-    --btWarningBackground: #F31D1D;
-    --btMessageBackground: #B9CDDF;
     --btOpenInfo: #0097C6;
 }
 
@@ -134,7 +138,7 @@
     --btLinkColor: #e0e5e5;
     --btLinkOpenedColor: #78c6de;
     --btLinkSelectedOpenedColor: #5bc1e1;
-    --btSearchResult: #2A3F3E; /* var(--btOpenInfo); */
+    --btSearchResult: #2A3F3E;
     --btOpenInfo: #7ce0ff;
 
     --btDialogBackground: linear-gradient(180deg, #566564 0%, #394C4B 100%);
@@ -148,6 +152,9 @@
     --btNoteLineClamp: 1;
     --btRowHeight: 20px;
     --btRowButtonMarginTop: -5px;
+    --btIndenterTopOffset: -4px;
+    --btFaviconPadding: 1px;
+    --btTabgroupPadding: 3px 7px 3px 7px !important;
 }
 
 [data-size="LARGE"] {
@@ -164,6 +171,7 @@
 }
 [data-dense="DENSE"][data-size="LARGE"] {
     --btRowHeight: 24px;
+    --btIndenterTopOffset: -4px;
 }
     
 a {
@@ -352,10 +360,12 @@ body {
 }
 
 /* style when input is active */
-:focus-visible, button:not([disabled]):hover {
+:focus-visible, button:not([disabled]):hover, textarea:not([disabled]):hover {
     outline-width: 1px;
     outline-color: var(--btButtonHighlight);
     outline-style: groove;
+}
+button:not([disabled]):hover, textarea:not([disabled]):hover {
     cursor: pointer;
 }
 .highlight {
@@ -381,8 +391,10 @@ body {
     padding-bottom: 15px;
     border-top: 1px solid black;
     border-bottom: 2px solid black;
-    background: rgba(42, 63, 62, 0.95);
+    background: rgba(43, 63, 62, 0.85); /* rgba(42, 63, 62, 0.95); */
     font-family: var(--btFont);
+    font-size: 14px;
+    font-weight: 400;
     color: #ffffff;
     text-align: center;
     z-index: 3;
@@ -420,18 +432,18 @@ body {
     font-weight: var(--btFootnoteFontWeight);
     line-height: var(--btFootnoteLineHeight);
     color: rgba(255, 255, 255, 0.6);
-    margin-top: 15px;
+    margin-top: 8px;
 }
 #importKey {
     color: #a0ec5f;
     margin-top: 5px;
     cursor: pointer;
 }
-.settingsText {   
-    font-size: var(--btSettingsFontSize);
-    font-weight: var(--btSettingsFontWeight);
-    line-height: var(--btSettingsLineHeight);
-    color: var(--btSettingsFontColor);
+.settingsSubText {   
+    font-size: var(--btSettingsSubtextFontSize);
+    font-weight: var(--btSettingsSubtextFontWeight);
+    line-height: var(--btSettingsSubtextLineHeight);
+    color: var(--btSettingsSubtextFontColor);
     margin-top: 15px;
     margin-bottom: 15px;
 }
@@ -457,7 +469,7 @@ body {
     margin-bottom: 10px;
 }
 #settings input {
-    accent-color: #000;
+    accent-color: #3C4749;
 }
 #settingsSubscription button {
     height: 35px;
@@ -490,7 +502,6 @@ body {
     color: var(--btTooltipBackground);
 }
 
-
 /* 
  * Row Buttons
  */
@@ -502,6 +513,8 @@ body {
     cursor: pointer;
     right: 2px;
     height: calc(var(--btRowHeight) - 2px);
+    display: flex;
+    align-items: center;
 }
 .rowButton {
     height: 28px;
@@ -510,7 +523,7 @@ body {
     padding: 0px;
     margin-left: -2px;
     margin-right: -2px;
-    margin-top: var(--btRowButtonMarginTop);
+    /* margin-top: var(--btRowButtonMarginTop); */
     background-color: var(--btRowButtonBackground);
 }
 
@@ -762,7 +775,7 @@ body {
  */
 
 #keyCommandsTable {
-    font-size: var(--btTopicFontSize);
+    font-size: var(--btSettingsLineHeight);
     margin-left: auto;
     margin-right: auto;
 }
@@ -869,19 +882,6 @@ body {
 }
 /* end split button*/
 
-span.elipse {
-     cursor:pointer;
-     color:blue;
-     text-decoration:underline;
-     padding-left: 0.1em;
-}
-
-/* prevents selection being scrolled off top */
-.treetable tr {
-  scroll-margin-top: 100px;
-  scroll-margin-bottom: 75px;
-}
-
 #content {
     background-color: var(--btInputBackground);
 }
@@ -913,9 +913,10 @@ body.waiting * {
     font-family: Roboto;
     font-weight: 400;
     font-size: 11px;
-    color: #954073;
+    color: #59718C; 
     text-align: center;
-    padding-top: 9px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 #message {
     padding: 0px 20px 0px 20px;
@@ -938,9 +939,9 @@ body.waiting * {
 }
 #messageContainer.message {
     background: var(--btMessageBackground);
-    color: #59718C; 
+    color: #954073;
 }
-#messageContainer.message > img {
+#messageContainer.tip > img {
     filter : hue-rotate(180deg);
 }
 #message .emoji {
@@ -1015,8 +1016,6 @@ body.waiting * {
 .left > img {
     height: 12px;
     width: 12px;    
-    position: relative;
-    padding-right: 5px;
     top: 2px;
 }
 
@@ -1028,7 +1027,7 @@ img.faviconOff {
 }
 
 .tabgroup {
-    padding: 3px 5px 3px 5px !important;
+    padding: var(--btTabgroupPadding); 
     border-radius: 5px;
 }
 .tggrey {

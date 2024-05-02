@@ -59,6 +59,7 @@ const messageManager = (() => {
         $("#messageNext").show();
         $("#messageClose").show();
         $("#messageContainer").css("cursor", "auto");
+        $("#messageContainer").addClass('tip');
         $("table.treetable").css("margin-bottom", "80px");
 
         // Then show random tip
@@ -73,8 +74,8 @@ const messageManager = (() => {
         $('#messageContainer').hide();
     }
     
-    function showWarning(message) {
-        // change message container to show warning message (eg stale file from warnBTFileVersion)
+    function showWarning(message, clickHandler) {
+        // change message container to show warning message (eg stale file from warnBTFileVersion) and do something on click
         if (Message) removeMessage();
         $("#messageTitle").html('<b>Warning!</b>');
         $("#message").html(`<b>${message}</b>`);
@@ -82,10 +83,7 @@ const messageManager = (() => {
         $("#messageClose").hide();
         $("#messageContainer").css("cursor", "pointer");
         $("#messageContainer").addClass('warning');
-        $("#messageContainer").click(async e => {
-            refreshTable(true);
-            removeWarning();
-        });
+        $("#messageContainer").on('click', clickHandler);
         $("#messageContainer").show();
         Warning = true;
     }

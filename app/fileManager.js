@@ -19,8 +19,7 @@ async function handleStartupFileConnection() {
 
     // Handle GDrive connection
     if (configManager.getProp('BTGDriveConnected')) {
-        GDriveConnected = true;
-        authorizeGAPI(false);
+        await authorizeGAPI(false);
         launchType = 'GDriveLaunch';
     }
 
@@ -35,9 +34,11 @@ async function handleStartupFileConnection() {
     gtag('event', launchType, {'event_category': 'General'});
 }
 
-async function saveBT(localOnly = false) {
+async function saveBT(localOnly = false, newContent = true) {
     // Save org version of BT Tree to local storage and potentially gdrive.
     // localOnly => don't save to GDrive backing and don't send gtag stat. Used when folding/unfolding
+    // newContent => true if we're saving new content, false if just saving folded state
+    // Don't force GDrive re-auth if we're just folding/unfolding
 
     console.log(`Writing BT to ${localOnly ? 'local only' : 'local + any remote'} Storage`);
     BTFileText = BTAppNode.generateOrgFile();
@@ -56,7 +57,7 @@ async function saveBT(localOnly = false) {
     // also save to GDrive or local file if connected and drop an event
     let event = "LocalStorageSave";
     if (GDriveConnected) {
-        await gDriveFileManager.saveBT(BTFileText);
+        await gDriveFileManager.saveBT(BTFileText, newContent);     // if !newContent, don't force re-auth
         event = "GDriveSave";
     } else if (LocalFileConnected) {
         await localFileManager.saveBT(BTFileText);
@@ -152,7 +153,7 @@ function updateStatsRow(modifiedTime = null) {
     modifiedTime = modifiedTime || configManager.getProp('BTTimestamp');
     const saveTime = getDateString(modifiedTime);
 
-    // update Footer. Above may go away w new header
+    // update Footer. take account of single column mode
     const saveInfo = $("#content").hasClass('compactMode') ? `${saveTime}` : `Last saved ${saveTime}`;
     const openInfo = $("#content").hasClass('compactMode') ? '' : `(${numOpenLinks} open)`;
     $("#footerSavedInfo").html(saveInfo);
@@ -175,14 +176,19 @@ function updateSyncSettings(connected = false, time = null) {
         $("#settingsSyncStatus").show();
         $("#actionsSyncStatus").show();
         const filetype = GDriveConnected ? 'GDrive' : 'Local File';
+        const fileLocation = GDriveConnected ? "https://drive.google.com/file/d/" + configManager.getProp('BTFileID') : "";
         $("#autoSaveLabel").text(`${filetype} sync is on.`);
+        $("#fileLocation").html(`File: ${fileLocation}`);
+        GDriveConnected && $("#fileLocation").show();
         $("#syncType").text(filetype);
         updateStatsRow(time);                                           // last saved time etc
     }  else {
+        // remote sync turned off
         $("#settingsSync").show();
         $("#settingsSyncStatus").hide();
         $("#actionsSyncStatus").hide();
         $("#settingsSyncNone").prop('checked', true);
+        configManager.setProp('BTTimestamp', null);
     }
 }
 

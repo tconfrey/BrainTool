@@ -57,7 +57,7 @@ QUnit.module("BTNode tests", function() {
         assert.equal (an2.parentId, an1.id, "Parenting ok");
         assert.equal (an4.URL, "http://google.com", "URL passthru ok");
         assert.equal (an4.displayTopic, "goog also blah", "displayTopic passthru ok");
-        assert.equal (an4.displayTitle(), "<a href='http://google.com' class='btlink'>goog</a> also blah", "dispTitle");
+        assert.equal (an4.displayTitle(), "<a href='http://google.com' class='btlink'><span class='btTitleText'>goog</span></a> also blah", "dispTitle");
         assert.equal (an3.level, 3, "Level ok on creation");
         an2.resetLevel(1);
         assert.equal (an3.level, 2, "Level reset ok");

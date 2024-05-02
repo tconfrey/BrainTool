@@ -144,58 +144,38 @@ class BTAppNode extends BTNode {
     HTML() {
         // Generate HTML for this nodes table row
         let outputHTML = "";
-	    let childlessTop = "";
         outputHTML += `<tr data-tt-id='${this.id}' `;
         if (this.parentId || this.parentId === 0)
             outputHTML += `data-tt-parent-id='${this.parentId}'`;
-	    else if ((this.level == 1) && (this.childIds.length == 0))
-	        childlessTop = 'childlessTop';
 
-        outputHTML += (this.isTopic()) ? "class='topic'" : "";
+        let emptyTopic = (this.isTopic() && !this.childIds.length) ? "emptyTopic" : "";
+        outputHTML += (this.isTopic()) ? `class='topic ${emptyTopic}' data-tt-branch='true'` : "";
+
+        let topicClasses = (this.isTopic()) ? "btTitleText btTitle" : "btTitle";
 	    
-        outputHTML += `><td class='left ${childlessTop}'><span class='btTitle'>${this.displayTitle()}</span></td>`;
+        outputHTML += `><td class='left'><span class='${topicClasses}'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
 
     displayText() {
-        // Node text as seen in the tree. Insert ... link to text that won't fit
-        const htmlText = BTAppNode._orgTextToHTML(this._text);
-        if (htmlText.length < 250) return htmlText;
-        
-        // if we're chopping the string need to ensure not splitting a link
-        const ellipse = "<span class='elipse'>... </span>";
-        let rest = htmlText.substring(250);
-        let reg = /.*?<\/a>/gm;                                // non greedy to get first
-        if (!reg.exec(rest))
-            // no closing expression so we're ok
-            return htmlText.substring(0,250)+ellipse;
-
-        // there is a closing a, find if there's a starting one
-        const closeIndex = reg.lastIndex;
-        rest = htmlText.substring(250, 250+closeIndex);     
-        reg = /<a href/gm;
-        if (reg.exec(rest))
-            // there's a matching open so 0..250 string is clean
-            return htmlText.substring(0,250)+ellipse;
-
-        // Return text to end of href
-        return htmlText.substring(0, 250+closeIndex)+ellipse;
+        // Just a pass through to static fn below
+        return BTAppNode._orgTextToHTML(this._text);
     }
     
     displayTitle() {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTitle
-        let txt = "";
-        if (this._keyword) txt += `<span class='keyword'>${this._keyword} </span>`; // TODO etc
 
-        // first escape any html entities
+        // handle keywords
+        let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
+        // escape any html entities
         let title = this.title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        return txt + BTAppNode._orgTextToHTML(title);
+        return BTAppNode._orgTextToHTML(title, keywordText);
     }
     
     url() {
 	    // Node title as seen when its a search result
-	    const reg = new RegExp("\\[\\[(.*?)\\]\\[(.*?)\\]\\]");           // NB non greedy
+	    const reg = new RegExp("\\[\\[(.*?)\\]\\[(.*?)\\]\\]");           // NB non greedy match [[url][title]]
 	    const match = this.title.match(reg);
 	    return match ? match[1] : "";
     }
@@ -245,15 +225,17 @@ class BTAppNode extends BTNode {
     redisplay(show=false) {
 	    // regenerate content
 	    const dn = this.getDisplayNode();
-	    $(dn).find("span.btTitle").html(this.displayTitle());
+        let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
+
+	    $(dn).find("span.btTitleText").html(keywordText + this.displayTopic);
 	    $(dn).find("span.btText").html(this.displayText());
 	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
 	    $(dn).find("a").each(function() {				  // reset link click intercept
 	        this.onclick = handleLinkClick;
 	    });
+        if (this.isTopic() && this.childIds.length) $(dn).removeClass('emptyTopic');
+        if (this.isTopic() && !this.childIds.length) $(dn).addClass('emptyTopic');
 	    show && this.showForSearch();					  // reclose if needed
-	    if (this.childIds.length)                         // set correctly
-	        $(dn).children('.left').removeClass('childlessTop');
     }
 
     setTGColor(color = null) {
@@ -262,7 +244,7 @@ class BTAppNode extends BTNode {
         if (!displayNode) return;
         this.tgColor = color;                      // remember color thru a refresh
         const colorClass = color ? 'tg'+color : null;
-        const selector = this.isTopic() ? ".btTitle" : ".btTitle a";
+        const selector = this.isTopic() ? ".btTitle" : ".btTitle span.btTitleText";
 
         // remove any prev color and add new color or no longer shown in tg -> remove class
         $(displayNode).find(selector).removeClass(
@@ -304,7 +286,12 @@ class BTAppNode extends BTNode {
         const dn = this.getDisplayNode();
         $(dn).find(`.${favClass}`).remove();                     // remove any previous set icon
         const fav = $(`<img src="${favUrl}" loading="lazy" class="${favClass}">`);
-        $(fav).insertBefore($(dn).find('.btTitle'));
+
+        fav.on('error', function() {
+            this.src = 'resources/help.png';                    // if no favicon found, use ? from help icon
+            this.width = this.height = 16;
+        });
+        $(dn).find('.btlink').prepend(fav);
     }
 
     static async populateFavicons() {
@@ -349,17 +336,17 @@ class BTAppNode extends BTNode {
 	    const node = this.getDisplayNode();
 	    let titleStr;
         if (this.keyword && reg.test(this.keyword)) {
-            titleStr = `<b class='highlight tabgroup'>${this.keyword}</b> ${this.displayTopic}`;
-	        $(node).find("span.btTitle").html(titleStr);
+            titleStr = `<span class='highlight tabgroup'>${this.keyword}</span> ${this.displayTopic}`;
+	        $(node).find("span.btTitleText").html(titleStr);
             match = true;
         } else if (reg.test(this.displayTopic)) {
 	        titleStr = this.displayTopic.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
-	        $(node).find("span.btTitle").html(titleStr);
+	        $(node).find("span.btTitleText").html(titleStr);
 	        match = true;
 	    } else if (reg.test(this.url())) {
 	        const hurl = this.url().replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        titleStr = "[" + hurl + "] <a href='" +this.url() + "'>" + this.displayTopic + "</a>";
-	        $(node).find("span.btTitle").html(titleStr);
+	        $(node).find("span.btTitleText").html(titleStr);
 	        match = true;
 	    }
 	    if (reg.test(this._text)) {
@@ -394,7 +381,8 @@ class BTAppNode extends BTNode {
 	    // Look for match in title/topic, url and note
 	    if (reg.test(this.displayTopic)) {
 	        titleStr = this.displayTopic.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
-	        $(node).find("span.btTitle").html(titleStr);
+	       // $(node).find("span.btTitle").html(titleStr);
+	        $(node).find("span.btTitleText").html(titleStr);
 	        lmatch = true;
 	    }
 	    if (!lmatch && reg.test(this.url())) {
@@ -666,8 +654,7 @@ class BTAppNode extends BTNode {
         
         // iterate on top level nodes, generate text and recurse
         topNodes.forEach(function (node) {
-            if (node && (node.level == 1))
-                orgText += node.orgTextwChildren() + "\n";
+            orgText += node.orgTextwChildren() + "\n";
         });
         return orgText.slice(0, -1);                                      // take off final \n
     }
@@ -679,23 +666,25 @@ class BTAppNode extends BTNode {
      ***/
 
     
-    static _orgTextToHTML(txt) {
+    static _orgTextToHTML(txt, keyword = "") {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
 
         const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
         const reg = new RegExp(regexStr, "mg");
-        let hits;
         let outputStr = txt;
-        while (hits = reg.exec(outputStr)) {
+        let hits = reg.exec(outputStr);
+        if (hits) {
             const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
             if (hits[1].indexOf('id:') == 0)             // internal org links get highlighted, but not as hrefs
                 outputStr = outputStr.substring(0, hits.index) +
                 "<span class='file-link'>" + h2 + "</span>" +
                 outputStr.substring(hits.index + hits[0].length);
             else
-                outputStr = outputStr.substring(0, hits.index) +
-                "<a href='" + hits[1] + "' class='btlink'>" + h2 + "</a>" +
+                outputStr = outputStr.substring(0, hits.index) + 
+               "<a href='" + hits[1] + "' class='btlink'><span class='btTitleText'>" + keyword + h2 + "</span></a>" +
                 outputStr.substring(hits.index + hits[0].length);
+        } else {
+            outputStr = keyword + outputStr;
         }
         return outputStr;
     }
@@ -777,6 +766,11 @@ class BTAppNode extends BTNode {
     reparentNode(newP, index = -1) {
         // move node from existing parent to new one, optional positional order
 
+        // update display class if needed, old Parent might now be empty, new parent is not
+        if (AllNodes[this.parentId]?.childIds?.length == 1)
+            $(`tr[data-tt-id='${this.parentId}']`).addClass('emptyTopic');
+        $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
+
         super.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
@@ -832,7 +826,7 @@ class BTAppNode extends BTNode {
         Topics = new Array();
         $("#content tr").each(function() {
             const id = $(this).attr('data-tt-id');
-            if (AllNodes[id]?.level == 1)
+            if (AllNodes[id]?.parentId == null)
                 topicsForNode(id);
         });
     }

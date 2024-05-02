@@ -26,16 +26,6 @@ const gDriveFileManager = (() => {
     var Scopes = 'https://www.googleapis.com/auth/drive.file';
     var tokenClient = null;
 
-    // Just here to support the Release Client running
-    const preDash = 2 * 227 * 239 * 9091921;
-    const postDash = '9h93o6s934kfmph3uruess0729kdfqo7-'
-    const url = '.apps.googleusercontent.com';
-    const altCID = preDash + postDash.split('').reverse().join('') + url;
-    const preU = 'ZkfCSlQ6SAySazIA';
-    const postU = 'YzM1j7NkQMLg1HzlKR82vf';
-    const altapikey = preU.split('').reverse().join('') + '_' + postU.split('').reverse().join('');
-    // cut
-
     async function initClient(userInitiated = false) {
 
         console.log("Initializing GDrive client app");
@@ -47,7 +37,7 @@ const gDriveFileManager = (() => {
                 gapi.load('client', {callback: resolve, onerror: reject});
             });
             await gapi.client.init({
-                apiKey: configManager.getProp('API_KEY') || altapikey,
+                apiKey: configManager.getProp('API_KEY'),
                 discoveryDocs: DiscoveryDocs
             }); 
             await gapi.client.load(DiscoveryDocs[0]);  // Load the Drive API
@@ -57,7 +47,7 @@ const gDriveFileManager = (() => {
             await new Promise((resolve, reject) => {
                 try {
                     tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: configManager.getProp('CLIENT_ID') || altCID,
+                        client_id: configManager.getProp('CLIENT_ID'), 
                         scope: Scopes,
                         prompt: 'consent',          // Need to ask on initial connection cos token expires
                         callback:  '',              // defined at request time in await/promise scope.
@@ -104,14 +94,15 @@ const gDriveFileManager = (() => {
         }
     }
     
-    async function getAccessToken() {
-        // Get token or die trying
+    async function getAccessToken(forceAuth = true) {
+        // Get token, optional re-auth if expired
         if (gapi.client.getToken()?.access_token) return gapi.client.getToken()?.access_token;
+        if (!forceAuth) return false;
 
-        // else there's some kind of issue. retry and reset signinstatus
+        // else token has expired or there's some kind of issue. retry and reset signinstatus
         console.warn("BT - Error Google Access Token not available. Trying to reAuth...");
         const token = await renewToken();
-        updateSigninStatus(gapi.client.getToken()?.access_token !== undefined);
+        if (BTFileID) updateSigninStatus(gapi.client.getToken()?.access_token !== undefined); // don't update if BTFile has not yet been read
         return token;
     }
     
@@ -145,7 +136,7 @@ const gDriveFileManager = (() => {
     async function renewTokenAndRetry(cb) {
         // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
         // might be a callback to call after token is renewed
-        if (confirm("BT - Error accessing GDrive. Security token expired. Renew the token and try again?")) {
+        if (confirm("BT - Security token expired. Renew the token and try again?")) {
             try {
                 await renewToken();
                 cb && cb();
@@ -179,7 +170,7 @@ const gDriveFileManager = (() => {
     }
 
     function revokeToken() {
-        // Not actually ever needed, but here for completeness
+        // Not actually ever needed, but here for completeness and testing
         let cred = gapi.client.getToken();
         if (cred !== null) {
             google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
@@ -188,19 +179,19 @@ const gDriveFileManager = (() => {
         }
     }
 
-    async function saveBT(fileText) {
+    async function saveBT(fileText, forceAuth = false) {
         BTFileText = fileText;
         try {
             // Save org version of BT Tree to gdrive.
-            await getAccessToken();
-            writeBTFile (BTFileText);
+            const authorized = await getAccessToken(forceAuth);
+            if (authorized) writeBTFile (BTFileText);
         } catch(err) {
             alert(`Changes saved locally. GDrive connection failed. Google says:\n${JSON.stringify(err)}`);
             updateSigninStatus(false);
             console.log("Error in saveBT:", err);
         }
     }
-    function authorizeGapi(userInitiated = false) {
+    async function authorizeGapi(userInitiated = false) {
         // called from initial launch or Connect button (=> userInitiated)
         // gapi needed to access gdrive not yet loaded => this script needs to wait
 
@@ -212,7 +203,7 @@ const gDriveFileManager = (() => {
             alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
         }
         // Init client will async flow will ensure that gapi is loaded
-        (async () => await initClient(userInitiated))()
+        await initClient(userInitiated);
     }
 
     function checkLoginReturned() {
@@ -225,7 +216,7 @@ const gDriveFileManager = (() => {
     /**
      * Find or initialize BT file at gdrive
      */
-    var BTFileID, BTFileText;
+    var BTFileID;
     async function findOrCreateBTFile(userInitiated) {
         // on launch or explicit user 'connect to Gdrive' action (=> userInitiated)
 
@@ -264,6 +255,7 @@ const gDriveFileManager = (() => {
             }
         }
         // Update and Save FileID and save timestamp
+        updateSigninStatus(true);
         updateStatsRow(driveTimestamp);
         configManager.setProp('BTFileID', BTFileID);
         configManager.getProp('BTTimestamp') || configManager.setProp('BTTimestamp', driveTimestamp);
@@ -472,7 +464,11 @@ const gDriveFileManager = (() => {
         // query Drive for last modified time 
         try {
             if (!BTFileID || !GDriveConnected) throw new Error("BTFileID not set or GDrive not connected");
-            await getAccessToken();
+            const token = await getAccessToken(false);
+            if (!token) {
+                console.log("GDrive token expired or not available, returning 0 as modified time.");
+                return 0;
+            }
             let response;
             if (shouldUseGoogleDriveApi()) {
                 response = await gapi.client.drive.files.get({
@@ -485,8 +481,7 @@ const gDriveFileManager = (() => {
             }
             return Date.parse(response.modifiedTime);
         } catch (e) {
-            console.error('Error reading BT file version from GDrive:', JSON.stringify(e));
-            renewTokenAndRetry(checkBTFileVersion);
+            console.error('Error reading BT file version from GDrive:', e.message);
             return 0;
         }
     }
@@ -526,6 +521,11 @@ const gDriveFileManager = (() => {
         configManager.setProp('BTGDriveConnected', signedIn);
     }
 
+    function haveAuth() {
+        // return true if we have a token
+        return gapi.client.getToken()?.access_token !== undefined;
+    }
+    
     return {
         saveBT: saveBT,
         authorizeGapi: authorizeGapi,
@@ -533,5 +533,10 @@ const gDriveFileManager = (() => {
         savePendingP: savePendingP,
         getBTFile: getBTFile,
         revokeToken: revokeToken,
+        renewToken: renewToken,
+        haveAuth: haveAuth,
+        getAccessToken: getAccessToken,
+        getBTModifiedTime: getBTModifiedTime, 
+        BTFileID: BTFileID
     };
 })();

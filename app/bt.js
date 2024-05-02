@@ -13,6 +13,7 @@ var InitialInstall = false;
 var UpgradeInstall = false;
 var GroupingMode = 'TABGROUP';                            // or 'NONE'
 var MRUTopicPerWindow = {};                               // map winId to mru topic
+var BTTabId = null;                                       // tabId of BT
 
 /***
  *
@@ -26,6 +27,7 @@ async function launchApp(msg) {
     configManager.setConfigAndKeys(msg);
     InitialInstall = msg.initial_install;
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
+    BTTabId = msg.BTTab;                                    // knowledge of self
         
     BTFileText = msg.BTFileText;
     processBTFile();                                          // create table etc
@@ -147,32 +149,33 @@ function updateStats() {
     messageManager.setupMessages();
 }
 
-// Register for focus
-window.onfocus = handleFocus;
 function handleFocus(e) {
-    // Links w focus interfere w BTs selection so remove
-    document.activeElement.blur();
-    // check file version, potentially warn no staleness
-    warnBTFileVersion(e);
+    // BTTab comes to top
+    
+    document.activeElement.blur();      // Links w focus interfere w BTs selection so remove
+    warnBTFileVersion(e);               // check file version, warn if stale
 }
 
 async function warnBTFileVersion(e) {
-    // warn in ui if there's a backing file and its newer than local data
+    // warn in ui if there's a backing file and its newer than local data or if GDrive auth has expired
 
-    // Do we need to warn?
-    const warn = syncEnabled() && await checkBTFileVersion();
-    if (!warn) {
-        // If not remove any warning and return
-        messageManager.removeWarning();
-        return;
+    if (!syncEnabled()) return;
+    messageManager.removeWarning();
+
+    if (GDriveConnected) {
+        const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
+        if (!lastModifiedTime) {
+            const cb = (async e => { gDriveFileManager.renewToken(); messageManager.removeWarning(); });
+            messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
+            return;
+        }
     }
 
-    // Need to warn
-    messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.");
-        
-    // June-22 not really sure this is useful info at this point
-    console.log("Newer BTFile version in file, sending gtag event and warning");
-    gtag('event', 'FileVersionMismatch', {'event_category': 'Error'});
+    const warnNewer = await checkBTFileVersion();
+    if (warnNewer) {
+        const cb = (async e => { refreshTable(true); messageManager.removeWarning(); });
+        messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.", cb);
+    }
 }
                          
 function handleInitialTabs(tabs, tgs) {
@@ -302,7 +305,7 @@ function processBTFile(fileText = BTFileText) {
     var container = document.querySelector('#content');
     container.innerHTML = table;
 
-    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 10,
+    $(container).treetable({ expandable: true, initialState: 'expanded', indent: 30,
                              animationTime: 250, onNodeCollapse: nodeCollapse,
                              onNodeExpand: nodeExpand}, true);
 
@@ -349,12 +352,7 @@ function initializeUI() {
     $("table.treetable tr").off('mouseenter');            // remove any previous handlers
     $("table.treetable tr").off('mouseleave');
     $("table.treetable tr").on('mouseenter', null, buttonShow);
-    $("table.treetable tr").on('mouseleave', null, buttonHide);  
-    $(".elipse").hover(function() {                       // show hover text on summarized nodes
-        var thisNodeId = $(this).closest("tr").attr('data-tt-id');
-        var htxt = AllNodes[thisNodeId].text;
-        $(this).attr('title', htxt);
-    });
+    $("table.treetable tr").on('mouseleave', null, buttonHide);
     // intercept link clicks on bt links
     $("a.btlink").each(function() {
         this.onclick = handleLinkClick;
@@ -378,7 +376,11 @@ function initializeUI() {
         $(this).addClass("selected");
         configManager.closeConfigDisplays();              // clicking also closes any open panel
     });
-    
+    $(document).click(function(event) {
+        if (event.target.nodeName === 'HTML') {
+            configManager.closeConfigDisplays();              // clicking background also closes any open panel
+        }
+    });
     // make rows draggable    
     $("table.treetable tr").draggable({
         helper: function() {
@@ -531,12 +533,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
         const ttNode = $("#content").treetable("node", oldParentId);
         $("#content").treetable("unloadBranch", ttNode);
-        if (AllNodes[oldParentId].level == 1)
-            $(`tr[data-tt-id='${oldParentId}'] td`).addClass('childlessTop');
     }
-
-    // update tree row for new parent no longer childless
-    if (newParent) $(`tr[data-tt-id='${newParent.id}'] td`).removeClass('childlessTop');
 
     // update the rest of the app, backing store and potentially move tab
     saveBT();
@@ -596,17 +593,17 @@ function rememberFold() {
     
     if (!rememberFold.fastWriteTimer)
 	    rememberFold.fastWriteTimer =
-	    setTimeout(() => {
-	        saveBT(true);                 // passing in saveLocal=true to just remember fold locally
-	        rememberFold.fastWriteTimer = null
-	    }, 1000);
+	        setTimeout(() => {
+	            saveBT(true, false);                 // passing in saveLocal=true to just remember fold locally
+	            rememberFold.fastWriteTimer = null
+	        }, 1000);
     
     if (!rememberFold.writeTimer)
 	    rememberFold.writeTimer =
-	    setTimeout(() => {
-	        saveBT();
-	        rememberFold.writeTimer = null
-	    }, 1*60*1000);
+	        setTimeout(() => {
+	            saveBT(false, false);
+	            rememberFold.writeTimer = null
+	        }, 1*60*1000);
 }
 
 function nodeExpand() {
@@ -894,6 +891,12 @@ function tabActivated(data) {
     // user switched to a new tab or win, fill in storage for popup's use and select in ui
 
     const tabId = data['tabId'];
+
+    if (tabId == BTTabId) {
+        handleFocus({'reason': 'BTTab activated'});       // special case when the tab is us!
+        return;
+    }
+
     const winId = data['windowId'];
     const groupId = data['groupId'];
     const node = BTAppNode.findFromTab(tabId);
@@ -1088,7 +1091,7 @@ function clearSelected() {
     const currentSelection = $("tr.selected")[0];
     if (currentSelection) {
         const node = $(currentSelection).attr("data-tt-id");
-	    AllNodes[node].unshowForSearch();
+	    AllNodes[node]?.unshowForSearch();
     }
 }
 
@@ -1147,10 +1150,10 @@ function buttonShow(e) {
         reCreateButtonRow();
     }
     
+    // detach and center vertically on new td
     $("#buttonRow").detach().appendTo($(td));
-    const offset = $(this).offset();
-    const height = $(this).height();
-    const rowtop = offset.top;
+    const offset = $(this).offset().top;
+    const rowtop = offset + ($(this).hasClass('branch') ? 3 : 2);
 
     // figure out if tooltips would go off bottom
     const scrollTop = $(document).scrollTop();
@@ -1266,7 +1269,7 @@ function editRow(e) {
     // overlay grays everything out, dialog animates open on top.
     $("#editOverlay").css("display", "block");
     const fullWidth = $($("#editOverlay")[0]).width();
-    const dialogWidth = Math.min(fullWidth - 63, 600);    // 63 = padding + border == visible width
+    const dialogWidth = Math.min(fullWidth - 66, 600);    // 63 = padding + 2xborder == visible width
     const height = dialogWidth / 1.618;                   // golden!
     /*
     const otherRows = node.isTopic() ? 100 : 120;           // non-text area room needed
@@ -1429,6 +1432,7 @@ function deleteNode(id) {
         if (parent.childIds.length == 0) {
             const ttNode = $("#content").treetable("node", parent.id);
             $("#content").treetable("unloadBranch", ttNode);
+            $(parent.getDisplayNode()).addClass("emptyTopic");
         }
         propogateClosed(parent.parentId);                       // recurse
     }
@@ -1482,6 +1486,7 @@ function updateRow() {
     $(tr).find("span.btTitle").html(node.displayTitle());
     $(tr).find("span.btText").html(node.displayText());
     if (node.tgColor) node.setTGColor(node.tgColor);
+    node.populateFavicon();                     // async, will just do its thing
 
     // Update File 
     saveBT();
@@ -1501,12 +1506,13 @@ function toDo(e) {
     const appNode = getActiveNode(e);
     if (!appNode) return false;
 
-    appNode.iterateKeyword();                // ask node to update
+    appNode.iterateKeyword();                // ask node to update internals
 
     // Update ui and file
     const tr = $(`tr[data-tt-id='${appNode.id}']`);
     $(tr).find("span.btTitle").html(appNode.displayTitle());
     if (appNode.tgColor) appNode.setTGColor(appNode.tgColor);
+    appNode.populateFavicon();                     // async, will just do its thing
     
     // Stop the event from selecting the row and line up a save
     e.stopPropagation();
@@ -1572,8 +1578,8 @@ function addChild(e) {
     if (!node) return;
     const newNode = new BTAppNode('', node.id, "", node.level + 1, true);       // true => add to front of parent's children
     _displayForEdit(newNode);
-    if (newNode.level == 2)          // remove special handling for top nodes w/o children
-        $(`tr[data-tt-id='${node.id}'] td`).removeClass('childlessTop');
+
+    $(node.getDisplayNode()).removeClass("emptyTopic");
 
     // Stop the event from selecting the row
     e.stopPropagation();
@@ -1817,7 +1823,7 @@ function searchOptionKey(event) {
     // swallow keydown events for opt-s/r so they don't show in input. NB keyup is still
     // triggered and caught by search below
 
-    if (event.altKey && (event.code == "KeyS" || event.code == "KeyR")) {
+    if (event.altKey && (event.code == "KeyS" || event.code == "KeyR" || event.code == "Slash")) {
         let sstr = $("#search_entry").val();
         event.stopPropagation();
         event.preventDefault();
@@ -1848,8 +1854,8 @@ function search(keyevent) {
 	    return false;
     }
 
-    // opt-s/r : drop that char code and go to next match
-    if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR")) {
+    // opt-s/r or slash : drop that char code and go to next match
+    if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR" || keyevent.code == "Slash")) {
 	    next = true;
 	    ReverseSearch = (keyevent.code == "KeyR");
 	    keyevent.buttonNotKey || keyevent.stopPropagation();
@@ -1861,6 +1867,7 @@ function search(keyevent) {
     $("span.highlight").contents().unwrap();
     $("span.extendedHighlight").contents().unwrap();
     $("td").removeClass('search');
+    $("td").removeClass('searchLite');
     
     if (sstr.length < 1) return;                              // don't search for nothing!
 
@@ -2188,6 +2195,7 @@ function handleEditCardKeyup(e) {
         const first = $($("#topicName")[0]).is(':visible') ? $("#topicName")[0] : $('#title-text')[0];
 	    if (!focused || !$(focused).hasClass('editNode')) {
 	        // tabbed out of edit dialog, force back in
+            console.log("setting focus");
 	        if (!e.shiftKey)	// tabbing forward
 		        $(first).focus();
 	        else

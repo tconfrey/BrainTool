@@ -23,7 +23,12 @@ var UpdateInstall = false;                        // or the release notes page
 function btSendMessage(tabId, msg) {
     // send message to BT window/tab. Wrapper to facilitate debugging messaging
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
-    chrome.tabs.sendMessage(tabId, msg);
+    try {
+        chrome.tabs.sendMessage(tabId, msg);
+        check('btSendMEssage says:');
+    } catch (error) {
+        console.error('Error sending to BT:', error);
+    }
 }
 
 async function getBTTabWin() {
@@ -156,7 +161,7 @@ chrome.tabs.onAttached.addListener(async (tabId, otherInfo) => {
 chrome.tabs.onMoved.addListener(async (tabId, otherInfo) => {
     // listen for tabs being moved and let BT know
     const [BTTab, BTWin] = await getBTTabWin();
-    const tab = await chrome.tabs.get(tabId);
+    const tab = await chrome.tabs.get(tabId); check();
     if (!tab || tab.status == 'loading') return;
     const indicies = await tabIndices();
     console.log('moved event:', otherInfo, tab);
@@ -170,8 +175,12 @@ chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
     // listen for tabs being closed and let BT know
     const [BTTab, BTWin] = await getBTTabWin();
     if (!tabId || !BTTab) return;         // closed?
+    if (tabId == BTTab) {
+        setTimeout(() => suspendExtension(), 100);
+        console.log('BTTab closed, suspending extension');
+        return;
+    }
     btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
-    if (tabId == BTTab) setTimeout(() => suspendExtension(), 100);
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -183,7 +192,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status == 'complete') {
         // tab navigated to/from url
         btSendMessage(
-            BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId,
+            BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
                     'tabURL': tab.url, 'windowId': tab.windowId});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
@@ -210,6 +219,7 @@ chrome.tabs.onActivated.addListener(async (info) => {
     if (!info.tabId || !BTTab) return;
     console.log(`tabs.onActiviated fired, info: [${JSON.stringify(info)}]`);
     chrome.tabs.get(info.tabId, tab => {
+        check();
         if (!tab) return;
         btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId,
                               'windowId': tab.windowId, 'groupId': tab.groupId});
@@ -261,10 +271,10 @@ chrome.tabGroups.onRemoved.addListener(async (tg) => {
 chrome.windows.onFocusChanged.addListener(async (windowId) => {
     // Let app know there's a new top tab
 
-    // don't care about special windows like dev tools or the BT win
+    // don't care about special windows like dev tools
     check();
     const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab || windowId <= 0 || windowId == BTWin) return;
+    if (!BTTab || windowId <= 0) return;
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
         if (!tabs.length) return;
@@ -365,7 +375,7 @@ async function initializeExtension(msg, sender) {
         BTTab,
         {'function': 'launchApp', 'client_id': Keys.CLIENT_ID,
          'api_key': Keys.API_KEY, 'fb_key': Keys.FB_KEY,
-         'stripe_key': Keys.STRIPE_KEY,
+         'stripe_key': Keys.STRIPE_KEY, 'BTTab': BTTab,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall, 'BTVersion': BTVersion,
          'all_tabs': allTabs, 'all_tgs': allTGs});
 
@@ -545,7 +555,7 @@ async function groupAndPositionTabs(msg, sender) {
     console.log(`groupAndposition.groupArgs: ${JSON.stringify(groupArgs)}`);
     if (!tabIds.length) return;                                       // shouldn't happen, but safe
 
-    const firstTab = await chrome.tabs.get(tabIds[0]);
+    const firstTab = await chrome.tabs.get(tabIds[0]); check();
     const tabIndex = tabInfo[0].tabIndex || firstTab.index;
     chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
         // first move tabs into place

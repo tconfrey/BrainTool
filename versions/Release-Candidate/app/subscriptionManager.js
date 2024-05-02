@@ -200,12 +200,12 @@ async function checkLicense() {
     // Either new purchase or expired license or manually copied in from elsewhere => Need to load fb code to check
     // await load fb codebase
     const product = await getPurchase('payments');
-    const subscription = await getPurchase('subscriptions');
-    if (product && purchase == 'product') {
-        alert('You now have a permanent license. Thank you for supporting BrainTool!');
+    if (product) {
+        if (purchase == 'product') alert('You now have a permanent license. Thank you for supporting BrainTool!');
         configManager.setProp('BTExpiry', 8640000000000000);      // max date
         return true;
     }
+    const subscription = await getPurchase('subscriptions');
     if (subscription && purchase == 'subscription') {
         alert('Your subscription is now active. Thank you for supporting BrainTool!');
         configManager.setProp('BTExpiry', subscription.current_period_end.seconds * 1000);                // convert to ms for Date

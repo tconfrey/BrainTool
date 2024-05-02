@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-184551494-1"></script>
@@ -20,24 +20,19 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous">
     </script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="jquery.treetable.js"></script>
 
     <link href="bt.css" rel="stylesheet" type="text/css" />
-    
-    <script type="text/javascript"
-            src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
-    <link href="jquery.treetable.theme.default.css" rel="stylesheet" type="text/css" />
-
-    <link href="wenk.css" rel="stylesheet" />
-    <script src="jquery.treetable.js"></script>
+    <link href="wenk.css" rel="stylesheet" />  <!-- tooltip lib -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     
   </head>
   <body>
-    
-    <div>
       <div id="controlsHeader" >
         <div id="topBar" class="topBanner">
             <div>                
@@ -50,7 +45,7 @@
                     <img src="resources/searchGlass.svg"/>
                     <span class="hintText">Click here or 's' to search</span>
                 </div>
-                <input id="search_entry" type="text" size="20" autocomplete="off" >
+                <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="Search">
 	            <span class="searchButton" >
 	                <span id="searchUpBtn" onmousedown="searchButton(event, 'up')" title="Previous Match">
                         <img src="resources/arrowUp.png" height="8" width="10"/>
@@ -86,23 +81,23 @@
           <div class="settingsTitle">BrainTool Settings</div>
         <hr/>
         <div id="settingsLocation">
-          <div class="settingsSubtitle">The Topic Manager appears in:</div>
+          <div class="settingsSubtitle">Topic Manager Location:</div>
           <div id="panelToggle" class="settingsInput">
             <span>
               <input type="radio" id="settingsLocationPanel" name="location" value="PANEL" checked>
-              <label for="settingsLocationPanel">A side panel</label>
+              <label for="settingsLocationPanel">Side panel</label>
             </span>
             <span>
               <input type="radio" id="settingsLocationTab" name="location" value="TAB" >
-              <label for="settingsLocationTab">A browser tab</label>
+              <label for="settingsLocationTab">Browser tab</label>
             </span>
           </div>
-          <div class="settingsFootnote">Close and re-open the Topic Manager to apply this setting</div>
+          <div class="settingsFootnote">* Close and re-open the Topic Manager to apply this setting</div>
           <hr/>
         </div>
         
         <div id="settingsGrouping">
-          <div class="settingsSubtitle">Group tabs by Topic?</div>
+          <div class="settingsSubtitle">Use Tabgroups?</div>
           <div id="tabGroupToggle" class="settingsInput">
             <span>
               <input type="radio" id="settingsGroupingTG" name="grouping" value="TABGROUP" checked>
@@ -117,7 +112,7 @@
         </div>
         
         <div id="settingsSync">
-          <div class="settingsSubtitle">Sync data to:</div>
+          <div class="settingsSubtitle">Sync To:</div>
           <div id="syncSetting" class="settingsInput">
             <span>
               <input type="radio" id="settingsSyncGDrive" name="sync" value="gdrive">
@@ -138,6 +133,7 @@
         
         <div id="settingsSyncStatus" style="display:none">
             <div class="settingsSubtitle"><span id="syncType"></span> Sync Enabled</div>
+            <div class="settingsFootnote" id="fileLocation" style="display:none"></div>
           <div class="settingsFootnote">Disable current syncing (under Actions) to change this setting</div>
           <hr/>
         </div>
@@ -220,22 +216,22 @@
         <div id="settingsSubscription">
           <div class="settingsSubtitle">License Status:</div>
           <div id="settingsSubscriptionAdd">
-            <div class="settingsText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
+            <div class="settingsSubText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
             <div id="settingsSubscriptionButtons" class="settingsInput">
               <button onClick="handlePurchase(Monthly)" class="subButton">$1.33/ Month</button>
               <button onclick="handlePurchase(Annual)"  class="subButton">$10.66/ Year</button>
-              <button onclick="handlePurchase(OTP)">Lifetime Free</button>
+              <button onclick="handlePurchase(OTP)">Lifetime $21<br/><i><small>(now free)</small></i></button>
             </div>
             <i>Coupons applied at checkout</i>
-            <div class="settingsFootnote">By purchasing, you support further development of BrainTool.<br/>
+            <div class="settingsFootnote">
               <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a><br/>
               <div class="settingsFootnote" id="importKey" onclick="importKey()">Click here to manually enter a license code.</a>
               </div>
             </div>
           </div>
           <div id="settingsSubscriptionStatus" style="display:none">
-            <div class="settingsText" id="sub">You have a valid BrainTool subscription (ID = <span class="subId"></span>) <br/> Renews on <span id="renewDate"></span><br>Thank you for your support!</div>
-            <div class="settingsText" id="otp">You have a permanent BrainTool license (ID = <span class="subId"></span>) <br/> Thank you for your support!</div>
+            <div class="settingsSubText" id="sub">You have a valid BrainTool subscription (ID = <span class="subId"></span>) <br/> Renews on <span id="renewDate"></span><br>Thank you for your support!</div>
+            <div class="settingsSubText" id="otp">You have a permanent BrainTool license (ID = <span class="subId"></span>) <br/> Thank you for your support!</div>
             <a id="portalLink" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
           </div>
         </div>
@@ -326,7 +322,7 @@
           <div class="settingsTitle">Help and Support</div>
           <hr/>
           <div>
-              <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org/support/userGuide.html')">User Guide and General Help</div>
+              <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org/support/userGuide10.html')">User Guide and General Help</div>
           </div>
           <hr/>
           <div>
@@ -399,6 +395,7 @@
 
 
                   </table>
+                  <p class="settingsFootnote">NB Option is a modifier key like shift or control. It is also called Alt.</p>
               </div>
           </div>
 
@@ -505,7 +502,7 @@
     </div>
     
     <div id="editOverlay">
-        <dialog id="dialog" >
+      <dialog id="dialog" >
             <div id="distinguishedName"></div>
 
             <div id="topic">
@@ -553,7 +550,7 @@
           <img id="dontShow" src="resources/actionsIconLight.png" height="15" width="15" />
         </div>
       </div>
-      
+
     </div>
     
     <script src="orga-bundlev2.js"></script>
@@ -568,25 +565,5 @@
     <script src="BTAppNode.js"></script>
     <script src="parser.js"></script>
     <script src="../utilities/converters.js"></script>
-    
-    <!-- Moved into fileManager and loaded on demand 
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoadOkay()" onerror="gapiLoadFail(event)"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoadOkay()" onerror="gisLoadFail(event)"></script>
-    -->
-    <!-- Moved into subscriptionManager and loaded on demand
-        <script src="https://js.stripe.com/v3/"></script>
-    -->
-
-    <!-- Moved into subscriptionManager and only loaded when there's a license-->
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first --
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-functions.js"></script>
-    <!-- See https://firebase.google.com/docs/web/setup#available-libraries --
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
-
-    <!-- needed?   --
-    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
-    -->
   </body>
 </html>

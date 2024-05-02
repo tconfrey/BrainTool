@@ -247,12 +247,12 @@
         
         // Tony Edit: shift siblings of parents left so all a parents children are equal,
         // also, remove indenter if no longer applicible
-        if (this.isBranchNode())
+        //if (this.isBranchNode())
             this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
-        else {          
-            this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
-            $(this.indenter[0]).empty();
-        }
+        //else {          
+          //  this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
+            //$(this.indenter[0]).empty();
+        //}
 
       return this;
     };
@@ -585,16 +585,17 @@
         column: 0,
         columnElType: "td", // i.e. 'td', 'th' or 'td,th'
         expandable: false,
-        expanderTemplate: "<a href='#'>&nbsp;</a>",
+        expanderTemplate: "<a href='#' class='wenk--bottom' data-wenk='Expand/Collapse'>&nbsp;</a>",
         indent: 19,
         indenterTemplate: "<span class='indenter'></span>",
         cellTemplate: '',
         initialState: "collapsed",
         nodeIdAttr: "ttId", // maps to data-tt-id
         parentIdAttr: "ttParentId", // maps to data-tt-parent-id
+        /* replaced with Wenk tooltips. See wenk.css
         stringExpand: "Expand",
         stringCollapse: "Collapse",
-
+        */
         // Events
         onInitialized: null,
         onNodeCollapse: null,

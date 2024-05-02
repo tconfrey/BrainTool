@@ -151,7 +151,7 @@ const configManager = (() => {
 
         // do we load Favicons? Read value, set ui and re-save in case defaulted
         const favSet = configManager.getProp('BTFavicons');
-        const favicons = favSet || 'OFF';
+        const favicons = favSet || 'ON';
         $radio = $('#faviconToggle :radio[name=favicon]');
         $radio.filter(`[value=${favicons}]`).prop('checked', true);
         if (!favSet) configManager.setProp('BTFavicons', favicons);
@@ -230,7 +230,7 @@ const configManager = (() => {
             const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
             configManager.setProp('BTFavicons', favicons);
             // Turn on or off
-            $('#content img').removeClass('faviconOff', 'faviconOn').addClass(favClass);
+            $('#content img').removeClass('faviconOff faviconOn').addClass(favClass);
             saveBT();
         });
         $('#themeToggle :radio').change(function () {
@@ -270,6 +270,7 @@ const configManager = (() => {
         
         if ($('#settings').is(':visible')) {            
             $('#settings').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("#content").fadeIn(250);
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#settingsButton').removeClass('open');
@@ -279,6 +280,7 @@ const configManager = (() => {
             $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#settingsButton').addClass('open');
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
+            $("#content").fadeOut(250);
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
@@ -297,6 +299,7 @@ const configManager = (() => {
         
         if ($('#actions').is(':visible')) {            
             $('#actions').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("#content").fadeIn(250);
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#actionsButton').removeClass('open');
@@ -306,6 +309,7 @@ const configManager = (() => {
             $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#actionsButton').addClass('open');
             $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
+            $("#content").fadeOut(250);
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
@@ -317,6 +321,7 @@ const configManager = (() => {
         if ($('#help').is(':visible')) {
             // now visible => action is close
             $('#help').slideUp({duration: 250, 'easing': 'easeInCirc'});
+            $("#content").fadeIn(250);
             $("body").css("overflow", "auto");
             setTimeout(() => {
                 $('#footerHelp').removeClass('open');
@@ -327,6 +332,7 @@ const configManager = (() => {
             $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
             $('#footerHelp').addClass('open');
             $('#footer img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
+            $("#content").fadeOut(250);
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
         }
     }
