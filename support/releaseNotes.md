@@ -15,10 +15,15 @@ This is an early release candidate of the 1.0 version of BrainTool (finally!). I
 This change is not of great interest to a BT user but is mandated by Google (see this [notice](https://developer.chrome.com/blog/resuming-the-transition-to-mv3)) and required non-trivial code changes.
 
 ## Full Tab Group Support
-One advantage of the manifest update is that it provides access to the tabgroup api so that BT can provide full synchronization between Topics and browser tabgroups. By default Topics are now represented by tabgroups. Tabs opened from BT open in a tabgroup labelled with the appropriate Topic. In the Topic Manager opened links and Topics are highlighted with the tabgroups color. Changing the tabgroups color in the browser is reflected in the Topic Manager. Name changes and expand/collapse operations are synced. 
+One advantage of the manifest update is that it provides access to the tabgroup api so that BT can provide full synchronization between Topics and browser tabgroups. By default Topics are now shown as tabgroups in the browser. Tabs opened from BT open in a tabgroup labelled with the appropriate Topic. In the Topic Manager open links and Topics are highlighted with the tabgroups color. Changing the tabgroups color in the browser is reflected in the Topic Manager. Name changes and expand/collapse operations are also synced. 
 
 Additionally dragging a tab into a tabgroup will save that tab into the Topic in BT. Dragging a saved tab out of its tabgroup will remove it from BrainTool. 
-![TabGroups](../media/Release-Candidate-TG.png)
+
+![TabGroups](../media/ReleaseCandidate-TG.png)
+
+## Topic Tree visuals 
+As you can see from the screenshot, the expand/collapse buttons and the favicon displays have been restyled, and an empty topic is now visually distinct. It is hoped that these changes make the tree structure easier to see, in addition to improving the styling in general.
+
 ## Session saving and Bookmarker Updates
 The BT Bookmarker now has the option to save a whole tabgroup (if the current tab is in one), and a complete session, in addition to the previous window and tab options. When saving a session, tab groups are saved as the corresponding BrainTool Topic. Any ungrouped tabs are put in a tabgroup named with a Window-N prefix and saved under a Topic with the same name in the Topic Manager. The Session itself is given a Session-date Topic name and saved under the Topic selected in the Bookmarker or the Scratch default Topic.
 
@@ -36,7 +41,7 @@ We've added a helpful BrainTool Buddy to give a gentle introduction to BT when i
 </div>
 </div>
 ## GDrive Auth Change
-Another Google mandated update is the change to use their [Auth 2.0](https://developers.google.com/identity/oauth2/web/guides/migration-to-gis) libraries for Google Drive authorization. Unfortunately the access provided to browser-based apps (ie those without a back-end server) is considered to be temporary access and to require explicit user interaction. As a result if you have GDrive saving turned on you will now need to walk through a Google popup every hour to grant BrainTool access. From my perspective the change renders this BT feature pretty unusable but I'm interested in feedback.
+Another Google mandated update is the change to use their [Auth 2.0](https://developers.google.com/identity/oauth2/web/guides/migration-to-gis) libraries for Google Drive authorization. Unfortunately the access provided to browser-based apps (ie those without a back-end server) is considered to be temporary access and to require explicit user interaction. If you have GDrive saving turned on you'll be warned in the red warning banner when the token expires. You can click to immediately re-auth or ignore it and re-auth will happen on the next save. From my perspective the change makes GDrive syncing less appealing but I'm interested in feedback.
 
 ## Usability Improvements
 - Rows in the Topic Manager can now be dragged by selecting anywhere on the row

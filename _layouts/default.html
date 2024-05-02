@@ -1,109 +1,114 @@
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: "en-US" }}">
-  <head>
+<head>
+  
+  {% if site.google_analytics and jekyll.environment == 'production' %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site.google_analytics }}');
+  </script>
+  {% endif %}
+  <meta charset="UTF-8">
+  {% seo %}
+  
+  <meta property="og:title" content="BrainTool"/>
+  {% if page.image %}
+  <meta property="og:image" content="{{ page.image }}">
+  {% else %}
+  <meta property="og:image" content="http://braintool.org/site/AppStoreCollatoral/BraintoolChromestoresmallSATgreen-01.png"/> 
+  {% endif %}
+  <meta property="og:description" content="The Topic Manager for your online life"/>
+  <meta property="og:url" content="https://braintool.org" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+  
+</head>
+<body>
+  <header class="page-header" role="banner">
+    <a href="{{ site.url }}/index.html">
+      <!--<img class="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" alt='logo'/> -->
+      <img class="logo" src="{{ site.url }}/media/BT_Title_Logo.png" title="Home" alt='logo'/>
+    </a>
+    <div style="
+    background-image: url('{{ site.url }}/media/braintool_header.jpg'); 
+    background-size: cover;
+    background-position: center;
+    padding-top: 21.43%;">
+  </div>
+</div>
 
-    {% if site.google_analytics and jekyll.environment == 'production' %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+{% if page.audience != "landingpage" %}
+<div style="display:flex">
+  <div class="header-left">
+    <div class="header-buttons">
+      <a href="{{ site.url  }}/overview.html" >Vision</a>
+      <a href="{{ site.url  }}/support.html" >Help</a>
+      <a href="{{ site.url  }}/posts.html" >Blog</a>
+    </div>
+  </div>  
+  {% if page.audience == "nonuser" %}
+  <div class="header-right">
+    <div class="store-button">
+      <div id="store-text" onclick = "gotoStore()">Add to Chrome</div>
+    </div>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '{{ site.google_analytics }}');
-    </script>
-    {% endif %}
-    <meta charset="UTF-8">
-    {% seo %}
-
-    <meta property="og:title" content="BrainTool"/>
-    {% if page.image %}
-        <meta property="og:image" content="{{ page.image }}">
-    {% else %}
-        <meta property="og:image" content="http://braintool.org/site/AppStoreCollatoral/BraintoolChromestoresmallSATgreen-01.png"/> 
-    {% endif %}
-    <meta property="og:description" content="The Topic Manager for your online life"/>
-    <meta property="og:url" content="https://braintool.org" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico?">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#157878">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-
-  </head>
-  <body>
-    <header class="page-header" role="banner">
-      <div class="header-top">
-	<a href="{{ site.url }}/index.html">
-	  <img class="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" alt='logo'/>
-	</a>
-	<p class="beyond-bookmarks"><i>Beyond Bookmarks</i></p>
-	</div>
-      </div>
-      
-      {% if page.audience != "landingpage" %}
-      <div style="display:flex">
-	<div class="header-left">
-	  <div class="header-buttons">
-            <a href="{{ site.url  }}/overview.html" >Vision</a>
-            <a href="{{ site.url  }}/support.html" >Help</a>
-            <a href="{{ site.url  }}/posts.html" >Blog</a>
-	  </div>
-	</div>  
-	{% if page.audience == "nonuser" %}
-	<div class="header-right">
-	  <div class="store-button">
-        <div id="store-text" onclick = "gotoStore()">Add to Chrome</div>
-	  </div>
-	  <script>
-	    // if edge change button to point to edge store
-        let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
-	    if (navigator.userAgent.indexOf('Edg/') >= 0) {
-            storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
-	        let text = document.getElementById('store-text').firstChild;
-	        text.nodeValue = "Add to Edge";
-	    }
-        function gotoStore() {
+      // if edge change button to point to edge store
+      let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
+      if (navigator.userAgent.indexOf('Edg/') >= 0) {
+        storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
+        let text = document.getElementById('store-text').firstChild;
+        text.nodeValue = "Add to Edge";
+      }
+      function gotoStore() {
         (typeof gtag !== 'undefined') && gtag('event', 'Add_to_Click', {'event_category': 'Website', 'event_label': document.title, 'value': 1.0});
         window.location = storeLink;
-        }
-	  </script>
-	</div>
-	{% endif %}
-      </div>
-      {% endif %}
-    </header>
+      }
+    </script>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+</header>
 
-    <main id="content" class="main-content" role="main">
-      {{ content }}
-
-      <footer class="site-footer">
-        <div class="bt-footer">
-          <div class="bt-footer-column">
-            <h3>Overview</h3>
-            <div><a href="{{ site.url }}">Home</a></div>
-            <div><a href="{{ site.url  }}/overview.html#philosophy">Philosophy</a> |
-            <a href="{{ site.url  }}/overview.html#concepts">Concepts</a></div>
-            <div><a href="{{ site.url  }}/overview.html#roadmap">Roadmap</a> |
-            <a href="{{ site.url  }}/pricing.html">Pricing</a></div>
-            <div><a href="{{ site.url  }}/about.html">About</a></div>
-          </div>
-          <div class="bt-footer-column">
-            <h3>Support</h3>
-            <div><a href="{{ site.url  }}/support/userGuide.html">User Guide</a></div>
-            <div><a href="{{ site.url  }}/support.html">Help</a></div>
-            <div><a href="{{ site.url  }}/support/releaseNotes.html">Release Notes</a></div>
-            <div><a href="{{ site.url  }}/BrainToolPrivacyPolicy.pdf">Privacy Policy</a></div>
-          </div>
-          <div class="bt-footer-column">
-            <h3>Community</h3>
-            <div><a href="{{ site.url  }}/posts.html">Blog</a></div>
-            <div><a href="https://groups.google.com/u/0/g/braintool-discussion">Discussion Group</a></div>
-            <div><a href="https://twitter.com/abraintool">Twitter</a></div>
-            <div><a href="https://github.com/tconfrey/BrainTool">Source code</a></div>
-          </div>
+<main id="content" class="main-content" role="main">
+  {{ content }}
+  
+  <footer class="site-footer">
+    <div class="bt-footer">
+      <div class="bt-footer-column">
+        <h3>Overview</h3>
+        <div><a href="{{ site.url }}">Home</a></div>
+        <div>
+          <a href="{{ site.url  }}/overview.html#philosophy">Philosophy</a> |
+          <a href="{{ site.url  }}/overview.html#roadmap">Roadmap</a>
         </div>
-      </footer>
-    </main>
-  </body>
+        <div><a href="{{ site.url  }}/pricing.html">Pricing</a></div>
+        <div><a href="{{ site.url  }}/about.html">About</a></div>
+      </div>
+      <div class="bt-footer-column">
+        <h3>Support</h3>
+        <div><a href="{{ site.url  }}/support/userGuide.html">User Guide</a></div>
+        <div><a href="{{ site.url  }}/support.html">Help</a></div>
+        <div><a href="{{ site.url  }}/support/releaseNotes.html">Release Notes</a></div>
+        <div><a href="{{ site.url  }}/BrainToolPrivacyPolicy.pdf">Privacy Policy</a></div>
+      </div>
+      <div class="bt-footer-column">
+        <h3>Community</h3>
+        <div><a href="{{ site.url  }}/posts.html">Blog</a></div>
+        <div><a href="https://groups.google.com/u/0/g/braintool-discussion">Discussion Group</a></div>
+        <div><a href="https://twitter.com/abraintool">Twitter</a></div>
+        <div><a href="https://github.com/tconfrey/BrainTool">Source code</a></div>
+      </div>
+    </div>
+  </footer>
+</main>
+</body>
 </html>

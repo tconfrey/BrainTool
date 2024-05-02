@@ -7,20 +7,20 @@ audience: landingpage
 
 <div class="row">
 <div class="cell left" >
-<h1> Tame your Tabs</h1>
+<h1 class="landing-header"> Tame your Tabs</h1>
 <h3>
-BrainTool organizes all your tabs and topics in the Topic Manager
+BrainTool organizes all your tabs and groups them by Topic.
 <br/><br/>
-Open and close groups of tabs for a Topic with a click.
+Open and close groups multiple tabs for a Topic with a click.
 </h3>
-<h1> Control your Browser</h1>
+<h1 class="landing-header"> Control your Browser</h1>
 <h3>
 Switch between contexts and tab groups with ease. Keep your workspace clean.
 <br/><br/>
 No longer fear closing a tab!
 </h3>
 <br/>
-<h1>Curate your Topics</h1>
+<h1 class="landing-header">Curate your Topics</h1>
 </div>
 <div class="cell right" >
 
@@ -67,7 +67,7 @@ Or keep detailed notes on the Topic card associated with every item.
 
 </div>
 <br/>
-# Praise from users and the press
+<h1 class="landing-header"> Praise from users and the press</h1>
 <div class="commendations" style="border-bottom-style:solid; border-bottom-width:thin; border-bottom-color:#ddd">
 <div class="cell left">
 <img src="site/Commendations/zdnet.png" style="border:solid; border-width:thin; margin:auto" alt="ZDNet review">
@@ -148,16 +148,17 @@ With Braintool I have found it.</td></tr>
 - "Gave bookmarks the performance and usability boost that I'd been waiting for all these years"
 -->
 <br/>
-# Plain Text FTW!
-- Your data is stored in a continuously synced plain text file.
+<h1 class="landing-header"> Private, Secure, Plain-Text </h1>
+- Your data is stored in a private, continuously synced, text file.
 - BrainTool uses structured [org-mode](http://orgmode.org) syntax.
 - The file can be separately edited, backed-up or shared.
 - You can import and export to and from bookmarks or org-mode files.
 
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
-<h1>More Info</h1>
+<h1 class="landing-header">More Info</h1>
+<!--
 <iframe width="500" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-See the [Vision Statement](http://braintool.org/overview) for philosophy and roadmap information and see the [required official privacy policy](./BrainToolPrivacyPolicy.pdf). Let me know if you have any thoughts, comments, or feedback: [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com). 
+-->
+BrainTool is usable for free forever, an optional subscription or one-time purchase unlocks some customizations. See the [Vision Statement](http://braintool.org/overview) for philosophy and roadmap information. There is also an [official privacy policy](./BrainToolPrivacyPolicy.pdf). Or just [download](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) and try it out!
 

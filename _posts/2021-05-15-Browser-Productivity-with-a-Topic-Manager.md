@@ -43,7 +43,7 @@ I've tracked and used productivity and note taking tools for many years. There's
 An issue with all these tools has been the gap between the tool and the topic occurrence. There is an impedance between coming across a resource and saving it away such that you can get to it easily at the pertinent moment in the future. That impedance makes it more likely that you'll just leave the tab open. If you do take the time to copy and paste, then in that future moment there is still the context switch between fetching the resource you need from one app and opening it in another. With the convergence of all your stuff into the browser, where BrainTool lives, that gap is minimized so you are more likely to click, click, save, and close the tab away.
 </div>
 <div class="cell right">
-<img src="/media/edit-card.png" alt="BrainTool card editor" style="border:solid; border-width:thin; float:right;">
+<img src="/media/editcard.png" alt="BrainTool card editor" style="border:solid; border-width:thin; float:right;">
 </div>
 </div>
 
