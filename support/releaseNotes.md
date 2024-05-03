@@ -59,7 +59,7 @@ I'd appreciate feedback on these planned changes:
   - After 30 days messages of gentle encouragement will be shown at intervals.
   - Functionally some setting preferences will be locked (Dark mode, Favicons etc) but otherwise the app will be fully functional.
   
-NB Prior to upgrading on the app store and in recognition of the value of early feedback this release-candidate version has a no charge workflow for the permanent license. The created license code can be copied forward into the 1.0 version when its available.
+NB Prior to upgrading on the app store and in recognition of the value of early feedback this release-candidate version has a <mark>no charge workflow for the permanent license</mark>. The created license code can be copied forward into the 1.0 version when its available.
 
 
 # Welcome to 0.9.9a
