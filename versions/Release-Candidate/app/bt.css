@@ -35,6 +35,10 @@
     --btFootnoteFontWeight: 400;
     --btFootnoteLineHeight: 12px;
 
+    --btWenkBottom: 8px;
+    --btWenkPadding:  0.2rem 0.5rem 0.2rem 0.5rem;
+    --btIndentStepSize: 30px;
+
     --btSettingsSubtextFontSize: 10px;
     --btSettingsSubtextFontWeight: 400;
     --btSettingsSubtextLineHeight: 12px;
@@ -155,6 +159,10 @@
     --btIndenterTopOffset: -4px;
     --btFaviconPadding: 1px;
     --btTabgroupPadding: 3px 7px 3px 7px !important;
+
+    --btWenkBottom: 3px;
+    --btWenkPadding: 0.1rem 0.5rem 0.1rem 0.5rem;
+    --btIndentStepSize: 20px;
 }
 
 [data-size="LARGE"] {

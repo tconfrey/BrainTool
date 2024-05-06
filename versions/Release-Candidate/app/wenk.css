@@ -15,7 +15,7 @@
     font-size: var(--btTopicFontSize);
     border-radius: .2rem;
     content: attr(data-wenk);
-    padding: .4rem;
+    padding: var(--btWenkPadding);
     background-color:  var(--btTooltipBackground);
     color: var(--btTooltipForeground);
     line-height: 1.25rem;
@@ -82,7 +82,7 @@
 
 /* used for the ttree expand/collapse buttons */
 [data-wenk].wenk--bottom:after {
-    bottom: 5px;
+    bottom: var(--btWenkBottom);
     left: 100%;
     top: auto;
     right: auto;

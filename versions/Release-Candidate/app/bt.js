@@ -194,6 +194,9 @@ function handleInitialTabs(tabs, tgs) {
             node.tabGroupId = tab.groupId;
             const tg = tgs.find(tg => tg.id == tab.groupId);
             if (tg) node.setTGColor(tg.color);
+        } else {
+            node.putInGroup();                              // not grouped currently, handle creating/assigning as needed on startup
+            node.groupAndPosition();
         }
         if (node.parentId && AllNodes[node.parentId]) {
             AllNodes[node.parentId].windowId = node.windowId;
@@ -971,7 +974,7 @@ function tabJoinedTG(data) {
     const tgId = data.groupId;
     let tabNode = BTAppNode.findFromTab(tabId);
     const topicNode = BTAppNode.findFromGroup(tgId);
-    if (tabNode || !topicNode) return;                              // n/a || don't care
+    if (tabNode || !topicNode || (GroupingMode != 'TABGROUP')) return;                              // n/a || don't care
     const tab = data.tab;
     const index = data.tabIndex;
     const indices = data.tabIndices;
@@ -994,7 +997,8 @@ function tabLeftTG(data) {
     
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
-    if (tabNode) deleteNode(tabNode.id);
+    if (!tabNode || (GroupingMode != 'TABGROUP')) return;
+    deleteNode(tabNode.id);
 }
 
 function tabMoved(data) {

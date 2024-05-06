@@ -248,7 +248,8 @@
         // Tony Edit: shift siblings of parents left so all a parents children are equal,
         // also, remove indenter if no longer applicible
         //if (this.isBranchNode())
-            this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
+            //this.indenter[0].style.paddingLeft = "" + (this.level() * settings.indent) + "px";
+            this.indenter[0].style.paddingLeft = "calc(var(--btIndentStepSize) * " + this.level() + ")";
         //else {          
           //  this.indenter[0].style.paddingLeft = "" + ((this.level() - 1) * settings.indent) + "px";
             //$(this.indenter[0]).empty();
