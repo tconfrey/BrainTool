@@ -45,7 +45,10 @@ h3 + p {
     color: #606c71;
     font-size: 1.3rem;
 }
-
+small {
+    line-height: 1.0;
+    font-size: 65%;
+}
 .header-left {
     flex: 1;
     margin-top: 10px;

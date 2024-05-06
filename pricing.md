@@ -7,26 +7,29 @@ audience: nonuser
 ---
 
 # Special One-Time Offers!
-In advance of the 1.0 BrainTool release a free lifetime subscription coupon is being offered to any existing user who contributes to it's success by performing one of the following<sup>*</sup>:
-- ~~Posting an honest 5 star review on the [Chrome](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) or [Edge](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol) Web Store.~~ <br/> *This option is no longer available due to a strict interpretation of the Google terms of Service.*
+In advance of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
 <!-- - Filling out this survey:[link] -->
-- A positive review or mention on a social network feed<sup>**</sup>, newsletter, blog post etc.
-- Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
+- Posting an honest, positive review or mention on a social network feed<sup>**</sup>, newsletter, blog post, app store review, etc.
+- Installing and using the [Release Candidate](/support/localInstall) or Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
+- Creating a video or other instructional content.
 
-<p style="font-size:0.8rem; font-style: italic; margin-top:0px;">*&nbsp;&nbsp; Send a link showing the post to braintool.extension@gmail.com and I'll send you the coupon code. Do all 3 and I'll send you 3 coupons!</p>
+If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the EarlyFinancerDiscount coupon code to receive 50% off.
+<p style="font-size:0.8rem; font-style: italic; margin-top:0px;">*&nbsp;&nbsp; Send a link showing the post to braintool.extension@gmail.com</p>
 <p style="font-size:0.8rem; font-style: italic; margin-top:-10px;">** See @ABrainTool on 
 <a href="https://twitter.com/ABraintool">Twitter</a>, <a href="https://www.instagram.com/abraintool/">Instagram</a> and <a href="https://facebook.com/ABrainTool">FaceBook</a></p>
+# BrainTool Pricing and Data Philosophy
+There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription or purchase you are paying for those tools and their continued improvement, and keeping your data to yourself.
 
-If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the EarlyFinancerDiscount coupon code to receive 50% off your subscription forever.
+The fully-functional free version and current low pricing are designed to encourage broad adoption. See the [vision and overview](overview) page for more details.
 
-# BrainTool Introductory Pricing
-
+<i><small>NB the current 0.9.9 Store version of the extension shows different, higher, subscription costs but has no enforcement or non-free features. Based on input received the pricing has been reduced and a one-time purchase option added</small></i>
+# Pricing
 <div class="row">
 <div class="cell left" style="padding-right: 30px;">
-<h2>Basic</h2>
+<h2>Non-Supporter</h2>
 
 <p>
-Up to 300 saved items
+Unlimited saved items
 </p>
 <p>
 Import and export Browser Bookmarks
@@ -35,7 +38,7 @@ Import and export Browser Bookmarks
 Import-from and export-to local text file in readable <a href='http://orgmode.org' target='_blank'>org-mode</a> format.
 </p>
 <p>
-Optional continuous sync to Google Drive (again in plain text).
+Optional continuous sync to Google Drive or local file (again in plain text).
 </p>
 <p>
 Full text search on links, descriptions and notes. 
@@ -44,35 +47,37 @@ Full text search on links, descriptions and notes.
 To-Do/Done annotations.
 </p>
 <p>
-<i><b>Planned Features:</b></i>
+Tab Group syncing
 </p>
 <p>
-<i>Topic sharing</i>
+Session Saving
 </p>
 <p>
-<i>Tab Group naming</i>
+30 days nag-free followed by prompts to upgrade
 </p>
 <p>
 <b>Free</b>
 </p>
 </div>
 <div class="cell right" style="padding-left: 30px;">
-<h2>Premium</h2>
-
+<h2>Supporter</h2>
 <p>
-Unlimited saved items
+Control of Dark, Dense, Large and Favicon modes
+<p>
+<p>
+Nag-free
 </p>
 <p>
 <i><b>Planned Features:</b></i>
 </p>
 <p>
+<i>Automated Backups.</i>
+</p>
+<p>
 <i>Multi-file support with per-Topic files.</i>
 </p>
 <p>
-<i>Ability to sync with local files, drop-box or github.</i>
-</p>
-<p>
-<i>Full session save. Live sessions.</i>
+<i>Live sessions.</i>
 </p>
 <p>
 <i>Deep search on contents of saved pages.</i>
@@ -86,15 +91,6 @@ Unlimited saved items
 <br/><br/>
 <p>
 <b>
-$3.99/mo or $40/yr
+$1.33/M, $10.66/Y, $21 One-time
 </b>
 </p>
-</div>
-</div>
-# BrainTool Pricing and Data Philosophy
-There's a free version of BrainTool for a couple reasons. Mainly because I want a lot of people to use it. But also because I initially built it for myself and I used a lot of free software and resources to do so, so it seems nice to share!
-
-There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription you are paying for those tools and their continued improvement, and keeping your data to yourself.
-
-## Lifetime Access
-Part of the BrainTool philosophy is to avoid locking you in. You already have continuous access to your data in a re-usable format but in addition, any user paid up for at least a year can discontinue their subscription and still retain access to their currently active version of the BrainTool software (i.e. with no further updates until the subscription is reactivated).

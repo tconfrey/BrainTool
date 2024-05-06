@@ -5,8 +5,15 @@ tagline: The Topic Manager for your Online Life
 description: BrainTool goes beyond bookmarks to organize the things you want to remember and get back to. Free and private. Download now!
 audience: nonuser
 ---
-# <A href="#philosophy">General Philosophy</A>
-- BrainTool uses *your* data with *your* permission to provide you tools to manage, organize and access it. Your data is stored in a human-readable plain text format that you own and have complete control over. 
+## BrainTool Vision
+While working online you should be able to easily capture and categorize all the tasks, information and knowledge you want to keep track of, get back to it when you need it and edit it as part of your personal information space. Having a system you can trust allows you to close out tabs, avoid distraction and stay focused.
+
+Work these days generally takes place in a proliferation of browser tabs. Increasingly knowledge workers are using task managers and personal knowledge management tools to keep track of notes and tasks and ideas. BrainTool unifies these two information spaces making it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture to-dos and free-form notes on those topics within your personal organizational system.
+
+The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing.
+
+## General Philosophy
+- BrainTool uses *your* data with *your* permission to provide tools to manage, organize and access everything you do in a browser. Your data is stored in a human-readable plain text format that you own and have complete control over. 
 
 - BrainTool endeavors to be a fantastic standalone tool but also to work well with other text-based workflows and to readily integrate with an ecosystem of information management and productivity tools.
 
@@ -15,27 +22,21 @@ audience: nonuser
 - Some companies give software away for free and make money off collecting and selling user data. With a subscription or purchase you are funding BrainTool's development and continued improvement, and keeping your data to yourself.
 
 ## Security
-BrainTool is comprised of a Chrome extension and a JavaScript web application. The app is entirely a static, source-available, client-side app served from [a public software repository](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org, locally, or on your Google Drive. No information is stored or accessible anywhere else. The app is as secure to use as Google's infrastructure. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
-
-## BrainTool Vision
-While working on your computer you should be able to easily capture and categorize all the information and knowledge you want to keep track of, right at the point you discover it or create it. Then you should be able to access that information and knowledge later if you need to refer to it or if you want to edit it as part of your personal information space.
-
-Information discovery these days generally takes place in a browser tab, creation is either also in a tab or as some kind of note or task list or idea, written in text. BrainTool unifies these two information spaces making it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture free-form notes on those topics within your personal organizational system.
-
-The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing with the exchange of curated informational [Topic Maps]({% post_url 2021-05-15-Browser-Productivity-with-a-Topic-Manager%})
+BrainTool is comprised of a browser extension and a JavaScript web application. The app is entirely a static, source-available, client-side app served from [a public software repository](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org, locally, or on your Google Drive. No information is stored or accessible anywhere else. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
 
 ## Product Overview
 The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing use the Bookmarker to assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
 
-Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool Topic Manager, and within Chrome by a dedicated window or tab group with tabs for saved pages. 
+Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool Topic Manager, and within the browser by a dedicated window or tab group, with tabs for saved links. 
 
 The Topic Manager is your central controller. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
+<div class="row">
+<div class="cell left" style="width: 80%">
+<img src="/media/ReleaseCandidate-TG.png" alt="Tab Groups">
+</div>
+</div>
+By organizing links and capturing your notes about them you are mapping your personal information space. BrainTool stores that information space in a plain-text file. As you save pages and add notes a file called BrainTool.org is kept updated. That file is regular text but structured in the public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
 
-<br/>
-<img src="/site/bt-screenshot1.png" style="border:solid; border-width:thin;">
-
-By organizing links and capturing your notes about them you are mapping your personal information space. BrainTool stores that information space in a plain-text file. As you save pages, and add notes a file called BrainTool.org is kept updated. That file is regular text but structured in the public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
-<br/><br/>
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
 
 <!--
@@ -52,20 +53,18 @@ Associations are links capturing a relationship between topics. Currently in BT 
 Occurrences of information about a topic are the things you save and capture into your braintool file. That includes all of your saved pages as well as the notes associated with a page or topic.
 -->
 
-# <A href="#roadmap">Roadmap</A>
-There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. That said, after achieving a stable 1.0 release, efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
+## Roadmap
+There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. After the 1.0 release efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
 
-Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.
+See the 1.0 version of the [Release Notes](support/releaseNotes), the [User Guide](support/UserGuide) and the available [Release Candidate Build](support/localInstall) for current functionality.
 
-## Release 1.0
-- See the 1.0 version of the [Release Notes](support/releaseNotes) and the available [Release Candidate Build](support/localInstall).
+*Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.*
 
-## Post 1.0
 - **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced local or Google Drive file, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
-- **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool will provide an intuitive overlay for a subset of orgs most important functionality - TODO lists, journaling, agendas etc.
 - **In-Page Highlighting**: Some similar tools find value in allowing the user to capture text from within a saved page, this might make sense for BrainTool also.
-- **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that its all just text, savvy users can use emacs or any other text editor. That said, it is a goal for BT to allow note-taking in place within the browser via some kind of simple but beautiful and highly satisfying editor tool.
-- **Deep Search**: Searching across your braintool file is part of 1.0. Longer term it will be possible to crawl the actual contents of all of your saved pages and to augment browser search with a search across your personal information space.
+- **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that it's all just text, emacs or any other text editor can be used. That said, it is a goal for BT to allow note taking in-place within the browser via some kind of simple but beautiful and highly satisfying editor tool.
+- **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool could provide an intuitive overlay for a subset of Orgs most important functionality - TODO lists, journaling, agendas etc.
+- **Deep Search**: Searching the full text of your links and notes is fully supported. Longer term it will be possible to crawl the actual contents of all of your saved pages, to augment browser search and maybe even to pre-prompt or customize an LLM to provide a conversational interface to your personal information space.
 - **Tags and Bi-Directional Linking**: In addition to containment it should be possible to model other kinds of relationships between topics and to tag information occurrences as being relevant to multiple topics.
-- **Multi-file Support**: It should be possible to save and load Topic Trees from a dedicated file. For example a node 'Recipes' could point to a dedicated recipes.org file which is loaded on demand.
-- **Topic Tree Repository**: BrainTool will host best-practice topic trees around common areas such as 'productivity tools', 'Knowledge Management' etc.
+- **Multi-file Support**: It should be possible to save, share and sync individual topic tree files. For example a 'Recipes' topic could point to a dedicated recipes.org file which is loaded on demand and maintained collaboratively. 
+- **Topic Tree Repository**: BrainTool will host best-practice topic trees and templates around common areas such as 'Productivity Tools', 'Knowledge Management', 'Wedding Organizer', 'Trip Planner' etc.

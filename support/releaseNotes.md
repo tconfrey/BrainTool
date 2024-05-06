@@ -7,7 +7,7 @@ audience: user
 ---
 
 # 1.0 Release Candidate
-**Note that the Release Candidate is currently available by invitation only**. See below for 0.9.9a Release Notes. The [discussion group](https://groups.google.com/u/0/g/braintool-discussion) has more details. 
+**Note that this section refers to the 1.0 Release Candidate.** It requires a local installation. See further below for 0.9.9a Release Notes. The [discussion group](https://groups.google.com/u/0/g/braintool-discussion) has more details. 
 
 This is an early release candidate of the 1.0 version of BrainTool (finally!). It has some significant functional changes and also migrates BT to the latest 'Manifest V3' version of the Chromium browser extension architecture. Given the scale of changes a select user group is being asked to manually install this version and provide feedback. See [Installing BrainTool from source](localInstall) for how to do that.
 
