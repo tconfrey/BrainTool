@@ -26,9 +26,10 @@ function tabsToBT(tabsStr) {
         throw(e);
     }
     const lastIndex = tabsJson.length - 1;
-    let node, title, numwin = 1;
-    let dateStr = getDateString().replace(':', ';');
-    let BTText = "* TabsOutliner Import - " + dateStr + "\n";
+    let node, title, numwin = 1, numgroup = 1, numnote = 1, numsep = 1;
+    // Don't need the extra layer of hierarchy since the fle name will be used as the top node:
+    //let BTText = "* TabsOutliner Import - " + getDateString().replace(':', '∷') + "\n";
+    let BTText = "";
     tabsJson.forEach((elt, ind) => {
         // ignore first and last elements, TO seems to use them for some special purpose 
         if (!ind || ind == lastIndex) return;   
@@ -36,7 +37,7 @@ function tabsToBT(tabsStr) {
         const nesting = elt[2];
         // Handle window/container type elements
         if (info.type && (info.type == 'win' || info.type == 'savedwin')) {
-            node = '*'.repeat(nesting.length + 1);
+            node = '*'.repeat(nesting.length);
             title = (info.marks && info.marks.customTitle) ?
                 info.marks.customTitle : 'Window'+numwin++;
             node += ` ${title}\n`;
@@ -45,16 +46,37 @@ function tabsToBT(tabsStr) {
         // Handle tab/link type elements
         if (info.data && info.data.url) {
             // Create org header row
-            node = '*'.repeat(nesting.length+1);
+            node = '*'.repeat(nesting.length);
             title = info.data.title || 'Title';
             node += ` [[${info.data.url}][${title}]]\n`;
             // Add note if any - its stored in marks.customTitle
             if (info?.marks?.customTitle) node+= `${info.marks.customTitle}\n`;
             BTText += node;
         }
+        // Handle group type elements
+        if (info.type && info.type == 'group') {
+            node = '*'.repeat(nesting.length);
+            title = (info.marks && info.marks.customTitle) ?
+                info.marks.customTitle : 'Group'+numgroup++;
+            node += ` ${title}\n`;
+            BTText += node;
+        }
+        // Handle notes type elements
+        if (info.type && info.type == 'textnote') {
+            node = '*'.repeat(nesting.length);
+            title = (info.data && info.data.note) ?
+                info.data.note : 'Note'+numnote++;
+            node += ` ${title}\n`;
+            BTText += node;
+        }
+        // Handle seperator type elements
+        if (info.type && info.type == 'separatorline') {
+            node = '*'.repeat(nesting.length);
+            title = 'Separator'+numsep++;
+            node += ` ${title}\n--------------------------------\n`;
+            BTText += node;
+        }
     });
-    console.log("Copy this text to your BrainTool.org file:\n");
-    console.log(BTText);
     return BTText;
 }
 
