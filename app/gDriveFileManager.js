@@ -196,10 +196,10 @@ const gDriveFileManager = (() => {
         // gapi needed to access gdrive not yet loaded => this script needs to wait
 
         console.log('Loading Google API...');
-        gtag('event', 'AuthInitiated', {'event_category': 'GDrive'});
+        gtag('event', 'auth_initiated', {'event_category': 'GDrive'});
         if (userInitiated) {
             // implies from button click
-            gtag('event', 'AuthInitiatedByUser', {'event_category': 'GDrive'});
+            gtag('event', 'auth_initiated_by_user', {'event_category': 'GDrive'});
             alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
         }
         // Init client will async flow will ensure that gapi is loaded
@@ -505,7 +505,7 @@ const gDriveFileManager = (() => {
             alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies and popups are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
         } else { 
         if (signedIn) {
-            gtag('event', 'AuthComplete', {'event_category': 'GDrive'});
+            gtag('event', 'auth_complete', {'event_category': 'GDrive'});
             if (userInitiated) {
                 saveBT();                                       // also save if newly authorized
                 alertText = 'GDrive connection established. See Actions to disable.';

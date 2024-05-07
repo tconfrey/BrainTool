@@ -92,15 +92,15 @@ function updateStats() {
     
     // Record this launch and software version
     const BTVersion = configManager.getProp('BTVersion');
-    gtag('event', 'Launch', {'event_category': 'General', 'event_label': BTVersion,
+    gtag('event', 'launch_rc', {'event_category': 'General', 'event_label': BTVersion,
                              'value': 1});    
     if (InitialInstall) {
-        gtag('event', 'Install', {'event_category': 'General', 'event_label': InitialInstall,
+        gtag('event', 'install', {'event_category': 'General', 'event_label': InitialInstall,
                                   'value': 1});
         configManager.setStat('BTInstallDate', Date.now());
     }
     if (UpgradeInstall)
-        gtag('event', 'Upgrade', {'event_category': 'General', 'event_label': UpgradeInstall,
+        gtag('event', 'upgrade', {'event_category': 'General', 'event_label': UpgradeInstall,
                                   'value': 1});
 
     // Calculate some other stat info (and do some one-time setup of installDate and numSaves)
@@ -121,21 +121,21 @@ function updateStats() {
 
     // Record general usage summary stats, they don't apply on first install
     if (!InitialInstall) {
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumLaunches',
+        gtag('event', 'total_launches', {'event_category': 'Usage', 'event_label': 'NumLaunches',
                                      'value': stats['BTNumLaunches']});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumSaves',
+        gtag('event', 'total_saves', {'event_category': 'Usage', 'event_label': 'NumSaves',
                                      'value': stats['BTNumSaves']});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumTabOperations',
+        gtag('event', 'total_tab_operations', {'event_category': 'Usage', 'event_label': 'NumTabOperations',
                                      'value': stats['BTNumTabOperations'] || 0});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'NumNodes',
+        gtag('event', 'total_nodes', {'event_category': 'Usage', 'event_label': 'NumNodes',
                                      'value': AllNodes.length});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionMinutes',
+        gtag('event', 'num_session_minutes', {'event_category': 'Usage', 'event_label': 'LastSessionMinutes',
                                      'value': lastSessionMinutes});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionSaves',
+        gtag('event', 'num_session_saves', {'event_category': 'Usage', 'event_label': 'LastSessionSaves',
                                      'value': lastSessionSaves});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'LastSessionOperations',
+        gtag('event', 'num_session_operations', {'event_category': 'Usage', 'event_label': 'LastSessionOperations',
                                      'value': lastSessionOperations});
-        gtag('event', 'Launch', {'event_category': 'Usage', 'event_label': 'DaysSinceInstall',
+        gtag('event', 'total_days_since_install', {'event_category': 'Usage', 'event_label': 'DaysSinceInstall',
                                      'value': daysSinceInstall});
     }
 
@@ -1390,7 +1390,7 @@ function closeRow(e) {
     $("#closeRow").hide();
     appNode.closeTab();
     
-    gtag('event', 'closeRow', {'event_category': 'TabOperation'});
+    gtag('event', 'close_row', {'event_category': 'TabOperation'});
     configManager.incrementStat('BTNumTabOperations');
 }
 

@@ -15,18 +15,18 @@ function syncEnabled() {
 async function handleStartupFileConnection() {
     // If there's a backing store file, local or GDrive, handle reconnection etc
 
-    let launchType = 'UnsyncedLaunch';
+    let launchType = 'unsynced_launch';
 
     // Handle GDrive connection
     if (configManager.getProp('BTGDriveConnected')) {
         await authorizeGAPI(false);
-        launchType = 'GDriveLaunch';
+        launchType = 'gdrive_launch';
     }
 
     // Handle Local connection/permissions
     const local = await localFileManager.reestablishLocalFilePermissions();
     if (local) {
-        launchType = 'localFileLaunch';
+        launchType = 'local_file_launch';
         updateSyncSettings(true, await localFileManager.getFileLastModifiedTime());
     }
 
@@ -50,18 +50,18 @@ async function saveBT(localOnly = false, newContent = true) {
     setTimeout(brainZoom, 1000);                 // swell the brain
     console.log("Recording save event and writing to any backing store");
     if (InitialInstall) {
-        gtag('event', 'FirstSave', {'event_category': 'General'});
+        gtag('event', 'first_save', {'event_category': 'General'});
         InitialInstall = false;
     }
 
     // also save to GDrive or local file if connected and drop an event
-    let event = "LocalStorageSave";
+    let event = "local_storage_save";
     if (GDriveConnected) {
         await gDriveFileManager.saveBT(BTFileText, newContent);     // if !newContent, don't force re-auth
-        event = "GDriveSave";
+        event = "gdrive_save";
     } else if (LocalFileConnected) {
         await localFileManager.saveBT(BTFileText);
-        event = "LocalFileSave";
+        event = "local_file_save";
     }
     updateStatsRow();                            // update num cards etc
     messageManager.removeWarning();              // remove stale warning if any
