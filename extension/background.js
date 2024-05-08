@@ -845,6 +845,6 @@ async function saveTabs(msg, sender) {
     });
     // Send save msg to BT.
     if (tabsToSave.length) btSendMessage(BTTab, {'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
-    btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab
+    currentTab && btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
 
 }

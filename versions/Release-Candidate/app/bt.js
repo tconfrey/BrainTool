@@ -813,9 +813,9 @@ function saveTabs(data) {
 
     // update topic list, sync extension, reset ui and save changes.
     BTAppNode.generateTopics();
-    let lastTopic = Array.from(changedTopicNodes).pop();
+    let lastTopicNode = Array.from(changedTopicNodes).pop();
     window.postMessage({'function': 'localStore', 
-                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopic, 'currentText': note}});
+                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode.title, 'currentText': note}});
     window.postMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
 
     initializeUI();
