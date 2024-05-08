@@ -416,9 +416,9 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     top: 52px;
     height: 200px;
 }
-.settingsActions hr{
-    margin-top: 10px;
-    margin-bottom: 10px;
+.settingsActions hr {
+    margin-top: 7px;
+    margin-bottom: 7px;
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.4);
     margin-left: 25px;
@@ -455,6 +455,33 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     margin-top: 15px;
     margin-bottom: 15px;
 }
+#settingsBackups {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+#settingsBackups input {
+    position: relative;
+    top: 2px;
+}
+#youShallNotPass {
+    position: absolute;
+    width: 98%;
+    height: 400px;
+    top: 242px;left: 3px;
+    z-index: 5;
+    background-color: #888;
+    opacity: 50%;
+    border: solid;
+    border-width: 2px;
+    border-color: #DDD;
+}
+#warningBanner {
+    position: relative;
+    top: 40px;
+    font-size: 80px;
+    transform: rotate(-45deg);
+}
 #help {
     position: fixed;
     bottom: 26px;
@@ -473,7 +500,7 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
 .settingsInput {
     display: flex;
     justify-content: space-evenly;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-bottom: 10px;
 }
 #settings input {
@@ -810,6 +837,9 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     cursor: pointer;
     right: 15px;
     filter: invert(1);
+}
+#youShallNotPass .panelClose {
+    top: 277px;
 }
 
 /* split button for import/export */

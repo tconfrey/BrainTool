@@ -9,7 +9,7 @@ audience: user
 # 1.0 Release Candidate
 **Note that this section refers to the 1.0 Release Candidate.** It requires a local installation. See further below for 0.9.9a Release Notes. The [discussion group](https://groups.google.com/u/0/g/braintool-discussion) has more details. 
 
-This is an early release candidate of the 1.0 version of BrainTool (finally!). It has some significant functional changes and also migrates BT to the latest 'Manifest V3' version of the Chromium browser extension architecture. Given the scale of changes a select user group is being asked to manually install this version and provide feedback. See [Installing BrainTool from source](localInstall) for how to do that.
+This is an early release candidate of the 1.0 version of BrainTool (finally!). It has some significant functional changes and also migrates BT to the latest 'Manifest V3' version of the Chromium browser extension architecture. Given the scale of changes we're asking you to manually install this version and provide feedback, in return you can earn a permanent free license. See [Installing BrainTool from source](localInstall) for how to get started, updated contents are described below.
 
 ## Manifest V3
 This change is not of great interest to a BT user but is mandated by Google (see this [notice](https://developer.chrome.com/blog/resuming-the-transition-to-mv3)) and required non-trivial code changes.
@@ -27,7 +27,7 @@ As you can see from the screenshot, the expand/collapse buttons and the favicon 
 ## Session saving and Bookmarker Updates
 The BT Bookmarker now has the option to save a whole tabgroup (if the current tab is in one), and a complete session, in addition to the previous window and tab options. When saving a session, tab groups are saved as the corresponding BrainTool Topic. Any ungrouped tabs are put in a tabgroup named with a Window-N prefix and saved under a Topic with the same name in the Topic Manager. The Session itself is given a Session-date Topic name and saved under the Topic selected in the Bookmarker or the Scratch default Topic.
 
-## Preferences for Dense, Hide Notes and Large Font
+## Preferences for Dense, Hide Notes, Tooltips and Large Font
 New preferences have been added for these items. 
 
 ## New Introductory Screens
@@ -51,7 +51,7 @@ Another Google mandated update is the change to use their [Auth 2.0](https://dev
 ## Pricing and License Changes
 I'd appreciate feedback on these planned changes:
 - There will be no limits on numbers of nodes saved in BT (other than those due to browser storage limits)
-- In addition to monthly and yearly subscriptions a single purchase lifetime license will be offered with pricing as follows:
+- In addition to monthly and yearly subscriptions a one-time purchase lifetime license will be offered with pricing as follows:
   - Monthly $1.33/mo, Yearly $10.66/yr, Lifetime $21
   - This (low, low) pricing reflects my goal of having BT be widely used and to encourage users to support its development. The extra change over $1/$10/$20 covers the Stripe transaction costs.
 - License enforcement will be as follows:

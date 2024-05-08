@@ -1159,14 +1159,15 @@ function buttonShow(e) {
     const offset = $(this).offset().top;
     const rowtop = offset + ($(this).hasClass('branch') ? 3 : 2);
 
-    // figure out if tooltips would go off bottom
+    // figure out if tooltips are on and would go off bottom
+    const tooltips = configManager.getProp('BTTooltips') == 'ON';
     const scrollTop = $(document).scrollTop();
     const top = rowtop - scrollTop;
     const windowHeight = $(window).height();
     const bottomGap = windowHeight - top;
-    if (bottomGap < 130)
+    if (tooltips && bottomGap < 130)
         $("#buttonRow span").removeClass("wenk--left").addClass("wenk--right");
-    else 
+    else if (tooltips)
         $("#buttonRow span").removeClass("wenk--right").addClass("wenk--left");
 
     // Open/close buttons 

@@ -74,6 +74,12 @@
         </div>
       </div>
       <div class="settingsActions" id="settings" style="margin-bottom: 5px">
+        <div id="youShallNotPass">
+          <img class="panelClose" type="image" alt="Reveal" title="Reveal Supporter Zone"
+               src="resources/close.png"  height="17" width="20"
+               onclick="$('#youShallNotPass').hide()">
+          <p id="warningBanner">Supporter<br/>Zone</p>
+        </div>
           <img class="panelClose" type="image" alt="Close" title="Close"
                src="resources/close.png"  height="17" width="20"
                onclick="configManager.toggleSettingsDisplay()">
@@ -135,6 +141,10 @@
             <div class="settingsSubtitle"><span id="syncType"></span> Sync Enabled</div>
             <div class="settingsFootnote" id="fileLocation" style="display:none"></div>
           <div class="settingsFootnote">Disable current syncing (under Actions) to change this setting</div>
+          <div id="settingsBackups">
+            <input type="checkbox" id="backups" disabled>
+            <label for="backups">Keep last 5 changes, daily backups and monthly backups?</label>
+          </div>
           <hr/>
         </div>
 
@@ -169,7 +179,7 @@
         </div>
 
         <div id="settingsDense">
-            <div class="settingsSubtitle">Dense?</div>
+            <div class="settingsSubtitle">Compact?</div>
             <div id="denseToggle" class="settingsInput">
                 <span>
                     <input type="radio" id="settingsDenseOn" name="dense" value="DENSE" >
@@ -212,9 +222,24 @@
             </div>
             <hr/>
         </div>
+
+        <div id="settingsTooltips">
+          <div class="settingsSubtitle">Show Tooltips?</div>
+          <div id="tooltipsToggle" class="settingsInput">
+              <span>
+                  <input type="radio" id="settingsTooltipsOn" name="tooltips" value="ON" checked>
+                  <label for="settingsLargeOn">Yes</label>
+              </span>
+              <span>
+                  <input type="radio" id="settingsTooltipsOff" name="tooltips" value="OFF" >
+                  <label for="settingsTooltipsOff">No</label>
+                  <span>
+          </div>
+          <hr/>
+      </div>
         
         <div id="settingsSubscription">
-          <div class="settingsSubtitle">License Status:</div>
+          <div class="settingsSubtitle">Supporter Status:</div>
           <div id="settingsSubscriptionAdd">
             <div class="settingsSubText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
             <div id="settingsSubscriptionButtons" class="settingsInput">

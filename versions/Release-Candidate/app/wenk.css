@@ -158,3 +158,6 @@ tr.expanded [data-wenk].wenk--bottom:hover:after {
 [data-wenk=""]:after {
     visibility: hidden !important;
 }
+[data-wenk].wenk--off:after {
+    visibility: hidden !important;
+}

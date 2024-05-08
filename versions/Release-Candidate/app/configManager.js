@@ -16,7 +16,7 @@ const configManager = (() => {
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
         'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 
-                                'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTGroupingMode', 'BTDontShowIntro', 'BTExpiry'],
+                                'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro', 'BTExpiry'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
@@ -131,7 +131,7 @@ const configManager = (() => {
     };  
     
     function updatePrefs() {
-        // update preferences based on orgProperties read in from file
+        // update preferences based on configuration
 
         let groupMode = configManager.getProp('BTGroupingMode');
         if (groupMode) {
@@ -174,6 +174,19 @@ const configManager = (() => {
         $radio.filter(`[value=${large}]`).prop('checked', true);
         document.documentElement.setAttribute('data-size', large);
         
+        // Tooltips?
+        const tooltips = configManager.getProp('BTTooltips') || 'ON';
+        $radio = $('#tooltipsToggle :radio[name=tooltips]');
+        $radio.filter(`[value=${tooltips}]`).prop('checked', true);
+        // do it
+        if (tooltips == 'ON') {
+            $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
+            $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+        } else {
+            $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
+            $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+        }
+
         // Theme saved or set from OS
         const themeSet = configManager.getProp('BTTheme');
         const theme = themeSet ||
@@ -223,6 +236,19 @@ const configManager = (() => {
             configManager.setProp('BTSize', newL);
             // do it
             document.documentElement.setAttribute('data-size', newL);
+            saveBT();
+        });
+        $('#tooltipsToggle :radio').change(function () {
+            const newT = $(this).val();
+            configManager.setProp('BTTooltips', newT);
+            // do it
+            if (newT == 'ON') {
+                $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
+                $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+            } else {
+                $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
+                $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+            }
             saveBT();
         });
         $('#faviconToggle :radio').change(function () {
