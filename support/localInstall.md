@@ -20,7 +20,7 @@ In order to run a version of BT other than the App Store version you need to ena
 <img src="../media/extensionPage.png" alt="BT Buddy" style="border:solid; border-width:thin; width:50%; margin-left:5rem;">
 
 ## Caution!
-Note that these instructions will install the BrainTool Release Candidate as a new extension. On your extensions page you can optionally turn off the 0.9.9 version of BT if you have it installed. Any previous BrainTool data or preferences will not be transferred. I recommend exporting and saving a copy of your BT data (Export under Actions) before installing the new extension. The export can be used to upload your data into the new extension after you install it if you wish.
+Note that these instructions will install the BrainTool Release Candidate as a new extension. On your extensions page turn off the 0.9.9 version of BT if you have it installed. Any previous BrainTool data or preferences will not be transferred. I recommend exporting and saving a copy of your BT data (Export under Actions) before installing the new extension. The export can be used to upload your data into the new extension after you install it if you wish.
 
 If you sync your data to a GDrive or local file use caution and create backups to ensure you don't loose any data. GDrive syncing will use the same BrainTool.org file across browsers and extensions based on your Google account. Local file syncing can be pointed to the same file across versions but you can also create a new file, in a different folder.
 
