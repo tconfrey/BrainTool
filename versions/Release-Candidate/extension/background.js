@@ -274,7 +274,7 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
     // don't care about special windows like dev tools
     check();
     const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab || windowId <= 0) return;
+    if (!BTTab || (windowId <= 0) || (windowId == BTWin)) return;
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
         if (!tabs.length) return;

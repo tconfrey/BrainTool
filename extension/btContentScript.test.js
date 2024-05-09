@@ -62,11 +62,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
         case 'loadBookmarks':
-        chrome.storage.local.get('bookmarks', data => {
-            msg.data = data;
-            window.postMessage(msg);
-        });
-        chrome.storage.local.remove('bookmarks');             // clean up space
+            chrome.storage.local.get('bookmarks', data => {
+                msg.data = data;
+                msg["from"] = "btextension";
+                window.postMessage(msg);
+                chrome.storage.local.remove('bookmarks');             // clean up space
+            });
         break;
         case 'launchApp':           // set up btfiletext before passing on to app, see below
         launchAppTests(msg);

@@ -11,7 +11,7 @@ audience: landingpage
 <h3>
 BrainTool organizes all your tabs and groups them by Topic.
 <br/><br/>
-Open and close groups multiple tabs for a Topic with a click.
+Open and close multiple tabs for a Topic with a click.
 </h3>
 <h1 class="landing-header"> Control your Browser</h1>
 <h3>
