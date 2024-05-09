@@ -1256,19 +1256,19 @@ function editRow(e) {
         }, 500);
     }
     if (node.isTopic()) {
-        $("#title-url").hide();
-        $("#title-text").hide();
+        $("#titleUrl").hide();
+        $("#titleText").hide();
         $("#topic").show();        
         $("#topicName").val($("<div>").html(node.displayTopic).text());
         node.displayTopic && $("#newTopicNameHint").hide();
     } else {
-        $("#title-url").show();
-        $("#title-text").show();
-        $("#title-text").val(BTAppNode.editableTopicFromTitle(node.title));
+        $("#titleUrl").show();
+        $("#titleText").show();
+        $("#titleText").val(BTAppNode.editableTopicFromTitle(node.title));
         $("#topic").hide();
-        $("#title-url").val(node.URL);
+        $("#titleUrl").val(node.URL);
     }
-    $("#text-text").val(node.text);
+    $("#textText").val(node.text);
     $("#update").prop("disabled", true);
 
     // overlay grays everything out, dialog animates open on top.
@@ -1278,7 +1278,7 @@ function editRow(e) {
     const height = dialogWidth / 1.618;                   // golden!
     /*
     const otherRows = node.isTopic() ? 100 : 120;           // non-text area room needed
-    $("#text-text").height(height - otherRows);           // notes field fits but as big as possible
+    $("#textText").height(height - otherRows);           // notes field fits but as big as possible
 */
     if ((top + height + 140) < $(window).height())
         $(dialog).css("top", bottom+80);
@@ -1291,8 +1291,8 @@ function editRow(e) {
         .animate({width: dialogWidth, height: height, opacity: 1.0},
                  duration, 'easeInCirc',
                  function () {
-                     $("#text-text")[0].setSelectionRange(node.text.length, node.text.length);
-                     e.newTopic ? $("#topicName").focus() : $("#text-text").focus();
+                     $("#textText")[0].setSelectionRange(node.text.length, node.text.length);
+                     e.newTopic ? $("#topicName").focus() : $("#textText").focus();
                  });
 }
 
@@ -1476,8 +1476,8 @@ function updateRow() {
     const node = AllNodes[nodeId];
 
     // Update Model
-    const url = $("#title-url").val();
-    const title = $("#title-text").val();
+    const url = $("#titleUrl").val();
+    const title = $("#titleText").val();
     const topic = $("#topicName").val();
     if (node.isTopic()) {
         const changed = (node.title != topic);
@@ -1485,7 +1485,7 @@ function updateRow() {
         if (changed) node.updateTabGroup();               // update browser (if needed)
     } else
         node.replaceURLandTitle(url, title);
-    node.text = $("#text-text").val();
+    node.text = $("#textText").val();
 
     // Update ui
     $(tr).find("span.btTitle").html(node.displayTitle());
@@ -2197,7 +2197,7 @@ function handleEditCardKeyup(e) {
         // restrain tabbing to within dialog. Button gets focus and then this handler is called.
 	    // so we redirect focus iff the previous focused element was first/last
         const focused = $(":focus")[0];
-        const first = $($("#topicName")[0]).is(':visible') ? $("#topicName")[0] : $('#title-text')[0];
+        const first = $($("#topicName")[0]).is(':visible') ? $("#topicName")[0] : $('#titleText')[0];
 	    if (!focused || !$(focused).hasClass('editNode')) {
 	        // tabbed out of edit dialog, force back in
             console.log("setting focus");
@@ -2212,7 +2212,7 @@ function handleEditCardKeyup(e) {
     }
     if (code == "Enter") {
 	    // on enter move focus to text entry box
-	    $("#text-text").focus();
+	    $("#textText").focus();
 	    e.preventDefault();
 	    e.stopPropagation();
     }

@@ -276,7 +276,7 @@ class BTNode {
     
     fullTopicPath() {
         // distinguished name for this node
-        const myTopic = this.isTopic() ? this.displayTopic : '';
+        const myTopic = this.isTopic() ? this.title : '';
         if (this.parentId && AllNodes[this.parentId])
             return AllNodes[this.parentId].fullTopicPath() + ':' + myTopic;
         else

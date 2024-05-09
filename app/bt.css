@@ -74,7 +74,7 @@
     --btGeneralBorder: #3f673f;
     --btGeneralBorderShadow: #3f673f90;
     --btButtonBackground: #7bb07b;
-    --btButtonHighlight: black;
+    --btButtonHighlight: #3f673f90;
 
     --btHeaderBackground: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
     --btFooterBackground: linear-gradient(#e6e6e7, #c3cbcb, #a8b3b4);
@@ -368,13 +368,16 @@ body {
 }
 
 /* style when input is active */
-:focus-visible, button:not([disabled]):hover, textarea:not([disabled]):hover {
+:focus-visible, button:not([disabled]):hover, input[type="text"]:not([disabled]):hover, textarea:not([disabled]):hover, .introNavButton:hover, .introButton:hover {
     outline-width: 1px;
     outline-color: var(--btButtonHighlight);
     outline-style: groove;
 }
-button:not([disabled]):hover, textarea:not([disabled]):hover {
+button:not([disabled]):hover, textarea:not([disabled]):not(:focus):hover, input[type="text"]:not([disabled]):not(:focus):hover {
     cursor: pointer;
+}
+textarea:focus, input[type="text"]:focus {
+    cursor:text;
 }
 .highlight {
     background-color: #85E20E;
@@ -614,7 +617,7 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     font-size: 11px;
     margin-top: 10px;
 }
-#text-text {
+#textText {
     flex-grow: 1;
 }
 #dialog input {
@@ -625,17 +628,16 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     background: var(--btTextAreaBackground);
     color: var(--btColor);
 }
-#dialog #title-text,#topicName {
+#dialog #titleText,#topicName {
     white-space: nowrap;
 }
-#title-url {
+#titleUrl {
     height: 2em;
     font-size: 0.6em;
     font-style: italic;
 }
 #distinguishedName {
     font-family:var(--btControlsFont);
-    color: var(--btButtonHighlight);
     white-space: nowrap;
     text-align: center;
     overflow: scroll;
@@ -747,6 +749,7 @@ button:not([disabled]):hover, textarea:not([disabled]):hover {
     font-weight: 500;
     letter-spacing: 0.05em;
 }
+
 #introNext {
     right: 40px;
 }
