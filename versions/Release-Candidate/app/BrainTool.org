@@ -7,7 +7,7 @@ Feel free to edit or delete these sample Topics
 * Topic (eg Projects)
 Keep all your project links and notes in one place.
 
-** Sub-Topic (eg Kitchen Reno)
+** Sub-Topic (eg New Kitchen)
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
@@ -18,12 +18,6 @@ Expand and collapse the tree from the hierarchy on the left.
   :VISIBILITY: folded
   :END:
 Topics can be nested to any depth
-**** [[https://braintool.org/overview.html][The Expensive guys]]
-Click the link or use the T tool to open in a Tab.
-
-**** [[https://braintool.org/posts][The cheap guy]]
-The W tool opens in a new window.
-
 **** [[https://northriverbuilders.com/][North River Builders]]
 Add text notes to saved pages...
 Just right! Nile was great to talk to. Really engaged with the project. Good project management software, great portfolio.
@@ -35,9 +29,6 @@ Just right! Nile was great to talk to. Really engaged with the project. Good pro
 An example professional project
 *** [[https://slack.com/][Where work happens | Slack]]
 Slack channel
-
-*** [[https://docs.google.com/document/u/0/][Google Docs]]
-Project document
 
 *** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software]]
 Jira board
@@ -71,11 +62,11 @@ Maybe keep personal and work stuff separate.
   :VISIBILITY: folded
   :END:
 
-**** [[https://myhealth.atriushealth.org/][MyHealth Online Portal]]
+**** [[https://myhealth.atriushealth.org/Authentication/Login?][MyHealth Online Portal]]
 health portal
 
 **** [[https://aspireap.com/][Aspire]]
-"where strong wills become strong bodies"
+Gym schedule
 
 *** Fun and Entertainment
   :PROPERTIES:
@@ -84,7 +75,7 @@ health portal
 
 **** [[https://netflix.com][Netflix queue]]
 
-**** [[https://www.youtube.com/watch?v=4BvjYabSl5A&list=PLhaw8BE1kin1LF6tfn8MU1zUFgiPNc29Y&index=1][Coding playlists]]
+**** [[https://open.spotify.com/][Coding playlists]]
 
 ** Work Stuff
   :PROPERTIES:
@@ -114,20 +105,12 @@ You get the idea...
     :END:
 Reference materials and other resources you want to organize and get back to.
 
-** Public Topic Trees
-BrainTool topics can be saved and shared. Click these examples to import them.
+** [[https://braintool.org/topicTrees/][Public Topic Trees]]
+BrainTool topics can be saved and shared. See how and some examples.
 
-*** [[https://braintool.org/topicTrees/BrainTool.org][BrainTool]]
-BrainTool related links and topics.
+*** [[https://braintool.org/support/userGuide][BrainTool User Guide]]
 
-*** [[https://braintool.org/topicTrees/PersonalProductivity.org][Productivity and Personal Knowledge Management]]
-Resources for further exploration.
-
-*** [[https://BrainTool.org/topicTrees/EmacsAndOrg.org][Emacs and org-mode]]
-BrainTool data is stored in org-mode format. Technically savvy users only!
-
-*** [[https://braintool.org/topicTrees][More public topic trees here]]
-Peruse at your leisure. 
+*** [[https://braintool.org/posts.html][BrainTool Blog]]
 
 * 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
