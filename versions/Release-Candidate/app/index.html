@@ -228,7 +228,7 @@
           <div id="tooltipsToggle" class="settingsInput">
               <span>
                   <input type="radio" id="settingsTooltipsOn" name="tooltips" value="ON" checked>
-                  <label for="settingsLargeOn">Yes</label>
+                  <label for="settingsTooltipsOn">Yes</label>
               </span>
               <span>
                   <input type="radio" id="settingsTooltipsOff" name="tooltips" value="OFF" >
@@ -531,12 +531,12 @@
             <div id="distinguishedName"></div>
 
             <div id="topic">
-                <input type="text" id="topicName" class="editNode" tabindex="0">
+                <input type="text" id="topicName" class="editNode" tabindex="0" aria-label="Topic">
                 <span id="newTopicNameHint" class="hint" >Name the Topic</span>
             </div>
-            <input type="text" id="titleText" class="editNode" tabindex="1" value='title'>
-            <textarea id="titleUrl" class="editNode" tabindex="2">url</textarea>
-            <textarea id="textText" class="editNode" tabindex="3"></textarea>
+            <input type="text" id="titleText" class="editNode" tabindex="1" aria-label="Title" value='title'>
+            <textarea id="titleUrl" class="editNode" tabindex="2" aria-label="URL">url</textarea>
+            <textarea id="textText" class="editNode" tabindex="3" aria-label="Note"></textarea>
 
             <div class="buttonDiv" style="display:flex; justify-content: space-between; margin-top: 10px;">
                 <button id="cancel" class="editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>

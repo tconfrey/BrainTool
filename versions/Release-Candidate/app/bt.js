@@ -72,6 +72,7 @@ function updateLicenseSettings() {
     // valid subscription, toggle from sub buttons to portal link
     $('#settingsSubscriptionAdd').hide();
     $('#settingsSubscriptionStatus').show();
+    $('#youShallNotPass').hide();
     if (configManager.getProp('BTExpiry') == 8640000000000000) {
         // permanant license
         $('#otp').show();

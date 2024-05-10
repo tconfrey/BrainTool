@@ -641,6 +641,7 @@ textarea:focus, input[type="text"]:focus {
     white-space: nowrap;
     text-align: center;
     overflow: scroll;
+    padding-bottom: 10px;
 }
 #topic {
     position: relative;
