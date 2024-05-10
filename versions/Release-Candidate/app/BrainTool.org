@@ -108,9 +108,9 @@ Reference materials and other resources you want to organize and get back to.
 ** [[https://braintool.org/topicTrees/][Public Topic Trees]]
 BrainTool topics can be saved and shared. See how and some examples.
 
-*** [[https://braintool.org/support/userGuide][BrainTool User Guide]]
+** [[https://braintool.org/support/userGuide][BrainTool User Guide]]
 
-*** [[https://braintool.org/posts.html][BrainTool Blog]]
+** [[https://braintool.org/posts.html][BrainTool Blog]]
 
 * 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
