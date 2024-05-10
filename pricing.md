@@ -13,7 +13,7 @@ In advance of the 1.0 BrainTool release a free permanent license is being offere
 - Installing and using the [Release Candidate](/support/localInstall) or Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
 - Creating a video or other instructional content.
 
-If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the EarlyFinancerDiscount coupon code to receive 50% off.
+If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the BTEarlyFinancer coupon code to receive 50% off.
 <p style="font-size:0.8rem; font-style: italic; margin-top:0px;">*&nbsp;&nbsp; Send a link showing the post to braintool.extension@gmail.com</p>
 <p style="font-size:0.8rem; font-style: italic; margin-top:-10px;">** See @ABrainTool on 
 <a href="https://twitter.com/ABraintool">Twitter</a>, <a href="https://www.instagram.com/abraintool/">Instagram</a> and <a href="https://facebook.com/ABrainTool">FaceBook</a></p>
