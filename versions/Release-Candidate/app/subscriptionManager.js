@@ -35,10 +35,12 @@ async function handlePurchase(product) {
 
     if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
 	    return;
+    $('body').addClass('waiting');
 
     // Create user id, store in localStore and in BTFile text
     BTId = BTId || configManager.getProp('BTId') || await signIn();
     if (!BTId) {
+        $('body').removeClass('waiting');
 	    console.error("Error signing in to FB");
 	    alert("Sorry Firebase user creation failed.");
 	    return;
@@ -51,6 +53,7 @@ async function handlePurchase(product) {
         // handle subscriptions different than one time purchase
         let subscription = await getPurchase('subscriptions');
         if (subscription) {
+            $('body').removeClass('waiting');
 	        alert("Seems like you already have a subscription associated with this browser. Close and restart BrainTool.");
 	        console.log("Subscription exists for this user:", JSON.stringify(subscription));
 	        return;
@@ -62,6 +65,7 @@ async function handlePurchase(product) {
         // handle one time purchase
         let myproduct = await getPurchase('payments');
         if (myproduct) {
+            $('body').removeClass('waiting');
 	        alert("Seems like you already have a license associated with this browser. Close and restart BrainTool.");
 	        console.log("License exists for this user:", JSON.stringify(myproduct));
 	        return;
@@ -282,6 +286,7 @@ async function subscribe(productPrice) {
         docRef.onSnapshot((snap) => {
 	        const { error, sessionId } = snap.data();
 	        if (error) {
+                $('body').removeClass('waiting');
 	            alert(`An error occured: ${error.message}`);
 	        }
 	        if (sessionId) {
@@ -293,6 +298,7 @@ async function subscribe(productPrice) {
 	        }
         });
     } catch(e) {
+        $('body').removeClass('waiting');
         console.error("Error in subscribe with ", productPrice);
         console.log(JSON.stringify(e));
     }
@@ -314,6 +320,7 @@ async function purchase(productPrice) {
         docRef.onSnapshot((snap) => {
 	        const { error, sessionId } = snap.data();
 	        if (error) {
+                $('body').removeClass('waiting');
 	            alert(`An error occured: ${error.message}`);
 	        }
 	        if (sessionId) {
@@ -326,6 +333,7 @@ async function purchase(productPrice) {
 	        }
         });
     } catch(e) {
+        $('body').removeClass('waiting');
         console.error("Error in subscribe w ", productPrice);
         console.log(JSON.stringify(e));
     }
@@ -346,9 +354,11 @@ async function RCPurchase(sessionId) {
     docRef.onSnapshot((snap) => {
         const { error, sessionId } = snap.data();
         if (error) {
+            $('body').removeClass('waiting');
             alert(`An error occured in RCPurchase: ${error.message}`);
             return;
         }
+        $('body').removeClass('waiting');
         alert("Your (free) purchase was successful. You now have a permanent license. Thank you for supporting BrainTool!");
         configManager.setProp('BTExpiry', 8640000000000000);      // max date
         updateLicenseSettings();

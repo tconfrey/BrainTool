@@ -13,7 +13,7 @@ Keep all your project links and notes in one place.
   :END:
 Expand and collapse the tree from the hierarchy on the left.
 
-*** Sub-sub-Topic (eg Contractors)
+*** eg Contractor Search
   :PROPERTIES:
   :VISIBILITY: folded
   :END:

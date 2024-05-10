@@ -520,8 +520,13 @@ textarea:focus, input[type="text"]:focus {
     border: none;
     cursor: pointer;
 }
-.subButton {
+#settingsSubscription button.subButton {
     background: linear-gradient(180deg, rgba(160, 236, 95, 0.8) 0%, rgba(85, 186, 0, 0.8) 100%) !important;
+}
+#settingsSubscription button.subButton:hover {
+    outline-width: 1px;
+    outline-color: white;
+    outline-style: groove;
 }
 #actionsSyncStatus button {
     height: 30px;
