@@ -230,6 +230,8 @@ class BTAppNode extends BTNode {
 	    $(dn).find("span.btTitleText").html(keywordText + this.displayTopic);
 	    $(dn).find("span.btText").html(this.displayText());
 	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
+        $(dn).find(".left").scrollLeft(0);                // might have scrolled right for search
+        $(dn).find(".left").css("text-overflow", "ellipsis");    // reset text overflow default
 	    $(dn).find("a").each(function() {				  // reset link click intercept
 	        this.onclick = handleLinkClick;
 	    });
@@ -409,6 +411,16 @@ class BTAppNode extends BTNode {
 
 	    BTAppNode.searchNodesToRedisplay.forEach((n) => AllNodes[n].redisplay());
 	    BTAppNode.searchNodesToRedisplay.clear();
+    }
+
+    nextDisplayNode(reverse = false) {
+        // Display order is the order of the nodes in the table, not in AllNodes. Used by search to know the next node to search in
+        const node = this.getDisplayNode();
+        let next = reverse ? $(node).prev()[0] : $(node).next()[0];
+        if (!next)            // Off the end of the table, wrap around
+            next = reverse ? $("#content tr").last()[0] : $("#content tr").first()[0];
+        const nodeId = $(next).attr('data-tt-id');
+        return nodeId ? AllNodes[nodeId] : null;
     }
 
     /***

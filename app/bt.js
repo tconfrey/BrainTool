@@ -816,7 +816,7 @@ function saveTabs(data) {
     BTAppNode.generateTopics();
     let lastTopicNode = Array.from(changedTopicNodes).pop();
     window.postMessage({'function': 'localStore', 
-                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode.title, 'currentText': note}});
+                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode?.title || '', 'currentText': note}});
     window.postMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
 
     initializeUI();
@@ -856,7 +856,7 @@ function tabNavigated(data) {
     
     const tabNode = BTAppNode.findFromTab(tabId);
     if (tabNode) {
-        // activity was on managed tab
+        // activity was on managed active tab
         windowId && (tabNode.windowId = windowId);
         if (!BTNode.compareURLs(tabNode.URL, tabUrl)) {
             // if the url on load complete != initial => redirect or nav away
@@ -879,7 +879,7 @@ function tabNavigated(data) {
     const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
     const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
     if (urlNode && (!parentsWindow || (parentsWindow == windowId))) {
-        // nav into a bt node from an open tab, ignore is parent/TG open elsewhere else - handle like tab open
+        // nav into a bt node from an open tab, ignore if parent/TG open elsewhere else - handle like tab open
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
         return;
@@ -1867,7 +1867,6 @@ function search(keyevent) {
 	    keyevent.buttonNotKey || keyevent.stopPropagation();
 	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
     }
-    const inc = ReverseSearch ? -1 : 1;                       // forward or reverse
 
     // undo effects of any previous hit
     $("span.highlight").contents().unwrap();
@@ -1883,32 +1882,31 @@ function search(keyevent) {
     let nodeId = keyevent.startId || parseInt($(currentSelection).attr('data-tt-id'));
     
     let prevNodeId = nodeId;
-    if (next) {
-	    AllNodes[nodeId].redisplay();
-	    nodeId = nodeId + inc;                                // find next hit, forward/reverse
-    }
-    if ($("#search_entry").hasClass('failed'))
-	    // restart at top or bottom (reverse)
-	    nodeId = ReverseSearch ? AllNodes.length - 1 : 1;     
-
-    // Do the search starting from nodeId
     let node = AllNodes[nodeId];
-    while(nodeId > 0 && nodeId < AllNodes.length) {
-	    node = AllNodes[nodeId];
-	    nodeId = nodeId + inc;
-	    if (!node) continue;                                    // AllNodes is sparse
-	    if (node.search(sstr)) break;                           // searches and highlights
-	    node = null;
+    if (next || $("#search_entry").hasClass('failed')) {
+	    node.redisplay();
+	    node = node.nextDisplayNode(ReverseSearch);             // find next visible node, forward/reverse w looping
+    }
+
+    // Do the search starting from node until we find a match or loop back around to where we started
+    while(node && !node.search(sstr)) {
+        node = node.nextDisplayNode(ReverseSearch);
+        if (node.id == prevNodeId)
+            node = null;
     }
     
     if (node) {
+        const displayNode = node.getDisplayNode();
 	    if (prevNodeId != node.id)
 	        AllNodes[prevNodeId].redisplay();                 // remove search formating if moving on
 	    $("tr.selected").removeClass('selected');
-	    $(node.getDisplayNode()).addClass('selected');
+	    $(displayNode).addClass('selected');
 	    node.showForSearch();                                 // unfold tree etc as needed
-	    let highlight = $(node.getDisplayNode()).find("span.highlight")[0];
-	    if (highlight) highlight.scrollIntoView({'inline' : 'center'});
+	    let highlight = $(displayNode).find("span.highlight")[0];
+	    if (highlight) {                                      // make sure hit is visible
+            highlight.scrollIntoView({'inline' : 'center'});
+            $(displayNode).find(".left").css("text-overflow", "clip");
+        }
 	    node.getDisplayNode().scrollIntoView({block: 'center'});
         
 	    $("#search_entry").removeClass('failed');
