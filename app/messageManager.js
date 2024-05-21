@@ -149,11 +149,10 @@ const messageManager = (() => {
         $("#slide").html(introSlidesArray[lastShownSlideIndex]);
         if (lastShownSlideIndex == (introSlidesArray.length - 1)) {
             $("#introNext").hide();
-            $("#slideFooter").show();
             $("#introButtons").css("display", "flex");
         } else {
             $("#introNext").show();
-            $("#slideFooter").hide();
+            (lastShownSlideIndex >= 2) && $("#slideFooter").show();
             $("#introButtons").css("display", "none");
         }
         $("#slideNum").text(lastShownSlideIndex+1);

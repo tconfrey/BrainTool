@@ -478,6 +478,7 @@ textarea:focus, input[type="text"]:focus {
     border: solid;
     border-width: 2px;
     border-color: #DDD;
+    display: none;
 }
 #warningBanner {
     position: relative;

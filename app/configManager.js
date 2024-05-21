@@ -308,6 +308,14 @@ const configManager = (() => {
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
             $("#content").fadeOut(250);
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+            /* !!!!!!! Temp remove supporter overlay  !!!!!!!! */
+            setTimeout(() => {
+                $("#youShallNotPass").fadeIn();
+            }, 1000);
+            setTimeout(() => {
+                $("#youShallNotPass").fadeOut();
+            }, 20000);
+            /* !!!!!!! Temp remove supporter overlay  !!!!!!!! */
         }
     }
 
