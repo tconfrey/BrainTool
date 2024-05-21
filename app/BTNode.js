@@ -73,7 +73,7 @@ class BTNode {
         return this._childIds;
     }
     addChild(id, index, firstChild = false) {
-        if (index)
+        if (index !== false)
             this._childIds.splice(index, 0, parseInt(id));
         else if (firstChild)
             this._childIds.unshift(parseInt(id));

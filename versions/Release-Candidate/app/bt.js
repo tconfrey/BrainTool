@@ -205,9 +205,12 @@ function handleInitialTabs(tabs, tgs) {
         }
     });
     if (tgs)
-        tgs.forEach((tg) => 
+        tgs.forEach((tg) => {
             tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
-                            'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId}));
+                            'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId});
+            const node = BTAppNode.findFromGroup(tg.id);
+            if (node) node.groupAndPosition();
+        });
     // remember topic per window for suggestions in popup
     window.postMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
     updateStatsRow();
@@ -550,9 +553,10 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
         dragNode.tabIndex = undefined;                    // take out of running in calc below
         let index = dragNode.expectedTabIndex();
         if (currentIndex < index) index = index - 1;      // moving right don't count current tab
-        window.postMessage({'function': 'moveTab', 'tabId': tabId,
+        callBackground({'function': 'moveTab', 'tabId': tabId,
                             'windowId': windowId, 'index': index,
                             'tabGroupId': newParent?.tabGroupId});
+        dragNode.setTGColor(newParent?.tgColor);
     }
     window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
@@ -679,7 +683,7 @@ function tabOpened(data, highlight = false) {
         AllNodes[parentId].tabGroupId = tabGroupId;
         node.tabGroupId = tabGroupId;
     }
-    
+    updateTabIndices(data.indices)                   // make sure indicies are up to date after change
     setNodeOpen(node);    
     initializeUI();
     tabActivated(data);                             // also perform activation stuff
@@ -729,6 +733,7 @@ function tabClosed(data) {
         propogateClosed(parent.parentId);
     };
 
+    data.indices && updateTabIndices(data.indices)                   // make sure indicies are up to date after change
     const tabId = data.tabId;
     const node = BTAppNode.findFromTab(tabId);
     if (!node) return;
@@ -853,8 +858,9 @@ function tabNavigated(data) {
     const tabUrl = data.tabURL;
     const groupId = data.groupId;
     const windowId = data.windowId;
-    
     const tabNode = BTAppNode.findFromTab(tabId);
+    const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
+
     if (tabNode) {
         // activity was on managed active tab
         windowId && (tabNode.windowId = windowId);
@@ -869,14 +875,12 @@ function tabNavigated(data) {
                 // nav away from BT tab
                 data['nodeId'] = tabNode.id;
                 tabClosed(data);
-                window.postMessage({'function' : 'ungroup', 'tabIds' : [tabId]});
+                callBackground({'function' : 'ungroup', 'tabIds' : [tabId]});
             }
         }
         tabNode.opening = false;
-        return;
     }
 
-    const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
     const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
     if (urlNode && (!parentsWindow || (parentsWindow == windowId))) {
         // nav into a bt node from an open tab, ignore if parent/TG open elsewhere else - handle like tab open
@@ -884,11 +888,11 @@ function tabNavigated(data) {
         tabOpened(data, true);
         return;
     }
-
+    
     // Otherwise just a new tab. Take out of BT TG if its in one owned by BT
     const tgParent = BTAppNode.findFromGroup(data.groupId);
-    if (tgParent)
-        window.postMessage({'function' : 'ungroup', 'tabIds' : [tabId]});
+    if (tgParent && !tabNode)
+        callBackground({'function' : 'ungroup', 'tabIds' : [tabId]});
 }
 
 function tabActivated(data) {
@@ -920,17 +924,6 @@ function tabActivated(data) {
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
 }
 
-/* merged with tabJoinedTG
-function tabGrouped(data) {
-    // tab added to group at index
-    const node = BTAppNode.findFromTab(data.tabId);
-    if (!node) return;
-    node.tabGroupId = data.tgId;
-    node.tabIndex = data.tabIndex;
-    if (node?.parentId)
-        AllNodes[node.parentId].tabGroupId = data.tgId;
-}
-*/
 
 function tabGroupCreated(data) {
     // TG created update associated topic color as appropriate
@@ -978,7 +971,7 @@ function tabJoinedTG(data) {
     if (tabNode || !topicNode || (GroupingMode != 'TABGROUP')) return;                              // n/a || don't care
     const tab = data.tab;
     const index = data.tabIndex;
-    const indices = data.tabIndices;
+    const indices = data.indices;
     const winId = data.windowId;
    
     tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
@@ -996,15 +989,17 @@ function tabJoinedTG(data) {
 function tabLeftTG(data) {
     // user moved tab out of TG => no longer managed => deleteNode
     
+    if (GroupingMode != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
-    if (!tabNode || (GroupingMode != 'TABGROUP')) return;
+    if (!tabNode) return;
+    tabNode.tabId = null;
     deleteNode(tabNode.id);
 }
 
 function tabMoved(data) {
     // tab's position changed, ie tab index in window, or new window. 
-    // NB data.tabIndices maps tabId to index. need to reset globally since moves change other tabs
+    // NB data.indices maps tabId to index. need to reset globally since moves change other tabs
 
     const tabId = data.tabId;
     const tgId = data.groupId;
@@ -1012,7 +1007,7 @@ function tabMoved(data) {
     const topicNode = BTAppNode.findFromGroup(tgId);        
     const index = data.tabIndex;
     const winId = data.windowId;
-    const indices = data.tabIndices;
+    const indices = data.indices;
     const tab = data.tab;
     if (!tabNode && !topicNode) return;                                 // don't care
     if (tabNode?.beingPositioned) {
@@ -1087,6 +1082,7 @@ function setNodeOpen(node) {
 
     const parentId = node.parentId;
     $("tr[data-tt-id='"+node.id+"']").addClass("opened");
+    AllNodes[parentId] && node.setTGColor(AllNodes[parentId].tgColor);
     $("tr[data-tt-id='"+parentId+"']").addClass("opened");
     propogateOpened(parentId);
 }
@@ -1449,7 +1445,7 @@ function deleteNode(id) {
         node.showNode();
     if (openTabs.length) {
         const tabIds = openTabs.map(t => t.tabId);
-        window.postMessage({'function': 'ungroup', 'tabIds': tabIds});
+        callBackground({'function': 'ungroup', 'tabIds': tabIds});
     }
 
     $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable

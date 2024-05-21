@@ -1,17 +1,17 @@
 /***
- *
- *    This script is basically just a relay for messages between the app window and the extension.
- *    In general message are passed thru, sometimes we need to pull from local storage
- *
+*
+*    This script is basically just a relay for messages between the app window and the extension.
+*    In general message are passed thru, sometimes we need to pull from local storage
+*
 ***/
 
 
 function getFromLocalStorage(key) {
     // Promisification of storage.local.get
     return new Promise(resolve => {
-	    chrome.storage.local.get(key, function(item) {
-	        resolve(item[key]);
-	    });
+        chrome.storage.local.get(key, function(item) {
+            resolve(item[key]);
+        });
     });
 }
 
@@ -19,11 +19,11 @@ function getFromLocalStorage(key) {
 function setToLocalStorage(obj) {
     // Promisification of storage.local.set
     return new Promise(resolve => {
-	    chrome.storage.local.set(obj, function() {
+        chrome.storage.local.set(obj, function() {
             if (chrome.runtime.lastError)
                 alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
-	        resolve();
-	    });
+            resolve();
+        });
     });
 }
 
@@ -32,7 +32,7 @@ window.addEventListener('message', async function(event) {
     // Handle message from Window, NB ignore msgs relayed from this script in listener below
     if (event.source != window || event.data.from == "btextension")
         return;
-    console.log(`Content-IN ${event.data.function} from TopicManager:`, event.data);
+    console.log(`Content-IN ${event.data.function || event.data.type} from TopicManager:`, event.data);
     if (event.data.function == 'localStore') {
         // stores topics, preferences, current tabs topic/note info etc for popup/extensions use
         try {
@@ -42,7 +42,21 @@ window.addEventListener('message', async function(event) {
             const err = chrome.runtime.lastError.message || e;
             console.warn("Error saving to storage:", err, "\nContact BrainTool support");
         }
+        return;
     }
+    
+    /* 'Synchronous' calls */
+    if (event.data.type == 'AWAIT') {
+        try {
+            event.data["from"] = "btwindow";
+            const response = await callToBackground(event.data);
+            // Send the response back to the web page
+            window.postMessage({type: "AWAIT_RESPONSE", response: response}, event.origin);
+        } catch (error) {
+            console.error("Error sending message:", JSON.stringify(error));
+        }
+    }
+    
     else {
         // handle all other default type messages
         event.data["from"] = "btwindow";
@@ -50,13 +64,26 @@ window.addEventListener('message', async function(event) {
     }
 });
 
+// Function to send a message to the service worker and await a response
+async function callToBackground(message) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(message, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
-
+    
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
     response();
-
+    
     console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
     case 'loadBookmarks':
@@ -78,7 +105,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 });
 
 
-// Let extension know bt window is ready to open gdrive app. Should only run once
+// Let extension know bt window is ready. Should only run once
 var NotLoaded = true;
 if (!window.LOCALTEST && NotLoaded) {
     chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
@@ -94,7 +121,7 @@ async function launchApp(msg) {
     // and then just pass on to app
     
     if (window.LOCALTEST) return;                          // running inside test harness
-
+    
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
         let response = await fetch('/app/BrainTool.org');
@@ -106,14 +133,12 @@ async function launchApp(msg) {
             return;
         }
     }
-
+    
     // also pull out subscription id if exists (=> premium)
     let BTId = await getFromLocalStorage('BTId');
     let Config = await getFromLocalStorage('Config');
-    if (BTId)
-	    msg["bt_id"] = BTId;
-    if (Config)
-	    msg["Config"] = Config;
+    if (BTId) msg["bt_id"] = BTId;
+    if (Config) msg["Config"] = Config;
     
     msg["from"] = "btextension";
     msg["BTFileText"] = btdata;

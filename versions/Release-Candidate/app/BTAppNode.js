@@ -471,8 +471,8 @@ class BTAppNode extends BTNode {
         this.opening = true;      // avoid opening twice w double clicks. unset in tabNavigated
 
         const oldWinId = (this.parentId) ? AllNodes[this.parentId].windowId : 0;
-        // tell extension to open when tabOpened message comes back we take care of grouping etc
-        window.postMessage({'function': 'openTabs', 'newWin': newWin, 'defaultWinId': oldWinId,
+        // tell extension to open, then take care of grouping etc
+        callBackground({'function': 'openTabs', 'newWin': newWin, 'defaultWinId': oldWinId,
                             'tabs': [{'nodeId': this.id, 'url': this.URL}]});
         
         this.showNode();
@@ -524,7 +524,8 @@ class BTAppNode extends BTNode {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
         const groupName = this.isTopic() ? this.displayTopic : AllNodes[this.parentId]?.displayTopic;
-        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
+        const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
+        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
                             'groupName': groupName});
     }
@@ -538,21 +539,14 @@ class BTAppNode extends BTNode {
             node.closeTab();
         });
     }
-/* no longer used
-    createTabGroup() {
-        // create tg from topic node w children
-        if (!this.hasOpenChildren()) return;
-        const openTabIds = this.childIds.flatMap(
-            c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-        window.postMessage({'function': 'groupAll', 'groupName': this.displayTopic,
-                            'tabIds': openTabIds, 'windowId': this.windowId});
-    }
-*/
+
     updateTabGroup() {
         // set TG in browser to appropriate name/folded state
+        let rsp;
         if (this.tabGroupId && this.isTopic())
-            window.postMessage({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
-                                'collapsed': this.folded, 'title': this.title});
+            rsp = callBackground({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
+                                  'collapsed': this.folded, 'title': this.title});
+        return rsp;
     }
         
     static ungroupAll() {
@@ -560,7 +554,7 @@ class BTAppNode extends BTNode {
         const tabIds = AllNodes.flatMap(n => n.tabId ? [n.tabId] : []);
         if (tabIds.length)
             if (confirm('Also ungroup open tabs?'))
-                window.postMessage({'function': 'ungroup', 'tabIds': tabIds});
+                callBackground({'function': 'ungroup', 'tabIds': tabIds});
     }
 
     static groupAll() {
@@ -996,16 +990,13 @@ const Handlers = {
     "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
-    //"tabGrouped": tabGrouped,                         // merged with tabJOinedTG
-    //"storeTabs": storeTabs,                           // replaced by saveTabs. popup store operation - page, window or session
-    //"importSession": importSession,                   // erplaced by saveTabs.
 };
 
 // Set handler for extension messaging
 window.addEventListener('message', event => {
-    if (event.source != window)
+    if (event.source != window || event.functionType == 'AWAIT')        // async handled below
         return;
-    // lots of {"isTrusted":true} events don't know why, get them whenever a 
+
     //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
     if (Handlers[event.data.function]) {
         console.log("BTAppNode dispatching to ", Handlers[event.data.function].name);
@@ -1013,3 +1004,23 @@ window.addEventListener('message', event => {
     }
 });
 
+// Function to send a message to the content script and await a response
+function callBackground(message) {
+    return new Promise((resolve) => {
+        // Listen for the response from the content script
+        window.addEventListener("message", function handler(event) {
+            if (event.source !== window || event.type !== 'AWAIT') {
+                return;
+            }
+            
+            if (event.data && event.data.type === "AWAIT_RESPONSE") {
+                window.removeEventListener("message", handler);
+                resolve(event.data.response);
+            }
+        });
+        
+        // Send the message to the content script with the page's origin as targetOrigin
+        message.type = "AWAIT";
+        window.postMessage(message, window.origin);
+    });
+}

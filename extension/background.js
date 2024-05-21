@@ -22,6 +22,7 @@ var UpdateInstall = false;                        // or the release notes page
 
 function btSendMessage(tabId, msg) {
     // send message to BT window/tab. Wrapper to facilitate debugging messaging
+
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
     try {
         chrome.tabs.sendMessage(tabId, msg);
@@ -100,18 +101,37 @@ const Handlers = {
     "moveOpenTabsToTG": moveOpenTabsToTG,
     "updateGroup": updateGroup,
     "saveTabs": saveTabs,
-    //    "importSession": importSession
 };
 
+var Awaiting = false;
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.from != 'btwindow' && msg.from != 'popup') return;
+    if ((msg.from != 'btwindow' && msg.from != 'popup') || (msg.type == 'AWAIT_RESPONSE'))
+        return;
     
+    async function handleMessage() {
+        try {
+            const result = await Handlers[msg.function](msg, sender);
+            sendResponse({ status: "success", message: result });
+        } catch (error) {
+            console.error("Error during async operation:", error);
+            sendResponse({ status: "error", message: error.message });
+        }
+    }
+
+    if (msg.type == "AWAIT" && Handlers[msg.function]) {
+        Awaiting = true;
+        console.log("Background AWAITing ", msg.function, JSON.stringify(msg));
+        handleMessage();
+        setTimeout(() => Awaiting = false, 500);
+        return true;
+    }
+
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
     sendResponse();
     
     console.log(`Background received: [${msg.function}]: ${JSON.stringify(msg)}`);
     if (Handlers[msg.function]) {
-        console.log("Background dispatching to ", Handlers[msg.function].name);
+        console.log("Background dispatching to ", msg.function);
         Handlers[msg.function](msg, sender);
         return;
     }
@@ -152,6 +172,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 *
 ***/
 
+/* -- Tab Events -- */
+
 chrome.tabs.onAttached.addListener(async (tabId, otherInfo) => {
     // listen for tab event 
     const [BTTab, BTWin] = await getBTTabWin();
@@ -160,14 +182,15 @@ chrome.tabs.onAttached.addListener(async (tabId, otherInfo) => {
 
 chrome.tabs.onMoved.addListener(async (tabId, otherInfo) => {
     // listen for tabs being moved and let BT know
+    if (Awaiting) return;                                           // ignore events while we're awaiting our commands to take effect
     const [BTTab, BTWin] = await getBTTabWin();
     const tab = await chrome.tabs.get(tabId); check();
     if (!tab || tab.status == 'loading') return;
-    const indicies = await tabIndices();
+    const indices = await tabIndices();
     console.log('moved event:', otherInfo, tab);
     btSendMessage(
         BTTab, {'function': 'tabMoved', 'tabId': tabId, 'groupId': tab.groupId,
-                'tabIndex': tab.index, 'windowId': tab.windowId, 'tabIndices': indicies, 'tab': tab});
+                'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices, 'tab': tab});
     setTimeout(function() {setBadge(tabId);}, 200);
 });
 
@@ -180,20 +203,24 @@ chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
         console.log('BTTab closed, suspending extension');
         return;
     }
-    btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId});
+    const indices = await tabIndices();
+    btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs or being moved to/from TGs
-    const [BTTab, BTWin] = await getBTTabWin();
+    if (Awaiting) return;                                           // ignore events while we're awaiting 'synchronous' commands to take effect
     if (PauseTabEventsDuringTGMove) return;                         // ignore tab events for a few seconds after TG is dragged creating a new window
+
+    const [BTTab, BTWin] = await getBTTabWin();
     if (!tabId || !BTTab || (tabId == BTTab)) return;               // not set up yet or don't care
 
+    const indices = await tabIndices();
     if (changeInfo.status == 'complete') {
         // tab navigated to/from url
         btSendMessage(
             BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
-                    'tabURL': tab.url, 'windowId': tab.windowId});
+                    'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
     }
@@ -201,11 +228,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         // tab moved to/from TG, wait til loaded so url etc is filled in
         // Adding a delay to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
         setTimeout(async () => {
-            const indices = await tabIndices();
             btSendMessage(
                 BTTab, {'function': (tab.groupId > 0) ? 'tabJoinedTG' : 'tabLeftTG',
                         'tabId': tabId, 'groupId': tab.groupId,
-                        'tabIndex': tab.index, 'windowId': tab.windowId, 'tabIndices': indices,
+                        'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
                         'tab': tab});
         }, 100);
         setTimeout(function() {setBadge(tabId);}, 200);
@@ -227,6 +253,8 @@ chrome.tabs.onActivated.addListener(async (info) => {
     });
 });
 
+/* -- TabGroup Events -- */
+
 chrome.tabGroups.onCreated.addListener(async (tg) => {
     // listen for TG creation and let app know color etc
     const [BTTab, BTWin] = await getBTTabWin();
@@ -235,18 +263,10 @@ chrome.tabGroups.onCreated.addListener(async (tg) => {
                           'tabGroupColor': tg.color});
 });
 
-var NewWindowID = 0;
-var PauseTabEventsDuringTGMove = false;
-chrome.windows.onCreated.addListener(async (win) => {
-    // When a TG is dragged out of its window a new one is created followed by a cascade of tab events leaving and rejoining the TG.
-    // Its too complex to track all these events so we just ignore TG events for a few seconds after a new window is created.
-    console.log('window created:', win);
-    NewWindowID = win.id;
-    setTimeout(() => NewWindowID = 0, 1000);
-});
 chrome.tabGroups.onUpdated.addListener(async (tg) => {
     // listen for TG updates and let app know color etc
     console.log('tabGroup updated:', tg, NewWindowID );
+    if (Awaiting) return;                                            // ignore TG events while we're awaiting our commands to take effect
     if (NewWindowID && (NewWindowID == tg.windowId)) {
         // ignore TG updates in btSendMessage for a few seconds cos tabs get disconnected and reconnected
         console.log('Pausing TG events for 5 seconds');
@@ -266,6 +286,19 @@ chrome.tabGroups.onRemoved.addListener(async (tg) => {
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab) return;                                              // not set up yet or don't care
     btSendMessage(BTTab, {'function': 'tabGroupRemoved', 'tabGroupId': tg.id});
+});
+
+
+/* --  Window Events -- */
+
+var NewWindowID = 0;
+var PauseTabEventsDuringTGMove = false;
+chrome.windows.onCreated.addListener(async (win) => {
+    // When a TG is dragged out of its window a new one is created followed by a cascade of tab events leaving and rejoining the TG.
+    // Its too complex to track all these events so we just ignore TG events for a few seconds after a new window is created.
+    console.log('window created:', win);
+    NewWindowID = win.id;
+    setTimeout(() => NewWindowID = 0, 1000);
 });
 
 chrome.windows.onFocusChanged.addListener(async (windowId) => {
@@ -325,9 +358,10 @@ async function tabIndices() {
 async function tabOpened(winId, tabId, nodeId, index, tgId = 0) {
     const [BTTab, BTWin] = await getBTTabWin();
     check();
+    const indices = await tabIndices();
     btSendMessage(BTTab,
                   {'function': 'tabOpened', 'nodeId': nodeId, 'tabIndex': index,
-                   'tabId': tabId, 'windowId': winId, 'tabGroupId': tgId});
+                   'tabId': tabId, 'windowId': winId, 'tabGroupId': tgId, 'indices': indices});
     setTimeout(function() {setBadge(tabId);}, 250);
 }
 
@@ -560,10 +594,10 @@ async function groupAndPositionTabs(msg, sender) {
     chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
         // first move tabs into place
         check('groupAndPositionTabs-move');
-        chrome.tabs.group(groupArgs, groupId => {
+        chrome.tabs.group(groupArgs, async (groupId) => {
             // then group appropriately. NB this order cos move drops the tabgroup
             check('groupAndPositionTabs-group');
-            chrome.tabGroups.update(groupId, {'title' : groupName});
+            await chrome.tabGroups.update(groupId, {'title' : groupName});
             const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
             theTabs.forEach(t => {
                 const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
@@ -576,9 +610,10 @@ async function groupAndPositionTabs(msg, sender) {
     });
 }
 
-function ungroup(msg, sender) {
-    // node deleted or we're not using tabgroups any more, so ungroup
-    chrome.tabs.ungroup(msg.tabIds, () => check());
+async function ungroup(msg, sender) {
+    // node deleted, navigated or we're not using tabgroups any more, so ungroup
+    await chrome.tabs.ungroup(msg.tabIds);
+    check('ungroup ');
 }
 
 function moveOpenTabsToTG(msg, sender) {
@@ -597,7 +632,7 @@ function moveOpenTabsToTG(msg, sender) {
                 btSendMessage(
                     sender.tab.id,
                     {'tabId': tid, 'groupId': tgId,
-                     'tabIndex': tab.index, 'windowId': tab.windowId, 'tabIndicies': indices,
+                     'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
                      'tab': tab});
                 // was  {'function': 'tabGrouped', 'tgId': tgId, 'tabId': tid, 'tabIndex': tab.index});
             });
@@ -605,9 +640,11 @@ function moveOpenTabsToTG(msg, sender) {
     });
 }
 
-function updateGroup(msg, sender) {
+async function updateGroup(msg, sender) {
     // expand/collapse or name change on topic in topic manager, reflect in browser
-    chrome.tabGroups.update(msg.tabGroupId, {'collapsed': msg.collapsed, 'title': msg.title});
+
+    await chrome.tabGroups.update(msg.tabGroupId, {'collapsed': msg.collapsed, 'title': msg.title});
+    check('UpdateGroup:');
 }
 
 function showNode(msg, sender) {
@@ -752,40 +789,6 @@ function exportBookmarks() {
     });
 }
 
-/*
-  async function importSession(msg, sender) {
-  // return hierarchy of all windows/tgs/tabs to enable a topic tree to be created in Mgr
-
-  const [BTTab, BTWin] = await getBTTabWin();
-  const allTabs = await getOpenTabs();                             // array of tabs
-  const allTGs = await getOpenTabGroups();                         // array of tgs
-  const allWins = {}, groups = {};
-
-  allTGs.forEach(tg => {                                           // create hash
-  groups[tg.id] = tg;
-  tg.tabs = [];                                                // and add array for tabs
-  });
-
-  // Loop thru tabs, create win objs and fill in TGs and tabs
-  allTabs.forEach(t => {
-  if ((t.id == BTTab) || t.pinned) return;
-  if (!allWins[t.windowId])
-  allWins[t.windowId] = {'windowId': t.windowId, 'windowName': 'Window'+t.windowId,
-  'tabs': [], 'tabGroups': {}};
-  const win = allWins[t.windowId];
-  if (t.groupId > 0) {
-  const tg = groups[t.groupId];
-  if (!win.tabGroups[t.groupId])
-  win.tabGroups[t.groupId] = tg;
-  tg.tabs.push(t);
-  } else {
-  win.tabs.push(t);
-  }
-  });
-  btSendMessage(BTTab, {'function': 'importSession', 'windows': allWins, 'topic': msg.topic, 'close': msg.close});
-  console.log('allWins = ', allWins);
-  }
-*/
 function createSessionName() {
     // return a name for the current session, 'session-Mar12
     const d = new Date();
