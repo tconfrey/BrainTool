@@ -285,7 +285,8 @@
 		              
                       <div class="dropdown_content">                    
                           <div onClick="importBookmarks()">
-                              <label class="button_text">Browser Bookmarks</label>
+                              <label for="import_bookmarks" class="button_text">Browser Bookmarks</label>
+                              <input id="import_bookmarks" type="button" style="display:none">
                           </div>
                           
                           <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">
@@ -314,7 +315,8 @@
 		              
 		              <div class="dropdown_content">
                           <div onClick="exportBookmarks()">
-		                      <label class="button_text">Browser Bookmarks</label>
+		                        <label class="button_text" for="export_bookmarks">Browser Bookmarks</label>
+                            <input id="export_bookmarks" type="button" style="display:none">
                           </div>
 
 		                  <div style="border-top: solid 1px #ddd">

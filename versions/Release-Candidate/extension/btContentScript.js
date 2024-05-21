@@ -91,7 +91,9 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             msg.data = data;
             msg["from"] = "btextension";
             window.postMessage(msg);
+            /* !!!!!!!!!!!!  Release Candidate debugging change. Undo in 1.0 release !!!!!!!!!!!!! 
             chrome.storage.local.remove('bookmarks');             // clean up space
+            */
         });
         break;
     case 'launchApp':           // set up btfiletext before passing on to app, see below

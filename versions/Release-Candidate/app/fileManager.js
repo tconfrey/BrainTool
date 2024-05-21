@@ -188,7 +188,8 @@ function updateSyncSettings(connected = false, time = null) {
         $("#settingsSyncStatus").hide();
         $("#actionsSyncStatus").hide();
         $("#settingsSyncNone").prop('checked', true);
-        configManager.setProp('BTTimestamp', null);
+        // Needed? Screws up launchApp flow when connection has not been established: 
+        // configManager.setProp('BTTimestamp', null);
     }
 }
 

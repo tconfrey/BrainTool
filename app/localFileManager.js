@@ -175,7 +175,7 @@ const localFileManager = (() => {
         // check if newer version on disk
         LocalFileConnected = true;
         const newerOnDisk = await checkBTFileVersion();
-        if (newerOnDisk && confirm("BrainTool.org file is newer on disk. Use newer?")) {
+        if (newerOnDisk && confirm("BrainTool.org file is newer on disk. \nHit Cancel to ignore, OK for newer. \nUse newer?")) {
             try {
 		        await refreshTable(true);
             }
@@ -213,8 +213,8 @@ const localFileManager = (() => {
         return (remoteVersion > localVersion);
     }
 
-    function getLocalFileHandle() {
-        return LocalFileHandle;
+    async function getLocalFileHandle() {
+        return LocalFileHandle || await get('localFileHandle');;
     }
 
     function reset() {
