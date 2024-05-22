@@ -507,8 +507,14 @@ textarea:focus, input[type="text"]:focus {
     margin-top: 5px;
     margin-bottom: 10px;
 }
+.settingsInput span {
+    cursor: default;
+}
 #settings input {
-    accent-color: #3C4749;
+    accent-color: #272F30; /* #3C4749; */
+}
+#settings input[type="radio"]:not(:checked) {
+    cursor: pointer;
 }
 #settingsSubscription button {
     height: 35px;
