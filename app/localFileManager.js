@@ -175,7 +175,7 @@ const localFileManager = (() => {
         // check if newer version on disk
         LocalFileConnected = true;
         const newerOnDisk = await checkBTFileVersion();
-        if (newerOnDisk && confirm("BrainTool.org file is newer on disk. \nHit Cancel to ignore, OK for newer. \nUse newer?")) {
+        if (newerOnDisk && confirm("Synced BrainTool.org file on disk is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?")) {
             try {
 		        await refreshTable(true);
             }

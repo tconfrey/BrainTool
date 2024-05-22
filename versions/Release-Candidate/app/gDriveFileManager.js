@@ -200,7 +200,7 @@ const gDriveFileManager = (() => {
         if (userInitiated) {
             // implies from button click
             gtag('event', 'auth_initiated_by_user', {'event_category': 'GDrive'});
-            alert("Passing you to Google to grant permissions. \nMake sure you actually check the box to allow file access.");
+            alert("Passing you to Google to grant permissions. \nMake sure you complete the steps to allow file access.");
         }
         // Init client will async flow will ensure that gapi is loaded
         await initClient(userInitiated);
@@ -237,7 +237,7 @@ const gDriveFileManager = (() => {
             // or if we have a recorded version thats older than disk, ask to import
             const msg = userInitiated ?
                 "BrainTool.org file already exists. Use its contents?" :
-                "BrainTool.org file is newer than browser data. Use newer?";
+                "Synced BrainTool.org file on GDrive is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?"
             if (confirm(msg)) {
                 try {
                     await refreshTable(true);
@@ -326,6 +326,7 @@ const gDriveFileManager = (() => {
             const timestamp = Date.parse(responseValue.modifiedTime);
             configManager.setProp('BTTimestamp', timestamp);
             updateStatsRow(timestamp);
+            updateSigninStatus(true);
         }
         catch(err) {
             alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
