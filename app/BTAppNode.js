@@ -1,5 +1,16 @@
 /***
  *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
+/***
+ *
  *  Centralizes all the node-related app logic of reading and writing to org, creating the ui etc
  *  
  *
@@ -279,7 +290,7 @@ class BTAppNode extends BTNode {
         // add favicon icon either from local storage or goog
         if (this.isTopic() || !this.URL) return;
         const host = this.URL.split(/[?#]/)[0];
-        const favClass = (configManager.getProp('BTFavicons') == 'ON') ? 'faviconOn' : 'faviconOff';
+        const favClass = (configManager.getProp('BTFavicons') == 'OFF') ? 'faviconOff' : 'faviconOn';
         const favUrl =
               this.faviconUrl ||
               await localFileManager.get(host) ||
@@ -287,7 +298,7 @@ class BTAppNode extends BTNode {
         this.faviconUrl = favUrl;
         const dn = this.getDisplayNode();
         $(dn).find(`.${favClass}`).remove();                     // remove any previous set icon
-        const fav = $(`<img src="${favUrl}" loading="lazy" class="${favClass}">`);
+        const fav = $(`<img src="${favUrl}" loading="lazy" class="${favClass}" alt="favicon">`);
 
         fav.on('error', function() {
             this.src = 'resources/help.png';                    // if no favicon found, use ? from help icon
