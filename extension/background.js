@@ -1,4 +1,15 @@
 /***
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
+/***
 *
 *  Main entry point for all window and tab manipulation. Listens for messages from app 
 *  (relayed by content script) and dispatches to handler. Also listens for updates from

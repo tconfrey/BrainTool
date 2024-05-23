@@ -1,5 +1,16 @@
 /***
  *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
+/***
+ *
  * Conversion utilities. Currently just from TabsOutliner json format
  * Used by BT import or in conjunction with associated converters.md file
  * 

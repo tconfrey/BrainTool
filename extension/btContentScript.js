@@ -1,4 +1,15 @@
 /***
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
+/***
 *
 *    This script is basically just a relay for messages between the app window and the extension.
 *    In general message are passed thru, sometimes we need to pull from local storage
