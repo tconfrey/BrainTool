@@ -1,3 +1,14 @@
+/***
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
 /*** 
  * 
  * Handles interacting w Stripe and Firebase for subscription and purchase management.
@@ -33,7 +44,7 @@ async function handlePurchase(product) {
 	    return;
     }
 
-    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your premium membership in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
+    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your supporter status in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
 	    return;
     $('body').addClass('waiting');
 

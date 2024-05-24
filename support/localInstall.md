@@ -31,6 +31,8 @@ The easiest way to run the Release Candidate is to download the extension from t
 ## Run the Release Candidate from the repository
 If you run [git](https://git-scm.com/) you can clone the BrainTool repo from [here](https://github.com/tconfrey/BrainTool). Then select the Braintool/versions/Release-Candidate/extension folder when you click the 'Load unpacked' button. Note that this scenario still loads the Topic Manager code from the braintool.org site (hosted by github) and will automatically get any changes pushed to the repo.
 
+Note that there's a configuration file containing the public api keys needed for interacting with the GDrive storage option and with Firebase and Stripe for licensing. This file is not stored in the git repo. If you are using the git clone option and want to test gdrive or licensing please email braintool.extension@gmail.com and request a copy of the keys file. I'll share it with you whereupon you should drop it into the extension folder. 
+
 ## Run any version of BrainTool from a local server
 Clone the repo as above. The latest versions of the extension and app are under the top level /extension and /app folders, all other versions are under /versions , specifically the current App Store version is /versions/0.9.9  and the release candidate is /versions/Release-Candidate. 
 
@@ -44,3 +46,4 @@ to something like this:<br/>
 `const url = "https://localhost:8000/versions/Release-Candidate/app/";`<br/>
 
 Install the unpacked extension as described above, run a local server from the top level BrainTool folder and launch the extension.
+
