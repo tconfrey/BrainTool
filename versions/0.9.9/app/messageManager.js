@@ -36,7 +36,8 @@ const messageManager = (() => {
     const messageArray = [
         "Welcome to BrainTool 0.9.9a, a new minor release.<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
         "A preview version of Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
-        "A preview version of favicon display is now available. See Settings."
+        "A preview version of favicon display is now available. See Settings.",
+        "<img src='resources/BTBuddy.png' style='position: absolute; height: 45px; left: 30px; bottom: 0px'>BrainTool 1.0 is coming soon! <br/><a target='_blank' href='https://braintool.org/support/releaseNotes.html'>Try it out and earn a reward</a>"
     ];
     let Warning = false, Message = false, lastShownMessageIndex = 0;
 
