@@ -7,7 +7,7 @@ audience: user
 ---
 
 # Local Install
-This page describes how to run the pre-1.0 Release-Candidate version of BrainTool. See the [Release Notes](/support/ReleaseNotes) for its contents or check out [this video](https://youtu.be/DbRUZz8oyXY?si=PlBn0FuVXWRe-aly) for an overview of the installation and brief introduction to the tool.
+This page describes how to run the pre-1.0 Release-Candidate version of BrainTool. See the [Release Notes](/support/ReleaseNotes.html) for its contents or check out [this video](https://youtu.be/DbRUZz8oyXY?si=PlBn0FuVXWRe-aly) for an overview of the installation and brief introduction to the tool.
 
 ## Background
 BrainTool is composed of two parts. The BT Extension that you downloaded from the App Store is code that's installed in the browsers extension system. It controls the BT icon in the toolbar and the Bookmarker popup window. It also listens for messages from the BT Topic Manager App and updates tabs accordingly and it sends back event notifications when tabs and windows open or change. On launch the popup code opens a browser tab to the braintool.org website. That tab displays the Topic Manager which is where the main logic of the application lives.
