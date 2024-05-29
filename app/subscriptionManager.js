@@ -49,7 +49,7 @@ async function handlePurchase(product) {
     $('body').addClass('waiting');
 
     // Create user id, store in localStore and in BTFile text
-    BTId = BTId || configManager.getProp('BTId') || await signIn();
+    BTId = await signIn();
     if (!BTId) {
         $('body').removeClass('waiting');
 	    console.error("Error signing in to FB");
@@ -227,6 +227,11 @@ async function checkLicense() {
         return true;
     }
 
+    if(!subscription && !product) {
+        console.log("BTID set but no purchase or subscription found");
+        return false;
+    }
+
     configManager.setProp('BTExpiry', ((subscription?.current_period_end.seconds * 1000) || licenseExpiry));  // Sub exists but maybe expired
     if (Date.now() < configManager.getProp('BTExpiry')) {
         console.log("License renewed");
@@ -277,14 +282,15 @@ async function subscribe(productPrice) {
 	    price: productPrice,
 	    quantity: 1,
     };
+    const baseURL = window.location.href.split('?')[0];     // drop any preexisting '?purchase=xyz' arg
     const checkoutSession = {
 	    collect_shipping_address: false,
 	    billing_address_collection: 'auto',
 	    tax_rates: taxRates,
 	    allow_promotion_codes: true,
 	    line_items: [selectedPrice],
-	    success_url: window.location.href + '?purchase=' + encodeURIComponent('subscription'),
-	    cancel_url: window.location.href + '?purchase=' + encodeURIComponent('cancelled'),
+	    success_url: baseURL + '?purchase=' + encodeURIComponent('subscription'),
+	    cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
     };
     try {
         const docRef = await FBDB
@@ -310,7 +316,7 @@ async function subscribe(productPrice) {
         });
     } catch(e) {
         $('body').removeClass('waiting');
-        console.error("Error in subscribe with ", productPrice);
+        console.error("Error in subscribe with ", productPrice, " Firebase says:");
         console.log(JSON.stringify(e));
     }
 }
@@ -318,12 +324,13 @@ async function subscribe(productPrice) {
 const ReleaseCandidate = true;
 async function purchase(productPrice) {
     // similar to above but One-Time-purchase
+    const baseURL = window.location.href.split('?')[0];     // drop any preexisting '?purchase=xyz' arg
     const checkoutSession = {
         mode: "payment",
         price: OTP, // One-time price created in Stripe
 	    allow_promotion_codes: true,
-        success_url: window.location.href + '?purchase=' + encodeURIComponent('product'),
-        cancel_url: window.location.href + '?purchase=' + encodeURIComponent('cancelled'),
+        success_url: baseURL+ '?purchase=' + encodeURIComponent('product'),
+        cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
     };
     try {
         const docRef = await FBDB.collection("customers").doc(BTId).collection("checkout_sessions").add(checkoutSession);
@@ -345,7 +352,7 @@ async function purchase(productPrice) {
         });
     } catch(e) {
         $('body').removeClass('waiting');
-        console.error("Error in subscribe w ", productPrice);
+        console.error("Error in purchase with ", productPrice, " Firebase says:");
         console.log(JSON.stringify(e));
     }
 }
