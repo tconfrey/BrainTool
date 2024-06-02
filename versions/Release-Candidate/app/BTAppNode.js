@@ -528,13 +528,14 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': BTAppNode.displayNameFromTitle(this.displayTopic)});
+                            'groupName': this.topicName(),            // BTAppNode.displayNameFromTitle(this.displayTopic),
+                        });
     }
     
     putInGroup() {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
-        const groupName = this.isTopic() ? this.displayTopic : AllNodes[this.parentId]?.displayTopic;
+        const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
@@ -556,7 +557,7 @@ class BTAppNode extends BTNode {
         let rsp;
         if (this.tabGroupId && this.isTopic())
             rsp = callBackground({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
-                                  'collapsed': this.folded, 'title': this.title});
+                                  'collapsed': this.folded, 'title': this.topicName()});
         return rsp;
     }
         
@@ -774,7 +775,7 @@ class BTAppNode extends BTNode {
                 tabGroupTabs.push({'nodeId': id, 'url': node.URL});
         });
         const me = tabGroupTabs.length ?
-              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId, 'groupName': this.displayTopic,
+              {'tabGroupId': this.tabGroupId, 'windowId': this.windowId, 'groupName': this.topicName(),
                'tabGroupTabs': tabGroupTabs} : [];
         const subtopics = this.childIds.flatMap(id => AllNodes[id].listOpenableTabGroups());
         return [me, ...subtopics].flat();
@@ -891,7 +892,7 @@ class BTAppNode extends BTNode {
         const topTopic = (components && components.length) ? components[0] : topic;
 
         // Find or create top node
-        let topNode = AllNodes.find(node => node && node.displayTopic == topTopic);
+        let topNode = AllNodes.find(node => node && node.topicName() == topTopic);
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);
             topNode.createDisplayNode();

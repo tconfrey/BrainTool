@@ -480,7 +480,7 @@ textarea:focus, input[type="text"]:focus {
 #youShallNotPass {
     position: absolute;
     width: 98%;
-    height: 400px;
+    height: 450px;
     top: 242px;left: 3px;
     z-index: 5;
     background-color: #888;

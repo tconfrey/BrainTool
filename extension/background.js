@@ -218,6 +218,22 @@ chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
     btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
 });
 
+const tabTransitionData = {};       // map of tabId: {transitionType: "", transitionQualifiers: [""..]}
+
+
+// Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
+// Seems like some sites (g Reddit) trigger the history instead of Committed event. Don't know why
+chrome.webNavigation.onCommitted.addListener(async (details) => {
+    if (details?.frameId !== 0) return;
+    console.log('webNavigation.onCommitted fired:', JSON.stringify(details));
+    tabTransitionData[details.tabId] = {transitionType: details.transitionType, transitionQualifiers: details.transitionQualifiers};
+});
+chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
+    if (details?.frameId !== 0) return;
+    console.log('webNavigation.onHistoryStateUpdated fired:', JSON.stringify(details));
+    tabTransitionData[details.tabId] = {transitionType: details.transitionType, transitionQualifiers: details.transitionQualifiers};
+});
+
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs or being moved to/from TGs
     if (Awaiting) return;                                           // ignore events while we're awaiting 'synchronous' commands to take effect
@@ -226,12 +242,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const [BTTab, BTWin] = await getBTTabWin();
     if (!tabId || !BTTab || (tabId == BTTab)) return;               // not set up yet or don't care
 
-    const indices = await tabIndices();
+    const indices = await tabIndices();                             // keep indicies in sync
     if (changeInfo.status == 'complete') {
-        // tab navigated to/from url
+        // tab navigated to/from url, add in transition info from Web Nav event, above
+        const transitionData = tabTransitionData[tabId] || {};          // set in webNavigation.onCommitted event above
+        setTimeout (() => delete tabTransitionData[tabId], 1000);                                // clear out for next event
         btSendMessage(
             BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
-                    'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices});
+                    'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices, 'transitionData': transitionData,});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
     }
@@ -244,7 +262,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                         'tabId': tabId, 'groupId': tab.groupId,
                         'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
                         'tab': tab});
-        }, 100);
+        }, 250);
         setTimeout(function() {setBadge(tabId);}, 200);
     }
 });
@@ -608,7 +626,8 @@ async function groupAndPositionTabs(msg, sender) {
         chrome.tabs.group(groupArgs, async (groupId) => {
             // then group appropriately. NB this order cos move drops the tabgroup
             check('groupAndPositionTabs-group');
-            await chrome.tabGroups.update(groupId, {'title' : groupName});
+            if (!groupId) console.log('Error: groupId not returned from tabs.group call.');
+            else await chrome.tabGroups.update(groupId, {'title' : groupName});
             const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
             theTabs.forEach(t => {
                 const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
@@ -727,8 +746,9 @@ function setBadge(tabId) {
             chrome.action.setBadgeText({'text' : "", 'tabId' : tabId},
                                        () => check('Resetting badge text:'));
             chrome.action.setTitle({'title' : 'BrainTool'});
-        } else {
-            marquee(data.currentTopic, 0);
+        } else {        
+            let title = data.currentTopic.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+            marquee(title, 0);
             chrome.action.setTitle({'title' : data.currentText || 'BrainTool'});
             chrome.action.setBadgeBackgroundColor({'color' : '#59718C'});
         }

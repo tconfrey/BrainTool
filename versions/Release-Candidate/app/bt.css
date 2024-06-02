@@ -1,3 +1,13 @@
+/***
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
 /* First define the basic theme variables */
 :root {
     --btRowHeight: 30px;
@@ -470,7 +480,7 @@ textarea:focus, input[type="text"]:focus {
 #youShallNotPass {
     position: absolute;
     width: 98%;
-    height: 400px;
+    height: 450px;
     top: 242px;left: 3px;
     z-index: 5;
     background-color: #888;

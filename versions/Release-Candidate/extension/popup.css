@@ -1,3 +1,13 @@
+/***
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
 /* First define the basic theme variables */
 :root {
     --btFont: Roboto;
@@ -43,7 +53,7 @@
 
 body {
     width: 440px;
-    height:550px;
+    min-height:240px;
     max-height: 600px;
     padding-bottom: 50px;
     overflow: hidden;
@@ -111,6 +121,9 @@ label {
 }
 #saveSession {
     float: right;
+}
+#saveAs {
+    color: #58BA00;
 }
 
 #topicSelector, #saveCheckboxes, #editCard, #buttonDiv {

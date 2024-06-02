@@ -80,7 +80,7 @@ const TopicSelector = (() => {
         let fullPath = [];                           // keep track of parentage
         topicsArray.forEach(topic => {
             const level = topic.level;
-            const name = topic.name;
+            const name = topic.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             const visible = (level > 2) ? "display:none;" : "";
             const bg = (level == 1) ? "lightgrey" : "";
             const nextTopic = topicsArray[index++];
@@ -130,7 +130,7 @@ const TopicSelector = (() => {
         AwesomeWidget.evaluate();
         // might be >1 item matching, find right one.
         let index = 0;
-        while (AwesomeWidget.suggestions[index].value != text) index++;
+        while (AwesomeWidget.suggestions[index]?.value != text) index++;
         AwesomeWidget.goto(index);
         AwesomeWidget.select();
         TopicHint.style.display = "none";                      // hide hint

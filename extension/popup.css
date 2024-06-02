@@ -53,7 +53,7 @@
 
 body {
     width: 440px;
-    height:550px;
+    min-height:240px;
     max-height: 600px;
     padding-bottom: 50px;
     overflow: hidden;
@@ -121,6 +121,9 @@ label {
 }
 #saveSession {
     float: right;
+}
+#saveAs {
+    color: #58BA00;
 }
 
 #topicSelector, #saveCheckboxes, #editCard, #buttonDiv {

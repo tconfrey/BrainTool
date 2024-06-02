@@ -753,6 +753,7 @@ function tabClosed(data) {
     node.tabIndex = 0;
     node.windowId = 0;
     node.opening = false;
+    node.navigated = false;
     tabActivated(data);
 
     // update ui and animate parent to indicate change
@@ -790,17 +791,25 @@ function saveTabs(data) {
 
         // Handle existing node case: update and return
         const existingNode = BTAppNode.findFromTab(tab.tabId);
-        if (existingNode) {
+        if (existingNode && !existingNode.navigated) {
             if (note) {
                 existingNode.text = note;
                 existingNode.redisplay();
             }
+            if (close) existingNode.closeTab(); 
             return;           // already saved, ignore other than making any note update
         }
 
-        // Deal with Topic
-        const [topicDN, keyword] = BTNode.processTopicString(tab.topic || "📝 Scratch");
-        const topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
+        // Find or create topic, use existingNodes topic if it exists
+        let topicNode, keyword, topicDN;
+        if (existingNode) {
+            tabClosed({"tabId": tab.tabId});      // tab navigated away, clean up
+            topicNode = AllNodes[existingNode.parentId];
+            topicDN = topicNode.topicPath;
+        } else {
+            [topicDN, keyword] = BTNode.processTopicString(tab.topic || "📝 Scratch");
+            topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
+        }
         changedTopicNodes.add(topicNode);
 
         // Create and populate node
@@ -832,7 +841,7 @@ function saveTabs(data) {
     BTAppNode.generateTopics();
     let lastTopicNode = Array.from(changedTopicNodes).pop();
     window.postMessage({'function': 'localStore', 
-                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode?.title || '', 'currentText': note}});
+                        'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode?.topicName() || '', 'currentText': note}});
     window.postMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
 
     initializeUI();
@@ -863,7 +872,23 @@ function tabPositioned(data, highlight = false) {
 }
 
 function tabNavigated(data) {
-    // tab updated event, could be nav away or to a BT node
+    // tab updated event, could be nav away or to a BT node or even between two btnodes
+    // if tabs are sticky, tab sticks w original BTnode, as long as:
+    // 1) it was a result of a link click or server redirect (ie not a new use of the tab like typing in the address bar) or
+    // 2) its not a nav to a different btnode whose topic is open in the same window
+
+    function stickyTab() {
+        // Should the tab stay associated with the BT node
+        if (configManager.getProp('BTStickyTabs') =='NOTSTICKY') return false;
+        if (['link', 'reload'].includes(transitionType)) return true;
+        if (transitionQualifiers.length && !transitionQualifiers.includes('from_address_bar')) return true;
+        return false;
+    }
+    function closeAndUngroup() {
+        data['nodeId'] = tabNode.id;
+        tabClosed(data);
+        callBackground({'function' : 'ungroup', 'tabIds' : [tabId]});
+    }
 
     const tabId = data.tabId;
     const tabUrl = data.tabURL;
@@ -871,6 +896,10 @@ function tabNavigated(data) {
     const windowId = data.windowId;
     const tabNode = BTAppNode.findFromTab(tabId);
     const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
+    const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
+    const transitionType = data?.transitionData?.transitionType;
+    const transitionQualifiers = data?.transitionData?.transitionQualifiers || [];
+    const sticky = stickyTab();
 
     if (tabNode) {
         // activity was on managed active tab
@@ -883,18 +912,26 @@ function tabNavigated(data) {
                 tabNode.URL = tabUrl;                       
             }
             else {
-                // nav away from BT tab
-                data['nodeId'] = tabNode.id;
-                tabClosed(data);
-                callBackground({'function' : 'ungroup', 'tabIds' : [tabId]});
+                // Might be nav away from BT tab or maybe the tab sticks with the BT node
+                if (sticky) {
+                    tabNode.navigated = true;
+                    tabActivated(data);         // handles updating localstorage/popup with current topic etc
+                }
+                else closeAndUngroup();
             }
         }
         tabNode.opening = false;
     }
 
-    const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
-    if (urlNode && (!parentsWindow || (parentsWindow == windowId))) {
-        // nav into a bt node from an open tab, ignore if parent/TG open elsewhere else - handle like tab open
+    if (urlNode && (parentsWindow == windowId)) {
+        // nav into a bt node from an open tab, ignore if parent/TG open elsewhere else handle like tab open
+        if (tabNode && sticky) closeAndUngroup();       // if sticky we won't have closed above but if urlnode is in same window we should
+        data['nodeId'] = urlNode.id;
+        tabOpened(data, true);
+        return;
+    }
+    if (urlNode && !parentsWindow && (!tabNode || !sticky)) {
+        // nav into a bt node from an open tab, set open if not open elsewhere and url has not stuck to stick tabnode
         data['nodeId'] = urlNode.id;
         tabOpened(data, true);
         return;
@@ -924,12 +961,12 @@ function tabActivated(data) {
     let m1, m2 = {'windowTopic': winNode ? winNode.topicPath : '',
                   'groupTopic': groupNode ? groupNode.topicPath : '', 'currentTabId' : tabId};
     if (node) {
-        node.topicPath || node.generateUniqueTopicPath();
+        node.topicPath || BTNode.generateUniqueTopicPaths();
         changeSelected(node);            // select in tree
-        m1 = {'currentTopic': node.topicPath, 'currentText': node.text, 'currentTitle': node.displayTopic};
+        m1 = {'currentTopic': node.topicPath, 'currentText': node.text, 'currentTitle': node.displayTopic, 'tabNavigated': node.navigated};
     }
     else {
-        m1 = {'currentTopic': '', 'currentText': '', 'currentTitle': ''};
+        m1 = {'currentTopic': '', 'currentText': '', 'currentTitle': '', 'tabNavigated': false};
         clearSelected();
     }
     window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
@@ -993,7 +1030,9 @@ function tabJoinedTG(data) {
     $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
     tabNode.populateFavicon();
     initializeUI();
+    tabActivated(data);             // handles setting topic etc into local storage for popup
     changeSelected(tabNode);
+    setNodeOpen(tabNode);
     positionInTopic(topicNode, tabNode, index, indices, winId);
 }
 

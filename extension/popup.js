@@ -224,7 +224,7 @@ function updateForSelection() {
 }
 
 async function popupOpen(tab) {
-    // Get data from storage and launch popup w card editor, either existing node or new
+    // Get data from storage and launch popup w card editor, either existing node or new, or existing but navigated
     CurrentTab = tab;
     const tg = (tab.groupId > 0) ? await chrome.tabGroups.get(tab.groupId) : null;
     const messageElt = document.getElementById('message');
@@ -234,10 +234,12 @@ async function popupOpen(tab) {
     const saveTG = document.getElementById('saveTG');
     const saveTab = document.getElementById('saveTab');
     const saveWindow = document.getElementById('saveWindowSpan');
+    const saveAs = document.getElementById('saveAs');
     saverDiv.style.display = 'block';
+    saveAs.style.display = 'none';
     messageElt.style.display = 'none';
     if (tg) {
-        // tab is part of a TG => set the saveTg checkbox to be checked and run the update function
+        // tab is part of a TG => set the saveTg checkbox to be checked
         document.getElementById('tgName').textContent = tg.title;
         saveWindow.style.display = 'none';
         saveTG.checked = true;
@@ -248,10 +250,9 @@ async function popupOpen(tab) {
     
     // Pull data from local storage, prepopulate and open saver
     chrome.storage.local.get(
-        ['topics', 'currentTabId', 'currentTopic', 'currentText',
+        ['topics', 'currentTabId', 'currentTopic', 'currentText', 'tabNavigated',
          'currentTitle', 'mruTopics', 'saveAndClose'],
         data => {
-            console.log(`title [${tab.title}], len: ${tab.title.length}, substr:[${tab.title.substr(0, 100)}]`);
             let title = (tab.title.length < 150) ? tab.title :
                 tab.title.substr(0, 150) + "...";            
             titleH2.textContent = title;
@@ -268,7 +269,7 @@ async function popupOpen(tab) {
                 document.getElementById('topicSelector').style.display = 'none';
                 document.getElementById('saveCheckboxes').style.display = 'none';
                 TopicCard.setupExisting(tab, data.currentText,
-                                        data.currentTitle, saveCB);
+                                        data.currentTitle, data.tabNavigated, saveCB);
                 return;
             }
 
@@ -300,7 +301,12 @@ async function saveCB(close) {
     const title = TopicCard.title();
     const note = TopicCard.note();
     const newTopic = OldTopic || TopicSelector.topic();
-    const saveType = SaveTab.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
+    const saverDiv = document.getElementById("saveCheckboxes");
+    let saveType;
+    
+    // Is the savetype selector is hidden we're editng a single tab. Otherwise use the selector
+    if (window.getComputedStyle(saverDiv).display == 'none') saveType = 'Tab';
+    else saveType = SaveTab.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
 
     await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
                                       'close': close, 'topic': newTopic, 'note': note, 'title': title});

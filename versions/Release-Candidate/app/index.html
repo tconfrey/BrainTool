@@ -1,3 +1,11 @@
+<!-- 
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -98,7 +106,7 @@
               <label for="settingsLocationTab">Browser tab</label>
             </span>
           </div>
-          <div class="settingsFootnote">* Close and re-open the Topic Manager to apply this setting</div>
+          <div class="settingsFootnote">* Applies next time the Topic Manager is opened.</div>
           <hr/>
         </div>
         
@@ -144,6 +152,21 @@
           <div id="settingsBackups">
             <input type="checkbox" id="backups" disabled>
             <label for="backups">(Coming soon) Keep last 5 changes, daily backups and monthly backups?</label>
+          </div>
+          <hr/>
+        </div>
+
+        <div id="settingsSticky">
+          <div class="settingsSubtitle">Sticky Tabs?</div>
+          <div id="stickyToggle" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsStickyOn" name="sticky" value="STICKY" checked>
+              <label for="settingsStickyOn">Yes</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsStickyOff" name="sticky" value="NOTSTICKY">
+              <label for="settingsStickyOff">No</label>
+            </span>
           </div>
           <hr/>
         </div>

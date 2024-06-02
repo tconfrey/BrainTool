@@ -26,7 +26,7 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs',
                                 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro', 'BTExpiry'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
@@ -173,6 +173,12 @@ const configManager = (() => {
         $radio.filter(`[value=${notes}]`).prop('checked', true);
         checkCompactMode((notes == 'NONOTES'));                         // turn off if needed
 
+        // Sticky Tabs?
+        const sticky = configManager.getProp('BTStickyTabs') || 'STICKY';
+        $radio = $('#stickyToggle :radio[name=sticky]');
+        $radio.filter(`[value=${sticky}]`).prop('checked', true);
+        configManager.setProp('BTStickyTabs', sticky);
+
         // Dense?
         const dense = configManager.getProp('BTDense') || 'NOTDENSE';
         $radio = $('#denseToggle :radio[name=dense]');
@@ -233,6 +239,12 @@ const configManager = (() => {
             configManager.setProp('BTNotes', newN);
             // do it
             checkCompactMode((newN == 'NONOTES'));
+            saveBT();
+        });
+        $('#stickyToggle :radio').change(function () {
+            const newN = $(this).val();
+            configManager.setProp('BTStickyTabs', newN);
+            // No immediate action, take effect on next tabNavigated event
             saveBT();
         });
         $('#denseToggle :radio').change(function () {

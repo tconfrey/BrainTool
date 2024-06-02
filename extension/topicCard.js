@@ -22,14 +22,22 @@ const TopicCard = (() => {
     const NoteElt = document.querySelector('#note');
     const TitleElt = document.querySelector('#titleInput');
     const NoteHint = document.getElementById("newNoteHint");
+    const SaveAs = document.getElementById('saveAs');
     let SaveCB;
     let ExistingCard = false;
 
-    function setupExisting(tab, note, title, saveCB) {
+    function setupExisting(tab, note, title, tabNavigated, saveCB) {
         // entry point when existing page is selected.
         
-        TitleElt.value = title;                                   // value, cos its a text input
-        if (note) NoteElt.value = note;
+        TitleElt.value = tab.title; //title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");      // value, cos its a text input
+        if (tabNavigated) {
+            NoteElt.value = "";
+            SaveAs.style.display = "block";
+            NoteHint.style.display = "block";                      // show hint
+        } else {
+            if (note) NoteElt.value = note;
+            SaveAs.style.display = "none";
+        }
         ExistingCard = true;
         
         SaveCB = saveCB;
@@ -40,12 +48,14 @@ const TopicCard = (() => {
         NoteElt.setSelectionRange(NoteElt.value.length, NoteElt.value.length);
         
     }
+
     function setupNew(title, tab, saveCB) {
         // entry point for new page
         
-        TitleElt.value = title;                                   // value, cos its a text input
+        TitleElt.value = title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");      // value, cos its a text input
         SaveCB = saveCB;
         NoteHint.addEventListener('click', (e) => NoteElt.focus());
+        SaveAs.style.display = "none";
     }
 
     NoteElt.onkeydown = function(e) {

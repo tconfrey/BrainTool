@@ -1,5 +1,16 @@
 /***
  *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+ ***/
+
+
+
+/***
+ *
  *  Base model for a BrainTool node. Keeps track of containment and relationships
  *  Tree creation functions
  *
@@ -20,7 +31,6 @@ class BTNode {
 	    this._displayTopic = BTNode.displayNameFromTitle(_title);
         this._childIds = [];
         this._topicPath = '';
-        this.generateUniqueTopicPath();
         if (parentId && AllNodes[parentId]) {
             AllNodes[parentId].addChild(this._id, false, firstChild);   // add to parent, index not passed, firstChild => front or back
         }
@@ -88,7 +98,7 @@ class BTNode {
 
     findChild(childTopic) {
         // does this topic node have this sub topic
-        const childId = this.childIds.find(id => AllNodes[id].displayTopic == childTopic);
+        const childId = this.childIds.find(id => AllNodes[id].topicName() == childTopic);
         return childId ? AllNodes[childId] : null;
     }
     
@@ -121,6 +131,13 @@ class BTNode {
     isTopic() {
         // Is this node used as a topic => has webLinked children
         return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
+    }
+
+    topicName () {
+        // return the topic name for this node
+        if (this.isTopic())
+            return (this.URL) ? BTNode.editableTopicFromTitle(this.title) : this.title;
+        return AllNodes[this.parentId].topicName();
     }
     
     isTopicTree() {
@@ -276,41 +293,12 @@ class BTNode {
     
     fullTopicPath() {
         // distinguished name for this node
-        const myTopic = this.isTopic() ? this.title : '';
+        const myTopic = this.isTopic() ? this.topicName() : '';
         if (this.parentId && AllNodes[this.parentId])
             return AllNodes[this.parentId].fullTopicPath() + ':' + myTopic;
         else
-            return myTopic;        
+            return myTopic;
     }
-    
-    generateUniqueTopicPath() {
-        // same topic can be under multiple parents, generate a unique topicPath
-        // only called from ctor. suplanted by below. can't really amke uniquee without looking at all topics
-
-        if (!this.isTopic()) {
-            if (this.parentId && AllNodes[this.parentId])
-                this._topicPath = AllNodes[this.parentId].topicPath;
-            else
-                this._topicPath = this._displayTopic;
-            return;
-        }
-        
-        if (this.displayTopic == "") {
-            this._topicPath = this._displayTopic;
-            return;
-        }
-        const sameTopic = AllNodes.filter(nn => nn && nn.isTopic() && nn.displayTopic == this.displayTopic);
-        if (sameTopic.length == 1) {
-            // unique
-            this._topicPath = this._displayTopic;
-            return;
-        }
-        sameTopic.forEach(function(nn) {
-            const parentTag = AllNodes[nn.parentId] ? AllNodes[nn.parentId].displayTopic : "";
-            nn._topicPath = parentTag + ":" + nn.displayTopic;
-        });
-    }
-    
     
     static generateUniqueTopicPaths() {
         // same topic can be under multiple parents, generate a unique topic Path for each node
@@ -321,13 +309,14 @@ class BTNode {
         let level = 1;
         AllNodes.forEach((n) => {
             if (!n) return;
+            const topicName = n.topicName();
             if (n.isTopic()) {
-                if (topics[n.displayTopic]) {
-                    topics[n.displayTopic].push(n.id);
+                if (topics[topicName]) {
+                    topics[topicName].push(n.id);
                     flat = false;
                 }
                 else
-                    topics[n.displayTopic] = Array(1).fill(n.id);
+                    topics[topicName] = Array(1).fill(n.id);
             }});
 
         // !flat => dup topic names (<99 to prevent infinite loop
@@ -338,11 +327,11 @@ class BTNode {
                     // replace dups w DN of increasing levels until flat
                     delete topics[topic];
                     ids.forEach(id => {
-                        let tpath = AllNodes[id].displayTopic;
+                        let tpath = AllNodes[id].topicName();
                         let parent = AllNodes[id].parentId;
                         for (let i = 1; i < level; i++) {
                             if (parent && AllNodes[parent]) {
-                                tpath = AllNodes[parent].displayTopic + ":" + tpath;
+                                tpath = AllNodes[parent].topicName() + ":" + tpath;
                                 parent = AllNodes[parent].parentId;
                             }
                         }                        
@@ -368,7 +357,7 @@ class BTNode {
                 if (node.parentId && AllNodes[node.parentId])
                     node._topicPath = AllNodes[node.parentId].topicPath;
                 else
-                    node._topicPath = node._displayTopic;
+                    node._topicPath = BTNode.editableTopicFromTitle(node.title);    // no parent but not topic, use [[][title part]]
             }
         });
     }
