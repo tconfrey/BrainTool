@@ -21,6 +21,9 @@ Additionally dragging a tab into a tabgroup will save that tab into the Topic in
 
 ![TabGroups](../media/ReleaseCandidate-TG.png)
 
+## Sticky Tabs
+When 'Sticky Tabs' is enabled the relationship between a tab and an associated saved item in the Topic Manager is maintained when you click a link in the saved tab or during a server side redirection. This allows you to navigate around a saved site or app, or get redirected to a different url (for example to a log-in page) while staying in the context of the original saved BT Item.
+
 ## Topic Tree visuals 
 As you can see from the screenshot, the expand/collapse buttons and the favicon displays have been restyled, and an empty topic is now visually distinct. It is hoped that these changes make the tree structure easier to see, in addition to improving the styling in general.
 
