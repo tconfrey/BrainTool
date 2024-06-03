@@ -696,9 +696,11 @@ textarea:focus, input[type="text"]:focus {
     border-style: solid;
     border-color: var(--btSlideTextColor);
     width: calc(100% - 16px);
-    position: fixed;
+    max-width: 460px;
+    position: absolute;
     top: 8px;
-    left: 6px;
+    left: 50%;                      /* Center*/
+    transform: translateX(-50%);    /* Shift the element back by half its width */
     height: 555px;
     background: white;
     font-family: var(--btFont);
@@ -758,7 +760,7 @@ textarea:focus, input[type="text"]:focus {
 }
 .introNavButton {
     position: absolute;
-    width: 180px;
+    width: 35%;
     height: 38px;
     bottom: 20px;
     background: linear-gradient(180deg, #C3CBCB 0%, #C3CBCB 73.44%, #C8CFD0 100%);
