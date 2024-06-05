@@ -20,9 +20,9 @@
 
 const messageManager = (() => {
     const tipsArray = [
-        "Add ':' at the end of a topic in the BT Saver to create a new subtopic.",
+        "Add ':' at the end of a topic in the BT Bookmarker to create a new subtopic.",
         "Double click on a table row to highlight its' open window, if any.",
-        "Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.",
+        "Type ':TODO' after a topic in the BT Bookmarker to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
         "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
         `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
@@ -32,7 +32,7 @@ const messageManager = (() => {
         "See BrainTool.org for the BrainTool blog and other info.",
         "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!",
         "Check out the Bookmark import/export functions under Actions",
-        "You can click on the topics shown in the Saver instead of typing out the name.",
+        "You can click on the topics shown in the Bookmarker instead of typing out the name.",
         "Use the forward (>>) button on the right to cycle through tips",
         `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.`,
         `When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.`,
@@ -45,12 +45,12 @@ const messageManager = (() => {
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to the BrainTool 1.0 release candidate!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "Welcome to BrainTool 1.0!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
         "Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
         "Browser Tab Group to BrainTool Topic syncing is now enabled."
     ];
     const introSlidesArray = [
-        `<p><i style="color: #A22; font-size: 12px;">NB This is the 1.0 Release-Candidate please send feedback to braintool.extension@gmail.com</i></p><p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,
+        `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,
         `<p>The BrainTool <b>Bookmarker</b> tool lives in the browser bar.</p><p>It allows you to save the current tab, tab group, window or session under a named <b>Topic</b>, along with an optional note.</p><p>Pin it for easy access.</p><img class="introImage" src="resources/slide2.png"/>`,
         `<p>Use BrainTool to organize all the tabs you want to save and come back to. Hover over a row for tools to open and close groups of tabs, add notes and todo's or edit the topic hierarchy.</p><img class="introImage" src="resources/slide3.png"/>`,
         `<p>Everything is kept in plain text in a private local file that you own and can edit, or under your personal Google Drive account for cloud access.</p><img class="introImage" src="resources/slide4.png"/>`,
