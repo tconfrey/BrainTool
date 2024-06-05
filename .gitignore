@@ -8,6 +8,7 @@ extension/archivedVersions
 extension.*
 _site
 *.zip
+!versions/Release-Candidate/RCextension.zip
 media/*.mov
 .sass-cache
 TAGS
