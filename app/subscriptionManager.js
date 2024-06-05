@@ -321,13 +321,12 @@ async function subscribe(productPrice) {
     }
 }
 
-const ReleaseCandidate = true;
 async function purchase(productPrice) {
     // similar to above but One-Time-purchase
     const baseURL = window.location.href.split('?')[0];     // drop any preexisting '?purchase=xyz' arg
     const checkoutSession = {
         mode: "payment",
-        price: OTP, // One-time price created in Stripe
+        price: OTP,                                         // One-time price created in Stripe
 	    allow_promotion_codes: true,
         success_url: baseURL+ '?purchase=' + encodeURIComponent('product'),
         cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
@@ -344,7 +343,6 @@ async function purchase(productPrice) {
 	        if (sessionId) {
 	            // We have a session, let's redirect to Checkout
 	            // Init Stripe
-                if (ReleaseCandidate) {RCPurchase(sessionId); return;}      // !!! REMOVE FROM PROD and update FB Rules!!!
                 const stripeKey = configManager.getProp('STRIPE_KEY');
 	            const stripe = Stripe(stripeKey);
 	            stripe.redirectToCheckout({ sessionId });
@@ -357,6 +355,7 @@ async function purchase(productPrice) {
     }
 }
 
+/*
 async function RCPurchase(sessionId) {
     // Skip Stripe processing to allow free license for RC. Stripe won't charge 0 for a product or give 100% discount
 
@@ -382,6 +381,7 @@ async function RCPurchase(sessionId) {
         updateLicenseSettings();
     });
 }
+*/
 
 async function getStripePortalURL() {
     // Billing portal handler

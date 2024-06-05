@@ -91,6 +91,6 @@ Nag-free
 <br/><br/>
 <p>
 <b>
-$1.33/M, $10.66/Y, $21 One-time
+$1.33/M, $10.66/Y, $20.99 One-time
 </b>
 </p>

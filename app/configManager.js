@@ -313,6 +313,9 @@ const configManager = (() => {
         // open/close settings panel
         
         const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+        const installDate = new Date(getProp('BTInstallDate'));
+        const today = new Date();
+        const daysSinceInstall = Math.floor((today - installDate) / (24 * 60 * 60 * 1000));
         
         if ($('#actions').is(':visible'))
             toggleActionsDisplay();                       // can't have both open
@@ -331,15 +334,16 @@ const configManager = (() => {
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
             $("#content").fadeOut(250);
             $("body").css("overflow", "hidden");          // don't allow table to be scrolled
-            /* !!!!!!! Temp remove supporter overlay  !!!!!!!! */
+
+            // fade in and maybe out the overlay to shut off non-supporter features if not supporter
             if (BTId) return;
+            // No BTId but might be still in trial period. Fade in overlay
             setTimeout(() => {
                 $("#youShallNotPass").fadeIn();
             }, 1000);
-            setTimeout(() => {
-                $("#youShallNotPass").fadeOut();
-            }, 20000);
-            /* !!!!!!! Temp remove supporter overlay  !!!!!!!! */
+            // fade out overlay if trial still on ie < 30 days since install
+            if (daysSinceInstall <= 30)
+                setTimeout(() => {$("#youShallNotPass").fadeOut();}, 10000);
         }
     }
 
