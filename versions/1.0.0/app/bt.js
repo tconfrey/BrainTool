@@ -104,7 +104,7 @@ function updateStats() {
     
     // Record this launch and software version
     const BTVersion = configManager.getProp('BTVersion');
-    gtag('event', 'launch_rc', {'event_category': 'General', 'event_label': BTVersion,
+    gtag('event', 'launch_'+BTVersion, {'event_category': 'General', 'event_label': BTVersion,
                              'value': 1});    
     if (InitialInstall) {
         gtag('event', 'install', {'event_category': 'General', 'event_label': InitialInstall,
