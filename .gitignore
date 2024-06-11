@@ -10,6 +10,7 @@ _site
 *.zip
 !versions/Release-Candidate/RCextension.zip
 media/*.mov
+site/**/*.mp4
 .sass-cache
 TAGS
 reference
