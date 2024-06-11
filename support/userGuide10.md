@@ -46,11 +46,11 @@ The topic selector shows an overview of your current topics in a navigable tree.
 <img src="/site/SaverSuggestions10.png" alt="popup" style="border:solid; border-width:thin; width:110%; margin-left:2rem;">
 </div>
 </div>
-Then add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree.
+If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces.
+
+You can add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree.
 
 The 'Save Tabgroup', 'Save Window' and 'Save Session' check-boxes allow you to save all open and unsaved pages in the tabgroup, browser window, or all windows. These operations will save multiple new rows into the Topic Manager and consequently don't capture a note or title. NB pinned tabs are not saved.
-
-If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces.topic.
 
 Hitting Enter will save the page into your topic map and close the Bookmarker. You can choose to close the page(s) after saving or leave it open grouped with its peers of the same topic.
 
@@ -96,7 +96,7 @@ R is Reverse search, it works like search but searches upward from the selection
 
 Hitting Enter exits search leaving you with the selected row, which you can then operate on (eg open in a browser window by hitting enter again, or edit by typing 'e').
 
-Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
+Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if it contains the only match in the row.
 
 In addition to the key commands, buttons for Up, Down and eXit are shown next to the search box and can be used when search is active.
 
@@ -106,7 +106,7 @@ There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Contr
 Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.
 <div class="row">
 <div class="cell left">
-<img src="/site/Settings10.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
+<img src="/site/CollatoralMaterial/Settings.png" alt="side-panel" style="border:solid; border-width:thin; width:80%">
 </div>
 <div class="cell right">
 <img src="/site/Actions.png" alt="popup" style="border:solid; border-width:thin; width: 80%">
@@ -129,8 +129,10 @@ Note that you can only sync to one external file source. With GDrive Google will
 
 If you edit the file externally BT will warn you that your data is out of date the next time the Topic Manager gets focus and will offer to refresh from the external version.  You can also use the 'Refresh from File' button in the Actions panel at any point. If you use multiple browsers or machines with the same Google account or with access to the same local file you can share your braintool topics across them (again with a sync to import changes made elsewhere).
 
+The 'Sticky Tabs' setting controls whether or not a tab 'sticks' to the saved item in the tree that it was opened from. When set to be not sticky BT uses a strict matching between the url in a tabs address bar and the item initially saved. This means a server side redirect or a navigation (inside a web app say) which changes the url will move the tab out of its associated tabgroup and unselect its row in the topic tree. When it's set to be on, a tab opened from the topic manager (or saved into the topic manager) will stay marked as open in the tree and associated with the BT item until the tab is closed or clearly being re-used for a different purpose (recognized by the user manually entering a url in the address bar or clicking a bookmark item etc). User research has shown that this notion of having tabs tied to a specific purpose or work item improves overall workflow. If a 'stuck' tab has been navigated to a different url that you want to save separately in the tree invoking the Bookmarker on the tab will let you do so.
+
 The next few Setting control various BT display customizations:
-- Use the new Dark Mode theme
+- Use the Dark Mode theme
 - Show favicons for saved pages
 - Use the new Dense Mode to fit more on the screen
 - Toggle the notes column
