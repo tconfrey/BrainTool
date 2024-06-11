@@ -2295,6 +2295,8 @@ function undo() {
     let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
     updateTree(n, node);
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
+    node.populateFavicon();
+    node.tgColor && node.setTGColor(node.tgColor);
 
     initializeUI();
     saveBT();

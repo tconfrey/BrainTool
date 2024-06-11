@@ -104,7 +104,7 @@ function updateStats() {
     
     // Record this launch and software version
     const BTVersion = configManager.getProp('BTVersion');
-    gtag('event', 'launch_rc', {'event_category': 'General', 'event_label': BTVersion,
+    gtag('event', 'launch_'+BTVersion, {'event_category': 'General', 'event_label': BTVersion,
                              'value': 1});    
     if (InitialInstall) {
         gtag('event', 'install', {'event_category': 'General', 'event_label': InitialInstall,
@@ -2295,6 +2295,8 @@ function undo() {
     let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
     updateTree(n, node);
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
+    node.populateFavicon();
+    node.tgColor && node.setTGColor(node.tgColor);
 
     initializeUI();
     saveBT();
