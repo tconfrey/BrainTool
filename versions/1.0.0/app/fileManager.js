@@ -52,6 +52,11 @@ async function saveBT(localOnly = false, newContent = true) {
     // Don't force GDrive re-auth if we're just folding/unfolding
 
     console.log(`Writing BT to ${localOnly ? 'local only' : 'local + any remote'} Storage`);
+
+    // BTVersion is incremented on each content change
+    let currentBTVersion = parseInt(configManager.getProp('BTVersion')) || 1;
+    newContent && configManager.setProp('BTVersion', currentBTVersion + 1);
+
     BTFileText = BTAppNode.generateOrgFile();
     if (window.LOCALTEST) return;
 

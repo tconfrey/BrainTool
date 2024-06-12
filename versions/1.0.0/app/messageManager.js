@@ -20,9 +20,9 @@
 
 const messageManager = (() => {
     const tipsArray = [
-        "Add ':' at the end of a topic in the BT Bookmarker to create a new subtopic.",
+        "Add ':' at the end of a topic in the BT Saver to create a new subtopic.",
         "Double click on a table row to highlight its' open window, if any.",
-        "Type ':TODO' after a topic in the BT Bookmarker to make the item a TODO in the BT tree.",
+        "Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
         "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
         `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
@@ -32,7 +32,7 @@ const messageManager = (() => {
         "See BrainTool.org for the BrainTool blog and other info.",
         "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!",
         "Check out the Bookmark import/export functions under Actions",
-        "You can click on the topics shown in the Bookmarker instead of typing out the name.",
+        "You can click on the topics shown in the Saver instead of typing out the name.",
         "Use the forward (>>) button on the right to cycle through tips",
         `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.`,
         `When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.`,
@@ -45,7 +45,7 @@ const messageManager = (() => {
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to BrainTool 1.0!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "Welcome to the BrainTool 1.0 release candidate!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
         "Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
         "Browser Tab Group to BrainTool Topic syncing is now enabled."
     ];

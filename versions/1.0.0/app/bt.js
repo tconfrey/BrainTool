@@ -103,8 +103,8 @@ function updateStats() {
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
     // Record this launch and software version
-    const BTVersion = configManager.getProp('BTVersion');
-    gtag('event', 'launch_'+BTVersion, {'event_category': 'General', 'event_label': BTVersion,
+    const BTAppVersion = configManager.getProp('BTAppVersion');
+    gtag('event', 'launch_'+BTAppVersion, {'event_category': 'General', 'event_label': BTAppVersion,
                              'value': 1});    
     if (InitialInstall) {
         gtag('event', 'install', {'event_category': 'General', 'event_label': InitialInstall,

@@ -26,7 +26,7 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs',
+        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTAppVersion', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs',
                                 'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro', 'BTExpiry'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
         'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
@@ -37,7 +37,7 @@ const configManager = (() => {
         // takes message from background/Content script and pulls out settings
         Config = msg.Config || {};
         if (!Config['BTStats']) Config['BTStats'] = {};
-        if (msg.BTVersion) Config['BTVersion'] = msg.BTVersion;
+        if (msg.BTVersion) Config['BTAppVersion'] = msg.BTVersion;
         Keys.CLIENT_ID = msg.client_id;
         Keys.API_KEY = msg.api_key;
         Keys.FB_KEY = msg.fb_key;
