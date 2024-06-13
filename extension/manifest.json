@@ -4,8 +4,7 @@
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "version": "1.0.0",
-    "permissions": ["tabs", "storage", "tabGroups", "webNavigation"],
-    "optional_permissions": ["bookmarks"],
+    "permissions": ["tabs", "storage", "tabGroups", "webNavigation", "bookmarks"],
     "background": {
         "service_worker": "background.js"
     },
