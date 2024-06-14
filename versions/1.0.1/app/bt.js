@@ -2284,6 +2284,7 @@ function undo() {
     function updateTree(ttn, btn) {
         // recurse as needed on tree update
         $("table.treetable").treetable("loadBranch", ttn || null, btn.HTML());
+        btn.populateFavicon();
         if (btn.childIds.length) {
             const n = $("table.treetable").treetable("node", btn.id);
             btn.childIds.forEach(
@@ -2295,7 +2296,6 @@ function undo() {
     let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
     updateTree(n, node);
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
-    node.populateFavicon();
     node.tgColor && node.setTGColor(node.tgColor);
 
     initializeUI();

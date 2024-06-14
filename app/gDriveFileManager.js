@@ -221,7 +221,7 @@ const gDriveFileManager = (() => {
         // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger
         $('body').removeClass('waiting');
         if (GDriveConnected) return;
-        alert("Google Authentication should have completed by now.\nIt may have failed due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. Exampt braintool.org from blockers and allow cookies from accounts.google.com. If problems continues see \nbraintool.org/support");
+        alert("Google Authentication should have completed by now.\nIt may have failed due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. Exempt braintool.org and accounts.google.com from blockers and allow cookies and popups from those urls. If problems continues see \nbraintool.org/support");
     }
 
     /**
@@ -514,7 +514,7 @@ const gDriveFileManager = (() => {
             alertText = "Error Authenticating with Google. Google says:\n'";
             alertText += (error.message) ? error.message : JSON.stringify(error);
             alertText += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
-            alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies and popups are allowed for accounts.google.com. If it continues see \nbraintool.org/support";
+            alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies and popups are allowed for accounts.google.com and braintool.org. If it continues see \nbraintool.org/support";
         } else { 
         if (signedIn) {
             gtag('event', 'auth_complete', {'event_category': 'GDrive'});
