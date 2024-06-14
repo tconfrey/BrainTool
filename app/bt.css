@@ -117,10 +117,6 @@
     --btTopicBackground: #3d4749;
     --btPageBackground: #626A6C;
 
-    /*
-    --btNoteBackground: #262F2F;
-    */
-
     --btInputBackground: #2d2d2d;
     --btInputForeground: white;
     --btHintColor: white;
@@ -824,7 +820,7 @@ textarea:focus, input[type="text"]:focus {
     bottom: 5px;
     right: 40px;
     font-size: var(--btNoteFontSize);
-    color: var(--btNoteColor);
+    color: #636363;
     display: none;
 }
 #dontShow {
