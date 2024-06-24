@@ -1745,7 +1745,7 @@ function exportBookmarks() {
         if (!n) return null;
         return {'displayTopic': n.displayTopic, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
     });
-    const dateString = getDateString().replace(':', ';');        // 12:15 => :15 is a sub topic
+    const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
     window.postMessage({'function': 'localStore',
                         'data': {'AllNodes': nodeList,
                                  title: 'BrainTool Export ' + dateString}});
