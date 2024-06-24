@@ -55,7 +55,7 @@ body {
     width: 440px;
     min-height:240px;
     max-height: 600px;
-    padding-bottom: 50px;
+    padding-bottom: 30px;
     overflow: hidden;
     margin: 0px;
     background: white;
@@ -228,6 +228,7 @@ button.activeButton {
 }
 #buttonDiv {
     margin-top: 12px;
+    height: 30px;
 }
 #saveAndClose {
     float:left;
