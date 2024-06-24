@@ -238,16 +238,18 @@ const gDriveFileManager = (() => {
             return;
         }
 
-        // One of more BrainTool.org files found, get the one that matches our BTFileID, or just the first
+        // One or more BrainTool.org files found, get the one that matches our BTFileID, or just the first
         const savedFileId = configManager.getProp('BTFileID');
         const file = files.find((f) => f.id == (savedFileId || 0)) || files[0];
         BTFileID = file.id;
         const driveTimestamp = Date.parse(file.modifiedTime);
-        if (userInitiated || (driveTimestamp > configManager.getProp('BTTimestamp'))) {
+        const newer = driveTimestamp > (configManager.getProp('BTTimestamp') || 0);
+        if (userInitiated || newer) {
             // if user just initiated connection but file exists ask to import
             // or if we have a recorded version thats older than disk, ask to import
+            const driveDate = new Date(driveTimestamp).toLocaleString();
             const msg = userInitiated ?
-                "BrainTool.org file already exists. Use its contents?" :
+                `A BrainTool.org file already exists. It was last modified ${driveDate}. 'OK' to use its contents, 'Cancel' to overwrite with local data.` :
                 "Synced BrainTool.org file on GDrive is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?"
             if (confirm(msg)) {
                 try {
@@ -513,7 +515,7 @@ const gDriveFileManager = (() => {
         if (error) {
             alertText = "Error Authenticating with Google. Google says:\n'";
             alertText += (error.message) ? error.message : JSON.stringify(error);
-            alertText += "'\n1) Re-try the Authorize button. \n2) Restart. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
+            alertText += "'\n1) Restart \n2) Turn GDrive sync back on. \nOr if this is a cookie issue be aware that Google uses cookies for authentication.\n";
             alertText += "Go to 'chrome://settings/cookies' and make sure third-party cookies and popups are allowed for accounts.google.com and braintool.org. If it continues see \nbraintool.org/support";
         } else { 
         if (signedIn) {

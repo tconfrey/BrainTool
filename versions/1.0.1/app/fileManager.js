@@ -195,7 +195,7 @@ function updateSyncSettings(connected = false, time = null) {
         const fileLocation = GDriveConnected ? "https://drive.google.com/file/d/" + configManager.getProp('BTFileID') : "";
         $("#autoSaveLabel").text(`${filetype} sync is on.`);
         $("#fileLocation").html(`File: ${fileLocation}`);
-        GDriveConnected && $("#fileLocation").show();
+        GDriveConnected && configManager.getProp('BTFileID') && $("#fileLocation").show();
         $("#syncType").text(filetype);
         updateStatsRow(time);                                           // last saved time etc
     }  else {
