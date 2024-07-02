@@ -25,7 +25,7 @@ Tabs Outliner is one of many highly used and successful extensions that have bee
 
 Tabs Outliner shows a dense tree with Window nodes containing Tab nodes representing your currently open windows and tabs. Sessions can be saved - the tree will show saved sessions alongside the live one. There are also pure notes nodes and visual separators of various kinds. When tabs are opened from other tabs they are nested in the tree creating a deep structure. Tab groups are ignored and search uses the browser search which only operates on visible text.
 
-![BT hierarchy](../../../site/postAssets/BT-hierarchy.png)
+![BT hierarchy](../../../site/postAssets/BT-Hierarchy.png)
 
 BrainTool focuses on helping you build a curated tree of online resources and then using that tree to subsequently find, open and close tabs and tabgroups with ease. The tree hierarchy is composed of Topics, which are groupings or categories into which you organize tabs. It has explicit topic/sub-topic/sub-sub-topic semantics. Adding notes is encouraged, full text incremental search makes it easy to find things and all functionality is available via keyboard commands. BrainTool does not (currently) have a live view of windows and tabs and does not save anything unless it's explicitly added via the Bookmarker tool. In 1.0 BT makes heavy use of browser tab groups to reflect its topic structure in the browser. Using plain text [org-mode](https://orgmode.org) as its storage format allows BT to interact with other productivity tools.  
 
@@ -53,7 +53,7 @@ BrainTool focuses on helping you build a curated tree of online resources and th
 ## BrainTool verses Other Alternatives
 
 <table><tr><td style="width: 50%; border:none; padding-left: 40px; padding-right: 100px; text-align: justify;">
-There are many (many, many) tools that are, or claim to be, some combination of tabs and session managers or bookmarkers or other takes on browser productivity tools. See <a href="https://braintool.org/2022/03/10/Five-tools-for-browser-productivity.html">here</a> and <a href="https://alternativeto.net/software/tabs-outliner">here</a> for some descriptions and reviews. None, that I'm aware of, are an exact match for Tabs Outliner and there are many different approaches, but IMHO BrainTool is the one with the most similar mindset. In addition: 
+There are many (many, many) tools that are, or claim to be, some combination of tabs and session managers or bookmarkers or other takes on browser productivity tools. See <a href="https://braintool.org/2022/03/10/Five-tools-for-browser-productivity.html">here</a> and <a href="https://alternativeto.net/software/tabs-outliner">here</a> for some descriptions and reviews. None, that I'm aware of, are an exact match for Tabs Outliner and there are many different approaches, but IMHO BrainTool has one of the most similar mindset. In addition: 
 </td><td style="border:none">
 <img src="../../../site/postAssets/Five Tools/meme.png" alt="is mindblowing" style="height: 450px; border:solid; border-color: lightgrey; border-width: 1px; padding: 5px">
 </td></tr></table>
