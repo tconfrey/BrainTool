@@ -754,7 +754,7 @@ function tabClosed(data) {
     node.windowId = 0;
     node.opening = false;
     node.navigated = false;
-    tabActivated(data);
+    data.tabId && tabActivated(data);
 
     // update ui and animate parent to indicate change
     $("tr[data-tt-id='"+node.id+"']").removeClass("opened", 1000);
@@ -1009,14 +1009,20 @@ function tabGroupUpdated(data){
 
 function tabJoinedTG(data) {
     // tab joined TG, update associated topic as appropriate
-    // NB Get here when an existing page is opened in its TG as well as page dropping into TG. Former is no-op
+    // NB Get here when an existing page is opened in its TG as well as page dropping into TG and tabgrouping being turned on from settings. #1 is no-op
     // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
 
+    if (GroupingMode != 'TABGROUP') return;                              // don't care
     const tabId = data.tabId;
     const tgId = data.groupId;
     let tabNode = BTAppNode.findFromTab(tabId);
     const topicNode = BTAppNode.findFromGroup(tgId);
-    if (tabNode || !topicNode || (GroupingMode != 'TABGROUP')) return;                              // n/a || don't care
+    if (tabNode) {
+        const tgParent = AllNodes[tabNode.parentId];
+        if (tgParent == topicNode) return;                              // no-op - we know dis 
+        tgParent.tabGroupId = tgId;                                     // initial grouping from setting change => link tgId
+        return;
+    }
     const tab = data.tab;
     const index = data.tabIndex;
     const indices = data.indices;
@@ -1081,6 +1087,16 @@ function tabMoved(data) {
     }
     if (topicNode) positionInTopic(topicNode, tabNode, index, indices, winId);
 }
+
+function noSuchNode(data) {
+    // we requested action on a tab or tg that doesn't exist, clean up
+    // NB Ideally this would trigger a re-sync of the BT tree but that's a job for later
+    if (data.type == 'tab')
+        tabClosed({'tabId': data.id});
+    if (data.type == 'tabGroup')
+        console.log(`No such tab group ${data.id}, should handle this case`);
+}
+        
     
 // Utility functions for the above
 

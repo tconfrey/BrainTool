@@ -339,7 +339,7 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
     if (!BTTab || (windowId <= 0)) return;
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
-        if (!tabs.length) return;
+        if (!tabs?.length) return;
         btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': tabs[0].id});
         setTimeout(function() {setBadge(tabs[0].id);}, 200);
     });
@@ -552,7 +552,7 @@ function openTabGroups(msg, sender) {
         // NB since a TG can't be set on creation need to iterate on creating tabs and then grouping
         tabInfo.forEach(info => {
             chrome.tabs.create({'url': info.url, 'windowId': winId}, tab => {
-                check();
+                check(); if (!tab) return;
                 chrome.tabs.group({'tabIds': tab.id, 'groupId': tgid}, tgid => {
                     chrome.windows.update(tab.windowId, {'focused' : true});
                     chrome.tabs.highlight({'windowId': tab.windowId, 'tabs': tab.index});
@@ -572,7 +572,7 @@ function openTabGroups(msg, sender) {
                 const newTabId = win.tabs[0].id;
                 chrome.tabs.group({'tabIds': newTabId, 'createProperties': {'windowId': win.id}},
                                   tgid => {
-                                      check();
+                                      check(); if (!tgid) return;
                                       tabOpened(win.id, win.tabs[0].id, first.nodeId,
                                                 win.tabs[0].index, tgid);
                                       chrome.tabGroups.update(tgid, {'title' : groupName});
@@ -585,11 +585,11 @@ function openTabGroups(msg, sender) {
                 openTabsInTg(tg.windowId, tg.tabGroupId, tg.tabGroupTabs);
             else {                                                         // need to create tg
                 chrome.tabs.create({'url': first.url}, tab => {
-                    check();
+                    check(); if (!tab) return;
                     chrome.tabs.group({'tabIds': tab.id,
                                        'createProperties': {'windowId': tab.windowId}},
                                       tgid => {
-                                          check();
+                                          check(); if (!tgid) return;
                                           tabOpened(tab.windowId, tab.id, first.nodeId,
                                                     tab.index, tgid);
                                           chrome.tabGroups.update(tgid, {'title' : groupName});
@@ -619,7 +619,7 @@ async function groupAndPositionTabs(msg, sender) {
     if (!tabIds.length) return;                                       // shouldn't happen, but safe
 
     const firstTab = await chrome.tabs.get(tabIds[0]); check();
-    const tabIndex = tabInfo[0].tabIndex || firstTab.index;
+    const tabIndex = tabInfo[0].tabIndex || firstTab?.index || 0;
     chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
         // first move tabs into place
         check('groupAndPositionTabs-move');
@@ -648,20 +648,20 @@ async function ungroup(msg, sender) {
 
 function moveOpenTabsToTG(msg, sender) {
     // add tabs to new group, cos pref's changed
-    // send back tabGrouped msg per tab
+    // send back tabJoinedTG msg per tab
 
     chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds}, async (tgId) => {
-        check();
+        check(); if (!tgId) return;
         chrome.tabGroups.update(tgId, {'title' : msg.groupName}, tg => {
             console.log('tabgroup updated:', tg);
         });
         const indices = await tabIndices();
         msg.tabIds.forEach(tid => {
             chrome.tabs.get(tid, tab => {
-                check();
+                check(); if (!tab) return;
                 btSendMessage(
                     sender.tab.id,
-                    {'tabId': tid, 'groupId': tgId,
+                    {'function': 'tabJoinedTG', 'tabId': tid, 'groupId': tgId,
                      'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
                      'tab': tab});
                 // was  {'function': 'tabGrouped', 'tgId': tgId, 'tabId': tid, 'tabIndex': tab.index});
@@ -680,9 +680,15 @@ async function updateGroup(msg, sender) {
 function showNode(msg, sender) {
     // Surface the window/tab associated with this node
 
+    function signalError(type, id) {
+        // send back message so TM can fix display
+        btSendMessage(sender.tab.id, {'function': 'noSuchNode', 'type': type, 'id': id});
+    }
+
     if (msg.tabId) {
         chrome.tabs.get(msg.tabId, function(tab) {
-            check();
+            check(); 
+            if (!tab) { signalError('tab', msg.tabId); return;}
             chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
             chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index},
                                   () => check());
@@ -690,6 +696,8 @@ function showNode(msg, sender) {
     }
     else if (msg.tabGroupId) {
         chrome.tabs.query({groupId: msg.tabGroupId}, function(tabs) {
+            check(); 
+            if (!tabs) { signalError('tabGroup', msg.tabGroupId); return;}
             if (tabs.length > 0) {
                 let firstTab = tabs[0];
                 chrome.windows.update(firstTab.windowId, {'focused' : true}, () => check());

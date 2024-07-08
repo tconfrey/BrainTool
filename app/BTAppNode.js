@@ -174,13 +174,22 @@ class BTAppNode extends BTNode {
         return BTAppNode._orgTextToHTML(this._text);
     }
     
+    /* for use escaping unicode in displayTitle below */
+    static _textAreaForConversion = document.createElement('textarea');
+    static _decodeHtmlEntities(str) {
+        BTAppNode._textAreaForConversion.innerHTML = str;
+        return BTAppNode._textAreaForConversion.value;
+    }
     displayTitle() {
         // Node title as shown in tree, <a> for url. Compare to BTNode.displayTitle
 
         // handle keywords
         let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
+
         // escape any html entities
         let title = this.title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        title = BTAppNode._decodeHtmlEntities(title);
+
         return BTAppNode._orgTextToHTML(title, keywordText);
     }
     
@@ -1002,6 +1011,7 @@ const Handlers = {
     "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
+    "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
 };
 
 // Set handler for extension messaging

@@ -123,7 +123,7 @@ const messageSets =
     {"function":"tabOpened","nodeId":3,"tabIndex":3,"tabId":1,"windowId":1,"tabGroupId":0,"from":"btextension"},
     {"function":"tabActivated","tabId":1,"windowId":1,"groupId":-1,"from":"btextension"},
     {"function":"tabNavigated","tabId":1,"groupId":-1,"tabURL":"https://braintool.org/overview.html","windowId":1,"from":"btextension"},
-    {"function":"tabGrouped","tgId":1,"tabId":1,"tabIndex":3,"from":"btextension"},
+    {"function":"tabJoinedTG","tgId":1,"tabId":1,"tabIndex":3,"from":"btextension"},
     {"function":"tabGroupCreated","tabGroupId":1,"tabGroupColor":"blue","from":"btextension"},
     {"function":"tabGroupUpdated","tabGroupId":1,"tabGroupColor":"blue","tabGroupName":"TG1","tabGroupCollapsed":false,"from":"btextension"},
 ],
