@@ -20,9 +20,9 @@
 
 const messageManager = (() => {
     const tipsArray = [
-        "Add ':' at the end of a topic in the BT Saver to create a new subtopic.",
-        "Double click on a table row to highlight its' open window, if any.",
-        "Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.",
+        "Add ':' at the end of a topic in the Bookmarker to create a new subtopic.",
+        "Double click on a table row to go to it's tab or tabgroup, if it's open.",
+        "Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
         "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
         `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
@@ -32,9 +32,9 @@ const messageManager = (() => {
         "See BrainTool.org for the BrainTool blog and other info.",
         "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!",
         "Check out the Bookmark import/export functions under Actions",
-        "You can click on the topics shown in the Saver instead of typing out the name.",
+        "You can click on the topics shown in the Bookmarker instead of typing out the name.",
         "Use the forward (>>) button on the right to cycle through tips",
-        `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.`,
+        `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the Topic Manager.`,
         `When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.`,
         "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
         "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
@@ -45,7 +45,7 @@ const messageManager = (() => {
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to the BrainTool 1.0 release candidate!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "Welcome to the BrainTool 1.0!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
         "Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
         "Browser Tab Group to BrainTool Topic syncing is now enabled."
     ];
@@ -163,7 +163,8 @@ const messageManager = (() => {
             $("#introButtons").css("display", "flex");
         } else {
             $("#introNext").show();
-            (lastShownSlideIndex >= 2) && $("#slideFooter").show();
+            // Show 'don't show again' footer after 2nd slide or after initial install
+            if (!InitialInstall || (lastShownSlideIndex >= 2)) $("#slideFooter").show();
             $("#introButtons").css("display", "none");
         }
         $("#slideNum").text(lastShownSlideIndex+1);

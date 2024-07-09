@@ -817,9 +817,9 @@ textarea:focus, input[type="text"]:focus {
 #slideFooter {
     position: absolute;
     cursor: pointer;
-    bottom: 5px;
-    right: 40px;
-    font-size: var(--btNoteFontSize);
+    bottom: 0px;
+    left: 25%;
+    font-size: 15px;
     color: #636363;
     display: none;
 }

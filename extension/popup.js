@@ -223,6 +223,12 @@ function updateForSelection() {
     }
 }
 
+/* for use escaping unicode in for topic name below */
+const _textAreaForConversion = document.createElement('textarea');
+function _decodeHtmlEntities(str) {
+    _textAreaForConversion.innerHTML = str;
+    return _textAreaForConversion.value;
+}
 async function popupOpen(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new, or existing but navigated
     CurrentTab = tab;
@@ -248,7 +254,7 @@ async function popupOpen(tab) {
         saveTGSpan.style.display = 'none';
     }
     
-    // Pull data from local storage, prepopulate and open saver
+    // Pull data from local storage, prepopulate and open Bookmarker
     chrome.storage.local.get(
         ['topics', 'currentTabId', 'currentTopic', 'currentText', 'tabNavigated',
          'currentTitle', 'mruTopics', 'saveAndClose'],
@@ -273,8 +279,11 @@ async function popupOpen(tab) {
                 return;
             }
 
-            // New page. Guess at topic and open card
-            Topics = data.topics;
+            // New page. create topic list (handling unicode), guess at topic and open card
+            Topics = data.topics.map(topic => ({
+                ...topic,
+                name: _decodeHtmlEntities(topic.name)
+            }));
             if (data.mruTopics) {
                 // pre-fill to mru topic for window
                 const windowId = tab.windowId;

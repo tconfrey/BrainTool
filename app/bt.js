@@ -834,7 +834,7 @@ function saveTabs(data) {
     // update subtree of each changed topic node
     changedTopicNodes.forEach(node => {
         node.redisplay();
-        node.groupAndPosition();
+        if (!close) node.groupAndPosition();
     });
 
     // update topic list, sync extension, reset ui and save changes.
@@ -1023,6 +1023,7 @@ function tabJoinedTG(data) {
         tgParent.tabGroupId = tgId;                                     // initial grouping from setting change => link tgId
         return;
     }
+    if (!topicNode) return;                                             // don't care
     const tab = data.tab;
     const index = data.tabIndex;
     const indices = data.indices;
