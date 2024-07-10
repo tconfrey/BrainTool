@@ -74,6 +74,10 @@ body {
     margin-top: 20px;
 }
 
+#openingImage {
+    width: 150px;
+    float: right;
+}
 .allPages {
     display: none;
 }

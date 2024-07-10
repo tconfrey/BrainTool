@@ -50,33 +50,54 @@ function createWindow(wargs) {
 chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], async val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
 	const welcomeDiv = document.getElementById('welcome');
-	const messageDiv = document.getElementById('message');
+	const openingMessage = document.getElementById('openingMessage');
+	const welcomeMessage = document.getElementById('welcomeMessage');
+	const upgradeMessage = document.getElementById('upgradeMessage');
+	const introImage = document.getElementById('introImage');
+	const openingImage = document.getElementById('openingImage');
+    const introTitle = document.getElementById('introTitle');
     BTTab = val.BTTab;
+
+    if (val['Theme']) {        
+        // Change theme by setting attr on document which overide a set of vars. see top of .css
+        document.documentElement.setAttribute('data-theme', val['Theme']);
+    }
+
     if (val['newInstall']) {
 	    // This is a new install, show the welcome page
-	    messageDiv.style.display = 'none';
-	    welcomeDiv.style.display = 'block';
+	    openingMessage.style.display = 'none';
+	    upgradeMessage.style.display = 'none';
+	    welcomeMessage.style.display = 'block';
+	    openingImage.style.display = 'none';
+	    introImage.style.display = 'block';
+        welcomeDiv.style.display = 'block';
+        introTitle.textContent = introTitle.textContent + val['newVersion'];
 	    newInstall = true;
         chrome.storage.local.remove('newInstall');
+        chrome.storage.local.remove('newVersion');
+        document.getElementById("okButton").addEventListener('click', e => windowOpen());
 	    return;
     }
     
     if (val['newVersion']) {
 	    // Background has received updateAvailable, so inform user and upgrade
-        messageDiv.textContent = `New Version Available. \n Upgrading BrainTool to ${val['newVersion']}...`;
-        chrome.storage.local.remove('newVersion');
-        setTimeout(() => {            
+	    openingMessage.style.display = 'none';
+        document.getElementById('upgradeVersion').textContent = val['newVersion'];
+        introTitle.textContent = introTitle.textContent + val['newVersion'];
+	    upgradeMessage.style.display = 'block';
+	    welcomeMessage.style.display = 'none';
+	    openingImage.style.display = 'block';
+	    introImage.style.display = 'none';
+        welcomeDiv.style.display = 'block';
+        document.getElementById("okButton").addEventListener('click', e => {            
             chrome.tabs.query({title: "BrainTool Topic Manager"},
                               (tabs => {
                                   if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
+                                  chrome.storage.local.remove('newVersion');
                                   chrome.runtime.reload();
                               }));
-        }, 2000);
+                            });
 	    return;
-    }
-    if (val['Theme']) {        
-        // Change theme by setting attr on document which overide a set of vars. see top of .css
-        document.documentElement.setAttribute('data-theme', val['Theme']);
     }
 
     // Else just normal popup either in tab or side panel
@@ -109,11 +130,18 @@ async function popupAction (home, location) {
                 const activeTab = list.find(t => t.active);
                 popupOpen(activeTab);
             });
-    else
-        windowOpen(home, location);
+    else {
+        const version = chrome.runtime.getManifest().version;
+        document.getElementById('introTitle').textContent = introTitle.textContent + version;
+        document.getElementById('welcome').style.display = 'block';
+        document.getElementById('introImage').style.display = 'none';
+        document.getElementById('welcomeMessage').style.display = 'none';
+        document.getElementById('upgradeMessage').style.display = 'none';
+        document.getElementById("okButton").style.display = 'none';
+        setTimeout(()=> windowOpen(home, location), 2000);
+    }
 }
 
-document.getElementById("okButton").addEventListener('click', e => windowOpen());
 async function windowOpen(home = 'PANEL', location) {
     // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
     // home == tab => create manager in a tab, PANEL => in a side panel, default
@@ -121,13 +149,10 @@ async function windowOpen(home = 'PANEL', location) {
 
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
-    const messageDiv = document.getElementById('message');
-    messageDiv.style.display = 'block';
     chrome.tabs.query({title: "BrainTool Topic Manager"},
                       (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
 
     // Create window, remember it and highlight it
-    const version = chrome.runtime.getManifest().version;
    // const url = "https://BrainTool.org/app/";
     const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
    // const url = "https://BrainTool.org/versions/"+version+'/app/';
@@ -233,7 +258,6 @@ async function popupOpen(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new, or existing but navigated
     CurrentTab = tab;
     const tg = (tab.groupId > 0) ? await chrome.tabGroups.get(tab.groupId) : null;
-    const messageElt = document.getElementById('message');
     const saverDiv = document.getElementById("saver");
     const titleH2 = document.getElementById('title');
     const saveTGSpan = document.getElementById('saveTGSpan');
@@ -241,9 +265,10 @@ async function popupOpen(tab) {
     const saveTab = document.getElementById('saveTab');
     const saveWindow = document.getElementById('saveWindowSpan');
     const saveAs = document.getElementById('saveAs');
+
+	document.getElementById('welcome').style.display = 'none';
     saverDiv.style.display = 'block';
     saveAs.style.display = 'none';
-    messageElt.style.display = 'none';
     if (tg) {
         // tab is part of a TG => set the saveTg checkbox to be checked
         document.getElementById('tgName').textContent = tg.title;

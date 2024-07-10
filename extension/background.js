@@ -31,15 +31,15 @@ var LocalTest = false;                            // control code path during un
 var InitialInstall = false;                       // should we serve up the welcome page
 var UpdateInstall = false;                        // or the release notes page
 
-function btSendMessage(tabId, msg) {
+async function btSendMessage(tabId, msg) {
     // send message to BT window/tab. Wrapper to facilitate debugging messaging
 
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
     try {
-        chrome.tabs.sendMessage(tabId, msg);
+        await chrome.tabs.sendMessage(tabId, msg);
         check('btSendMEssage says:');
     } catch (error) {
-        console.error('Error sending to BT:', error);
+        console.warn('Error sending to BT:', error);
     }
 }
 
@@ -79,6 +79,7 @@ chrome.runtime.onInstalled.addListener(deets => {
     if (deets.reason == 'install') {
         InitialInstall = chrome.runtime.getManifest().version;	 // let app know version
         chrome.storage.local.set({'newInstall' : true});
+        chrome.storage.local.set({'newVersion' : InitialInstall});
         chrome.tabs.create({'url': "https://braintool.org/support/welcome"});
     }
     if (deets.reason == 'update') {
