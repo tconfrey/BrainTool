@@ -2,6 +2,8 @@ config.js
 *~
 .DS_Store
 .tern-port
+.cody
+.vscode/*
 extension/.tern_port
 site/.DS_Store
 extension/archivedVersions

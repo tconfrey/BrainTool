@@ -1,7 +1,0 @@
-{
-    "cody.codebase": "https://github.com/tconfrey/BrainTool",
-    "files.exclude": {
-        "**/versions": true
-    },
-    "cody.chat.preInstruction": "Remember you have full access to the BrainTool repository. Use all the data available to you in that repo to answer questions, however do not refer to source code in the /versions folder or its children. "
-}

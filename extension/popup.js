@@ -11,19 +11,151 @@
 
 /*** 
  * 
- * This code runs under the popup and controls the topic entry for adding a page to BT.
+ * This code communicates an install, new version or need to open the Topic Manager 
+ * and otherwise runs the Bookmarker which controls the topic entry for adding a page to BT.
  * Trying to keep it minimal. No jQuery etc.
  * 
  ***/
 'use strict';
 
-var BTTab;
-var CurrentTab;
-var ReadOnly = false;                   // capture whether tab is already stored in BT
-var Tabs;                               // tabs in current window
-var newInstall = false;                 // set below, ignore some events if = true
+// Utilities to show/hide array of elements
+function showElements(elementIds) {
+    elementIds.forEach(elementId => {
+        document.getElementById(elementId).style.display = 'block';
+    });
+}
+function hideElements(elementIds) {
+    elementIds.forEach(elementId => {
+        document.getElementById(elementId).style.display = 'none';
+    });
+}
+  
+// Popup is launched from scratch on each invocation, So we need to figure out the situation and populate the display appropriately.
+// 1. New install => show welcome page
+// 2. New version => show upgrade page
+// 3. Launch of Topic Manager => show launch splash and open in tab or side panel
+// 4. Normal Bookmarker opening => populate based on:
+//    a. existing BT item => only show note update
+//    b. new tab => show topic selector and note entry
+//    c. tab in tg => select to greate new topic or use tg name
 
-function createWindow(wargs) {
+const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'ManagerHome', 'ManagerLocation'];
+chrome.storage.local.get(contextVariables, async val => {
+    console.log(`local storage: ${JSON.stringify(val)}`);
+    const introTitle = document.getElementById('introTitle');
+
+    if (val['Theme']) {        
+        // Change theme by setting attr on document which overide a set of vars. see top of .css
+        document.documentElement.setAttribute('data-theme', val['Theme']);
+    }
+
+    if (val['newInstall']) {
+        // This is a new install, show the welcome page
+        introTitle.textContent = introTitle.textContent + val['newVersion'];
+        hideElements(['openingMessage', 'upgradeMessage', 'openingImage']);
+        showElements(['welcomeMessage', 'introImage', 'welcome']);
+        chrome.storage.local.remove(['newInstall', 'newVersion']);
+        document.getElementById("okButton").addEventListener('click', e => openTopicManager());
+        return;
+    }
+    
+    if (val['newVersion']) {
+        // Background has received updateAvailable, so inform user and upgrade
+        document.getElementById('upgradeVersion').textContent = val['newVersion'];
+        introTitle.textContent = introTitle.textContent + val['newVersion'];
+        hideElements(['openingMessage', 'welcomeMessage', 'introImage']);
+        showElements(['upgradeMessage', 'openingImage', 'welcome']);
+        document.getElementById("okButton").addEventListener('click', e => reloadExtension());
+        return;
+    }
+
+    // Else launching Topic Mgr if its not open, or just normal bookmarker
+    let topicManagerTab = null;
+    if (val['BTTab']) {
+        try {
+            topicManagerTab = await chrome.tabs.get(val['BTTab']);  
+        } catch (e) {
+            // tab no longer exists, clear it
+            chrome.storage.local.remove('BTTab');
+        }
+    }
+    if (topicManagerTab) {
+        populateBookmarker();
+        return;
+    }
+    
+    // Last case - need to re-open Topic Manager with home and location values
+    const home = val['ManagerHome'] || 'PANEL';
+    const location = val['ManagerLocation'];
+    
+    // Show the splash notice for two seconds and open the topic mgr
+    const version = chrome.runtime.getManifest().version;
+    introTitle.textContent = introTitle.textContent + version;
+    hideElements(['welcomeMessage', 'introImage', 'upgradeMessage', 'okButton']);
+    showElements(['welcome', 'openingMessage']);
+    setTimeout(() => openTopicManager(home, location), 2000);
+    return;
+});
+
+function reloadExtension() {            
+    chrome.tabs.query({title: "BrainTool Topic Manager"},
+        (tabs => {
+            if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
+            chrome.storage.local.remove('newVersion');
+            chrome.runtime.reload();
+        })
+    );
+}
+
+function openTopicManager(home = 'PANEL', location) {
+    // Create the BT Topic Manager
+    // home == tab => create manager in a tab, PANEL => in a side panel, default
+    // location {top, left, width, height} filled in by bg whenever Topic Manager is resized
+    
+    // First check for existing BT Tab eg error condition or after an Extension restart.
+    // Either way best thing is to kill it and start fresh.
+    chrome.tabs.query(
+        {title: "BrainTool Topic Manager"},
+        (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
+        );
+    
+    // const url = "https://BrainTool.org/app/";
+    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
+    // const url = "https://BrainTool.org/versions/"+version+'/app/';
+    console.log('loading from ', url);
+    
+    // Default open in side panel
+    if (home != "TAB") {
+        chrome.windows.getCurrent(async mainwin => {
+            // create topic manager window where last placed or aligned w current window left/top
+            const wargs = location ? {
+                'url' : url,
+                'type' : "panel",
+                'state' : "normal",
+                'focused' : true,
+                'top' : location.top, 'left' : location.left,
+                'width' : location.width, 'height' : location.height
+            } : {
+                'url' : url,
+                'type' : "panel",
+                'state' : "normal",
+                'focused' : true,
+                'top' : mainwin.top, 'left' : mainwin.left,
+                'width' : 500, 'height' : mainwin.height
+            };
+            // shift current win left to accomodate side-panel. nb state can't be 'maximized'
+            if (!location) await chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
+                left: (mainwin.left + 150)});
+                createTopicManagerWindow(wargs);
+            });
+        } else {
+            // open in tab
+            console.log('opening in tab');
+            chrome.tabs.create({'url': url});
+        }
+    }
+
+function createTopicManagerWindow(wargs) {
     // Open Topic Manager, handle bounds error that happens if Mgr moved off visible screen
     try {
     chrome.windows.create(wargs, async function(window) {
@@ -35,161 +167,32 @@ function createWindow(wargs) {
             console.log('Updated window:', window);
         }
         else {
-            console.warn('error in windowOpen:', chrome.runtime.lastError?.message);
+            console.warn('error creating Topic Manager:', chrome.runtime.lastError?.message);
             wargs.top = 50; wargs.left = 0;
             chrome.windows.create(wargs);
         }
     });
     } catch (e) {
-        console.warn('error in createWindow, trying again:', e);
+        console.warn('error in createTopicManagerWindow, trying again:', e);
         wargs.top = 50; wargs.left = 0;
         chrome.windows.create(wargs);
     }
 }
 
-chrome.storage.local.get(['newInstall', 'newVersion', 'ManagerHome', 'ManagerLocation', 'Theme', 'BTTab'], async val => {
-    console.log(`local storage: ${JSON.stringify(val)}`);
-	const welcomeDiv = document.getElementById('welcome');
-	const openingMessage = document.getElementById('openingMessage');
-	const welcomeMessage = document.getElementById('welcomeMessage');
-	const upgradeMessage = document.getElementById('upgradeMessage');
-	const introImage = document.getElementById('introImage');
-	const openingImage = document.getElementById('openingImage');
-    const introTitle = document.getElementById('introTitle');
-    BTTab = val.BTTab;
+// 4. Bookmarker Management from here on
 
-    if (val['Theme']) {        
-        // Change theme by setting attr on document which overide a set of vars. see top of .css
-        document.documentElement.setAttribute('data-theme', val['Theme']);
-    }
-
-    if (val['newInstall']) {
-	    // This is a new install, show the welcome page
-	    openingMessage.style.display = 'none';
-	    upgradeMessage.style.display = 'none';
-	    welcomeMessage.style.display = 'block';
-	    openingImage.style.display = 'none';
-	    introImage.style.display = 'block';
-        welcomeDiv.style.display = 'block';
-        introTitle.textContent = introTitle.textContent + val['newVersion'];
-	    newInstall = true;
-        chrome.storage.local.remove('newInstall');
-        chrome.storage.local.remove('newVersion');
-        document.getElementById("okButton").addEventListener('click', e => windowOpen());
-	    return;
-    }
+async function populateBookmarker() {
+    // Find tab info and open bookmarker
     
-    if (val['newVersion']) {
-	    // Background has received updateAvailable, so inform user and upgrade
-	    openingMessage.style.display = 'none';
-        document.getElementById('upgradeVersion').textContent = val['newVersion'];
-        introTitle.textContent = introTitle.textContent + val['newVersion'];
-	    upgradeMessage.style.display = 'block';
-	    welcomeMessage.style.display = 'none';
-	    openingImage.style.display = 'block';
-	    introImage.style.display = 'none';
-        welcomeDiv.style.display = 'block';
-        document.getElementById("okButton").addEventListener('click', e => {            
-            chrome.tabs.query({title: "BrainTool Topic Manager"},
-                              (tabs => {
-                                  if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
-                                  chrome.storage.local.remove('newVersion');
-                                  chrome.runtime.reload();
-                              }));
-                            });
-	    return;
-    }
-
-    // Else just normal popup either in tab or side panel
-    const home = val['ManagerHome'] || 'PANEL';
-    const location = val['ManagerLocation'];
-    await popupAction(home, location);
     chrome.runtime.connect();           // tell background popup is open
-    return;
-});
-
-async function popupAction (home, location) {
-    // Activate popup -> populate form if app is open, otherwise open app
-    let btOpen = false;
-    if (BTTab) {
-        // Check if BT tab still exists
-        btOpen = true;
-        try {
-            await chrome.tabs.get(BTTab);
-        } catch (e) {
-            // tab no longer exists, clear it
-            chrome.storage.local.remove('BTTab');
-            BTTab = null;
-            btOpen = false;
-        }
-    }
-    if (btOpen)
-        chrome.tabs.query(              // find active tab to open popup from
-            {currentWindow: true}, list => {
-                Tabs = list;
-                const activeTab = list.find(t => t.active);
-                popupOpen(activeTab);
-            });
-    else {
-        const version = chrome.runtime.getManifest().version;
-        document.getElementById('introTitle').textContent = introTitle.textContent + version;
-        document.getElementById('welcome').style.display = 'block';
-        document.getElementById('introImage').style.display = 'none';
-        document.getElementById('welcomeMessage').style.display = 'none';
-        document.getElementById('upgradeMessage').style.display = 'none';
-        document.getElementById("okButton").style.display = 'none';
-        setTimeout(()=> windowOpen(home, location), 2000);
-    }
+    chrome.tabs.query({currentWindow: true}, list => {
+        const activeTab = list.find(t => t.active);
+        openBookmarker(activeTab);
+    });
 }
 
-async function windowOpen(home = 'PANEL', location) {
-    // Called on first click on header button (or ok in welcomediv), create the BT Topic Manager
-    // home == tab => create manager in a tab, PANEL => in a side panel, default
-    // location {top, left, width, height} filled in by bg whenever Topic Manager is resized
 
-    // First check for existing BT Tab eg error condition or after an Extension restart.
-    // Either way best thing is to kill it and start fresh.
-    chrome.tabs.query({title: "BrainTool Topic Manager"},
-                      (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));}));
-
-    // Create window, remember it and highlight it
-   // const url = "https://BrainTool.org/app/";
-    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
-   // const url = "https://BrainTool.org/versions/"+version+'/app/';
-    console.log('loading from ', url);
-
-    // Default open in side panel
-    if (home != "TAB") {
-        chrome.windows.getCurrent(async mainwin => {
-            // create topic manager window where last placed or aligned w current window left/top
-            const wargs = location ? {
-                'url' : url,
-                'type' : "panel",
-	            'state' : "normal",
-                'focused' : true,
-                'top' : location.top, 'left' : location.left,
-                'width' : location.width, 'height' : location.height
-            } : {
-                'url' : url,
-                'type' : "panel",
-	            'state' : "normal",
-                'focused' : true,
-                'top' : mainwin.top, 'left' : mainwin.left,
-                'width' : 500, 'height' : mainwin.height
-            };
-	        // shift current win left to accomodate side-panel. nb state can't be 'maximized'
-	        if (!location) await chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-                                                           left: (mainwin.left + 150)});
-            createWindow(wargs);
-        });
-    } else {
-        // open in tab
-        console.log('opening in tab');
-        chrome.tabs.create({'url': url});
-    }
-}
-
-let Guess, Topics, OldTopic;
+let Guess, Topics, OldTopic, CurrentTab;
 
 // Set up button cbs
 const SaveAndGroupBtn = document.getElementById("saveAndGroup");
@@ -254,7 +257,7 @@ function _decodeHtmlEntities(str) {
     _textAreaForConversion.innerHTML = str;
     return _textAreaForConversion.value;
 }
-async function popupOpen(tab) {
+async function openBookmarker(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new, or existing but navigated
     CurrentTab = tab;
     const tg = (tab.groupId > 0) ? await chrome.tabGroups.get(tab.groupId) : null;
