@@ -219,7 +219,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
     btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
 });
 
-const tabTransitionData = {};       // map of tabId: {transitionType: "", transitionQualifiers: [""..]}
+const tabTransitionData = {};       // map of tabId: {transitionTypes: [""..], transitionQualifiers: [""..]}
 
 
 // Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
@@ -227,12 +227,21 @@ const tabTransitionData = {};       // map of tabId: {transitionType: "", transi
 chrome.webNavigation.onCommitted.addListener(async (details) => {
     if (details?.frameId !== 0) return;
     console.log('webNavigation.onCommitted fired:', JSON.stringify(details));
-    tabTransitionData[details.tabId] = {transitionType: details.transitionType, transitionQualifiers: details.transitionQualifiers};
+    if (!tabTransitionData[details.tabId]) {
+        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
+    }
+    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
+    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
 });
+
 chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
     if (details?.frameId !== 0) return;
     console.log('webNavigation.onHistoryStateUpdated fired:', JSON.stringify(details));
-    tabTransitionData[details.tabId] = {transitionType: details.transitionType, transitionQualifiers: details.transitionQualifiers};
+    if (!tabTransitionData[details.tabId]) {
+        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
+    }
+    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
+    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -246,7 +255,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const indices = await tabIndices();                             // keep indicies in sync
     if (changeInfo.status == 'complete') {
         // tab navigated to/from url, add in transition info from Web Nav event, above
-        const transitionData = tabTransitionData[tabId] || {};          // set in webNavigation.onCommitted event above
+        const transitionData = tabTransitionData[tabId] || null;          // set in webNavigation.onCommitted event above
         setTimeout (() => delete tabTransitionData[tabId], 1000);                                // clear out for next event
         btSendMessage(
             BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,

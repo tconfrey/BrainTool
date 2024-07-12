@@ -879,9 +879,11 @@ function tabNavigated(data) {
 
     function stickyTab() {
         // Should the tab stay associated with the BT node
-        if (configManager.getProp('BTStickyTabs') =='NOTSTICKY') return false;
-        if (['link', 'reload'].includes(transitionType)) return true;
-        if (transitionQualifiers.length && !transitionQualifiers.includes('from_address_bar')) return true;
+        if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
+        if (!transitionData) return true;                           // single page app or nav within page
+        if (transitionQualifiers.includes('from_address_bar')) 
+            return false;                                           // implies explicit user nav, nb order of tests important
+        if (transitionTypes.some(type => ['link', 'reload'].includes(type))) return true;
         return false;
     }
     function closeAndUngroup() {
@@ -897,8 +899,9 @@ function tabNavigated(data) {
     const tabNode = BTAppNode.findFromTab(tabId);
     const urlNode = BTAppNode.findFromURLTGWin(tabUrl, groupId, windowId);
     const parentsWindow = urlNode?.parentId ? AllNodes[urlNode.parentId]?.windowId : null;
-    const transitionType = data?.transitionData?.transitionType;
-    const transitionQualifiers = data?.transitionData?.transitionQualifiers || [];
+    const transitionData = data.transitionData;
+    const transitionTypes = transitionData?.transitionTypes || [];
+    const transitionQualifiers = transitionData?.transitionQualifiers || [];
     const sticky = stickyTab();
 
     if (tabNode) {
