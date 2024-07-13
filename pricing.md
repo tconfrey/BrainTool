@@ -7,10 +7,10 @@ audience: nonuser
 ---
 
 # Special One-Time Offers!
-In advance of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
+In celebration of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
 <!-- - Filling out this survey:[link] -->
 - Posting an honest, positive review or mention on a social network feed<sup>**</sup>, newsletter, blog post, app store review, etc.
-- Installing and using the [Release Candidate](/support/localInstall) or Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
+- Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
 - Creating a video or other instructional content.
 
 If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the BTEarlyFinancer coupon code to receive 50% off.
@@ -22,7 +22,7 @@ There's been a trend for the last while to give software away for free and make 
 
 The fully-functional free version and current low pricing are designed to encourage broad adoption. See the [vision and overview](overview) page for more details.
 
-<i><small>NB the current 0.9.9 Store version of the extension shows different, higher, subscription costs but has no enforcement or non-free features. Based on input received the pricing has been reduced and a one-time purchase option added</small></i>
+<i><small>NB the previous 0.9.9 Store version of the extension had different, higher, subscription costs but had no enforcement or non-free features. Based on input received the pricing has been reduced and a one-time purchase option added</small></i>
 # Pricing
 <div class="row">
 <div class="cell left" style="padding-right: 30px;">

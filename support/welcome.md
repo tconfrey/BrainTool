@@ -24,8 +24,6 @@ BrainTool is a ['Topic Manager'](https://braintool.org/2021/05/15/Organizing-you
 ## Support and more Info
 Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so check out the videos and documentation on the [main page](https://braintool.org) and the [User Guide](userGuide). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md). All of the above links are already saved for you under the BrainTool topic in BrainTool!
 
-Also check out [this special offer](../pricing.md) in advance of BrainTool 1.0 dropping.
-
 ## Step by step video
 Here's a 4 minute video of the process. Note as of version 0.9.9 the video shows an earlier version of the UI. I'll get a new one out with the 1.0.0 release.
 <video width="95%" controls style="border:solid; border-width:1px">

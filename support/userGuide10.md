@@ -48,11 +48,11 @@ The topic selector shows an overview of your current topics in a navigable tree.
 </div>
 If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces.
 
-You can add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree.
+You can add a note or just hit Save. You can also edit the page title which is how the page will be identified in the topic tree.
 
 The 'Save Tabgroup', 'Save Window' and 'Save Session' check-boxes allow you to save all open and unsaved pages in the tabgroup, browser window, or all windows. These operations will save multiple new rows into the Topic Manager and consequently don't capture a note or title. NB pinned tabs are not saved.
 
-Hitting Enter will save the page into your topic map and close the Bookmarker. You can choose to close the page(s) after saving or leave it open grouped with its peers of the same topic.
+Hitting Save or Save and Close will save the page into your topic map and close the Bookmarker. You can choose to close the page(s) after saving or leave it open grouped with its peers of the same topic.
 
 ## The Topic Manager
 The Topic Manager allows you to search, edit and change your topics and to control the browser. You can select it as you would any other browser window, or double click the icon or use the accelerator Alt/Option-b-b (ie hit b twice) to pop it into focus.
@@ -127,6 +127,8 @@ There is the option to sync your personal braintool topic map to a file on your 
 
 Note that you can only sync to one external file source. With GDrive Google will automatically keep incremental versions of your BrainTool file which can help with recovery if you overwrite or delete your data, whereas the local file will be changed on each update. In either case you should consider periodically exporting your data (via Actions) to save a backup copy.
 
+Note also that GDrive syncing requires walking through Googles authorization process to give BrainTool access to read and write the files. Unfortunately this process requires popups and cookies, two browser features that Google is actively trying to restrict! Make sure your browser allows cookies from accounts.google.com and popups from both accounts.google.com and braintool.org. Even more unfortunately a recent update on Googles part means that a browser-based tool like BT, which is just code that runs in your browser with no database or back end logic, only gets a cookie valid for an hour. BT will notify you that the cookie has expired whenever the Topic Manager gets focus and you can choose to refresh then or the next time its needed to save the file. Refreshing may or may not force you to walk through the authorization process again.
+
 If you edit the file externally BT will warn you that your data is out of date the next time the Topic Manager gets focus and will offer to refresh from the external version.  You can also use the 'Refresh from File' button in the Actions panel at any point. If you use multiple browsers or machines with the same Google account or with access to the same local file you can share your braintool topics across them (again with a sync to import changes made elsewhere).
 
 The 'Sticky Tabs' setting controls whether or not a tab 'sticks' to the saved item in the tree that it was opened from. When set to be not sticky BT uses a strict matching between the url in a tabs address bar and the item initially saved. This means a server side redirect or a navigation (inside a web app say) which changes the url will move the tab out of its associated tabgroup and unselect its row in the topic tree. When it's set to be on, a tab opened from the topic manager (or saved into the topic manager) will stay marked as open in the tree and associated with the BT item until the tab is closed or clearly being re-used for a different purpose (recognized by the user manually entering a url in the address bar or clicking a bookmark item etc). User research has shown that this notion of having tabs tied to a specific purpose or work item improves overall workflow. If a 'stuck' tab has been navigated to a different url that you want to save separately in the tree invoking the Bookmarker on the tab will let you do so.
@@ -138,34 +140,44 @@ The next few Setting control various BT display customizations:
 - Toggle the notes column
 - Use a larger font size.
 
-Finally you have the option to upgrade to a Premium version of BrainTool based on a monthly or annual subscription or one-time purchase. See the [pricing](../pricing) page for details.
+<div class="row">
+<div class="cell left">
+Finally you have the option to upgrade to a 'Supporter' version of BrainTool based on a monthly or annual subscription or one-time purchase.<br/>
+After the 30 day trial period the display customization settings are locked for non supporters and a friendly solicitation  message is shown on startup. See the <a href="../pricing">Pricing</a> page for details.
+</div>
+<div class="cell right">
+<img src="/site/CollatoralMaterial/trialExpired.png" alt="side-panel" style="border:solid; border-width:thin; width:90%">
+</div>
+</div>
 
 # Warnings, Messages and Tips
-The BT Message pane is shown each time the Topic Manager is invoked. It shows a Warning if there is a file version mismatch, a Message if there's something new to bring to your attention or else a random tip on the use of BT. The pane can be closed using the button the left. Messages and tips can be cycled through using the More ('>>') button on the right.
+The BT Message pane is shown each time the Topic Manager is opened. It shows a Warning if there is a file version mismatch, a Message if there's something new to bring to your attention or else a random tip on the use of BT. The pane can be closed using the button the left. Messages and tips can be cycled through using the More ('>>') button on the right.
 
 Here are all the tips for reference. Send suggestions for inclusion to braintool.extension@gmail.com and maybe they'll end up in the app!
 
-- Add ':' at the end of a topic in the BT Saver to create a new subtopic.
-- Double click on a table row to highlight its' open window, if any.
-- Type ':TODO' after a topic in the BT Saver to make the item a TODO in the BT tree.
+- Add ':' at the end of a topic in the Bookmarker to create a new subtopic.
+- Double click on a table row to go to it's tab or tabgroup, if it's open.
+- Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.
 - Create topics like ToRead or ToWatch to keep track of pages you want to come back to.
-- Remember to Refresh if you've been editing the BrainTool.org file directly.
-- Alt/Option-b is the BrainTool accelerator key. You can change that in extension settings
+- You'll need to Refresh if you've been editing the BrainTool.org file directly.
+- Option/Alt-b is the BrainTool accelerator key. You can change that in the browsers extension settings
 - You can save individual gmails or google docs into the BT tree.
 - Save LinkedIn pages under specific topics to keep track of your contacts in context.
 - Use the TODO (star) button on a row to toggle between TODO, DONE and none.
 - See BrainTool.org for the BrainTool blog and other info.
 - Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!
 - Check out the Bookmark import/export functions under Actions
-- You can click on the topics shown in the Saver instead of typing out the name.
+- You can click on the topics shown in the Bookmarker instead of typing out the name.
 - Use the forward (>>) button on the right to cycle through tips
-- Double tap Alt/Option-b, or double click the toolbar icon, to surface the BrainTool side panel.
-- When you have an Edit card open, the Alt/Option-up/down arrows will open the next/previous card.
+- Double tap Alt/Opt-b, or double click the toolbar icon, to surface the Topic Manager.
+- When you have an Edit card open, the Alt/Opt-up/down arrows will open the next/previous card.
 - Click on a row to select it then use keyboard commands. 'h' for a list of them.
-- You can also store local files and folders in BrainTool. <br/>Enter something like users/tconfrey/Documents/' in the browser address bar.
+- You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.
 - Try hitting '1','2','3' etc to collapse the tree to that level.
 - Import public topic trees and useful links from braintool.org/topicTrees.
-- Try the new DARK theme. It's under Settings
+- Try the new DARK theme. It's under Settings.
+- If you make the Topic Manager window narrow enough it will hide the notes and switch to a single column view
+- &#128512; You can use emojis to &#127774; brighten up your topic names. &#128079; &#128736;
 
 
 For more information see the [FAQ and How-to page](../support) or reach out on the [BrainTool discussion group](https://groups.google.com/u/0/g/braintool-discussion).
