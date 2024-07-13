@@ -395,6 +395,49 @@ textarea:focus, input[type="text"]:focus {
     background-color: #E59A98 !important;
 }
 
+#trialExpiredWarning {
+    position: fixed;
+    top: 79px;
+    border: solid;
+    border-width: 1px;
+    border-color: grey;
+    z-index: 1;
+    display: none;
+}
+#trialExpiredWarning .panelClose {
+    margin-top: 7px;
+    right: 10px;
+}
+#nagHeading {
+    background-color: #CA4141;
+    height: 40px;
+    color: white;
+    font-family: var(--btFont);
+    font-size: var(--btTopicFontSize);
+    text-align: center;
+    line-height: 40px;
+}
+
+#nagContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #E2E2E2;
+}
+
+#BTTrialBuddy {
+    height: 50px;
+    margin-right: 20px;
+}
+
+#nagText {
+    flex-grow: 1;
+    font-family: var(--btFont);
+    font-size: 12px;
+    padding-right: 10px;
+    color: #8E9EA0;
+}
 /*
  * BT Settings
  */

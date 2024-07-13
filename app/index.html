@@ -80,6 +80,18 @@
         <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
             <span>+ ADD A NEW TOP LEVEL TOPIC</span>
         </div>
+        <div id="trialExpiredWarning">
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.closeTrialExpiredWarning()">
+          <div id="nagHeading">
+          YOUR 30 DAY NAG-FREE TRIAL HAS EXPIRED
+          </div>
+          <div id="nagContent">
+            <img id="BTTrialBuddy" src="resources/BTTrialBuddy.png" alt="trial Buddy">
+            <p id="nagText">Hello there! <br/>It looks like your 30 trial has expired and you haven't signed up as a Supporter. Please consider doing so to support the creation and ongoing evolution of BrainTool. See Settings for Supporter options.</p>
+          </div>
+        </div>
       </div>
       <div class="settingsActions" id="settings" style="margin-bottom: 5px">
         <div id="youShallNotPass">

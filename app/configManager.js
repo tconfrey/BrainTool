@@ -217,7 +217,7 @@ const configManager = (() => {
         $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(theme);
     }
 
-    // Register listener for radio button changes in Options
+    // Register listener for radio button changes in Options, decide whether to nag
     $(document).ready(function () {
         $('#tabGroupToggle :radio').change(function () {
             const oldVal = GroupingMode;
@@ -307,6 +307,7 @@ const configManager = (() => {
             }
             return success;
         });
+
     });
 
     function toggleSettingsDisplay() {
@@ -415,6 +416,31 @@ const configManager = (() => {
         const guessedInstallDate = Date.now() - (saveDays * 24 * 60 * 60000);
         setProp('BTInstallDate', guessedInstallDate);
     }
+    
+    function potentiallyNag() {
+        // Nagging check, called on startup
+        if (BTId) return;
+        const installDate = new Date(getProp('BTInstallDate'));
+        const today = new Date();
+        const daysSinceInstall = Math.floor((today - installDate) / (24 * 60 * 60 * 1000));
+        if (daysSinceInstall > 30) openTrialExpiredWarning();
+    }
+
+    function openTrialExpiredWarning() {
+        // show trial expired warning section and call to arms, slide tree down to accomodate
+        $("#trialExpiredWarning").show();
+        $("#content").css("margin-top", "220px");
+    }
+    function closeTrialExpiredWarning() {
+        // user closed warning - close it, reposition tree, open settings and scroll to subscribe section
+        $("#trialExpiredWarning").hide();
+        $("#content").css("margin-top", "79px");
+        toggleSettingsDisplay();
+        setTimeout(() => {
+            const settingsDiv = $('#settings');
+            settingsDiv.animate({ scrollTop: settingsDiv.prop('scrollHeight') }, 500, 'swing');
+        }, 800); // Delay to allow the animation to complete
+    }
 
     return {
         setConfigAndKeys: setConfigAndKeys,
@@ -429,7 +455,9 @@ const configManager = (() => {
         toggleActionsDisplay: toggleActionsDisplay,
         closeConfigDisplays: closeConfigDisplays,
         toggleKeyCommands: toggleKeyCommands,
-        initializeInstallDate: initializeInstallDate
+        initializeInstallDate: initializeInstallDate,
+        closeTrialExpiredWarning: closeTrialExpiredWarning,
+        potentiallyNag: potentiallyNag
     };
 })();
 

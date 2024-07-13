@@ -63,8 +63,9 @@ async function launchApp(msg) {
 	    }
     }
     
-    // check for license, and if sub that its still valid
+    // check for license, and if sub that its still valid else check to see if we shoudl nag
     if (BTId && await checkLicense()) updateLicenseSettings();
+    if (!BTId) configManager.potentiallyNag();
 
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
