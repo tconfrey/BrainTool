@@ -39,7 +39,7 @@ Here's a couple of videos showing more details:
 </td>
 </tr>
 <tr id='2'>
-<td style="border:none; padding-left:0px;"><img src="/site/AppStoreCollatoral/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
+<td style="border:none; padding-left:0px;"><img src="/site/CollatoralMaterial/Autocomplete.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
 To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Option-b, and just start typing.
 </td>
@@ -49,7 +49,7 @@ To save a page just takes three or four keystrokes with built-in auto-complete. 
 Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates.
 <br/><br/>Pop (pull torn-off tab and its window to the top), Hide (don't pop) and Close, support different organizational workflows.
 </td>
-<td style="border:none;"><img src="/site/AppStoreCollatoral/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
+<td style="border:none;"><img src="/site/CollatoralMaterial/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 </tr>
 </table>
 
@@ -58,13 +58,13 @@ Open, Close and Control all pages by tag with a single click in the side panel. 
 Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
 
-<img src="/site/AppStoreCollatoral/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
+<img src="/site/CollatoralMaterial/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
 
 <hr/>
 All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an orgmode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
 <br/>
-<img src="/site/AppStoreCollatoral/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
+<img src="/site/CollatoralMaterial/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
 
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
