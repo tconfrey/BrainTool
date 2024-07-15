@@ -32,7 +32,7 @@
   
 </head>
 <body>
-  <header class="page-header" role="banner">
+  <header class="page-header">
     <a href="{{ site.url }}/index.html">
       <!--<img class="logo" src="{{ site.url }}/site/logo-transparent.png" title="Home" alt='logo'/> -->
       <img class="logo" src="{{ site.url }}/media/BT_Title_Logo.png" title="Home" alt='logo'/>
@@ -43,7 +43,6 @@
     background-position: center;
     padding-top: 21.43%;">
   </div>
-</div>
 
 {% if page.audience != "landingpage" %}
 <div style="display:flex">
@@ -78,7 +77,7 @@
 {% endif %}
 </header>
 
-<main id="content" class="main-content" role="main">
+<main id="content" class="main-content">
   {{ content }}
   
   <footer class="site-footer">
