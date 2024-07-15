@@ -21,7 +21,7 @@ With BrainTool you can save and link all your online information sources (web si
 <td style="border:none; vertical-align:top; padding-left:0px; padding-top: 50px;">
 The BrainTool side panel shows your nested Topic hierarchy. A topic is a category that groups web pages you want to organize and remember. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>. In this example I have an open Chrome window showing the 'Kitchen Project' topic, it has the Crown Point Cabinetry site open. I also have Personal TODO to try a meditation practice thats linked but not open in a window anywhere.
 </td>
-<td style="border:none; padding-left:0px; width:50%"><img src="/site/sidePanelwWindow.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
+<td style="border:none; padding-left:0px; width:50%"><img src="/site/SaverSuggestions10.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
 <tr>
 <td style="border:none; padding-left:0px;">
@@ -47,9 +47,8 @@ To save a page just takes three or four keystrokes with built-in auto-complete. 
 <tr>
 <td style="border:none; padding-left:0px;">
 Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates.
-<br/><br/>Pop (pull torn-off tab and its window to the top), Hide (don't pop) and Close, support different organizational workflows.
 </td>
-<td style="border:none;"><img src="/site/CollatoralMaterial/Notes Entry.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
+<td style="border:none;"><img src="/site/CollatoralMaterial/emacs.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 </tr>
 </table>
 
@@ -58,13 +57,10 @@ Open, Close and Control all pages by tag with a single click in the side panel. 
 Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead or create your own tags and process.
 <br/>
 
-<img src="/site/CollatoralMaterial/EditButtons.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
+<img src="/media/BT-Buddy.png" alt="edit buttons" style="border:solid; border-width:thin; width:75%;">
 
 <hr/>
 All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an orgmode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
-
-<br/>
-<img src="/site/CollatoralMaterial/Emacs.png" alt="emacs org-mode" style="border:solid; border-width:thin;">
 
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)
