@@ -21,7 +21,7 @@ With BrainTool you can save and link all your online information sources (web si
 <td style="border:none; vertical-align:top; padding-left:0px; padding-top: 50px;">
 The BrainTool side panel shows your nested Topic hierarchy. A topic is a category that groups web pages you want to organize and remember. On the screenshot right you can see open tabs and Chrome windows are shown highlighted and <b>TODO</b> items are indicated in <b>bold</b>. In this example I have an open Chrome window showing the 'Kitchen Project' topic, it has the Crown Point Cabinetry site open. I also have Personal TODO to try a meditation practice thats linked but not open in a window anywhere.
 </td>
-<td style="border:none; padding-left:0px; width:50%"><img src="/site/SaverSuggestions10.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
+<td style="border:none; padding-left:0px; width:50%"><img src="/site/CollatoralMaterial/TabGroups.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin;"></td>
 </tr>
 <tr id='2'>
 <td style="border:none; padding-left:0px;"><img src="/site/SaverSuggestions10.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
@@ -29,13 +29,8 @@ The BrainTool side panel shows your nested Topic hierarchy. A topic is a categor
 To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Option-b, and just start typing.
 </td>
 </tr>
-<tr>
-<td style="border:none; padding-left:0px;">
-Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates.
-</td>
-<td style="border:none;"><img src="/site/CollatoralMaterial/TabGroups.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
-</tr>
 </table>
+Optionally add short or detailed notes to give context, aid recall or capture why the page is of interest; or just hit Enter to tear off the tab and save it with its topic-mates.
 
 Open, Close and Control all pages by tag with a single click in the side panel. Great for switching between tasks and projects and keeping your work-space clean!
 <br/><br/>
