@@ -23,23 +23,8 @@ The BrainTool side panel shows your nested Topic hierarchy. A topic is a categor
 </td>
 <td style="border:none; padding-left:0px; width:50%"><img src="/site/SaverSuggestions10.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; width:70%;"></td>
 </tr>
-<tr>
-<td style="border:none; padding-left:0px;">
-Here's a couple of videos showing more details:
-</td></tr>
-<tr>
-<td  style="border:none; padding-left:0px;">
-<iframe src="https://www.youtube.com/embed/K6PhRJAAdRg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-<!--
-<iframe src="https://www.youtube.com/embed/UfvceH03iAc?origin=https://braintool.org" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
--->
-</td>
-<td  style="border:none; padding-left:0px;">
-<iframe src="https://www.youtube.com/embed/8NZ6q5Y4Q0s?origin=https://braintool.org" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</td>
-</tr>
 <tr id='2'>
-<td style="border:none; padding-left:0px;"><img src="/site/CollatoralMaterial/SaverSuggestions10.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
+<td style="border:none; padding-left:0px;"><img src="/site/SaverSuggestions10.png" alt="Autocomplete tags" style="border:solid; border-width:thin;"></td>
 <td style="border:none;">
 To save a page just takes three or four keystrokes with built-in auto-complete. Click the BrainTool icon, or use Option-b, and just start typing.
 </td>
@@ -62,7 +47,6 @@ Drag and drop to reorder the hierarchy at will. Mark pages as TODO/DONE, ToRead 
 <hr/>
 All your data is stored on your Google Drive in a plain text file that can be separately edited, backed-up or shared. Everything is kept securely within your Google ecosystem and nowhere else. Your BrainTool file is structured as an [org-mode](http://orgmode.org) file. If you are an orgmode user, or just a plain text note taker, the file is fully editable and can be synced with the extension. The BrainTool panel in Chrome uses the org-mode tree structure but concentrates on the links within your notes thus unifying two primary ways to capture information.
 
-!(emacs)[/site/CollatoralMaterial/emacs.png]
 <td style="border:none;"><img src="/site/CollatoralMaterial/emacs.png" alt="Notes Entry" style="border:solid; border-width:thin;"></td>
 
 ##  Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio)

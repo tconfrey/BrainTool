@@ -211,7 +211,7 @@ const gDriveFileManager = (() => {
         if (userInitiated) {
             // implies from button click
             gtag('event', 'auth_initiated_by_user', {'event_category': 'GDrive'});
-            alert("Passing you to Google to grant permissions. \nMake sure you complete the steps to allow file access.");
+            alert("- Passing you to Google to grant permissions. \n- Allow cookies and popups from both braintool.org and accounts.google.com in browser settings.\n- Complete all steps to allow file access, see braintool.org/support for details.");
         }
         // Init client will async flow will ensure that gapi is loaded
         await initClient(userInitiated);
