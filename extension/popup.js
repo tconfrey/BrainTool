@@ -144,8 +144,9 @@ function openTopicManager(home = 'PANEL', location) {
                 'width' : 500, 'height' : mainwin.height
             };
             // shift current win left to accomodate side-panel. nb state can't be 'maximized'
-            if (!location) await chrome.windows.update(mainwin.id, {state: 'normal', focused: false,
-                left: (mainwin.left + 150)});
+            if (!location) 
+                if (mainwin.state == 'normal')      // only shift normal windows, its wierd if the window is maximized
+                    await chrome.windows.update(mainwin.id, {focused: false, left: (mainwin.left + 150)});
                 createTopicManagerWindow(wargs);
             });
         } else {

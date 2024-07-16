@@ -602,7 +602,7 @@ class BTAppNode extends BTNode {
         let drawerText = "";
         if (this.drawers) {
             const drawers = Object.keys(this.drawers);
-            const reg = /:(\w*):\s*(\w*)/g;              // regex to iterate thru props and values
+            const reg = /:([\w-]*):(.*)$/gm;              // regex to grab prop and its value from each line
             let hits, ptext;
             for (const drawer of drawers) {
                 drawerText += "  :" + drawer + ":\n";

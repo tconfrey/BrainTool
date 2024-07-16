@@ -1510,9 +1510,10 @@ function deleteNode(id) {
         propogateClosed(parent.parentId);                       // recurse
     }
     
-    // Ungroup and highlight the tab if it's open.
+    // Ungroup and highlight the tab if it's open and the Topic Manager is in side panel, otherwise we leave the TMgr tab
     // (good user experience and side effect is to update the tabs badge info
-    if (node.tabId)
+    const BTHome = configManager.getProp('BTManagerHome');
+    if (node.tabId && (BTHome == 'TAB'))
         node.showNode();
     if (openTabs.length) {
         const tabIds = openTabs.map(t => t.tabId);
