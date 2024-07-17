@@ -1206,6 +1206,7 @@ function changeSelected(node) {
 
 function updateTabIndices(indices) {
     // hash of tabId:{tabIndex, windowId} sent from background after tabMoved
+    if (!indices) return;
     let tab;
     for (let [tabId, tabData] of Object.entries(indices)) {
         tab = BTAppNode.findFromTab(tabId);

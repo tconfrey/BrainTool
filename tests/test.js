@@ -342,6 +342,19 @@ QUnit.module("App tests", function() {
         console.log("here first?");
         //GroupingMode = GroupOptions.NONE;
         window.FileText = "* TODO BrainTool\nBrainTool is a tool\n\n** Category-Tag\nThey are the same\n\n** [[http://www.link.com][Link]]\nURL with a name and [[http://google.com][embedded links]] scattered about.\n\n* Top Level 2                                             :braintool:orgmode:\n";
+        configManager.setConfigAndKeys({
+            Config: {
+                BTStats: {
+                    BTNumLaunches: 1,
+                    BTSessionStartTime: 0,
+                    BTNumSaves: 1,
+                },
+            },
+            client_id: '',
+            api_key: '',
+            fb_key: '',
+            stripe_key: ''
+        });
     });
 
     QUnit.test("Read default .org file", function(assert) {
@@ -535,6 +548,19 @@ QUnit.module("Extension tests", function() {
     QUnit.moduleStart(function(details) {
         if (details.name != "Extension tests") return;
         console.log("Extension messages");
+        configManager.setConfigAndKeys({
+            Config: {
+                BTStats: {
+                    BTNumLaunches: 1,
+                    BTSessionStartTime: 0,
+                    BTNumSaves: 1,
+                },
+            },
+            client_id: '',
+            api_key: '',
+            fb_key: '',
+            stripe_key: ''
+        });
         window.FileText2 = "* BrainTool Project\nTech and pointers for building BT.\n** Chrome\nThe main part of the app is a Chrome extension. So some resources...\n\n*** [[https://developer.chrome.com/extensions/mv2/devguide][Develop Extensions - Google Chrome]]\nOverview of the processs\n\n*** [[https://developers.chrome.com/extensions/tabs#method-create][chrome.tabs - Google Chrome]]\nTab manger functions.\n\n*** [[https://developer.chrome.com/extensions/windows][chrome.windows - Google Chrome]]\nWindow manager functions\n\n*** [[https://developer.chrome.com/extensions/runtime#method-sendMessage][chrome.runtime - Google Chrome]]\nOther useful api components.\n\n*** [[https://developer.chrome.com/webstore/publish][Publish in the Chrome Web Store]]\noverall publishing process\n\n*** [[https://www.freecodecamp.org/news/how-to-publish-your-chrome-extension-dd8400a3d53/][How To Publish Your Chrome Extension]]\n\n*** [[https://github.com/GoogleChrome/chrome-extensions-samples][chrome-app-samples/samples/gdrive at master  GoogleChrome/chrome-app-samples]]";
         
         window.postMessage({ 'type': 'LOCALTEST' });        // let extension know we're running tests
@@ -577,7 +603,7 @@ QUnit.module("Extension tests", function() {
         window.addEventListener('message', handler);
         const doer = function() {
             if (readyForTests) {
-                AllNodes[3].openURL();
+                AllNodes[3].openPage();
             }
             else {
                 setTimeout(doer, 250);
