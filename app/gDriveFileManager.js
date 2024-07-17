@@ -455,6 +455,8 @@ const gDriveFileManager = (() => {
                 return res.json();
             }).then(function(val) {
                 console.log(val);
+                if (!val) 
+                    throw new Error('access token exists, but upload failed. Probably need to renew token and retry');
                 const mt = Date.parse(val.modifiedTime);
                 configManager.setProp('BTTimestamp', mt);
                 updateStatsRow(mt);	     // update stats when we know successful save
@@ -495,7 +497,8 @@ const gDriveFileManager = (() => {
             }
             return Date.parse(response.modifiedTime);
         } catch (e) {
-            console.error('Error reading BT file version from GDrive:', e.message);
+            const msg = e.message || e.result.error.message;
+            console.error('Error reading BT file version from GDrive:', msg);
             return 0;
         }
     }

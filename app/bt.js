@@ -393,11 +393,11 @@ function initializeUI() {
         // select the new row
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
-        configManager.closeConfigDisplays();              // clicking also closes any open panel
+        configManager.closeConfigDisplays();                    // clicking also closes any open panel
     });
     $(document).click(function(event) {
         if (event.target.nodeName === 'HTML') {
-            configManager.closeConfigDisplays();              // clicking background also closes any open panel
+            configManager.closeConfigDisplays();                // clicking background also closes any open panel
         }
     });
     // make rows draggable    
@@ -406,22 +406,20 @@ function initializeUI() {
             buttonHide();
             const clone = $(this).clone();
 	        $(clone).find('.btTitle').html('HELKP!');		    // empty clone of contents, for some reason
-//	        $(clone).find('.btText').html('');		            // ..seems to screw up the mouse cursor
             $(clone).css('background-color', '#7bb07b');
 	        
             $("table.treetable tr").off('mouseenter');          // turn off hover behavior during drag
             $("table.treetable tr").off('mouseleave');
             return clone;
         },     
-        start: dragStart,                   // call fn below on start
-//        handle: "#move",                  // use the #move button as handle
+        start: dragStart,                                       // call fn below on start
         axis: "y",
         scrollSpeed: 5,
-        //        containment: "#content",
         scroll: true,
         scrollSensitivity: 100,
         cursor: "move",
         opacity: .75,
+        refreshPositions: true,                                 // needed when topics are unfolded during DnD
         stop: function( event, ui ) {
             // turn hover bahavior back on and remove classes iused to track drag
             $("table.treetable tr").on('mouseenter', null, buttonShow);
@@ -432,10 +430,8 @@ function initializeUI() {
             $("tr").removeClass("dragTarget");
             $("tr").removeClass("ui-droppable-disabled");
         },
-        revert: "invalid"       // revert when drag ends but not over droppable
+        revert: "invalid"                                       // revert when drag ends but not over droppable
     });
-
-    
     
     // Hide loading notice and show sync/refresh buttons as appropriate
     $("#loading").hide();
@@ -463,34 +459,51 @@ function dragStart(event, ui) {
     ui.helper.css('width', w).css('height', h);
     const nodeId = $(this).attr('data-tt-id');
     const node = AllNodes[nodeId];
-    
+
     $(this).addClass("dragTarget");
+    makeRowsDroppable(node);
+}
+function makeRowsDroppable(node) {
     // make rows droppable
+    console.log("into makeRowsDroppable");
+
     $("table.treetable tr").droppable({
         drop: function(event, ui) {
             dropNode(event, ui);
         },
         over: function(event, ui) {
-            // highlight node a drop would drop into and underline the potential position, coudl be at top
+            // highlight node a drop would drop into and underline the potential position, could be at top
             $(this).children('td').first().addClass("dropOver");
+
+            // Add timeout to unfold node if hovered for 1 second
+            const dropNodeId = $(this).attr('data-tt-id');
+            const dropNode = AllNodes[dropNodeId];
+            if (dropNode && dropNode.folded) {
+                const timeout = setTimeout(() => {
+                    dropNode.unfoldOne();
+                }, 1000);
+                $(this).data('unfoldTimeout', timeout);
+            }
         },
         out: function(event, ui) {
             // undo the above
             $(this).children('td').first().removeClass("dropOver");
+
+            // Remove timeout if hover is less than 1 second
+            const timeout = $(this).data('unfoldTimeout');
+            if (timeout) {
+                clearTimeout(timeout);
+                $(this).removeData('unfoldTimeout');
+            }
         }
     });
+
+    // disable droppable for self and all descendants, can't drop into self!
     let ids = node.getDescendantIds();
     ids.push(node.id);
     ids.forEach(id => {
-        // disable droppable for self and all descendants, can't drop into self!
         $(`tr[data-tt-id='${id}']`).droppable("disable");
     });
-            /* Ideally we'd collapse open subtree if any, but that makes the draggable think its over now-hidden rows
-            if (node.childIds.length && !node.folded) {
-                node.collapsedForDrag = true;
-                $("#content").treetable("collapseNode", nodeId);
-            }
-            */
 }
 
 function dropNode(event, ui) {
