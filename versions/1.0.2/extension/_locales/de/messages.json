@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "BrainTool - Go Beyond Bookmarks",
+    "description": "The title of the application, displayed in the web store."
+  },
+  "appDesc": {
+    "message": "BrainTool is a Topic Manager for your online life.",
+    "description": "The description of the application, displayed in the web store."
+  }
+}
