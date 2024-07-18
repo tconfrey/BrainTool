@@ -6,7 +6,21 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
-# 1.0 
+# BrainTool 1.0.2
+A small point release with unfinished business from 1.0 and updates based on 1.0 feedback 
+## Feature Updates
+- Added topic expansion on hover so folded topics can be dropped into (thanks @rocketman455 for the suggestion!)
+- Improvements to the upgrade process to make it clearer whats happening.
+- Added trial expiration and initial nagging 30 days after installation.
+- GitHub #32: When TopicMgr is in a tab - don't navigate on item deletion. If the browser is maximized don't adjust its position on first opening TM. 
+
+## Fixes
+- Better handling for gdrive cert expiry on save when Google Authorization popup is blocked.
+- GutHub #33: Fixed regex to not clobber org properties.
+- Improvements to tracking sticky tabs.
+- Various refactoring and error handling housekeeping.
+
+# BrainTool 1.0 
 Welcome to the 1.0 version of BrainTool! We hope you find it to be a step closer to your ideal tool. Let us know what you think, directly (braintool-extension@gmail) or in the [discussion group](https://groups.google.com/u/0/g/braintool-discussion). See below for a list of changes. The timing of this release was forced by a Google deadline, so there's more to come soon! 
 
 ## Manifest V3
