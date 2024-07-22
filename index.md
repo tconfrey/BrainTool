@@ -5,6 +5,7 @@ description: BrainTool is a way of organizing things you want to remember and ge
 audience: landingpage
 ---
 
+<h1 style="margin-top: -30px; padding-bottom: 30px; font-size: 2.4em; color: #212c31;">Have a too-many-tabs Problem?</h1>
 <div class="row">
 <div class="cell left" >
 <h1 class="landing-header"> Tame your Tabs</h1>
@@ -78,6 +79,26 @@ Or keep detailed notes on the Topic card associated with every item.
 </p>
 </div>
 <table style="height:500px; overflow-y:auto">
+
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-21.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">It truly feels like the developers KNOW my brain. I checked off every bullet point on my list of needs and then some. I don't know how I ever lived without it.</td></tr>
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-23.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">I've tried other options, but BrainTool far surpasses them. It integrates seamlessly with my workflow, especially with organizing my research links and bookmarks, which is a game-changer for me.</td></tr>
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-24.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">The 1.0 update is phenomenal. Looks absolutely gorgeous, very visually pleasing & appealing, and a significant upgrade.</td></tr>
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-25.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">MANAGES WHAT MATTERS: Most tab, session or bookmark managers miss what really matters. The point is to manage the *meaning*, not just the identity of the target.</td></tr>
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-26.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">Amazingly well thought tool that makes my browser life so streamlined. </td></tr>
+
+<tr><td style="width:35%"><img src="site/Commendations/bio-22.png" style="width:90%" alt="Chrome Web Store five star review"></td>
+<td style="font-size:small; font-style:italic">Impressed with what BrainTool can do! The concept is brilliant, integrating bookmarks and tabs seamlessly with emacs org-mode notes fits into my workflow perfectly.</td></tr>
+
 <tr><td style="width:35%"><img src="site/Commendations/bio-2.png" style="width:90%" alt="Chrome Web Store five star review"></td>
 <td style="font-size:small; font-style:italic">Everything is categorized and notated so I don't have to keep all the tabs open to keep track of all the crazy stuff I'm doing.  Great extension!</td></tr>
 
@@ -153,8 +174,14 @@ With Braintool I have found it.</td></tr>
 - BrainTool uses structured [org-mode](http://orgmode.org) syntax.
 - The file can be separately edited, backed-up or shared.
 - You can import and export to and from bookmarks or org-mode files.
+- See how it works for Brian in this promotional video:
+<div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+<iframe src="https://www.youtube.com/embed/1iTQNN0bhwg?si=JM4v5sJNh0MEgOei" title="BrainTool promotional video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" style="position:absolute; top:0px; left:0px; width:100%; height:100%;" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
 
+<!--
 <img src="/site/ScreenShot.png" style="border:solid; border-width:thin;" alt="Screenshot showing BrainTool with emacs and Chrome views">
+-->
 
 <h1 class="landing-header">More Info</h1>
 <!--
