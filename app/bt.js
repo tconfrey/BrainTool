@@ -103,8 +103,10 @@ function updateStats() {
     // read and update various useful stats, only called at startup
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
-    // Record this launch and software version
+    // Record this launch and software version. also update version shown in ui help.
     const BTAppVersion = configManager.getProp('BTAppVersion');
+    $("#BTVersion").html(`<i>(Version: ${BTAppVersion})</i>`);
+
     gtag('event', 'launch_'+BTAppVersion, {'event_category': 'General', 'event_label': BTAppVersion,
                              'value': 1});    
     if (InitialInstall) {
@@ -295,7 +297,6 @@ function generateTable() {
         outputHTML += node.HTML();
     });
     outputHTML += "</table>";
-    BTAppNode.populateFavicons();                         // filled in async
     return outputHTML;
 }
 
@@ -358,6 +359,7 @@ function processBTFile(fileText = BTFileText) {
                 $(container).treetable("collapseNodeImmediate", node.id);
         });
     }, 200);
+    BTAppNode.populateFavicons();                         // filled in async
 
     configManager.updatePrefs();
     $('body').removeClass('waiting');
@@ -400,39 +402,8 @@ function initializeUI() {
             configManager.closeConfigDisplays();                // clicking background also closes any open panel
         }
     });
-    // make rows draggable    
-    $("table.treetable tr").draggable({
-        helper: function() {
-            buttonHide();
-            const clone = $(this).clone();
-	        $(clone).find('.btTitle').html('HELKP!');		    // empty clone of contents, for some reason
-            $(clone).css('background-color', '#7bb07b');
-	        
-            $("table.treetable tr").off('mouseenter');          // turn off hover behavior during drag
-            $("table.treetable tr").off('mouseleave');
-            return clone;
-        },     
-        start: dragStart,                                       // call fn below on start
-        axis: "y",
-        scrollSpeed: 5,
-        scroll: true,
-        scrollSensitivity: 100,
-        cursor: "move",
-        opacity: .75,
-        refreshPositions: true,                                 // needed when topics are unfolded during DnD
-        stop: function( event, ui ) {
-            // turn hover bahavior back on and remove classes iused to track drag
-            $("table.treetable tr").on('mouseenter', null, buttonShow);
-            $("table.treetable tr").on('mouseleave', null, buttonHide);
-            $("table.treetable tr").droppable("enable");
-            $("tr").removeClass("hovered");
-            $("td").removeClass("dropOver");
-            $("tr").removeClass("dragTarget");
-            $("tr").removeClass("ui-droppable-disabled");
-        },
-        revert: "invalid"                                       // revert when drag ends but not over droppable
-    });
     
+    makeRowsDraggable();                                        // abstracted out below
     // Hide loading notice and show sync/refresh buttons as appropriate
     $("#loading").hide();
     updateSyncSettings(syncEnabled());
@@ -449,6 +420,47 @@ function reCreateButtonRow() {
     console.log("RECREATING BUTTONROW!!");
     const $ButtonRowHTML = $(ButtonRowHTML);
     $ButtonRowHTML.appendTo($("#dialog"))
+}
+
+function makeRowsDraggable(recalc = false) {
+    // make rows draggable. refreshPositions is expensive so we on;y turn it on when the unfold timeout hits
+    if (!makeRowsDraggable.recalcSet) {
+        makeRowsDraggable.recalcSet = false;
+    }
+    if (makeRowsDraggable.recalcSet && recalc) return;          // recalc already on (ie refreshPosition = true)
+    makeRowsDraggable.recalcSet = recalc;
+    $("table.treetable tr").draggable({
+        helper: function() {
+            buttonHide();
+            const clone = $(this).clone();
+            $(clone).find('.btTitle').html('HELKP!');		    // empty clone of contents, for some reason
+            $(clone).css('background-color', '#7bb07b');
+            
+            $("table.treetable tr").off('mouseenter');          // turn off hover behavior during drag
+            $("table.treetable tr").off('mouseleave');
+            return clone;
+        },     
+        start: dragStart,                                       // call fn below on start
+        axis: "y",
+        scrollSpeed: 5,
+        scroll: true,
+        scrollSensitivity: 100,
+        cursor: "move",
+        opacity: .75,
+        refreshPositions: recalc,                               // needed when topics are unfolded during DnD, set in unfold timeout
+        stop: function( event, ui ) {
+            // turn hover bahavior back on and remove classes iused to track drag
+            $("table.treetable tr").on('mouseenter', null, buttonShow);
+            $("table.treetable tr").on('mouseleave', null, buttonHide);
+            $("table.treetable tr").droppable("enable");
+            $("tr").removeClass("hovered");
+            $("td").removeClass("dropOver");
+            $("td").removeClass("dropOver-pulse");
+            $("tr").removeClass("dragTarget");
+            $("tr").removeClass("ui-droppable-disabled");
+        },
+        revert: "invalid"                                       // revert when drag ends but not over droppable
+    });
 }
 
 function dragStart(event, ui) {
@@ -469,6 +481,12 @@ function makeRowsDroppable(node) {
 
     $("table.treetable tr").droppable({
         drop: function(event, ui) {
+            // Remove unfold timeout
+            const timeout = $(this).data('unfoldTimeout');
+            if (timeout) {
+                clearTimeout(timeout);
+                $(this).removeData('unfoldTimeout');
+            }
             dropNode(event, ui);
         },
         over: function(event, ui) {
@@ -479,17 +497,19 @@ function makeRowsDroppable(node) {
             const dropNodeId = $(this).attr('data-tt-id');
             const dropNode = AllNodes[dropNodeId];
             if (dropNode && dropNode.folded) {
+                $(this).children('td').first().addClass("dropOver-pulse");          // to indicate unfold is coming
                 const timeout = setTimeout(() => {
                     dropNode.unfoldOne();
-                }, 1000);
+                    setTimeout(makeRowsDraggable(true), 1);                         // refresh draggable positions after unfold
+                }, 2500);
                 $(this).data('unfoldTimeout', timeout);
             }
         },
         out: function(event, ui) {
             // undo the above
-            $(this).children('td').first().removeClass("dropOver");
+            $(this).children('td').first().removeClass(["dropOver", "dropOver-pulse"]);
 
-            // Remove timeout if hover is less than 1 second
+            // Remove timeout if hover wasn't long enough for it to fire
             const timeout = $(this).data('unfoldTimeout');
             if (timeout) {
                 clearTimeout(timeout);
@@ -917,6 +937,8 @@ function tabNavigated(data) {
     const transitionTypes = transitionData?.transitionTypes || [];
     const transitionQualifiers = transitionData?.transitionQualifiers || [];
     const sticky = stickyTab();
+
+    if (tabNode && urlNode && (tabNode == urlNode)) return;     // nothing to see here, carry on
 
     if (tabNode) {
         // activity was on managed active tab
@@ -1836,6 +1858,9 @@ function enableSearch(e) {
     $(document).unbind('keyup');
     e.preventDefault();
     e.stopPropagation();
+
+    // Initialize cache of displayed order of nodes to search in display order
+    BTAppNode.setDisplayOrder();
 }
 
 function disableSearch(e = null) {
@@ -1886,6 +1911,9 @@ function disableSearch(e = null) {
     $(document).unbind('keyup');
     setTimeout(()=>$(document).on("keyup", keyUpHandler), 500);
 
+    // Clear cache of displayed order of nodes to search in display order
+    BTAppNode.resetDisplayOrder();
+
     // reset compact mode (ie no notes) which might have changed while showing matching search results
     checkCompactMode();
 }
@@ -1912,7 +1940,6 @@ function searchOptionKey(event) {
     // triggered and caught by search below
 
     if (event.altKey && (event.code == "KeyS" || event.code == "KeyR" || event.code == "Slash")) {
-        let sstr = $("#search_entry").val();
         event.stopPropagation();
         event.preventDefault();
     }
@@ -1993,7 +2020,7 @@ function search(keyevent) {
         
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
-	    ExtendedSearchCB = setTimeout(() => extendedSearch(0, sstr, node), 200);
+	    ExtendedSearchCB = setTimeout(() => extendedSearch(sstr, node), 200);
     } else {
 	    $("#search_entry").addClass('failed');
 	    $("tr.selected").removeClass('selected');
@@ -2002,36 +2029,34 @@ function search(keyevent) {
     return (!next);                                           // ret false to prevent entry
 }
 
-function extendedSearch(start, sstr, selectedNode) {
-    // do extended search in batches which can be stopped on the next key press
-    const batchSize = parseInt(AllNodes.length / 40);
-    const delay = 50;                                         // mSec delay between batches
-    let nodesToSearch, end;
-    if (start == 0) {
-        // on first pass search visible nodes. make array of BTNodes
-        nodesToSearch = $("#content tr:visible")
-            .map(function (){return $(this).attr("data-tt-id");})
-            .get().map((e) => AllNodes[parseInt(e)]);
-        end = 1;
-    } else {
-        // else carve out the next batch from AllNodes
-        end = start + batchSize;
-        nodesToSearch = AllNodes.slice(start, end);
+function rowsInViewport() {
+    // Helper for extendedSearch to only search visible rows
+    function isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
     }
+    
+    return $("#content tr:visible").filter(function() {
+        return isInViewport(this);
+    })
+    .map(function() { return $(this).attr("data-tt-id")})
+    .get().map((e) => AllNodes[parseInt(e)]);
+}
+
+function extendedSearch(sstr, currentMatch) {
+    // do extended search showing other hits on any visible nodes
+
+    const nodesToSearch = rowsInViewport();
 
 	nodesToSearch.forEach((n) => {
-		if (!n) return;
-		if (n == selectedNode) return;                        // already highlighted as selection
+		if (!n || n == currentMatch) return;
 		n.extendedSearch(sstr);
     });
-
-    // set up next batch if we're not done
-    if (end < AllNodes.length) {
-	    ExtendedSearchCB = setTimeout(() =>
-            extendedSearch(end, sstr, selectedNode), delay);
-    }
-    else
-        ExtendedSearchCB = null;
 }
 
 /***
