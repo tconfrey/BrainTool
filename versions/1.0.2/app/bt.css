@@ -550,6 +550,11 @@ textarea:focus, input[type="text"]:focus {
     color: #a0ec5f;
 }
     
+#BTVersion {
+    font-size: 10px;
+    margin-top: -12px;
+    margin-bottom: -3px;
+}
 .settingsInput {
     display: flex;
     justify-content: space-evenly;

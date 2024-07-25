@@ -201,8 +201,9 @@ class BTAppNode extends BTNode {
     }
 
     getDisplayNode() {
-	    // return jquery table row for node
-	    return $(`tr[data-tt-id='${this.id}']`)[0];
+	    // return jquery table row for node, lazy eval and cache
+	    this.displayNode = this.displayNode || $(`tr[data-tt-id='${this.id}']`)[0];
+        return this.displayNode;
     }
 
     getTTNode() {
@@ -315,15 +316,28 @@ class BTAppNode extends BTNode {
         });
         $(dn).find('.btlink').prepend(fav);
     }
-
-    static async populateFavicons() {
-        // iterate thru nodes adding favicon icon either from local storage or goog
-        AllNodes.forEach(async n => {
-            if (!n || n.isTopic() || !n.URL) return;
-            n.populateFavicon();
-        });
+    static populateFavicons() {
+        // iterate thru tab nodes adding favicon icon either from local storage or goog
+        // use requestIdleCallback and small batches bacause this can be costly with many nodes
+        const nodes = AllNodes.filter(n => n && !n.isTopic() && n.URL);
+        let index = 0;
+    
+        function processNextBatch(deadline) {
+            let nodesProcessed = 0;
+            while (index < nodes.length && deadline.timeRemaining() > 0 && nodesProcessed < 25) {
+                nodes[index].populateFavicon();
+                index++; nodesProcessed++;
+            }
+    
+            if (index < nodes.length) {
+                console.log(index);
+                requestIdleCallback(processNextBatch);
+            }
+        }
+    
+        requestIdleCallback(processNextBatch);
     }
-
+    
     /***
      *
      * Search support
@@ -433,14 +447,35 @@ class BTAppNode extends BTNode {
 	    BTAppNode.searchNodesToRedisplay.clear();
     }
 
+    static displayOrder = {};
+    static setDisplayOrder() {
+        // iterate through #content.tr rows and create a hash mapping the node.id to a {prev:, next:} structure 
+        // used by nextDisplayNode() to iterate through nodes in display order
+        BTAppNode.displayOrder = {};
+        let prevNodeId = null;
+        $("#content tr").each((i, node) => {
+            const nodeId = $(node).attr('data-tt-id');
+            BTAppNode.displayOrder[nodeId] = {
+                prev: prevNodeId,
+                next: null
+            };
+            prevNodeId && (BTAppNode.displayOrder[prevNodeId].next = nodeId);
+            prevNodeId = nodeId;
+        });
+
+        // set prev of first node to last and next of last node to first to iterate around
+        const firstNodeId = Object.keys(BTAppNode.displayOrder)[0];
+        BTAppNode.displayOrder[firstNodeId].prev = prevNodeId;
+        BTAppNode.displayOrder[prevNodeId].next = firstNodeId;
+    }
+    static resetDisplayOrder() {
+        // Clear out the display order cache
+        BTAppNode.displayOrder = {};
+    }
     nextDisplayNode(reverse = false) {
-        // Display order is the order of the nodes in the table, not in AllNodes. Used by search to know the next node to search in
-        const node = this.getDisplayNode();
-        let next = reverse ? $(node).prev()[0] : $(node).next()[0];
-        if (!next)            // Off the end of the table, wrap around
-            next = reverse ? $("#content tr").last()[0] : $("#content tr").first()[0];
-        const nodeId = $(next).attr('data-tt-id');
-        return nodeId ? AllNodes[nodeId] : null;
+        // displayOrder is the order of the nodes in the table, not in AllNodes. Used by search to know the next node to search in
+        const nodeId =  reverse ? BTAppNode.displayOrder[this.id].prev : BTAppNode.displayOrder[this.id].next;
+        return AllNodes[nodeId];
     }
 
     /***

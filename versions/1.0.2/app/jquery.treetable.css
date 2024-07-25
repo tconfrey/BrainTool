@@ -94,11 +94,24 @@ table.treetable tr.selected {
 table.treetable tr.attention {
   background-color: var(--btDrawAttention);
 }
+
 table.treetable td.dropOver {
   border-bottom-style: solid;
   border-bottom-color: var(--btDrawAttention);
   border-bottom-width: 8px;
 }
+
+@keyframes pulse-bottom {
+  0% { border-bottom-color: var(--btDrawAttention); }
+  50% { border-bottom-color: transparent; }
+  100% { border-bottom-color: var(--btDrawAttention); }
+}
+table.treetable td.dropOver-pulse {
+    border-bottom: 8px solid var(--btDrawAttention);
+    animation: pulse-bottom 0.75s 3;
+    animation-delay: 1.0s;
+}
+
 
 table.treetable td.left {
   width: 50%;
