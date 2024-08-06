@@ -330,7 +330,7 @@ class BTAppNode extends BTNode {
             }
     
             if (index < nodes.length) {
-                console.log(index);
+                //console.log(index);
                 requestIdleCallback(processNextBatch);
             }
         }

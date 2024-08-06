@@ -917,7 +917,8 @@ function tabNavigated(data) {
         if (!transitionData) return true;                           // single page app or nav within page
         if (transitionQualifiers.includes('from_address_bar')) 
             return false;                                           // implies explicit user nav, nb order of tests important
-        if (transitionTypes.some(type => ['link', 'reload'].includes(type))) return true;
+        if (transitionTypes.some(type => ['link', 'reload', 'form_submit'].includes(type))) return true;
+        if (transitionQualifiers.includes('server_redirect')) return true; 
         return false;
     }
     function closeAndUngroup() {

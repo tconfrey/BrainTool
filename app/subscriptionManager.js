@@ -245,6 +245,7 @@ async function checkLicense() {
 
 async function getPurchase(collection = 'subscriptions') {
     // Get subscription or one time payment record ('payments') for current user
+    // NB subs also create payment records on each renewal, so we need to filter for payments with non null item data
     try {
         FBDB || await initializeFirebase();
     } catch(e) {
@@ -262,10 +263,13 @@ async function getPurchase(collection = 'subscriptions') {
                 if (snapshot.empty) {
                     console.log(`No active ${collection}!`);
                     resolve(null);
-                } else {		
-                    const subscription = snapshot.docs[0].data();		   // only one
-                    console.log(`Sub: ${JSON.stringify(subscription)}`);
-                    resolve(subscription);
+                } else {
+                    let result = snapshot.docs[0].data();
+                    if (collection === 'payments') {
+                        result = snapshot.docs.find(doc => doc.data().items != null)?.data() || null;
+                    }
+                    console.log(`Sub: ${JSON.stringify(result)}`);
+                    resolve(result);
                 }
             });
         } catch(e) {
