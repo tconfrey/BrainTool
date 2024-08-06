@@ -12,6 +12,8 @@ image: "../../../site/postAssets/BT-TO.png"
 Tabs Outliner is a venerable and highly functional browser extension for managing tabs and sessions. It's tree structure and side panel display were an inspiration during BrainTool's early development. BrainTool is different than Tabs Outliner, however the two tools have significant overlap and many Tabs Outliner users have found that BrainTool is the better tool for their workflow. Google is in the process of discontinuing support for its Manifest V2 extension infrastructure and Tabs Outliner is looking moribund. Tabs Outliner users should evaluate BrainTool. 
  <!--end-->
  
+ UPDATE AUGUST 2024: Tabs Outliner has been updated to MV3. However if you are user of Tabs Outliner then BrainTool might still be of interest.
+ 
 ![TabsOutliner and BrainTool](../../../site/postAssets/BT-TO.png)
 ## The Pending Deadline
 Chrome browser extensions are built using a set of exposed APIs and run in a controlled sandbox environment. BrainTool was built on 'Manifest V2'. For a number of years Google has been tying to enforce the use of the 'Manifest V3' version of its browser api's and extension infrastructure, reportedly for security and performance reasons. An initial conversion deadline last year failed after developers revolted and pointed out that the V3 API could not support the needs of many very highly used extensions (most particularly ad blockers and other content filters).
