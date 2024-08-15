@@ -22,7 +22,7 @@ BrainTool is a Bring Your Own Data (BYOD) tool with no server or database.
 **2) You have the right to re-use your data across tools.**<br/>
 Your data should be accessible from different tools insofar as the same things as being worked with. Tools should be able to read and edit Appointments, Tasks, Tags, Notes, Lists, Journal entries etc created in other tools. 
 
-BrainTool uses org-mode syntax which means you can access your BT bookmarks, notes and to-dos in other apps or any text editor.
+BrainTool uses org-mode syntax which means you can access your BT bookmarks, notes and to-dos in other apps<super>*</super> or any text editor.
 
 **3) You have the right to inspect the code and logic of tools accessing your data.**<br/>
 There needs to be a way users can verify the operations they are trusting tools to perform on their behalf.
@@ -63,5 +63,8 @@ You have a lot of sites to store and tabs to wrangle. BrainTool fits a lot of de
 **e) Tools should be easy to pick up but reward expertise.**<br/>
 BrainTool incremental search and keyboard commands will make you more efficient over time.<br/>
 **f) Tools should minimize distractions.**<br/>
-A sparse workspace is a productive workspace. By making it easy to save, retrieve, and control tabs en masse, BrainTool encourages filing things away which reduces browser clutter and enhances focus.
+A sparse workspace is a productive workspace. By making it easy to save, retrieve, and control tabs en masse, BrainTool encourages filing things away which reducing browser clutter and enhancing focus.
 
+
+<a name="footnote"></a>
+<small><i><super>*</super> [LogSeq](https://logseq.com/), [Orgzly](https://www.orgzly.com/), [MobileOrg](https://mobileorg.github.io/) among others.</i></small>
