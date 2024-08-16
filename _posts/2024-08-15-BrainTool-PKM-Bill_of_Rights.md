@@ -26,7 +26,7 @@ BrainTool is a Bring Your Own Data (BYOD) tool with no server or database.
 **2) You have the right to re-use your data across tools.**<br/>
 Your data should be accessible from different tools insofar as the same things are being worked with. Tools should be able to read and edit Appointments, Tasks, Tags, Notes, Lists, Journal entries etc created in other tools. 
 
-BrainTool uses [org-mode](https://orgmode.org) syntax which means you can access your BT bookmarks, notes and to-dos in other tools<super>*</super> or any text editor.
+BrainTool uses [org-mode](https://orgmode.org) syntax which means you can access your BT bookmarks, notes and to-dos in other tools[*](#footnote) or any text editor.
 
 **3) You have the right to inspect the code and logic of tools accessing your data.**<br/>
 There needs to be a way users can verify the operations they are trusting tools to perform on their behalf.
@@ -45,7 +45,7 @@ Your BrainTool topic tree can be take any shape with infinite topic nesting.
 
 ### **BrainTool Grants the following Additional Rights**
 **6) You have the right to a fully functional extended evaluation period.**<br/>
-You need to be able to climb the learning curve for a tool to assess it's utility for your use case before having to commit to a purchase. 
+You need to be able to climb the learning curve for a tool to assess it's utility for your use case - before having to commit to a purchase. 
 
 BrainTool is usable free forever, cheap to support and free for friends. There are no limits on use. After 30 days some features and preferences are restricted to supporters.
 
@@ -55,9 +55,9 @@ In today's subscription-for-everything world, opaque recurring costs are a sourc
 BrainTool offers a one-time purchase in addition to recurring supporter subscriptions.
 
 ## **Tool Maker Aspirations**
-In addition to these basic rights tool makers should commit to the following aspirations
+In addition to these basic rights tool makers should commit to the following aspirations:
 
-**a) Tools should solve a real world day to day problems.**<br/>
+**a) Tools should solve real world day to day problems.**<br/>
 BrainTool solves your biggest browser headaches: the "too-many-tabs problem" and the "how do I save and re-find my stuff problem".<br/>
 **b) Tools should be easy, pleasing and fun to use.**<br/>
 Easier said than done, but always aspirational!<br/>
