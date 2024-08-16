@@ -5,13 +5,17 @@ description: We hold these truths to be self-evident
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/BT-TO.png"
+image: "../../../site/postAssets/Buddy-bill-of-rights.png"
 ---
 # BrainTool PKM Bill of Rights 
 <!--start-->
-I've written previously about the [philosophy](https://braintool.org/overview) behind BrainTool's approach to transparency, data management and storage format, but I've been thinking that it'd be worth formulating a specific list of rights that BT grants its users. I like the alliteration of "BrainTool Bill of Rights", but I think it's a set of rights and assurances that other tools managing user data should aspire to. In particular I'd love to see these evolve into a widely acknowledged Personal Knowledge Management (PKM)/Productivity tool bill of rights. What do you think?<br/>
+I've written previously about the [philosophy](https://braintool.org/overview) behind BrainTool's approach to transparency, data management and [storage format](https://braintool.org/2022/04/29/Tools4Thought-should-use-Org-for-interop.html), but I've been thinking that it'd be worth formulating a specific list of rights that BT grants its users. I like the alliteration of "BrainTool Bill of Rights", but I think it's a set of rights and assurances that other tools managing user data should aspire to. 
+<table style="margin-bottom: -50px;"><tr><td style="border: white; padding-left: 0px; vertical-align: top;">
+I'd love to see these evolve into a widely acknowledged Personal Knowledge Management (PKM)/Productivity tool bill of rights. What do you think?<br/>
 <small><i>(Spoiler: It's your data and BT is just one tool you've empowered to help you manage it.)</i></small>
-
+</td><td style="border: white">
+<img src="/site/postAssets/Buddy-bill-of-rights.png" alt="Buddy points" >
+</td></tr></table>
 <!--end-->
 ## **Tool User Rights:**
 **1) You have the right to full and exclusive access to your data.**<br/>
@@ -68,4 +72,4 @@ A sparse workspace is a productive workspace. By making it easy to save, retriev
 
 
 <a name="footnote"></a>
-<small><i><super>*</super> [Emacs](https://orgmode.org/worg/org-tutorials/org4beginners.html), [LogSeq](https://logseq.com/), [Orgzly](https://www.orgzly.com/), [MobileOrg](https://mobileorg.github.io/) among others.</i></small>
+<small><i><super>*</super> [Emacs](https://orgmode.org/worg/org-tutorials/org4beginners.html), [LogSeq](https://logseq.com/), [Orgzly](https://www.orgzly.com/), [MobileOrg](https://mobileorg.github.io/), [beorg](https://www.beorg.app/) and [FlatHabits](https://flathabits.com/) among others.</i></small>
