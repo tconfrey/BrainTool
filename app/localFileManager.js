@@ -119,22 +119,29 @@ const localFileManager = (() => {
         const options = {startIn: 'documents', create: true};
         LocalDirectoryHandle = await window.showDirectoryPicker(options);
         if (!LocalDirectoryHandle) {
-            console.log('Local File access denied');
+            alert('Cancelling Local File sync');
             return null;
         }
+
         let fileExists = false;
-        for await (const entry of LocalDirectoryHandle.values()) {
-            console.log(entry.kind, entry.name);
-            if (entry.name == 'BrainTool.org')  {
-                LocalFileHandle = entry;
-                fileExists = true;
-                break;
+        try {
+            for await (const entry of LocalDirectoryHandle.values()) {
+                console.log(entry.kind, entry.name);
+                if (entry.name == 'BrainTool.org')  {
+                    LocalFileHandle = entry;
+                    fileExists = true;
+                    break;
+                }
             }
+            if (!LocalFileHandle)
+                LocalFileHandle =
+                await LocalDirectoryHandle.getFileHandle('BrainTool.org', { create: true });
+        } catch (err) {
+            console.log(err);
+            alert('Error accessing local file, cancelling sync');
+            return null;
         }
-        if (!LocalFileHandle)
-            LocalFileHandle =
-            await LocalDirectoryHandle.getFileHandle('BrainTool.org', { create: true });
-        
+            
         LocalFileConnected = true;                             // used in fileManager facade
         if (fileExists &&
             confirm("BrainTool.org file already exists. Click OK to use its contents")) {

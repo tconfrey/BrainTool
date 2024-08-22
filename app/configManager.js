@@ -293,19 +293,27 @@ const configManager = (() => {
             saveBT();
         });
         $('#syncSetting :radio').change(async function () {
-            const newVal = $(this).val();
-            let success = false;
-            if (newVal == 'gdrive')
+            try {
+              const newVal = $(this).val();
+              let success = false;
+              if (newVal == 'gdrive')
                 success = await authorizeGAPI(true);
-            if (newVal == 'local')
+              else if (newVal == 'local')
                 success = await authorizeLocalFile();
-            if (success) {
+              if (success) {
                 $("#settingsSync").hide();
                 $("#settingsSyncStatus").show();
                 $("#syncType").text((newVal == 'gdrive') ? "GDrive" : "Local File");
                 $("#actionsSyncStatus").show();
+              } else {
+                $("#settingsSyncNone").prop("checked", true);
+              }
+              return success;
+            } catch (err) {
+              console.warn(err);
+              $("#settingsSyncNone").prop("checked", true);
+              return false;
             }
-            return success;
         });
 
     });
