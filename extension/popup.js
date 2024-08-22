@@ -143,46 +143,41 @@ function openTopicManager(home = 'PANEL', location) {
                 'top' : mainwin.top, 'left' : mainwin.left,
                 'width' : 500, 'height' : mainwin.height
             };
-            // shift current win left to accomodate side-panel. nb state can't be 'maximized'
-            if (!location) 
-                if (mainwin.state == 'normal')      // only shift normal windows, its wierd if the window is maximized
-                    await chrome.windows.update(mainwin.id, {focused: false, left: (mainwin.left + 150)});
-                createTopicManagerWindow(wargs);
-            });
-        } else {
+            // shift current win left to accomodate side-panel before creating TM. nb only shift normal windows, its wierd if the window is maximized
+            if ((!location) && (mainwin.state == 'normal'))
+                await chrome.windows.update(mainwin.id, {focused: false, left: (mainwin.left + 150)});
+            createTopicManagerWindow(wargs);
+        });
+    } else {
             // open in tab
             console.log('opening in tab');
             chrome.tabs.create({'url': url});
-        }
     }
+}
 
 function createTopicManagerWindow(wargs) {
     // Open Topic Manager, handle bounds error that happens if Mgr moved off visible screen
-    try {
-        chrome.windows.create(wargs, async function(window) {
-            if (window)  {
-                // for some reason  position is not always set correctly, so update it explicitly 
-                await chrome.windows.update(window.id, 
-                    {'left': wargs.left, 'top': wargs.top, 'width': wargs.width, 'height' : wargs.height, 
-                        'focused': true, 'drawAttention': true});
-                        console.log('Updated window:', window);
-                    }
-                    else {
-                        console.warn('error creating Topic Manager:', chrome.runtime.lastError?.message);
-                        wargs.top = 50; wargs.left = 0;
-                        wargs.width = Math.min(screen.width, wargs.width);
-                        wargs.height = Math.min((screen.height - 50), wargs.height);
-                        chrome.windows.create(wargs);
-                    }
-                });
-            } catch (e) {
-                console.warn('error in createTopicManagerWindow, trying again:', e);
-                wargs.top = 50; wargs.left = 0;
-                wargs.width = Math.min(screen.width, wargs.width);
-                wargs.height = Math.min((screen.height - 50), wargs.height);
-                chrome.windows.create(wargs);
-            }
+    chrome.windows.create(wargs, async function(window) {
+        if (window)  {
+            // for some reason  position is not always set correctly, so update it explicitly 
+            await chrome.windows.update(window.id, {'left': wargs.left, 'top': wargs.top, 'width': wargs.width, 'height' : wargs.height, 
+                'focused': true, 'drawAttention': true});
+            console.log('Updated window:', window);
+        } else {
+            console.warn('error creating Topic Manager:', chrome.runtime.lastError?.message);
+            wargs.top = 50; wargs.left = 0;
+            wargs.width = Math.min(screen.width, wargs.width);
+            wargs.height = Math.min((screen.height - 50), wargs.height);
+            console.warn('Adjusting window bounds and re-creating Topic Manager:', wargs);
+            chrome.windows.create(wargs, async function(window2) {
+                if (!window2) {
+                    alert('Error creating the TopicManager window. Chrome says:' + chrome.runtime.lastError?.message + '\n Using a tab instead...');
+                    chrome.tabs.create({'url': wargs.url});
+                }
+            });
         }
+    });
+}
 
 // 4. Bookmarker Management from here on
 
