@@ -225,12 +225,17 @@ const localFileManager = (() => {
     }
 
     async function getLocalFileHandle() {
-        return LocalFileHandle || await get('localFileHandle');;
+        return LocalFileHandle || await get('localFileHandle');
+    }
+    async function getLocalDirectoryHandle() {
+        return LocalDirectoryHandle || await get('localDirectoryHandle');
     }
 
     function reset() {
-        // utility to clear out memory of localFileHandle
+        // utility to clear out memory of localFileHandle. Called when sync turned off.
         clear();
+        LocalFileHandle = null;
+        LocalDirectoryHandle = null;
         //del('localFileHandle');
         //del('localDirectoryHandle');
     }
@@ -245,6 +250,7 @@ const localFileManager = (() => {
         savePendingP: savePendingP,
         getBTFile: getBTFile,
         getLocalFileHandle: getLocalFileHandle,
+        getLocalDirectoryHandle: getLocalDirectoryHandle,
         getFileLastModifiedTime: getFileLastModifiedTime,
         reset: reset
     };

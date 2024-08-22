@@ -184,7 +184,7 @@ function updateStatsRow(modifiedTime = null) {
     }
 }
 
-function updateSyncSettings(connected = false, time = null) {
+async function updateSyncSettings(connected = false, time = null) {
     // Update the display to show/hide based on connectivity
 
     if (connected) {
@@ -192,10 +192,15 @@ function updateSyncSettings(connected = false, time = null) {
         $("#settingsSyncStatus").show();
         $("#actionsSyncStatus").show();
         const filetype = GDriveConnected ? 'GDrive' : 'Local File';
-        const fileLocation = GDriveConnected ? "https://drive.google.com/file/d/" + configManager.getProp('BTFileID') : "";
         $("#autoSaveLabel").text(`${filetype} sync is on.`);
-        $("#fileLocation").html(`File: ${fileLocation}`);
-        GDriveConnected && configManager.getProp('BTFileID') && $("#fileLocation").show();
+        if (GDriveConnected) {
+            $("#fileLocation").html(`File: ${"https://drive.google.com/file/d/" + configManager.getProp('BTFileID')}`);
+            configManager.getProp('BTFileID') && $("#fileLocation").show();
+        } else {
+            let handle = await localFileManager.getLocalDirectoryHandle();
+            $("#fileLocation").html(`Folder: ${handle.name}`);
+            $("#fileLocation").show();
+        }
         $("#syncType").text(filetype);
         updateStatsRow(time);                                           // last saved time etc
     }  else {
