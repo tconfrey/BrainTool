@@ -159,26 +159,30 @@ function openTopicManager(home = 'PANEL', location) {
 function createTopicManagerWindow(wargs) {
     // Open Topic Manager, handle bounds error that happens if Mgr moved off visible screen
     try {
-    chrome.windows.create(wargs, async function(window) {
-        if (window)  {
-            // for some reason  position is not always set correctly, so update it explicitly 
-            await chrome.windows.update(window.id, 
-                {'left': wargs.left, 'top': wargs.top, 'width': wargs.width, 'height' : wargs.height, 
-                'focused': true, 'drawAttention': true});
-            console.log('Updated window:', window);
+        chrome.windows.create(wargs, async function(window) {
+            if (window)  {
+                // for some reason  position is not always set correctly, so update it explicitly 
+                await chrome.windows.update(window.id, 
+                    {'left': wargs.left, 'top': wargs.top, 'width': wargs.width, 'height' : wargs.height, 
+                        'focused': true, 'drawAttention': true});
+                        console.log('Updated window:', window);
+                    }
+                    else {
+                        console.warn('error creating Topic Manager:', chrome.runtime.lastError?.message);
+                        wargs.top = 50; wargs.left = 0;
+                        wargs.width = Math.min(screen.width, wargs.width);
+                        wargs.height = Math.min((screen.height - 50), wargs.height);
+                        chrome.windows.create(wargs);
+                    }
+                });
+            } catch (e) {
+                console.warn('error in createTopicManagerWindow, trying again:', e);
+                wargs.top = 50; wargs.left = 0;
+                wargs.width = Math.min(screen.width, wargs.width);
+                wargs.height = Math.min((screen.height - 50), wargs.height);
+                chrome.windows.create(wargs);
+            }
         }
-        else {
-            console.warn('error creating Topic Manager:', chrome.runtime.lastError?.message);
-            wargs.top = 50; wargs.left = 0;
-            chrome.windows.create(wargs);
-        }
-    });
-    } catch (e) {
-        console.warn('error in createTopicManagerWindow, trying again:', e);
-        wargs.top = 50; wargs.left = 0;
-        chrome.windows.create(wargs);
-    }
-}
 
 // 4. Bookmarker Management from here on
 
