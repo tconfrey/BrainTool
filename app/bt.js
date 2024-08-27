@@ -1305,8 +1305,8 @@ function buttonShow(e) {
     else
         $("#addChild").hide();
 
-    // only show outdent on non-top level items
-    if (this.getAttribute("data-tt-parent-id"))
+    // only show outdent on non-top level items. don't show it on links (!isTopic) where promoting would put to top level
+    if ((this.getAttribute("data-tt-parent-id")) && !((node.level == 2) && !node.isTopic()))
         $("#outdent").show();
     else
         $("#outdent").hide();
