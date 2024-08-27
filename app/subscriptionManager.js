@@ -25,23 +25,37 @@ async function handlePurchase(product) {
     // handle monthly or annual subscribe. Load Stripe code, load and init FB, check for existing sub or purchase, then pass to Stripe to complete txn
 
     // First Check if Stripe script is already loaded
-    if (!window.Stripe) {
-        // Load Stripe script
-        const script = document.createElement('script');
-        script.src = 'https://js.stripe.com/v3/';
-        script.async = true;
-        document.head.appendChild(script);
-        
-        // Wait for the script to load
-        await new Promise((resolve) => {
-            script.onload = resolve;
-        });
-    }
-    FBDB || await initializeFirebase();
-    if (!FBDB) {
-	    console.error("Problem initializing Firebase");
-	    alert("Sorry Firebase initialization failed.");
-	    return;
+    try {
+        if (!window.Stripe) {
+            // Load Stripe script
+            const script = document.createElement('script');
+            script.src = 'https://js.stripe.com/v3/';
+            script.async = true;
+    
+            const loadPromise = new Promise((resolve, reject) => {
+                script.onload = resolve;
+                script.onerror = reject;
+            });
+    
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Script load timed out')), 10000); // 10 second timeout
+            });
+    
+            document.head.appendChild(script);
+    
+            // Wait for the script to load or timeout
+            await Promise.race([loadPromise, timeoutPromise]);
+        }
+        FBDB || await initializeFirebase();
+        if (!FBDB) {
+            console.error("Problem initializing Firebase");
+            alert("Sorry Firebase initialization failed.");
+            return;
+        }
+    } catch(error) {
+        console.error("Error initializing Stripe/Firebase: ", error);
+        alert("Sorry Stripe/Firebase initialization failed.");
+        return;
     }
 
     if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your supporter status in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
@@ -49,12 +63,19 @@ async function handlePurchase(product) {
     $('body').addClass('waiting');
 
     // Create user id, store in localStore and in BTFile text
-    BTId = await signIn();
-    if (!BTId) {
+    try {
+        BTId = await signIn();
+        if (!BTId) {
+            $('body').removeClass('waiting');
+            console.error("Error signing in to FB");
+            alert("Sorry Firebase user creation failed.");
+            return;
+        }
+    } catch(error) {
         $('body').removeClass('waiting');
-	    console.error("Error signing in to FB");
-	    alert("Sorry Firebase user creation failed.");
-	    return;
+        console.error("Error signing in FB user:", error);
+        alert("Sorry Firebase user creation failed.");
+        return;
     }
     // Save sub id as BTId in local storage and org file property
     configManager.setProp('BTId', BTId);
