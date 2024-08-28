@@ -23,6 +23,7 @@
     pointer-events: none;
     display: block;
     opacity: 0;
+    z-index: 1;
     visibility: hidden;
     -webkit-transition: all .25s;
     transition: all .25s;
@@ -47,7 +48,6 @@
     display: block;
     opacity: 1;
     visibility: visible;
-    z-index: 0;
     -webkit-transform: translate(-25%, -5px);
             transform: translate(-25%, -5px);
 }
