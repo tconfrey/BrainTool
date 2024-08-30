@@ -2287,9 +2287,10 @@ function keyUpHandler(e) {
         $(next).addClass('selected');
     }
 
-    // space = open tab/window
-    if (code === "Space") {
-        node.openPage(alt);
+    // space = open tab, w/alt-space => open in new window
+    if (code === "Space" || code === "KeyW") {
+        const newWin = alt || code === "KeyW";
+        node.openPage(newWin);
         e.preventDefault();
     }
 
