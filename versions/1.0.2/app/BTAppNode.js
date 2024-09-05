@@ -170,8 +170,11 @@ class BTAppNode extends BTNode {
     }
 
     displayText() {
-        // Just a pass through to static fn below
-        return BTAppNode._orgTextToHTML(this._text);
+        // escape any html entities and pass thru to static fn below
+        let text = BTAppNode._decodeHtmlEntities(this._text);
+        text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        return BTAppNode._orgTextToHTML(text);
     }
     
     /* for use escaping unicode in displayTitle below */
@@ -181,14 +184,14 @@ class BTAppNode extends BTNode {
         return BTAppNode._textAreaForConversion.value;
     }
     displayTitle() {
-        // Node title as shown in tree, <a> for url. Compare to BTNode.displayTitle
+        // Node title as shown in tree, <a> for url.
 
         // handle keywords
         let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
 
         // escape any html entities
-        let title = this.title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        title = BTAppNode._decodeHtmlEntities(title);
+        let title = BTAppNode._decodeHtmlEntities(this.title);
+        title = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         return BTAppNode._orgTextToHTML(title, keywordText);
     }
