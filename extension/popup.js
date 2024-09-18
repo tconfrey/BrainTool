@@ -345,11 +345,16 @@ async function saveCB(close) {
     if (window.getComputedStyle(saverDiv).display == 'none') saveType = 'Tab';
     else saveType = SaveTab.checked ? 'Tab' : (SaveTG.checked ? 'TG' : (SaveWindow.checked ? 'Window' : 'Session'));
 
-    await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
-                                      'close': close, 'topic': newTopic, 'note': note, 'title': title});
-    if (!close)              // if tab isn't closing animate the brain
-        await chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
-    await chrome.storage.local.set({'saveAndClose': close});
+    if ((saveType == 'Tab') && (CurrentTab.pinned)) {
+        // We don't handle pinned tabs, so alert and return
+        alert('BrainTool does not handle pinned tabs. Unpin the tab and try again.');
+    } else {
+        await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
+                                        'close': close, 'topic': newTopic, 'note': note, 'title': title});
+        if (!close)              // if tab isn't closing animate the brain
+            await chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
+        await chrome.storage.local.set({'saveAndClose': close});
+    }
     window.close();
 }
 
