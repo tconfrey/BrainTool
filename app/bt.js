@@ -168,7 +168,8 @@ function handleFocus(e) {
     // BTTab comes to top
     
     document.activeElement.blur();      // Links w focus interfere w BTs selection so remove
-    warnBTFileVersion(e);               // check file version, warn if stale
+    const deletions = handlePendingDeletions();         // handle any pending deletions
+    if (!deletions) warnBTFileVersion(e);               // check file version, warn if stale, NB if deletions then save will overwrite
 }
 
 async function warnBTFileVersion(e) {
@@ -192,7 +193,17 @@ async function warnBTFileVersion(e) {
         messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.", cb);
     }
 }
-                         
+
+function handlePendingDeletions() {
+    // handle any pending deletions from tab drag oparations (eg tabLeftTG without associated tabJoinedTG)
+
+    const pending = AllNodes.filter(n => n.pendingDeletion);
+    pending.forEach(n => {
+        deleteNode(n.id);
+    });
+    return pending.length;
+}
+
 function handleInitialTabs(tabs, tgs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
 
@@ -1018,7 +1029,8 @@ function tabGroupCreated(data) {
 
     const tgId = data.tabGroupId;
     const color = data.tabGroupColor;
-    const node = BTAppNode.findFromGroup(tgId);
+    const topicId = data.topicId;
+    const node = BTAppNode.findFromGroup(tgId) || AllNodes[topicId];
     node?.setTGColor(color);
 }
 
@@ -1048,50 +1060,74 @@ function tabGroupUpdated(data){
 }
 
 function tabJoinedTG(data) {
-    // tab joined TG, update associated topic as appropriate
-    // NB Get here when an existing page is opened in its TG as well as page dropping into TG and tabgrouping being turned on from settings. #1 is no-op
+    // tab joined TG, update tab and topic nodes as appropriate
+    // NB Get here when an existing page is opened in its TG as well as page moving between TGs and tabgrouping being turned on from settings.
     // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
 
     if (GroupingMode != 'TABGROUP') return;                              // don't care
     const tabId = data.tabId;
     const tgId = data.groupId;
-    let tabNode = BTAppNode.findFromTab(tabId);
-    const topicNode = BTAppNode.findFromGroup(tgId);
-    if (tabNode) {
-        const tgParent = AllNodes[tabNode.parentId];
-        if (tgParent == topicNode) return;                              // no-op - we know dis 
-        tgParent.tabGroupId = tgId;                                     // initial grouping from setting change => link tgId
-        return;
-    }
-    if (!topicNode) return;                                             // don't care
+    const winId = data.windowId;
     const tab = data.tab;
     const index = data.tabIndex;
     const indices = data.indices;
-    const winId = data.windowId;
-   
-    tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
-                                "", topicNode.level + 1);
-    tabNode.tabId = tabId;
+
+    let tabNode = BTAppNode.findFromTab(tabId);
+    const topicNode = BTAppNode.findFromGroup(tgId);
+    if (!topicNode && !tabNode) return;                             // don't care
+
+    if (tabNode && !topicNode) {
+        // settings toggle => update parent w tg info
+        const tgParent = AllNodes[tabNode.parentId];
+        tabNode.windowId = winId;
+        tgParent.tabGroupId = tgId;
+        tgParent.windowId = winId;
+        return;
+    }
+
+    if (!tabNode) {
+        // tab dropped into managed TG => save it to the topic
+        tabNode = new BTAppNode(`[[${tab.url}][${tab.title}]]`, topicNode.id,
+                                    "", topicNode.level + 1);
+        tabNode.tabId = tabId;
+        tabNode.tabGroupId = tgId;
+        tabNode.faviconUrl = tab.favIconUrl;
+        $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
+        tabNode.populateFavicon();
+        initializeUI();
+        tabActivated(data);             // handles setting topic etc into local storage for popup
+        changeSelected(tabNode);
+        setNodeOpen(tabNode);
+        positionInTopic(topicNode, tabNode, index, indices, winId);
+        return;
+    }
+
+    // remaining option - tab moved between TGs
+    tabNode.pendingDeletion = false;                                // no longer pending deletion
     tabNode.tabGroupId = tgId;
-    tabNode.faviconUrl = tab.favIconUrl;
-    $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
-    tabNode.populateFavicon();
-    initializeUI();
-    tabActivated(data);             // handles setting topic etc into local storage for popup
-    changeSelected(tabNode);
-    setNodeOpen(tabNode);
     positionInTopic(topicNode, tabNode, index, indices, winId);
 }
 
 function tabLeftTG(data) {
-    // user moved tab out of TG => no longer managed => deleteNode
+    // user moved tab out of TG => no longer managed => mark for deletion
+    // NB don't delete cos might be moving to another TG or its TG might be moving between windows
     
     if (GroupingMode != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
     if (!tabNode) return;
-    tabNode.tabId = null;
-    deleteNode(tabNode.id);
+    tabNode.pendingDeletion = true;
+
+    // unhighlight topic is no longer open in tg
+    const parentId = tabNode.parentId;
+    const parent = AllNodes[parentId];
+    const openKids = parent.hasOpenChildren();   // returns number of open tab children
+    if (openKids == 1) {
+        // just this one, unhighlight
+        parent.setTGColor(null)
+        $("tr[data-tt-id='"+parentId+"']").removeClass("opened");
+    }
+    //deleteNode(tabNode.id);
 }
 
 function tabMoved(data) {

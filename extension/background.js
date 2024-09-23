@@ -44,9 +44,13 @@ async function btSendMessage(tabId, msg) {
 }
 
 async function getBTTabWin() {
-    // read from local storage
+    // read from local storage then cached
+    if (getBTTabWin.cachedValue) {
+        return getBTTabWin.cachedValue;
+    }
     let p = await chrome.storage.local.get(['BTTab', 'BTWin']);
-    return [p.BTTab, p.BTWin];
+    if (p.BTTab && p.BTWin) getBTTabWin.cachedValue = [p.BTTab, p.BTWin];
+    return getBTTabWin.cachedValue || [0, 0];
 }
 
 function check(msg='') {
@@ -183,30 +187,37 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 *  Event handling for browser events of interest
 *
 ***/
+function logEventWrapper(eventName, originalFunction) {
+    // wrap event handlers below to log event and args
+    return function(...args) {
+        console.log(`EVENT---: ${eventName}`, args);
+        return originalFunction.apply(this, args);
+    }
+}
 
 /* -- Tab Events -- */
 
-chrome.tabs.onAttached.addListener(async (tabId, otherInfo) => {
+chrome.tabs.onAttached.addListener(logEventWrapper("tabs.onAttached", async (tabId, otherInfo) => {
     // listen for tab event 
     const [BTTab, BTWin] = await getBTTabWin();
-    console.log('attached event:', otherInfo);
-});
+    //console.log('attached event:', otherInfo);
+}));
 
-chrome.tabs.onMoved.addListener(async (tabId, otherInfo) => {
+chrome.tabs.onMoved.addListener(logEventWrapper("tabs.onMoved", async (tabId, otherInfo) => {
     // listen for tabs being moved and let BT know
     if (Awaiting) return;                                           // ignore events while we're awaiting our commands to take effect
     const [BTTab, BTWin] = await getBTTabWin();
     const tab = await chrome.tabs.get(tabId); check();
     if (!tab || tab.status == 'loading') return;
     const indices = await tabIndices();
-    console.log('moved event:', otherInfo, tab);
+    //console.log('moved event:', otherInfo, tab);
     btSendMessage(
         BTTab, {'function': 'tabMoved', 'tabId': tabId, 'groupId': tab.groupId,
                 'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices, 'tab': tab});
     setTimeout(function() {setBadge(tabId);}, 200);
-});
+}));
 
-chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
+chrome.tabs.onRemoved.addListener(logEventWrapper("tabs.onRemoved", async (tabId, otherInfo) => {
     // listen for tabs being closed and let BT know
     const [BTTab, BTWin] = await getBTTabWin();
     if (!tabId || !BTTab) return;         // closed?
@@ -217,44 +228,18 @@ chrome.tabs.onRemoved.addListener(async (tabId, otherInfo) => {
     }
     const indices = await tabIndices();
     btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
-});
+}));
 
-const tabTransitionData = {};       // map of tabId: {transitionTypes: [""..], transitionQualifiers: [""..]}
-
-
-// Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
-// Seems like some sites (g Reddit) trigger the history instead of Committed event. Don't know why
-chrome.webNavigation.onCommitted.addListener(async (details) => {
-    if (details?.frameId !== 0) return;
-    console.log('webNavigation.onCommitted fired:', JSON.stringify(details));
-    if (!tabTransitionData[details.tabId]) {
-        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
-    }
-    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
-    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
-});
-
-chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
-    if (details?.frameId !== 0) return;
-    console.log('webNavigation.onHistoryStateUpdated fired:', JSON.stringify(details));
-    if (!tabTransitionData[details.tabId]) {
-        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
-    }
-    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
-    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
-});
-
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId, changeInfo, tab) => {
     // listen for tabs navigating to and from BT URLs or being moved to/from TGs
     if (Awaiting) return;                                           // ignore events while we're awaiting 'synchronous' commands to take effect
-    if (PauseTabEventsDuringTGMove) return;                         // ignore tab events for a few seconds after TG is dragged creating a new window
 
     const [BTTab, BTWin] = await getBTTabWin();
     if (!tabId || !BTTab || (tabId == BTTab)) return;               // not set up yet or don't care
 
     const indices = await tabIndices();                             // keep indicies in sync
     if (changeInfo.status == 'complete') {
-        // tab navigated to/from url, add in transition info from Web Nav event, above
+        // tab navigated to/from url, add in transition info from Web Nav event, below
         const transitionData = tabTransitionData[tabId] || null;          // set in webNavigation.onCommitted event above
         setTimeout (() => delete tabTransitionData[tabId], 1000);                                // clear out for next event
         btSendMessage(
@@ -275,14 +260,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         }, 250);
         setTimeout(function() {setBadge(tabId);}, 200);
     }
-});
+}));
 
-chrome.tabs.onActivated.addListener(async (info) => {
+chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (info) => {
     // Let app know there's a new top tab
-    if (PauseTabEventsDuringTGMove) return;                            // ignore TG events for a few seconds after a new window is created
     const [BTTab, BTWin] = await getBTTabWin();
     if (!info.tabId || !BTTab) return;
-    console.log(`tabs.onActiviated fired, info: [${JSON.stringify(info)}]`);
+    //console.log(`tabs.onActiviated fired, info: [${JSON.stringify(info)}]`);
     chrome.tabs.get(info.tabId, tab => {
         check();
         if (!tab) return;
@@ -290,57 +274,65 @@ chrome.tabs.onActivated.addListener(async (info) => {
                               'windowId': tab.windowId, 'groupId': tab.groupId});
         setTimeout(function() {setBadge(info.tabId);}, 250);
     });
-});
+}));
+
+// Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
+// Seems like some sites (g Reddit) trigger the history instead of Committed event. Don't know why
+
+const tabTransitionData = {};       // map of tabId: {transitionTypes: [""..], transitionQualifiers: [""..]}
+chrome.webNavigation.onCommitted.addListener(logEventWrapper("webNavigation.onCommitted", async (details) => {
+    if (details?.frameId !== 0) return;
+    //console.log('webNavigation.onCommitted fired:', JSON.stringify(details));
+    if (!tabTransitionData[details.tabId]) {
+        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
+    }
+    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
+    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
+}));
+
+chrome.webNavigation.onHistoryStateUpdated.addListener(logEventWrapper("webNavigation.onHistoryStateUpdated", async (details) => {
+    if (details?.frameId !== 0) return;
+    //console.log('webNavigation.onHistoryStateUpdated fired:', JSON.stringify(details));
+    if (!tabTransitionData[details.tabId]) {
+        tabTransitionData[details.tabId] = { transitionTypes: [], transitionQualifiers: [] };
+    }
+    tabTransitionData[details.tabId].transitionTypes.push(details.transitionType);
+    tabTransitionData[details.tabId].transitionQualifiers.push(...details.transitionQualifiers);
+}));
 
 /* -- TabGroup Events -- */
 
-chrome.tabGroups.onCreated.addListener(async (tg) => {
+chrome.tabGroups.onCreated.addListener(logEventWrapper("tabGroups.onCreated", async (tg) => {
     // listen for TG creation and let app know color etc
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab) return;                                              // not set up yet or don't care
     btSendMessage(BTTab, {'function': 'tabGroupCreated', 'tabGroupId': tg.id,
                           'tabGroupColor': tg.color});
-});
+}));
 
-chrome.tabGroups.onUpdated.addListener(async (tg) => {
+chrome.tabGroups.onUpdated.addListener(logEventWrapper("tabGroups.onUpdated", async (tg) => {
     // listen for TG updates and let app know color etc
-    console.log('tabGroup updated:', tg, NewWindowID );
     if (Awaiting) return;                                            // ignore TG events while we're awaiting our commands to take effect
-    if (NewWindowID && (NewWindowID == tg.windowId)) {
-        // ignore TG updates in btSendMessage for a few seconds cos tabs get disconnected and reconnected
-        console.log('Pausing TG events for 5 seconds');
-        PauseTabEventsDuringTGMove = true;
-        setTimeout(() => PauseTabEventsDuringTGMove = false, 5000);
-    }
+   
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab) return;                                              // not set up yet or don't care
     btSendMessage(BTTab, {'function': 'tabGroupUpdated', 'tabGroupId': tg.id,
                           'tabGroupColor': tg.color, 'tabGroupName': tg.title,
                           'tabGroupCollapsed': tg.collapsed,
                           'tabGroupWindowId': tg.windowId});
-});
+}));
 
-chrome.tabGroups.onRemoved.addListener(async (tg) => {
+chrome.tabGroups.onRemoved.addListener(logEventWrapper("tabGroups.onRemoved", async (tg) => {
     // listen for TG deletion
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab) return;                                              // not set up yet or don't care
     btSendMessage(BTTab, {'function': 'tabGroupRemoved', 'tabGroupId': tg.id});
-});
+}));
 
 
 /* --  Window Events -- */
 
-var NewWindowID = 0;
-var PauseTabEventsDuringTGMove = false;
-chrome.windows.onCreated.addListener(async (win) => {
-    // When a TG is dragged out of its window a new one is created followed by a cascade of tab events leaving and rejoining the TG.
-    // Its too complex to track all these events so we just ignore TG events for a few seconds after a new window is created.
-    console.log('window created:', win);
-    NewWindowID = win.id;
-    setTimeout(() => NewWindowID = 0, 1000);
-});
-
-chrome.windows.onFocusChanged.addListener(async (windowId) => {
+chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChanged", async (windowId) => {
     // Let app know there's a new top tab
 
     // don't care about special windows like dev tools
@@ -353,7 +345,7 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
         btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': tabs[0].id});
         setTimeout(function() {setBadge(tabs[0].id);}, 200);
     });
-});
+}));
 
 chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
@@ -364,7 +356,7 @@ chrome.windows.onBoundsChanged.addListener(async (window) => {
 });
 
 // listen for connect and immediate disconnect => open BT panel
-chrome.runtime.onConnect.addListener(async (port) => {
+chrome.runtime.onConnect.addListener(logEventWrapper("runtime.onConnect", async (port) => {
 
     const [BTTab, BTWin] = await getBTTabWin();
     const connectTime = Date.now();
@@ -377,7 +369,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
                 chrome.tabs.update(BTTab, {'active': true});
             });
     });
-});
+}));
 
 // utility to return tabId: {tabIndex windowId} hash
 async function tabIndices() {
@@ -617,6 +609,7 @@ async function groupAndPositionTabs(msg, sender) {
     const tabGroupId = msg.tabGroupId;
     const windowId = msg.windowId;
     const tabInfo = msg.tabInfo;
+    const topicId = msg.topicId;
     const groupName = msg.groupName;
 
     // Sort left to right before moving
@@ -638,6 +631,11 @@ async function groupAndPositionTabs(msg, sender) {
             check('groupAndPositionTabs-group');
             if (!groupId) console.log('Error: groupId not returned from tabs.group call.');
             else await chrome.tabGroups.update(groupId, {'title' : groupName});
+            if (!tabGroupId) {
+                // new group => send tabGroupCreated msg to link to topic
+                const tg = await chrome.tabGroups.get(groupId);
+                btSendMessage(sender.tab.id, {'function': 'tabGroupCreated', 'tabGroupId': groupId, 'topicId': topicId, 'tabGroupColor': tg.color});
+            }
             const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
             theTabs.forEach(t => {
                 const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);

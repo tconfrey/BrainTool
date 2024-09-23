@@ -123,8 +123,21 @@ class BTAppNode extends BTNode {
         return this._folded;
     }
     
+    set pendingDeletion(f) {
+        // indicate pending deletion on open tab
+        this._pendingDeletion = f;
+        const displayNode = this.getDisplayNode();
+        const btTitle = $(displayNode).find('.btTitleText');
+        const opacity = f ? 0.4 : 1;
+        $(btTitle).css('opacity', opacity);
+    }
+    get pendingDeletion() {
+        return this._pendingDeletion;
+    }
+    
+
     hasOpenChildren() {
-        return this.childIds.some(id => AllNodes[id].tabId);
+        return this.childIds.filter(id => AllNodes[id].tabId).length;
     }
     hasOpenDescendants() {
         return (this.tabId || this.childIds.some(id => AllNodes[id].hasOpenDescendants()));
@@ -575,7 +588,7 @@ class BTAppNode extends BTNode {
         });
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': this.topicName(),            // BTAppNode.displayNameFromTitle(this.displayTopic),
+                            'groupName': this.topicName(), 'topicId': this.id,
                         });
     }
     
@@ -583,10 +596,11 @@ class BTAppNode extends BTNode {
         // wrap this one nodes tab in a group
         if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
         const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
+        const groupId = this.isTopic() ? this.id : AllNodes[this.parentId]?.id;
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
         window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
-                            'groupName': groupName});
+                            'groupName': groupName, 'topicId': groupId,});
     }
     
     closeTab() {
