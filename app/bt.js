@@ -578,10 +578,17 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
         }
         const parent = parentId ? AllNodes[parentId] : null;
         newParent = parent;
-        dragNode.reparentNode(parentId,
-                              parent ?
-                              parent.childIds.indexOf(parseInt(dropNode.id)) + 1 :
-                              -1);
+        const dropNodeIndex = parent ? parent.childIds.indexOf(parseInt(dropNode.id)) : -1;
+        let newIndex;
+        if (oldParentId != parentId) {
+            newIndex = dropNodeIndex + 1;
+        } else {
+            // same parent, a bit tricky. Index dropNode +1 if dragging up, but if dragging down index will shift anyway when we remove it from its current position.
+            const dragNodeIndex = parent ? parent.childIds.indexOf(parseInt(dragNode.id)) : -1;
+            newIndex = (dragNodeIndex > dropNodeIndex) ? dropNodeIndex + 1 : dropNodeIndex;
+        }
+
+        dragNode.reparentNode(parentId, parent ? newIndex : -1, browserAction);
         if (parentId) {
             dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
             const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
@@ -605,10 +612,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
         dragNode.beingPositioned = true;                  // remember its BT, not user action
         const tabId = dragNode.tabId;
         const windowId = newParent.windowId || dragNode.windowId;
-        const currentIndex = dragNode.tabIndex || 0;
-        dragNode.tabIndex = undefined;                    // take out of running in calc below
-        let index = dragNode.expectedTabIndex();
-        if (currentIndex < index) index = index - 1;      // moving right don't count current tab
+        const index = dragNode.expectedTabIndex();
         callBackground({'function': 'moveTab', 'tabId': tabId,
                             'windowId': windowId, 'index': index,
                             'tabGroupId': newParent?.tabGroupId});
