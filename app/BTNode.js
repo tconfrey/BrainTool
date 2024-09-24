@@ -149,16 +149,26 @@ class BTNode {
     
     reparentNode(newP, index = -1) {
         // move node from existing parent to new one, optional positional order
-        
+        function arrayMoveElt(ary, from, to) {
+            // utility to move element within array
+            const elt = ary[from];
+            ary.splice(from, 1);
+            ary.splice(to, 0, elt);
+        }
         // throw an exception if newP = oldP
         if (newP == this._id) throw "reparentNode: setting self to parent!";
-
+    
         const oldP = this.parentId;
-        if (oldP)
+        if (oldP === newP) {
+            // Special case: new parent is the same as the old parent
+            const parentNode = AllNodes[oldP];
+            const oldIndex = parentNode.childIds.indexOf(this._id);
+            arrayMoveElt(parentNode.childIds, oldIndex, index);
+        } else {
             AllNodes[oldP].removeChild(this.id);
-        this.parentId = newP;
-        if (newP)
+            this.parentId = newP;
             AllNodes[newP].addChild(this.id, index);
+        }
     }
     
     static URLFromTitle(title) {

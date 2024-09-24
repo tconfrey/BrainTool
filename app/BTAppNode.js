@@ -578,11 +578,9 @@ class BTAppNode extends BTNode {
         const myTG = this.tabGroupId;
         this.childIds.forEach(id => {
             const node = AllNodes[id];
-            if (!node.tabId ||
-                (node.windowId && node.windowId != myWin) ||
-                (node.tabGroupId && node.tabGroupId != myTG))
-                return;
-            
+            if (!node.tabId) return;
+            this.tabGroupId = myTG || node.tabGroupId;          // tab might be moved to new TG/win
+            this.windowId = myWin || node.windowId;
             const index = node?.expectedTabIndex() || 0;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
@@ -842,20 +840,35 @@ class BTAppNode extends BTNode {
         return [me, ...subtopics].flat();
     }
     
-    reparentNode(newP, index = -1) {
+    reparentNode(newP, index = -1, browserAction = false) {
         // move node from existing parent to new one, optional positional order
+        const oldP = this.parentId;
 
         // update display class if needed, old Parent might now be empty, new parent is not
-        if (AllNodes[this.parentId]?.childIds?.length == 1)
-            $(`tr[data-tt-id='${this.parentId}']`).addClass('emptyTopic');
+        if (AllNodes[oldP]?.childIds?.length == 1)
+            $(`tr[data-tt-id='${oldP}']`).addClass('emptyTopic');
         $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
 
+        // actually move the node in parental child arrays
         super.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
         const newLevel = newP ? AllNodes[newP].level + 1 : 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
+
+        // if node has open tab we might need to update its tab group/position
+        if (this.tabId) {
+            if (newP != oldP) this.tabGroupId = AllNodes[newP].tabGroupId;
+            if (!browserAction) 
+                AllNodes[newP].tabGroupId ? AllNodes[newP].groupAndPosition() : this.putInGroup();
+            // update old P's display node to remove open tg styling
+            if (!AllNodes[oldP]?.hasOpenChildren()) {
+                $("tr[data-tt-id='"+oldP+"']").removeClass("opened");
+                AllNodes[oldP].setTGColor(null);
+                AllNodes[oldP].tabGroupId = null;
+            }
+        }
     }
     
     indexInParent() {
