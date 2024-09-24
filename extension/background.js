@@ -626,6 +626,7 @@ async function groupAndPositionTabs(msg, sender) {
     chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
         // first move tabs into place
         check('groupAndPositionTabs-move');
+        if (!tabs) return;                      // error, eg tg still being moved by user
         chrome.tabs.group(groupArgs, async (groupId) => {
             // then group appropriately. NB this order cos move drops the tabgroup
             check('groupAndPositionTabs-group');
