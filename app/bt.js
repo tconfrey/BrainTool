@@ -564,7 +564,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     let newParent, dragTr;
     if (dropNode.isTopic() && !dropNode.folded ) {
         // drop into dropNode as first child
-        dragNode.reparentNode(dropNode.id, 0, browserAction);
+        dragNode.handleNodeMove(dropNode.id, 0, browserAction);
         newParent = dropNode;
         treeTable.treetable("move", dragNode.id, dropNode.id);
         dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
@@ -588,7 +588,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
             newIndex = (dragNodeIndex > dropNodeIndex) ? dropNodeIndex + 1 : dropNodeIndex;
         }
 
-        dragNode.reparentNode(parentId, parent ? newIndex : -1, browserAction);
+        dragNode.handleNodeMove(parentId, parent ? newIndex : -1, browserAction);
         if (parentId) {
             dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
             const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
@@ -1139,6 +1139,8 @@ function tabMoved(data) {
         initializeUI();
         changeSelected(tabNode);
     }
+
+    // Now position the node within its topic.
     if (topicNode) positionInTopic(topicNode, tabNode, index, indices, winId);
 }
 
@@ -1290,12 +1292,13 @@ function buttonShow(e) {
 
     // Open/close buttons 
     const node = getActiveNode(e);
+    const parent = node.parentId ? AllNodes[node.parentId] : null;
     $("#openTab").hide();
     $("#openWindow").hide();
     $("#closeRow").hide();
     if (node && node.countOpenableTabs()){
         $("#openTab").show();
-        $("#openWindow").show();
+        if (!parent?.hasOpenChildren() || (GroupingMode != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
     if (node && node.countClosableTabs()) {
         $("#closeRow").show();
@@ -1657,7 +1660,7 @@ function promote(e) {
 
     // Do the move
     const newParentId = AllNodes[node.parentId].parentId;
-    node.reparentNode(newParentId);
+    node.handleNodeMove(newParentId);
     $("table.treetable").treetable("promote", node.id);
 
     // save to file, update Topics etc

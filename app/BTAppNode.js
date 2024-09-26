@@ -541,7 +541,10 @@ class BTAppNode extends BTNode {
         }
         this.opening = true;      // avoid opening twice w double clicks. unset in tabNavigated
 
-        const oldWinId = (this.parentId) ? AllNodes[this.parentId].windowId : 0;
+        const parent = this.parentId ? AllNodes[this.parentId] : null;
+        if (parent?.hasOpenChildren() && (GroupingMode == 'TABGROUP')) newWin = false;       // only allow opening in new window if not already in an open TG, or not using TGs
+    
+        const oldWinId = parent ? parent.windowId : 0;
         // tell extension to open, then take care of grouping etc
         callBackground({'function': 'openTabs', 'newWin': newWin, 'defaultWinId': oldWinId,
                             'tabs': [{'nodeId': this.id, 'url': this.URL}]});
@@ -840,8 +843,9 @@ class BTAppNode extends BTNode {
         return [me, ...subtopics].flat();
     }
     
-    reparentNode(newP, index = -1, browserAction = false) {
-        // move node from existing parent to new one, optional positional order
+    handleNodeMove(newP, index = -1, browserAction = false) {
+        // move node to parent at index. Parent might be existing just at new index.
+        // Could be called from drag/drop/keyboard move or from tabs in tabGroups in browser
         const oldP = this.parentId;
 
         // update display class if needed, old Parent might now be empty, new parent is not
@@ -849,8 +853,8 @@ class BTAppNode extends BTNode {
             $(`tr[data-tt-id='${oldP}']`).addClass('emptyTopic');
         $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
 
-        // actually move the node in parental child arrays
-        super.reparentNode(newP, index);
+        // move the node in parental child arrays
+        this.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
         const newLevel = newP ? AllNodes[newP].level + 1 : 1;
