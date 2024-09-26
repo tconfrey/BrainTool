@@ -54,7 +54,9 @@ class BTNode {
     set title(ttl) {
         const _ttl = this.sanitizeTitle(ttl);
         this._title = _ttl;
-        this._URL = BTNode.URLFromTitle(_ttl);         // regenerate URL when title is changed
+        const url = BTNode.URLFromTitle(_ttl);         // regenerate URL when title is changed
+        if (this._URL && !url) throw "URL cannot be set to null from non-null!!!";
+        this._URL = url;
 	    this._displayTopic = BTNode.displayNameFromTitle(_ttl);
     }
     get title() {
@@ -64,6 +66,7 @@ class BTNode {
         return this._URL;
     }
     set URL(url) {
+        if (this._URL && !url) throw "URL cannot be set to null from non-null!!!";
         this._URL = url;
     }
     get displayTopic() {
@@ -159,6 +162,7 @@ class BTNode {
         if (newP == this._id) throw "reparentNode: setting self to parent!";
     
         const oldP = this.parentId;
+        if (!oldP || !newP) return;  // no parent to remove from
         if (oldP === newP) {
             // Special case: new parent is the same as the old parent
             const parentNode = AllNodes[oldP];

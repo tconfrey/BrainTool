@@ -564,7 +564,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     let newParent, dragTr;
     if (dropNode.isTopic() && !dropNode.folded ) {
         // drop into dropNode as first child
-        dragNode.reparentNode(dropNode.id, 0);
+        dragNode.reparentNode(dropNode.id, 0, browserAction);
         newParent = dropNode;
         treeTable.treetable("move", dragNode.id, dropNode.id);
         dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
@@ -605,19 +605,9 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
         $("#content").treetable("unloadBranch", ttNode);
     }
 
-    // update the rest of the app, backing store and potentially move tab
+    // update the rest of the app, backing store
     saveBT();
     BTAppNode.generateTopics();
-    if (dragNode.tabId && !browserAction) {
-        dragNode.beingPositioned = true;                  // remember its BT, not user action
-        const tabId = dragNode.tabId;
-        const windowId = newParent.windowId || dragNode.windowId;
-        const index = dragNode.expectedTabIndex();
-        callBackground({'function': 'moveTab', 'tabId': tabId,
-                            'windowId': windowId, 'index': index,
-                            'tabGroupId': newParent?.tabGroupId});
-        dragNode.setTGColor(newParent?.tgColor);
-    }
     window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
@@ -1121,17 +1111,6 @@ function tabLeftTG(data) {
     const tabNode = BTAppNode.findFromTab(tabId);
     if (!tabNode) return;
     tabNode.pendingDeletion = true;
-
-    // unhighlight topic is no longer open in tg
-    const parentId = tabNode.parentId;
-    const parent = AllNodes[parentId];
-    const openKids = parent.hasOpenChildren();   // returns number of open tab children
-    if (openKids == 1) {
-        // just this one, unhighlight
-        parent.setTGColor(null)
-        $("tr[data-tt-id='"+parentId+"']").removeClass("opened");
-    }
-    //deleteNode(tabNode.id);
 }
 
 function tabMoved(data) {
@@ -1147,12 +1126,6 @@ function tabMoved(data) {
     const indices = data.indices;
     const tab = data.tab;
     if (!tabNode && !topicNode) return;                                 // don't care
-    if (tabNode?.beingPositioned) {
-        // this message is a result of a BT move (see moveNode above) after a d'n'd
-        tabNode.beingPositioned = false;
-        updateTabIndices(indices);
-        return;
-    }
 
     if (!tabNode) {
         // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
@@ -1576,6 +1549,7 @@ function deleteNode(id) {
         if (!openKids) {
             parent.tabGroupId = 0;
             parent.windowId = 0;
+            parent.setTGColor(null)
         }
         if (!openDescendants) $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
         // update tree row if now is childless
