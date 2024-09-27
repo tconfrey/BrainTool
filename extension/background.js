@@ -568,6 +568,13 @@ function openTabGroups(msg, sender) {
         // handle a {windowId, tabGroupId, groupName, 'tabGroupTabs': [{nodeId, url}]} instance
         const[first, ...rest] = tg.tabGroupTabs;
         const groupName = tg.groupName || '';
+
+        // create in existing win/tg if tg is open (even if newWin sent)
+        if (tg.tabGroupId)
+        {
+            openTabsInTg(tg.windowId, tg.tabGroupId, tg.tabGroupTabs);
+            return;
+        }
         if (newWinNeeded)
             // need to create window for first tab
             chrome.windows.create({'url': first.url}, win => {
@@ -581,25 +588,20 @@ function openTabGroups(msg, sender) {
                                       openTabsInTg(win.id, tgid, rest);
                                   });
             });
-        else {
-            // create in existing win/tg or new tg in current win
-            if (tg.tabGroupId)
-                openTabsInTg(tg.windowId, tg.tabGroupId, tg.tabGroupTabs);
-            else {                                                         // need to create tg
-                chrome.tabs.create({'url': first.url}, tab => {
-                    check(); if (!tab) return;
-                    chrome.tabs.group({'tabIds': tab.id,
-                                       'createProperties': {'windowId': tab.windowId}},
-                                      tgid => {
-                                          check(); if (!tgid) return;
-                                          tabOpened(tab.windowId, tab.id, first.nodeId,
-                                                    tab.index, tgid);
-                                          chrome.tabGroups.update(tgid, {'title' : groupName});
-                                          openTabsInTg(tab.windowId, tgid, rest);
-                                      });
-                });
-            }
-        };
+        else 
+            // create tg in current window
+            chrome.tabs.create({'url': first.url}, tab => {
+                check(); if (!tab) return;
+                chrome.tabs.group({'tabIds': tab.id,
+                                   'createProperties': {'windowId': tab.windowId}},
+                                  tgid => {
+                                      check(); if (!tgid) return;
+                                      tabOpened(tab.windowId, tab.id, first.nodeId,
+                                                tab.index, tgid);
+                                      chrome.tabGroups.update(tgid, {'title' : groupName});
+                                      openTabsInTg(tab.windowId, tgid, rest);
+                                  });
+            });
     });
 }
 

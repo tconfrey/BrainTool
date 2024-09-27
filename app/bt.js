@@ -1291,14 +1291,14 @@ function buttonShow(e) {
         $("#buttonRow span").removeClass("wenk--right").addClass("wenk--left");
 
     // Open/close buttons 
-    const node = getActiveNode(e);
-    const parent = node.parentId ? AllNodes[node.parentId] : null;
+    const node = getActiveNode(e);open
+    const topic = node.isTopic() ? node : AllNodes[node.parentId];
     $("#openTab").hide();
     $("#openWindow").hide();
     $("#closeRow").hide();
     if (node && node.countOpenableTabs()){
         $("#openTab").show();
-        if (!parent?.hasOpenChildren() || (GroupingMode != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
+        if (!topic?.hasOpenChildren() || (GroupingMode != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
     if (node && node.countClosableTabs()) {
         $("#closeRow").show();
