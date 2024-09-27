@@ -631,17 +631,21 @@ class BTAppNode extends BTNode {
                 callBackground({'function': 'ungroup', 'tabIds': tabIds});
     }
 
-    static groupAll() {
-        // user has changed grouping to TabGroups so group open tabs up
+    groupOpenChildren() {
+        // used by groupAll, below, and after an undoDelete for individual node
+        if (this.hasOpenChildren()) {
+            const openTabIds = this.childIds.flatMap(
+                c => AllNodes[c].tabId ? [AllNodes[c].tabId] : []);
+            window.postMessage({
+                'function': 'moveOpenTabsToTG', 'groupName': this.displayTopic,
+                'tabIds': openTabIds, 'windowId': this.windowId
+            });
+        }
+    }
 
-        AllNodes.forEach(n => {
-            if (n.hasOpenChildren()) {
-                const openTabIds = n.childIds.flatMap(
-                    c => AllNodes[c].tabId ? [AllNodes[c].tabId] :[]);
-                window.postMessage({'function': 'moveOpenTabsToTG', 'groupName': n.displayTopic,
-                                    'tabIds': openTabIds, 'windowId': n.windowId});
-            }
-        });
+    static groupAll() {
+        // user has changed from NONE to TABGROUP, tell background to group all BT tabs
+        AllNodes.forEach(n => n.groupOpenChildren());
     }
     
     /***

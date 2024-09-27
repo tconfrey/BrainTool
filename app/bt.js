@@ -2363,13 +2363,15 @@ function undo() {
     const parent = AllNodes[node.parentId];
     function updateTree(ttn, btn) {
         // recurse as needed on tree update
+
+        btn.displayNode = null;        // remove cached html value
         $("table.treetable").treetable("loadBranch", ttn || null, btn.HTML());
-        btn.populateFavicon();
         if (btn.childIds.length) {
             const n = $("table.treetable").treetable("node", btn.id);
             btn.childIds.forEach(
                 (id) => updateTree(n, AllNodes[id]));
         }
+        btn.populateFavicon();
     }
 
     // Update tree
@@ -2377,6 +2379,11 @@ function undo() {
     updateTree(n, node);
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
     node.tgColor && node.setTGColor(node.tgColor);
+    // find nodes topic, either itself or its parent. if tabgrouping is on call topicnode.groupOpenChildren
+    const topicNode = node.isTopic() ? node : AllNodes[node.parentId];
+    if (topicNode && (GroupingMode == 'TABGROUP')) {
+        topicNode.groupOpenChildren();
+    }
 
     initializeUI();
     saveBT();
