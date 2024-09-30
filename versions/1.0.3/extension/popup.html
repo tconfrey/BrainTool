@@ -1,0 +1,107 @@
+<!-- 
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="awesomplete.css" />
+    <link rel="stylesheet" href="popup.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <!-- Launch / Upgrade / Welcome screen-->
+    <div id="welcome">
+      <div class="topBanner" id="slideHeader">
+        <img id="headerImage" src="resources/headerImage.png"/>
+        <div id="introTitle">&nbsp;&nbsp;Welcome to BrainTool&nbsp;</div>
+      </div>
+      <p id="welcomeMessage">
+      To get you started I'm going to:<br/>
+	    - Open the Topic Manager on the left of this window.<br/>
+	    - Nudge this window right to make sure the Topic Manager is visible.<br/>
+	    - Open a tab to the Welcome page with new user information.<br/>
+      </p>
+      <p id="openingMessage">
+        Opening the BrainTool Topic Manager at its previously location...
+      </p>
+      <p id="upgradeMessage">
+        <b>Upgrading to BrainTool <span id="upgradeVersion"></span>. <br/>Restart is required. <br/>Release Notes will open with details after restart.</b>
+      </p>
+      <img id="introImage" src="resources/intro.png" width="400"/>
+      <img id="openingImage" src="resources/opening.png"/>
+      <button id="okButton">OK</button>
+    </div>
+
+    <div id="saver" style="display:none">
+      <div id="header">
+        <h1>BrainTool Bookmarker</h1>
+      </div>
+      <h2 class="onePage" id="title">Page Title</h2>
+      <h2 id="saveAs">Note this will save as a new page.</h2>
+      <h2 class="allPages tgPages">Multiple Pages</h2>
+      
+      <div id="saveCheckboxes">
+        <hr style="margin-left: -11px;"/>
+        <span id="saveSpan">
+          <input type="checkbox" id="saveTab" name="saveTab" checked>
+          <label for="saveTab">Save Tab</label>
+        </span>
+        <span id="saveWindowSpan">
+          <input type="checkbox" id="saveWindow" name="saveWindow">
+          <label for="saveWindow">Save Window</label>
+        </span>
+        <span id="saveTGSpan">
+          <input type="checkbox" id="saveTG" name="saveTG">
+          <label for="saveTG">Save TabGroup</label>
+        </span>
+        <span id="saveSession">
+          <input type="checkbox" id="saveAllSession" name="saveAllSession">
+          <label for="saveAllSession">Save Session</label>
+        </span>
+        <div id="saveHint" class="hint hintText allPages">Pinned or already-saved tabs are not saved</div>
+      </div>
+      <hr/>
+      
+      <div id="topicSelector">
+        <h3 class="onePage">Topic to save the page under:</h3>
+        <h3 class="allPages">Topic to save pages to:</h3>
+        <h3 class="tgPages">Optional parent Topic to save tabs in "<span id="tgName">TG</span>" to:</h3>
+        <div class="hint">
+          <span id="newTopicHint" class="hintText">Select from below, type for autocomplete, or leave blank</span>
+        </div>
+        <input type="text" id="topic" autofocus>
+        <h3>Topic tree:</h3>
+        <div id="currentTopics"></div>
+      </div>
+      
+      <div id="editCard" class="onePage">
+        <h3>Page title:</h3>
+        <input type="text" id="titleInput" class="inactive" tabindex="1" value='title'>
+        <h3>Note:</h3>
+        <div class="hint">
+          <span id="newNoteHint" class="hintText">Add a note or just hit enter to save</span>
+        </div>        
+        <textarea id="note" tabindex="2"></textarea>
+      </div>
+      
+      <div id="buttonDiv">
+        <button id="saveAndClose" tabindex="3" class="activeButton">Save and close</button>
+        <button id="saveAndGroup" tabindex="4">Save</button>
+      </div>
+    </div>
+
+    <!- Scripts to load -->
+    <script src="awesomplete.js"></script>
+    <script src="topicSelector.js"></script>
+    <script src="topicCard.js"></script>
+    <script defer src="popup.js"></script>
+  </body>
+</html>

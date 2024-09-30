@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "BrainTool - 북마크 넘어",
+    "description": "웹스토어에 표시되는 응용 프로그램의 제목입니다."
+  },
+  "appDesc": {
+    "message": "BrainTool은 온라인 라이프를 위한 토픽 매니져입니다.",
+    "description": "웹스토어에 표시되는 응용 프로그램에 대한 설명입니다."
+  }
+}
