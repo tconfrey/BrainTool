@@ -9,6 +9,7 @@ audience: user
 # BrainTool 1.0.3
 Minor release addressing some bugs and UI feedback. 
 - Improved handling of dragging tabs between tabgroups and windows.
+- Added the ability to resize the columns
 - Added 'w' as a keyboard command for 'open in new Window'.
 - Improved handling of screen configuration changes.
 

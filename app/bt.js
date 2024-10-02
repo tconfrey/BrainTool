@@ -377,6 +377,22 @@ function processBTFile(fileText = BTFileText) {
 }
 
 
+// initialize column resizer on startup
+let Resizing = false;
+$("#resizer").draggable({
+    containment: "#newTopLevelTopic",  // Restrict dragging within the parent div
+    axis: "x",
+    drag: function(e, ui) {
+        const left = ui.position.left + 13;
+        const fullWidth = $(window).width();
+        const percent = left / fullWidth * 100;
+        $("td.left").css("width", percent + "%");
+        $("td.right").css("width", (100 - percent) + "%");
+        Resizing = true;
+    },
+    stop: () => setTimeout(() => Resizing = false, 250),  // give time for resize to be processed
+});
+
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
     console.log('Initializing UI');
@@ -415,6 +431,7 @@ function initializeUI() {
     });
     
     makeRowsDraggable();                                        // abstracted out below
+
     // Hide loading notice and show sync/refresh buttons as appropriate
     $("#loading").hide();
     updateSyncSettings(syncEnabled());
@@ -1438,10 +1455,12 @@ function setCompactMode(on) {
         $("#content").addClass('compactMode');
         $("#search").css('left', 'calc((100% - 175px) / 2)');
         $("#searchHint .hintText").css('display', 'none');
+        $("#resizer").css('display', 'none');
     } else {
         $("#content").removeClass('compactMode');
         $("#search").css('left', 'calc((100% - 300px) / 2)');
         $("#searchHint .hintText").css('display', 'inline');
+        $("#resizer").css('display', 'block');
     }
 }
 
@@ -1693,7 +1712,7 @@ function _displayForEdit(newNode) {
 
 function addNewTopLevelTopic() {
     // create new top level item and open edit card
-
+    if (Resizing) return;                   // ignore during column resize
     const newNode = new BTAppNode('', null, "", 1);
     _displayForEdit(newNode);
 }
