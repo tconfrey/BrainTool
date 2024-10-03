@@ -378,6 +378,7 @@ body {
     top: 15px;
     left: calc(50% - 13px);  /* Center accounting for font width*/
     font-size: 11px;
+    opacity: 50%;
 }
 
 /* style when input is active */

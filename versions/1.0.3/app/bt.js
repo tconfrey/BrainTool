@@ -392,6 +392,9 @@ $("#resizer").draggable({
     },
     stop: () => setTimeout(() => Resizing = false, 250),  // give time for resize to be processed
 });
+// add on entry and on exit actions to highlight the resizer
+$("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
+$("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
