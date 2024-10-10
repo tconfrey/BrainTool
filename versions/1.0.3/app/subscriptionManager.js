@@ -114,6 +114,7 @@ async function openStripePortal() {
 	    alert('BrainTool Id not set!');
 	    return;
     }
+    alert("Opening Stripe portal to manage your subscription. This may take a few seconds.");
     const url = await getStripePortalURL();
     window.open(url, '_blank');
 }
@@ -316,6 +317,7 @@ async function subscribe(productPrice) {
 	    line_items: [selectedPrice],
 	    success_url: baseURL + '?purchase=' + encodeURIComponent('subscription'),
 	    cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
+        // description: "BrainTool Supporter Subscription ID: " + BTId,
     };
     try {
         const docRef = await FBDB
@@ -355,6 +357,7 @@ async function purchase(productPrice) {
 	    allow_promotion_codes: true,
         success_url: baseURL+ '?purchase=' + encodeURIComponent('product'),
         cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
+        // description: "BrainTool Supporter License ID: " + BTId,
     };
     try {
         const docRef = await FBDB.collection("customers").doc(BTId).collection("checkout_sessions").add(checkoutSession);
@@ -411,6 +414,7 @@ async function RCPurchase(sessionId) {
 async function getStripePortalURL() {
     // Billing portal handler
     let rsp;
+    FBDB || await initializeFirebase();
     try {
 	    const functionRef = firebase
 	          .app()
