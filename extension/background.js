@@ -250,14 +250,25 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
     }
     if (changeInfo.groupId && (tab.status == 'complete') && tab.url) {
         // tab moved to/from TG, wait til loaded so url etc is filled in
-        // Adding a delay to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
-        setTimeout(async () => {
-            btSendMessage(
-                BTTab, {'function': (tab.groupId > 0) ? 'tabJoinedTG' : 'tabLeftTG',
-                        'tabId': tabId, 'groupId': tab.groupId,
-                        'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
-                        'tab': tab});
-        }, 250);
+        const message = {
+            'function': (tab.groupId > 0) ? 'tabJoinedTG' : 'tabLeftTG',
+            'tabId': tabId,
+            'groupId': tab.groupId,
+            'tabIndex': tab.index,
+            'windowId': tab.windowId,
+            'indices': indices,
+            'tab': tab
+        };
+    
+        // Adding a delay on Left to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
+        if (tab.groupId > 0) {
+            btSendMessage(BTTab, message);
+        } else {
+            setTimeout(async () => {
+                btSendMessage(BTTab, message);
+            }, 250);
+        }
+
         setTimeout(function() {setBadge(tabId);}, 200);
     }
 }));

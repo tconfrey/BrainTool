@@ -1094,6 +1094,8 @@ function tabJoinedTG(data) {
         // settings toggle => update parent w tg info
         const tgParent = AllNodes[tabNode.parentId];
         tabNode.windowId = winId;
+        tabNode.tabGroupId = tgId;
+        tabNode.pendingDeletion = false;
         tgParent.tabGroupId = tgId;
         tgParent.windowId = winId;
         return;
@@ -1116,20 +1118,24 @@ function tabJoinedTG(data) {
         return;
     }
 
-    // remaining option - tab moved between TGs
+    // remaining option - tab moved within or between TGs
     tabNode.pendingDeletion = false;                                // no longer pending deletion
     tabNode.tabGroupId = tgId;
-    positionInTopic(topicNode, tabNode, index, indices, winId);
+    // if topicNode has multiple open children then redo positioning
+    if (topicNode.hasOpenChildren() > 1)
+        positionInTopic(topicNode, tabNode, index, indices, winId);
 }
 
 function tabLeftTG(data) {
     // user moved tab out of TG => no longer managed => mark for deletion
     // NB don't delete cos might be moving to another TG or its TG might be moving between windows
+    // Also NB this may arrive after tab has already been moved to another TG, in which case don't mark for deletion
     
     if (GroupingMode != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
-    if (!tabNode) return;
+    const groupId = data.groupId;
+    if (!tabNode || (tabNode.groupId && (tabNode.groupId != groupId))) return;
     tabNode.pendingDeletion = true;
 }
 
