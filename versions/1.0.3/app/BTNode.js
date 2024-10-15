@@ -162,16 +162,17 @@ class BTNode {
         if (newP == this._id) throw "reparentNode: setting self to parent!";
     
         const oldP = this.parentId;
-        if (!oldP || !newP) return;  // no parent to remove from
+        if (!oldP && !newP) return;             // nothing to do
         if (oldP === newP) {
             // Special case: new parent is the same as the old parent
             const parentNode = AllNodes[oldP];
             const oldIndex = parentNode.childIds.indexOf(this._id);
             arrayMoveElt(parentNode.childIds, oldIndex, index);
         } else {
-            AllNodes[oldP].removeChild(this.id);
+            // either old or newP might be null, ie at top level
+            oldP && AllNodes[oldP].removeChild(this.id);
             this.parentId = newP;
-            AllNodes[newP].addChild(this.id, index);
+            newP && AllNodes[newP].addChild(this.id, index);
         }
     }
     
