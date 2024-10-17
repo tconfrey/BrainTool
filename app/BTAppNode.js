@@ -375,6 +375,7 @@ class BTAppNode extends BTNode {
 	    if (this.shownForSearch) {
 	        const disp = this.getDisplayNode();
 	        if (this.parentId) AllNodes[this.parentId].unshowForSearch();
+            this.redisplay();                                       // reset any search horiz scrolling
 	        $(disp).hide();
 	        this.shownForSearch = false;
 	    }
