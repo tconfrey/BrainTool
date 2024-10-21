@@ -1233,6 +1233,7 @@ function clearSelected() {
     // utility - unselect tt node if any
     const currentSelection = $("tr.selected")[0];
     if (currentSelection) {
+        $("tr.selected").removeClass('selected');
         const node = $(currentSelection).attr("data-tt-id");
 	    AllNodes[node]?.unshowForSearch();
     }
