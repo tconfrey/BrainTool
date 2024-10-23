@@ -31,12 +31,17 @@ var LocalTest = false;                            // control code path during un
 var InitialInstall = false;                       // should we serve up the welcome page
 var UpdateInstall = false;                        // or the release notes page
 
-async function btSendMessage(tabId, msg) {
+async function btSendMessage(msg) {
     // send message to BT window/tab. Wrapper to facilitate debugging messaging
 
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (!BTTab) {
+        console.log('BTTab not set, message not sent:', msg);
+        return;
+    }
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
     try {
-        await chrome.tabs.sendMessage(tabId, msg);
+        await chrome.tabs.sendMessage(BTTab, msg);
         check('btSendMEssage says:');
     } catch (error) {
         console.warn('Error sending to BT:', error);
@@ -44,7 +49,7 @@ async function btSendMessage(tabId, msg) {
 }
 
 async function getBTTabWin(reset = false) {
-    // read from local storage then cached. reset => exit
+    // read from local storage then cached. reset => topic mgr exit
     if (reset) {
         getBTTabWin.cachedValue = null;
         return;
@@ -168,8 +173,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                     (msg.function == 'getBookmarks') ? getBookmarks() : exportBookmarks();
                 } else {
                     // send back denial 
-                    btSendMessage(sender.tab.id, {'function': 'loadBookmarks',
-                    'result': 'denied'});
+                    btSendMessage({'function': 'loadBookmarks', 'result': 'denied'});
                 }
             });
             return;
@@ -201,23 +205,15 @@ function logEventWrapper(eventName, originalFunction) {
 
 /* -- Tab Events -- */
 
-chrome.tabs.onAttached.addListener(logEventWrapper("tabs.onAttached", async (tabId, otherInfo) => {
-    // listen for tab event 
-    const [BTTab, BTWin] = await getBTTabWin();
-    //console.log('attached event:', otherInfo);
-}));
-
 chrome.tabs.onMoved.addListener(logEventWrapper("tabs.onMoved", async (tabId, otherInfo) => {
     // listen for tabs being moved and let BT know
     if (Awaiting) return;                                           // ignore events while we're awaiting our commands to take effect
-    const [BTTab, BTWin] = await getBTTabWin();
     const tab = await chrome.tabs.get(tabId); check();
     if (!tab || tab.status == 'loading') return;
     const indices = await tabIndices();
     //console.log('moved event:', otherInfo, tab);
-    btSendMessage(
-        BTTab, {'function': 'tabMoved', 'tabId': tabId, 'groupId': tab.groupId,
-                'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices, 'tab': tab});
+    btSendMessage({ 'function': 'tabMoved', 'tabId': tabId, 'groupId': tab.groupId,
+                    'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices, 'tab': tab});
     setTimeout(function() {setBadge(tabId);}, 200);
 }));
 
@@ -231,7 +227,7 @@ chrome.tabs.onRemoved.addListener(logEventWrapper("tabs.onRemoved", async (tabId
         return;
     }
     const indices = await tabIndices();
-    btSendMessage(BTTab, {'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
+    btSendMessage({'function': 'tabClosed', 'tabId': tabId, 'indices': indices});
 }));
 
 chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId, changeInfo, tab) => {
@@ -246,9 +242,8 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
         // tab navigated to/from url, add in transition info from Web Nav event, below
         const transitionData = tabTransitionData[tabId] || null;          // set in webNavigation.onCommitted event above
         setTimeout (() => delete tabTransitionData[tabId], 1000);                                // clear out for next event
-        btSendMessage(
-            BTTab, {'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
-                    'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices, 'transitionData': transitionData,});
+        btSendMessage({ 'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
+                        'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices, 'transitionData': transitionData,});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
     }
@@ -265,13 +260,10 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
         };
     
         // Adding a delay on Left to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
-        if (tab.groupId > 0) {
-            btSendMessage(BTTab, message);
-        } else {
-            setTimeout(async () => {
-                btSendMessage(BTTab, message);
-            }, 250);
-        }
+        if (tab.groupId > 0)
+            btSendMessage(message);
+        else
+            setTimeout(async () => { btSendMessage(message); }, 250);
 
         setTimeout(function() {setBadge(tabId);}, 200);
     }
@@ -279,14 +271,12 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
 
 chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (info) => {
     // Let app know there's a new top tab
-    const [BTTab, BTWin] = await getBTTabWin();
-    if (!info.tabId || !BTTab) return;
-    //console.log(`tabs.onActiviated fired, info: [${JSON.stringify(info)}]`);
+    if (!info.tabId) return;
     chrome.tabs.get(info.tabId, tab => {
         check();
         if (!tab) return;
-        btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': info.tabId,
-                              'windowId': tab.windowId, 'groupId': tab.groupId});
+        btSendMessage({ 'function': 'tabActivated', 'tabId': info.tabId,
+                        'windowId': tab.windowId, 'groupId': tab.groupId});
         setTimeout(function() {setBadge(info.tabId);}, 250);
     });
 }));
@@ -319,29 +309,19 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(logEventWrapper("webNavig
 
 chrome.tabGroups.onCreated.addListener(logEventWrapper("tabGroups.onCreated", async (tg) => {
     // listen for TG creation and let app know color etc
-    const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab) return;                                              // not set up yet or don't care
-    btSendMessage(BTTab, {'function': 'tabGroupCreated', 'tabGroupId': tg.id,
-                          'tabGroupColor': tg.color});
+    btSendMessage({'function': 'tabGroupCreated', 'tabGroupId': tg.id, 'tabGroupColor': tg.color});
 }));
 
 chrome.tabGroups.onUpdated.addListener(logEventWrapper("tabGroups.onUpdated", async (tg) => {
     // listen for TG updates and let app know color etc
     if (Awaiting) return;                                            // ignore TG events while we're awaiting our commands to take effect
-   
-    const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab) return;                                              // not set up yet or don't care
-    btSendMessage(BTTab, {'function': 'tabGroupUpdated', 'tabGroupId': tg.id,
-                          'tabGroupColor': tg.color, 'tabGroupName': tg.title,
-                          'tabGroupCollapsed': tg.collapsed,
-                          'tabGroupWindowId': tg.windowId});
+    btSendMessage({ 'function': 'tabGroupUpdated', 'tabGroupId': tg.id, 'tabGroupColor': tg.color, 
+                    'tabGroupName': tg.title, 'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId});
 }));
 
 chrome.tabGroups.onRemoved.addListener(logEventWrapper("tabGroups.onRemoved", async (tg) => {
     // listen for TG deletion
-    const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab) return;                                              // not set up yet or don't care
-    btSendMessage(BTTab, {'function': 'tabGroupRemoved', 'tabGroupId': tg.id});
+    btSendMessage({'function': 'tabGroupRemoved', 'tabGroupId': tg.id});
 }));
 
 
@@ -352,12 +332,11 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
 
     // don't care about special windows like dev tools
     check();
-    const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab || (windowId <= 0)) return;
+    if (windowId <= 0) return;
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
         if (!tabs?.length) return;
-        btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': tabs[0].id});
+        btSendMessage({'function': 'tabActivated', 'tabId': tabs[0].id});
         setTimeout(function() {setBadge(tabs[0].id);}, 200);
     });
 }));
@@ -402,11 +381,8 @@ async function tabIndices() {
 
 // breaking out single tab opened handling, might not be in tg
 async function tabOpened(winId, tabId, nodeId, index, tgId = 0) {
-    const [BTTab, BTWin] = await getBTTabWin();
-    check();
     const indices = await tabIndices();
-    btSendMessage(BTTab,
-                  {'function': 'tabOpened', 'nodeId': nodeId, 'tabIndex': index,
+    btSendMessage({'function': 'tabOpened', 'nodeId': nodeId, 'tabIndex': index,
                    'tabId': tabId, 'windowId': winId, 'tabGroupId': tgId, 'indices': indices});
     setTimeout(function() {setBadge(tabId);}, 250);
 }
@@ -453,7 +429,6 @@ async function initializeExtension(msg, sender) {
 
     // send over gdrive app info
     btSendMessage(
-        BTTab,
         {'function': 'launchApp', 'client_id': Keys.CLIENT_ID,
          'api_key': Keys.API_KEY, 'fb_key': Keys.FB_KEY,
          'stripe_key': Keys.STRIPE_KEY, 'BTTab': BTTab,
@@ -654,15 +629,14 @@ async function groupAndPositionTabs(msg, sender) {
             if (!tabGroupId) {
                 // new group => send tabGroupCreated msg to link to topic
                 const tg = await chrome.tabGroups.get(groupId);
-                btSendMessage(sender.tab.id, {'function': 'tabGroupCreated', 'tabGroupId': groupId, 'topicId': topicId, 'tabGroupColor': tg.color});
+                btSendMessage({'function': 'tabGroupCreated', 'tabGroupId': groupId, 'topicId': topicId, 'tabGroupColor': tg.color});
             }
             const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
             theTabs.forEach(t => {
                 const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
-                btSendMessage(
-                    sender.tab.id, {'function': 'tabPositioned', 'tabId': t.id,
-                                    'nodeId': nodeInfo.nodeId, 'tabGroupId': groupId,
-                                    'windowId': t.windowId, 'tabIndex': t.index});
+                btSendMessage({ 'function': 'tabPositioned', 'tabId': t.id,
+                                'nodeId': nodeInfo.nodeId, 'tabGroupId': groupId,
+                                'windowId': t.windowId, 'tabIndex': t.index});
             });
         });
     });
@@ -688,7 +662,6 @@ function moveOpenTabsToTG(msg, sender) {
             chrome.tabs.get(tid, tab => {
                 check(); if (!tab) return;
                 btSendMessage(
-                    sender.tab.id,
                     {'function': 'tabJoinedTG', 'tabId': tid, 'groupId': tgId,
                      'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
                      'tab': tab});
@@ -710,7 +683,7 @@ function showNode(msg, sender) {
 
     function signalError(type, id) {
         // send back message so TM can fix display
-        btSendMessage(sender.tab.id, {'function': 'noSuchNode', 'type': type, 'id': id});
+        btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
     }
 
     if (msg.tabId) {
@@ -821,11 +794,9 @@ function getBookmarks() {
     // User has requested bookmark import from browser
 
     chrome.bookmarks.getTree(async function(itemTree){
-        const [BTTab, BTWin] = await getBTTabWin();
         itemTree[0].title = "Imported Bookmarks";
         chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            btSendMessage(BTTab, {'function': 'loadBookmarks',
-                                  'result': 'success'});
+            btSendMessage({'function': 'loadBookmarks', 'result': 'success'});
         });
     });
 }
@@ -914,7 +885,7 @@ async function saveTabs(msg, sender) {
         }
     });
     // Send save msg to BT.
-    if (tabsToSave.length) btSendMessage(BTTab, {'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
-    currentTab && btSendMessage(BTTab, {'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
+    if (tabsToSave.length) btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
+    currentTab && btSendMessage({'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
 
 }
