@@ -718,6 +718,7 @@ function nodeCollapse() {
 }
 
 function handleLinkClick(e) {
+    if (!$(this).hasClass('btlink')) return;          // not a bt link
     const nodeId = $(this).closest("tr").attr('data-tt-id');
     AllNodes[nodeId].openPage();
     e.preventDefault();
@@ -1239,6 +1240,7 @@ function clearSelected() {
     // utility - unselect tt node if any
     const currentSelection = $("tr.selected")[0];
     if (currentSelection) {
+        $("tr.selected").removeClass('selected');
         const node = $(currentSelection).attr("data-tt-id");
 	    AllNodes[node]?.unshowForSearch();
     }

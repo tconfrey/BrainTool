@@ -362,6 +362,7 @@ class BTAppNode extends BTNode {
     
     showForSearch() {
 	    // show this node in the tree cos its the search hit (might be folded)
+        // nb show/unshow are also called to show/unshow the active tab in the tree
 	    const disp = this.getDisplayNode();
 	    if(disp && !$(disp).is(':visible')) {
 	        if (this.parentId) AllNodes[this.parentId].showForSearch();    // btnode show
@@ -371,7 +372,7 @@ class BTAppNode extends BTNode {
     }
 
     unshowForSearch() {
-	    // if this node was shown as a search result, now unshow it to get tree back to where it was
+	    // if this node was shown as a search result, now unshow it to get tree back to where it was.
 	    if (this.shownForSearch) {
 	        const disp = this.getDisplayNode();
 	        if (this.parentId) AllNodes[this.parentId].unshowForSearch();

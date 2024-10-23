@@ -43,8 +43,12 @@ async function btSendMessage(tabId, msg) {
     }
 }
 
-async function getBTTabWin() {
-    // read from local storage then cached
+async function getBTTabWin(reset = false) {
+    // read from local storage then cached. reset => exit
+    if (reset) {
+        getBTTabWin.cachedValue = null;
+        return;
+    }
     if (getBTTabWin.cachedValue) {
         return getBTTabWin.cachedValue;
     }
@@ -442,6 +446,7 @@ async function initializeExtension(msg, sender) {
     const BTWin = sender.tab.windowId;
     const BTVersion = chrome.runtime.getManifest().version;
     chrome.storage.local.set({'BTTab': BTTab, 'BTWin': BTWin});
+    getBTTabWin(true);                         // clear cache
 
     let allTabs = await getOpenTabs();
     let allTGs = await getOpenTabGroups();
@@ -476,6 +481,7 @@ function suspendExtension() {
     // called when the BTWin/BTTab is detected to have been closed
 
     chrome.storage.local.set({'BTTab': 0, 'BTWin': 0});
+    getBTTabWin(true);                         // clear cache
     updateBTIcon('', 'BrainTool is not running.\nClick to start', '#e57f21');
     chrome.action.setIcon({'path': 'images/BrainToolGray.png'});
 
