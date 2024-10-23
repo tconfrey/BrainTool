@@ -107,6 +107,9 @@ chrome.runtime.onInstalled.addListener(deets => {
     }
 });
 
+// Set survey pointer on uninstall
+chrome.runtime.setUninstallURL('https://forms.gle/QPP8ZREnpDgXxdav9', () => console.log('uninstall url set to https://forms.gle/QPP8ZREnpDgXxdav9'));
+
 /***
 *
 *  Message handling. Handlers dispatched based on msg.function
