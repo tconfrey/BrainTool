@@ -168,7 +168,7 @@ const configManager = (() => {
         if (!favSet) configManager.setProp('BTFavicons', favicons);
 
         // NONOTES?
-        const notes = configManager.getProp('BTNotes') || 'NOTES';
+        const notes = (configManager.getProp('BTNotes') == 'NONOTES') ? 'NONOTES' : 'NOTES';
         $radio = $('#notesToggle :radio[name=notes]');
         $radio.filter(`[value=${notes}]`).prop('checked', true);
         checkCompactMode((notes == 'NONOTES'));                         // turn off if needed
@@ -352,7 +352,7 @@ const configManager = (() => {
             }, 1000);
             // fade out overlay if trial still on ie < 30 days since install
             if (daysSinceInstall <= 30)
-                setTimeout(() => {$("#youShallNotPass").fadeOut();}, 10000);
+                setTimeout(() => {$("#youShallNotPass").fadeOut(); scrollToPurchaseButtons()}, 10000);
         }
     }
 
@@ -444,12 +444,15 @@ const configManager = (() => {
         $("#trialExpiredWarning").hide();
         $("#content").css("margin-top", "79px");
         toggleSettingsDisplay();
-        setTimeout(() => {
-            const settingsDiv = $('#settings');
-            settingsDiv.animate({ scrollTop: settingsDiv.prop('scrollHeight') }, 500, 'swing');
-        }, 800); // Delay to allow the animation to complete
+        scrollToPurchaseButtons();
     }
 
+    function scrollToPurchaseButtons() {
+        // scroll to the purchase buttons in the settings panel
+        // Delay to allow any previous animation to complete
+        const settingsDiv = $('#settings');
+        setTimeout(()=>settingsDiv.animate({ scrollTop: settingsDiv.prop('scrollHeight') }, 800, 'swing'), 800);
+    }
     return {
         setConfigAndKeys: setConfigAndKeys,
         setProp: setProp,

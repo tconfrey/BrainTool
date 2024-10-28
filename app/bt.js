@@ -388,9 +388,12 @@ $("#resizer").draggable({
         const percent = left / fullWidth * 100;
         $("td.left").css("width", percent + "%");
         $("td.right").css("width", (100 - percent) + "%");
-        Resizing = true;
+        Resizing = percent;
     },
-    stop: () => setTimeout(() => Resizing = false, 250),  // give time for resize to be processed
+    stop: () => setTimeout(() => {
+        configManager.setProp('BTNotes', Resizing);     // save the new width, BTNotes = NOTES, NONOTES or % width
+        Resizing = false;
+    }, 250),  // give time for resize to be processed
 });
 // add on entry and on exit actions to highlight the resizer
 $("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
@@ -1481,6 +1484,13 @@ function checkCompactMode(force = false) {
     const notesPref = configManager.getProp('BTNotes');
     setCompactMode(force || width < 350 || (notesPref == 'NONOTES'));
     updateStatsRow();
+    if ((notesPref != 'NONOTES') && (notesPref != 'NOTES')) {
+        // set the width of the columns and position #resizer based on percent value stored in notesPref  
+        const percent = parseInt(notesPref);
+        $("td.left").css("width", percent + "%");
+        $("td.right").css("width", (100 - percent) + "%");
+        $("#resizer").css('left', `calc(${percent}% - 13px`);
+    }
 }
 $(window).resize(() => checkCompactMode());
 
