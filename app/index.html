@@ -91,7 +91,7 @@
           </div>
           <div id="nagContent">
             <img id="BTTrialBuddy" src="resources/BTTrialBuddy.png" alt="trial Buddy">
-            <p id="nagText">Hello there! <br/>It looks like your 30 trial has expired and you haven't signed up as a Supporter. Please consider doing so to support the creation and ongoing evolution of BrainTool. <a href="#" onclick="configManager.closeTrialExpiredWarning(); return false;">Go to Settings for Supporter options.</a></p>
+            <p id="nagText">Hello there! <br/>It looks like your 30 trial has expired and you haven't signed up as a Supporter. Please consider doing so to support the creation and ongoing evolution of BrainTool.<br/> <a href="#" onclick="configManager.closeTrialExpiredWarning(); return false;">Go to Settings for Supporter options.</a></p>
           </div>
         </div>
       </div>
@@ -161,8 +161,8 @@
             <div class="settingsFootnote" id="fileLocation" style="display:none"></div>
           <div class="settingsFootnote">Disable current syncing (under Actions) to change this setting</div>
           <div id="settingsBackups">
-            <input type="checkbox" id="backups" disabled>
-            <label for="backups">(Coming soon) Keep last 5 changes, daily backups and monthly backups?</label>
+            <input type="checkbox" id="backups">
+            <label for="backups">Keep Backups (Saves recent, daily and monthly backups)</label>
           </div>
           <hr/>
         </div>
@@ -565,7 +565,7 @@
             <div id="distinguishedName"></div>
 
             <div id="topic">
-                <input type="text" id="topicName" class="editNode" tabindex="0" aria-label="Topic">
+                <input type="text" id="topicName" class="editNode" tabindex="1" aria-label="Topic">
                 <span id="newTopicNameHint" class="hint" >Name the Topic</span>
             </div>
             <input type="text" id="titleText" class="editNode" tabindex="1" aria-label="Title" value='title'>

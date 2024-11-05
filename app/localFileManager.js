@@ -86,7 +86,7 @@ const localFileManager = (() => {
     }
     // ------------------------------------------------
 
-    let LocalDirectoryHandle, LocalFileHandle;
+    let LocalDirectoryHandle, LocalFileHandle, BackupDirectoryHandle;
     let savePending = false;
     async function saveBT(BTFileText) {
         // Save BT file to local file for which permission was granted
@@ -112,7 +112,7 @@ const localFileManager = (() => {
     async function authorizeLocalFile() {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
-            alert("Sorry, local file saving is not supported on your browser (eg Brave)");
+            alert("Sorry, local file saving is not supported on your browser (NB Brave has a config setting to enable.)");
             return null;
         }
         alert("Choose where you want to store your BrainTool file");
@@ -237,6 +237,10 @@ const localFileManager = (() => {
     async function getLocalDirectoryHandle() {
         return LocalDirectoryHandle || await get('localDirectoryHandle');
     }
+    
+    async function getBackupDirectoryHandle() {
+        return BackupDirectoryHandle || await get('backupDirectoryHandle');
+    }
 
     function reset() {
         // utility to clear out memory of localFileHandle. Called when sync turned off.
@@ -245,6 +249,41 @@ const localFileManager = (() => {
         LocalDirectoryHandle = null;
         //del('localFileHandle');
         //del('localDirectoryHandle');
+    }
+
+    async function initiateBackups() {
+        // find or create the BT-Backups folder
+        try {
+            LocalDirectoryHandle = LocalDirectoryHandle || await getLocalDirectoryHandle();
+            const backupDirectoryHandle = await LocalDirectoryHandle.getDirectoryHandle('BT-Backups', {create: true});
+            if (!backupDirectoryHandle) {
+                alert('Error creating BT-Backups folder');
+                return;
+            }
+            BackupDirectoryHandle = backupDirectoryHandle;
+            set('backupDirectoryHandle', BackupDirectoryHandle);
+            alert(`Backups will be stored in "${BackupDirectoryHandle.name}" under "${LocalDirectoryHandle.name}"`);
+        } catch (err) {
+          alert('Error accessing BT-Backups folder');
+          throw err;
+        }
+    }
+
+    async function createBackup(name) {
+        // Copy current live BrainTool.org file into the backups folder and name it 'name'
+        BackupDirectoryHandle = BackupDirectoryHandle || await getBackupDirectoryHandle();
+        const file = await LocalFileHandle.getFile();
+        const stream = await file.stream();
+        const backupFileHandle = await BackupDirectoryHandle.getFileHandle(name, {create: true});
+        const writable = await backupFileHandle.createWritable();
+        await stream.pipeTo(writable);
+        return name;
+    }
+
+    async function deleteBackup(name) {
+        // find the named file in the backups directory and delete it
+        BackupDirectoryHandle = BackupDirectoryHandle || await getBackupDirectoryHandle();
+        await BackupDirectoryHandle.removeEntry(name);
     }
 
     return {
@@ -259,7 +298,10 @@ const localFileManager = (() => {
         getLocalFileHandle: getLocalFileHandle,
         getLocalDirectoryHandle: getLocalDirectoryHandle,
         getFileLastModifiedTime: getFileLastModifiedTime,
-        reset: reset
+        reset: reset,
+        initiateBackups: initiateBackups,
+        createBackup: createBackup,
+        deleteBackup: deleteBackup
     };
 })();
 

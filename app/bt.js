@@ -1373,12 +1373,16 @@ function buttonHide() {
 function toggleMoreButtons(e) {
     // show/hide non essential buttons
     $("#otherButtons").toggle(100, 'easeInCirc', () => {
-        $("#tools").toggleClass('toggled');
-        let hint = $("#tools").hasClass('toggled') ? "Fewer Tools" : "More Tools";
+        $("#tools").toggleClass('moreToolsOn');
+        let moreToolsOn = $("#tools").hasClass('moreToolsOn');
+        let hint = moreToolsOn ? "Fewer Tools" : "More Tools";
         $("#moreToolsSpan").attr('data-wenk', hint);
-    });    
-    e = e || window.event;
-    e.preventDefault();		                        // don't propogate click
+        configManager.setProp('BTMoreToolsOn', moreToolsOn ? 'ON' : 'OFF');
+    });
+    if (e) {
+        e.preventDefault();		// prevent default browser behavior
+        e.stopPropagation();	// stop event from bubbling up
+    }
     return false;
 }
 
@@ -1454,7 +1458,7 @@ $(".editNode").on('input', function() {
     $("#update").prop('disabled', false);
 });
 
-$("#editOverlay").click(function(e) {
+$("#editOverlay").on('mousedown', function(e) {
     // click on the backdrop closes the dialog
     if (e.target.id == 'editOverlay')
     {
@@ -1997,7 +2001,8 @@ function searchOptionKey(event) {
     // swallow keydown events for opt-s/r so they don't show in input. NB keyup is still
     // triggered and caught by search below
 
-    if (event.altKey && (event.code == "KeyS" || event.code == "KeyR" || event.code == "Slash")) {
+    if ((event.altKey && (event.code == "KeyS" || event.code == "KeyR" || event.code == "Slash")) ||
+        (event.code == "ArrowDown" || event.code == "ArrowUp")) {
         event.stopPropagation();
         event.preventDefault();
     }
@@ -2028,9 +2033,10 @@ function search(keyevent) {
     }
 
     // opt-s/r or slash : drop that char code and go to next match
-    if (keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR" || keyevent.code == "Slash")) {
+    if ((keyevent.altKey && (keyevent.code == "KeyS" || keyevent.code == "KeyR" || keyevent.code == "Slash"))  ||
+        (keyevent.code == "ArrowDown" || keyevent.code == "ArrowUp")) {
 	    next = true;
-	    ReverseSearch = (keyevent.code == "KeyR");
+	    ReverseSearch = (keyevent.code == "KeyR") || (keyevent.code == "ArrowUp");
 	    keyevent.buttonNotKey || keyevent.stopPropagation();
 	    keyevent.buttonNotKey || keyevent.preventDefault();   // stop opt key from displaying
     }

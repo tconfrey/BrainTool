@@ -53,9 +53,13 @@ async function saveBT(localOnly = false, newContent = true) {
 
     console.log(`Writing BT to ${localOnly ? 'local only' : 'local + any remote'} Storage`);
 
-    // BTVersion is incremented on each content change
+    // BTVersion is incremented on each content change, optionally backups are made
     let currentBTVersion = parseInt(configManager.getProp('BTVersion')) || 1;
-    newContent && configManager.setProp('BTVersion', currentBTVersion + 1);
+    const backsOn = configManager.getProp('BTBackupsOn');
+    if (newContent) {
+        configManager.setProp('BTVersion', currentBTVersion + 1);
+        if (backsOn) await performBackups(currentBTVersion);
+    }
 
     BTFileText = BTAppNode.generateOrgFile();
     if (window.LOCALTEST) return;
@@ -147,11 +151,97 @@ function stopSyncing() {
     LocalFileConnected = false;
     GDriveConnected = false;
     configManager.setProp('BTGDriveConnected', false);
+    configManager.setProp('BTBackupsOn', false);
     localFileManager.reset();
     updateSyncSettings();
     alert('Sync has been disabled. See Settings to re-enable.');
 }
 
+
+
+/*** 
+ * 
+ * Manage backups
+ * 
+ ***/
+
+async function initiateBackups(setOn = true) {
+    // Call out to local or gdrive file managers to create or find BT-Backups folder
+    console.log('creating backups');
+    if (!LocalFileConnected) {
+        alert('Local File syncing is required to create backups');
+        return false;
+    }
+    if (setOn) {
+        await localFileManager.initiateBackups(setOn);
+        saveBT();                   // Save version to show a backup file and avoid confusion
+    } else
+        alert('Backups are off');
+        return true;
+}
+async function performBackups(BtFileVersion) {
+    // Pull info from ConfigManager for BTBackupsList on recent, daily and last monthly backups
+    // format: {mostRecentSaveTime, recent: [{handle:, timestamp}, {}, {}], daily: [{}, {}, {}], monthly: [{handle:, onlyMostRecentTimestamp}]}
+    // Figure out if new daily or monthly backup is required, most recent backup is always created
+    // Call out to local or gdrive managers to create new named files as appropriate
+    // Call out to delete older backups if needed
+
+    const backups = configManager.getProp('BTBackupsList');
+    const mostRecentSaveTime = backups.mostRecentSaveTime || 0;
+    const mrs = new Date(mostRecentSaveTime);
+    const previousDaily = backups.daily[0]?.timestamp || 0;
+    const previousMonthly = backups.monthly[0]?.timestamp || 0;
+
+    // Turn most recent into backup
+    const recentName = "BrainTool-Backup-v" + BtFileVersion + ".org";
+    const rbkup = await createBackup(recentName);
+    // push to front of recent list
+    backups.recent.unshift({handle: rbkup, timestamp: mostRecentSaveTime});
+    // delete third recent backup if it exists
+    if (backups.recent.length > 3) {
+        await deleteBackup(backups.recent[3]);
+        backups.recent.pop();
+    }
+
+    // Check if we need to create a new daily backup
+    if (mostRecentSaveTime - previousDaily > 24*60*60*1000) {
+        const dailyName = "BrainTool-Backup-d" + mrs.toISOString().slice(5, 10) + ".org";
+        const dbkup = await createBackup(dailyName);
+        // push to front of daily list
+        backups.daily.unshift({handle: dbkup, timestamp: mostRecentSaveTime});
+        // delete third daily backup if it exists
+        if (backups.daily.length > 3) {
+            await deleteBackup(backups.daily[3]);
+            backups.daily.pop();
+        }
+    }
+    // Check if we need a new monthly backup
+    if (mostRecentSaveTime - previousMonthly > 30*24*60*60*1000) {
+        const monthlyName = "BrainTool-Backup-m" + mrs.toISOString().slice(0, 10) + ".org";
+        const mbkup = await createBackup(monthlyName);
+        // don't delete monthly files, just remember most recent
+        backups.monthly[0] = {handle: mbkup, timestamp: mostRecentSaveTime};
+    }
+
+    // update config
+    backups.mostRecentSaveTime = new Date().getTime();
+    configManager.setProp('BTBackupsList', backups);
+}
+
+async function createBackup(name) {
+    // Call correct file manager to create new backup file
+    console.log(`Creating backup ${name}`);
+    if (LocalFileConnected)
+        return await localFileManager.createBackup(name);
+    return false;
+}
+async function deleteBackup(deets) {
+  // pass to correct file manager. deets = {timestamp, handle}
+  console.log(`Deleting backup ${deets.handle}`);
+  if (LocalFileConnected)
+    return await localFileManager.deleteBackup(deets.handle);
+  return false;
+}
 
 /*** 
  * 
@@ -213,8 +303,6 @@ async function updateSyncSettings(connected = false, time = null) {
         // configManager.setProp('BTTimestamp', null);
     }
 }
-
-
 
 /*** 
  * 

@@ -518,7 +518,6 @@ textarea:focus, input[type="text"]:focus {
 #settingsBackups {
     margin-top: 10px;
     font-size: 12px;
-    opacity: 0.6;
 }
 #settingsBackups input {
     position: relative;
@@ -528,7 +527,8 @@ textarea:focus, input[type="text"]:focus {
     position: absolute;
     width: 98%;
     height: 450px;
-    top: 242px;left: 3px;
+    top: 255px;
+    left: 3px;
     z-index: 5;
     background-color: #888;
     opacity: 50%;
@@ -643,7 +643,7 @@ textarea:focus, input[type="text"]:focus {
     border-color: white;
     filter: invert(1);
 }
-#tools.toggled {
+#tools.moreToolsOn {
     border-color: var(--btTopicBackground);
     filter: invert(0);
 }

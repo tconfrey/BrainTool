@@ -26,10 +26,13 @@ const configManager = (() => {
 
     const Properties = {
         'keys': ['CLIENT_ID', 'API_KEY', 'FB_KEY', 'STRIPE_KEY'],
-        'localStorageProps': ['BTId', 'BTTimestamp', 'BTFileID', 'BTAppVersion', 'BTGDriveConnected', 'BTStats', 'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs',
-                                'BTTheme', 'BTFavicons', 'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro', 'BTExpiry'],
+        'localStorageProps': [  'BTId', 'BTTimestamp', 'BTFileID', 'BTAppVersion', 'BTGDriveConnected', 'BTStats', 
+                                'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs', 'BTTheme', 'BTFavicons', 
+                                'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro', 
+                                'BTExpiry', 'BTBackupsOn', 'BTBackupsList', 'BTMoreToolsOn'],
         'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
-        'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
+        'stats': [  'BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 
+                    'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
     let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
 
@@ -52,7 +55,7 @@ const configManager = (() => {
 	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
         if (Properties.orgProps.includes(prop)) {
-            Config[prop] = value;       
+            Config[prop] = value;
             //setMetaProp(prop, value);                                   // see parser.js
             //saveBT();
         }	 
@@ -89,28 +92,6 @@ const configManager = (() => {
         });
         return str;
     }
-    
-    /* 
-    function getMetaProp(propName) {
-        // return the value of the meta property if it exists
-        let val = '';
-        if (!AllNodes.metaProperties || !AllNodes.metaProperties.length) return val;
-        AllNodes.metaProperties.forEach(prop => {
-            if (prop.name == propName)
-                val = prop.value;
-        });
-        return val;
-    }
-    function setMetaProp(propName, val) {
-        // set or change the value of the meta property
-        if (!AllNodes.metaProperties) AllNodes.metaProperties = [];
-        const index = AllNodes.metaProperties.findIndex(prop => prop.name == propName);
-        if (index > -1)
-            AllNodes.metaProperties[index] = {'name': propName, 'value': val};
-        else
-            AllNodes.metaProperties.push({'name': propName, 'value': val});
-    }
-    */
     
     function checkNewDayOfUse(prev, current) {
         // last active timestamp same day as this timestamp?
@@ -160,6 +141,10 @@ const configManager = (() => {
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
         }
 
+        // Fill in initial value for SettingsBackups checkbox
+        const backupsOn = configManager.getProp('BTBackupsOn');
+        $('#backups').prop('checked', backupsOn);
+
         // do we load Favicons? Read value, set ui and re-save in case defaulted
         const favSet = configManager.getProp('BTFavicons');
         const favicons = favSet || 'ON';
@@ -204,6 +189,9 @@ const configManager = (() => {
             $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
         }
 
+        // More Tools?
+        (configManager.getProp('BTMoreToolsOn') == 'ON') && toggleMoreButtons();
+
         // Theme saved or set from OS
         const themeSet = configManager.getProp('BTTheme');
         const theme = themeSet ||
@@ -219,79 +207,21 @@ const configManager = (() => {
 
     // Register listener for radio button changes in Options, decide whether to nag
     $(document).ready(function () {
-        $('#tabGroupToggle :radio').change(function () {
-            const oldVal = GroupingMode;
-            const newVal = $(this).val();
-            GroupingMode = newVal;
-            configManager.setProp('BTGroupingMode', GroupingMode);
-            saveBT();
-            groupingUpdate(oldVal, newVal);
-        });
         $('#panelToggle :radio').change(function () {
             const newHome = $(this).val();
             configManager.setProp('BTManagerHome', newHome);
             // Let extension know
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
-            saveBT();
         });
-        $('#notesToggle :radio').change(function () {
-            const newN = $(this).val();
-            configManager.setProp('BTNotes', newN);
-            // do it
-            checkCompactMode((newN == 'NONOTES'));
-            saveBT();
+
+        $('#tabGroupToggle :radio').change(function () {
+            const oldVal = GroupingMode;
+            const newVal = $(this).val();
+            GroupingMode = newVal;
+            configManager.setProp('BTGroupingMode', GroupingMode);
+            groupingUpdate(oldVal, newVal);
         });
-        $('#stickyToggle :radio').change(function () {
-            const newN = $(this).val();
-            configManager.setProp('BTStickyTabs', newN);
-            // No immediate action, take effect on next tabNavigated event
-            saveBT();
-        });
-        $('#denseToggle :radio').change(function () {
-            const newD = $(this).val();
-            configManager.setProp('BTDense', newD);
-            // do it
-            document.documentElement.setAttribute('data-dense', newD);
-            saveBT();
-        });
-        $('#largeToggle :radio').change(function () {
-            const newL = $(this).val();
-            configManager.setProp('BTSize', newL);
-            // do it
-            document.documentElement.setAttribute('data-size', newL);
-            saveBT();
-        });
-        $('#tooltipsToggle :radio').change(function () {
-            const newT = $(this).val();
-            configManager.setProp('BTTooltips', newT);
-            // do it
-            if (newT == 'ON') {
-                $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
-                $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
-            } else {
-                $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
-                $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
-            }
-            saveBT();
-        });
-        $('#faviconToggle :radio').change(function () {
-            const favicons = $(this).val();
-            const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
-            configManager.setProp('BTFavicons', favicons);
-            // Turn on or off
-            $('#content img').removeClass('faviconOff faviconOn').addClass(favClass);
-            saveBT();
-        });
-        $('#themeToggle :radio').change(function () {
-            const newTheme = $(this).val();
-            configManager.setProp('BTTheme', newTheme);
-            document.documentElement.setAttribute('data-theme', newTheme);
-            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
-            $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
-            // Let extension know
-            window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
-            saveBT();
-        });
+
         $('#syncSetting :radio').change(async function () {
             try {
               const newVal = $(this).val();
@@ -316,6 +246,74 @@ const configManager = (() => {
             }
         });
 
+        $('#settingsBackups :checkbox').change(async function () {
+            const newVal = $(this).prop('checked');
+            configManager.setProp('BTBackupsOn', newVal);
+            configManager.setProp('BTBackupsList', {recent: [], daily: [], monthly: []});
+            let success = await initiateBackups(newVal);                            // fileManager fn
+            if (!success) {
+                $(this).prop('checked', false);
+                configManager.setProp('BTBackupsOn', false);
+            }
+        });
+        
+        $('#stickyToggle :radio').change(function () {
+            const newN = $(this).val();
+            configManager.setProp('BTStickyTabs', newN);
+            // No immediate action, take effect on next tabNavigated event
+        });
+
+        $('#themeToggle :radio').change(function () {
+            const newTheme = $(this).val();
+            configManager.setProp('BTTheme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
+            $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
+            // Let extension know
+            window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
+        });
+
+        $('#faviconToggle :radio').change(function () {
+            const favicons = $(this).val();
+            const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
+            configManager.setProp('BTFavicons', favicons);
+            // Turn on or off
+            $('#content img').removeClass('faviconOff faviconOn').addClass(favClass);
+        });
+
+        $('#denseToggle :radio').change(function () {
+            const newD = $(this).val();
+            configManager.setProp('BTDense', newD);
+            // do it
+            document.documentElement.setAttribute('data-dense', newD);
+        });
+
+        $('#notesToggle :radio').change(function () {
+            const newN = $(this).val();
+            configManager.setProp('BTNotes', newN);
+            // do it
+            checkCompactMode((newN == 'NONOTES'));
+        });
+
+        $('#largeToggle :radio').change(function () {
+            const newL = $(this).val();
+            configManager.setProp('BTSize', newL);
+            // do it
+            document.documentElement.setAttribute('data-size', newL);
+        });
+
+        $('#tooltipsToggle :radio').change(function () {
+            const newT = $(this).val();
+            configManager.setProp('BTTooltips', newT);
+            // do it
+            if (newT == 'ON') {
+                $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
+                $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+            } else {
+                $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
+                $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+            }
+        });
     });
 
     function toggleSettingsDisplay() {
@@ -431,7 +429,11 @@ const configManager = (() => {
         const installDate = new Date(getProp('BTInstallDate'));
         const today = new Date();
         const daysSinceInstall = Math.floor((today - installDate) / (24 * 60 * 60 * 1000));
-        if (daysSinceInstall > 30) openTrialExpiredWarning();
+        if (daysSinceInstall > 30) {
+            openTrialExpiredWarning();
+            $('#settingsBackups :checkbox').prop('checked', false);
+            configManager.setProp('BTBackupsOn', false);
+        }
     }
 
     function openTrialExpiredWarning() {
