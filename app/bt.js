@@ -71,7 +71,8 @@ async function launchApp(msg) {
     $(".alt_opt").text(OptionKey);
 
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
-    checkCompactMode();                                   // drop note col if too narrow
+    initializeNotesColumn();                              // set up notes column width based on slider saved position
+    checkCompactMode();                                   // tweak display if window is narrow
     updateStats();                                        // record numlaunches etc
 
     if (!configManager.getProp('BTDontShowIntro'))
@@ -377,27 +378,55 @@ function processBTFile(fileText = BTFileText) {
 }
 
 
-// initialize column resizer on startup
-let Resizing = false;
-$("#resizer").draggable({
-    containment: "#newTopLevelTopic",  // Restrict dragging within the parent div
-    axis: "x",
-    drag: function(e, ui) {
-        const left = ui.position.left + 13;
-        const fullWidth = $(window).width();
-        const percent = left / fullWidth * 100;
+// initialize column resizer on startupfunction 
+function initializeNotesColumn() {
+    // when window is too small drop the notes column, also used when set in settings
+    const notesPref = configManager.getProp('BTNotes');
+    const percent = parseInt(notesPref);
+    $("#resizer").css('left', `calc(${percent}% - 13px`);
+    handleResizer();
+}
+let Resizing = false;                                   // set while resizing in progress to avoid processing other events
+function handleResizer() {
+    // Resizer has been dragged, or during set up
+    const left = $("#resizer").position().left + 13;
+    const fullWidth = $(window).width();
+    const percent = left / fullWidth * 100;
+    if (percent < 95) {
         $("td.left").css("width", percent + "%");
         $("td.right").css("width", (100 - percent) + "%");
-        Resizing = percent;
+        $("td.right").css("display", "table-cell");
+    } else {
+        $("td.right").css("display", "none");
+    }
+}
+$("#resizer").draggable({
+    containment: "#newTopLevelTopic",                   // Restrict dragging within the parent div
+    axis: "x",
+    drag: function(e, ui) {
+        Resizing = true;
+        handleResizer();
     },
     stop: () => setTimeout(() => {
-        configManager.setProp('BTNotes', Resizing);     // save the new width, BTNotes = NOTES, NONOTES or % width
+        const left = $("#resizer").position().left + 13;
+        const fullWidth = $(window).width();
+        const percent = left / fullWidth * 100;
+        configManager.setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
+        handleResizer();
         Resizing = false;
-    }, 250),  // give time for resize to be processed
+    }, 250),                                            // give time for resize to be processed
 });
 // add on entry and on exit actions to highlight the resizer
 $("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
 $("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
+function displayNotesForSearch() {
+    // when searching the hit might be in the hidden notes column. check for td.right and show if needed
+    if ($("td.right").css("display") == "none") {
+        $("td.right").css("display", "table-cell");
+        $("td.left").css("width", "50%");
+        $("td.right").css("width", "50%");
+    }
+}
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
@@ -942,7 +971,7 @@ function tabNavigated(data) {
 
     function stickyTab() {
         // Should the tab stay associated with the BT node
-        if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
+        //if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
         if (!transitionData) return true;                           // single page app or nav within page
         if (transitionQualifiers.includes('from_address_bar')) 
             return false;                                           // implies explicit user nav, nb order of tests important
@@ -1467,42 +1496,27 @@ $("#editOverlay").on('mousedown', function(e) {
     }
 });
 
-function setCompactMode(on) {
-    // Display changes to set or unset single column mode
-    if (on) {
+function checkCompactMode() {
+    // Display changes when window is narrow
+    if ($(window).width() < 400) {
         $("#content").addClass('compactMode');
         $("#search").css('left', 'calc((100% - 175px) / 2)');
         $("#searchHint .hintText").css('display', 'none');
-        $("#resizer").css('display', 'none');
     } else {
         $("#content").removeClass('compactMode');
         $("#search").css('left', 'calc((100% - 300px) / 2)');
-        $("#searchHint .hintText").css('display', 'inline');
-        $("#resizer").css('display', 'block');
-    }
+        $("#searchHint .hintText").css('display', 'inline');    }
+    updateStatsRow();
+    initializeNotesColumn();
 }
 
-function checkCompactMode(force = false) {
-    // when window is too small drop the notes column, also used when set in settings
-    const width = $(window).width();
-    const notesPref = configManager.getProp('BTNotes');
-    setCompactMode(force || width < 350 || (notesPref == 'NONOTES'));
-    updateStatsRow();
-    if ((notesPref != 'NONOTES') && (notesPref != 'NOTES')) {
-        // set the width of the columns and position #resizer based on percent value stored in notesPref  
-        const percent = parseInt(notesPref);
-        $("td.left").css("width", percent + "%");
-        $("td.right").css("width", (100 - percent) + "%");
-        $("#resizer").css('left', `calc(${percent}% - 13px`);
-    }
-}
+
 $(window).resize(() => checkCompactMode());
 
 function closeDialog(cb = null, duration = 250) {
     // animate dialog close and potentially callback when done
     const dialog = $("#dialog")[0];
     const height = $(dialog).height();
-    const width = $(dialog).width();
     $(dialog).css({'margin-left':'auto'});                  // see above, resetting to collapse back to center
     $(dialog).animate({width: 0, height: 0}, duration, function () {
         $("#editOverlay").css("display", "none");
@@ -1977,7 +1991,7 @@ function disableSearch(e = null) {
     BTAppNode.resetDisplayOrder();
 
     // reset compact mode (ie no notes) which might have changed while showing matching search results
-    checkCompactMode();
+    initializeNotesColumn();
 }
 
 function searchButton(e, action) {

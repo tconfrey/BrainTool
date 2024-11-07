@@ -152,12 +152,6 @@ const configManager = (() => {
         $radio.filter(`[value=${favicons}]`).prop('checked', true);
         if (!favSet) configManager.setProp('BTFavicons', favicons);
 
-        // NONOTES?
-        const notes = (configManager.getProp('BTNotes') == 'NONOTES') ? 'NONOTES' : 'NOTES';
-        $radio = $('#notesToggle :radio[name=notes]');
-        $radio.filter(`[value=${notes}]`).prop('checked', true);
-        checkCompactMode((notes == 'NONOTES'));                         // turn off if needed
-
         // Sticky Tabs?
         const sticky = configManager.getProp('BTStickyTabs') || 'STICKY';
         $radio = $('#stickyToggle :radio[name=sticky]');
@@ -214,6 +208,7 @@ const configManager = (() => {
             window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
         });
 
+        /*
         $('#tabGroupToggle :radio').change(function () {
             const oldVal = GroupingMode;
             const newVal = $(this).val();
@@ -221,6 +216,7 @@ const configManager = (() => {
             configManager.setProp('BTGroupingMode', GroupingMode);
             groupingUpdate(oldVal, newVal);
         });
+        */
 
         $('#syncSetting :radio').change(async function () {
             try {
@@ -257,11 +253,13 @@ const configManager = (() => {
             }
         });
         
+        /*
         $('#stickyToggle :radio').change(function () {
             const newN = $(this).val();
             configManager.setProp('BTStickyTabs', newN);
             // No immediate action, take effect on next tabNavigated event
         });
+        */
 
         $('#themeToggle :radio').change(function () {
             const newTheme = $(this).val();
@@ -286,13 +284,6 @@ const configManager = (() => {
             configManager.setProp('BTDense', newD);
             // do it
             document.documentElement.setAttribute('data-dense', newD);
-        });
-
-        $('#notesToggle :radio').change(function () {
-            const newN = $(this).val();
-            configManager.setProp('BTNotes', newN);
-            // do it
-            checkCompactMode((newN == 'NONOTES'));
         });
 
         $('#largeToggle :radio').change(function () {

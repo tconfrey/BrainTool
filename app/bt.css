@@ -502,6 +502,9 @@ textarea:focus, input[type="text"]:focus {
     color: rgba(255, 255, 255, 0.6);
     margin-top: 8px;
 }
+.settingsFootnoteSecondLine {
+    margin-top: 2px;
+}
 #importKey {
     color: #a0ec5f;
     margin-top: 5px;
@@ -525,21 +528,22 @@ textarea:focus, input[type="text"]:focus {
 }
 #youShallNotPass {
     position: absolute;
-    width: 98%;
-    height: 450px;
-    top: 255px;
-    left: 3px;
+    width: 96%;
+    left: 2%;
+    height: 318px;
+    top: 200px;
     z-index: 5;
     background-color: #888;
     opacity: 50%;
     border: solid;
     border-width: 2px;
     border-color: #DDD;
+    border-radius: 5px;
     display: none;
 }
 #warningBanner {
     position: relative;
-    top: 40px;
+    top: 5%;
     font-size: 80px;
     transform: rotate(-45deg);
 }

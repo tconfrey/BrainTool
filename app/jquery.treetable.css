@@ -30,11 +30,6 @@ table.treetable td.right {
   color: var(--btNoteColor);
 }
 
-/* hide right column when compact */
-#content.compactMode td.right {
-  display: none;
-}
-
 table.treetable tr.leaf {
   background-color: var(--btPageBackground);
   font-size: var(--btPageFontSize);
