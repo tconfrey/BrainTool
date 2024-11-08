@@ -2089,12 +2089,16 @@ function search(keyevent) {
 	    $("tr.selected").removeClass('selected');
 	    $(displayNode).addClass('selected');
 	    node.showForSearch();                                 // unfold tree etc as needed
+
+        scrollIntoViewIfNeeded(node.getDisplayNode());
 	    let highlight = $(displayNode).find("span.highlight")[0];
-	    if (highlight) {                                      // make sure hit is visible
+	    if (highlight) {
+            // make sure hit is visible horizontally. NB scrollIntoView also scrolls vertically, need to reset that
+            const v = $(document).scrollTop();
             highlight.scrollIntoView({'inline' : 'center'});
+            $(document).scrollTop(v);
             $(displayNode).find(".left").css("text-overflow", "clip");
         }
-	    node.getDisplayNode().scrollIntoView({block: 'center'});
         
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
@@ -2124,6 +2128,17 @@ function rowsInViewport() {
     })
     .map(function() { return $(this).attr("data-tt-id")})
     .get().map((e) => AllNodes[parseInt(e)]);
+}
+
+function scrollIntoViewIfNeeded(element) {
+    // Helper function to make sure search or nav to item has its row visible but only scroll if needed
+    const height = $(window).height();
+    const topOfRow = $(element).position().top;
+    const displayTop = $(document).scrollTop();
+    if (topOfRow < displayTop)
+        element.scrollIntoView(true);
+    if (topOfRow > (displayTop + height - 200))
+        element.scrollIntoView(false);
 }
 
 function extendedSearch(sstr, currentMatch) {
@@ -2174,15 +2189,8 @@ window.addEventListener("keydown", function(e) {
         if (!next) return;
         if (currentSelection) $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
+        scrollIntoViewIfNeeded(next);
 
-        // Make sure the element is visible accounting for potential message footer
-        const height = $(window).height();
-        const topOfRow = $(next).position().top;
-        const displayTop = $(document).scrollTop();
-        if (topOfRow < displayTop)
-            next.scrollIntoView(true);	
-        if (topOfRow > (displayTop + height - 200))
-            next.scrollIntoView(false);
 	    $("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
 	    e.stopPropagation();

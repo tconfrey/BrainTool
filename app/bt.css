@@ -1042,6 +1042,9 @@ body.waiting * {
     text-align: center;
     padding-top: 5px;
     padding-bottom: 5px;
+    border-top-width: 1px;
+    border-top-color: var(--btRowBorderColor);
+    border-top-style: solid;
 }
 #message {
     padding: 0px 20px 0px 20px;
