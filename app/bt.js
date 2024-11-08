@@ -971,7 +971,7 @@ function tabNavigated(data) {
 
     function stickyTab() {
         // Should the tab stay associated with the BT node
-        //if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
+        if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
         if (!transitionData) return true;                           // single page app or nav within page
         if (transitionQualifiers.includes('from_address_bar')) 
             return false;                                           // implies explicit user nav, nb order of tests important

@@ -152,11 +152,13 @@ const configManager = (() => {
         $radio.filter(`[value=${favicons}]`).prop('checked', true);
         if (!favSet) configManager.setProp('BTFavicons', favicons);
 
+        /*
         // Sticky Tabs?
         const sticky = configManager.getProp('BTStickyTabs') || 'STICKY';
         $radio = $('#stickyToggle :radio[name=sticky]');
         $radio.filter(`[value=${sticky}]`).prop('checked', true);
         configManager.setProp('BTStickyTabs', sticky);
+        */
 
         // Dense?
         const dense = configManager.getProp('BTDense') || 'NOTDENSE';
