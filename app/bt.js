@@ -2174,7 +2174,15 @@ window.addEventListener("keydown", function(e) {
         if (!next) return;
         if (currentSelection) $(currentSelection).removeClass('selected');
         $(next).addClass('selected');
-        next.scrollIntoView({block: 'nearest'});	
+
+        // Make sure the element is visible accounting for potential message footer
+        const height = $(window).height();
+        const topOfRow = $(next).position().top;
+        const displayTop = $(document).scrollTop();
+        if (topOfRow < displayTop)
+            next.scrollIntoView(true);	
+        if (topOfRow > (displayTop + height - 200))
+            next.scrollIntoView(false);
 	    $("#search_entry").val("");			      // clear search box on nav
         e.preventDefault();
 	    e.stopPropagation();
