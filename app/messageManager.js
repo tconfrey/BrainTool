@@ -25,12 +25,11 @@ const messageManager = (() => {
         "Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.",
         "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
         "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
-        `${OptionKey}-b is the BrainTool accelerator key. You can change that in extension settings`,
-        "You can save individual gmails or google docs into the BT tree.",
+        `${OptionKey}-b is the BrainTool accelerator key. You can change that in the browsers extension settings`,
         "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
         "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
         "See BrainTool.org for the BrainTool blog and other info.",
-        "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on Twitter!",
+        "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on X and other socials!",
         "Check out the Bookmark import/export functions under Actions",
         "You can click on the topics shown in the Bookmarker instead of typing out the name.",
         "Use the forward (>>) button on the right to cycle through tips",
@@ -40,14 +39,13 @@ const messageManager = (() => {
         "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
         "Try hitting '1','2','3' etc to collapse the tree to that level.",
         "Import public topic trees and useful links from braintool.org/topicTrees.",
-        "Try the new DARK theme. It's under Settings.",
-        "If you make the Topic Manager window narrow enough it will hide the notes and switch to a single column view",
+        "Try the DARK theme. It's under Settings.",
+        "Tab cycles a selected topic from collapsed, to showing children, to showing all descendants.",
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to the BrainTool 1.0!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
-        "Local file syncing is now available. See Settings.<br/>NB GDrive syncing must be off (see Actions).",
-        "Browser Tab Group to BrainTool Topic syncing is now enabled."
+        "Welcome to the BrainTool 1.1!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "Local file backups are now available. See Settings.<br/>NB GDrive syncing must be off (see Actions)."
     ];
     const introSlidesArray = [
         `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,
