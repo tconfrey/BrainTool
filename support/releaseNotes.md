@@ -6,6 +6,15 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
+# BrainTool 1.1
+The major change in 1.1 is the addition of automatic local file backups. Other minor improvements include:
+- Improved scrolling and arrow key support for search and row navigation.
+- Defaulted abd removed settings for Sticky tabs and Tab Groups.
+- Removed Notes setting - just use the column resizer!
+- Improved discoverability of Supporter purchase buttons.
+- Added an uninstall feedback survey.
+- bug fixes, performance improvements
+
 # BrainTool 1.0.3
 Minor release addressing some bugs and UI feedback. 
 - Improved handling of dragging tabs between tabgroups and windows.
