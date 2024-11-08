@@ -118,7 +118,9 @@ function openTopicManager(home = 'PANEL', location) {
         {title: "BrainTool Topic Manager"},
         (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
         );
-    
+
+    const version = chrome.runtime.getManifest().version;
+
     // const url = "https://BrainTool.org/app/";
     // const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
     const url = "https://BrainTool.org/versions/"+version+'/app/';
