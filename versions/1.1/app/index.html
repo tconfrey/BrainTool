@@ -1,0 +1,631 @@
+<!-- 
+ *
+ * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ *
+ * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
+ * See the LICENSE file contained with this project.
+ *
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-184551494-1"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){
+         // tony add to avoid polluting analytics
+         if (location.hostname == "localhost") {console.log('not logging: ', arguments); return;}
+         dataLayer.push(arguments);
+     }
+     gtag('js', new Date());
+     gtag('config', 'UA-184551494-1');
+    </script>
+    
+    <title>BrainTool Topic Manager</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="jquery.treetable.js"></script>
+
+    <link href="bt.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.treetable.css" rel="stylesheet" type="text/css" />
+    <link href="wenk.css" rel="stylesheet" />  <!-- tooltip lib -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
+  </head>
+  <body>
+      <div id="controlsHeader" >
+        <div id="topBar" class="topBanner">
+            <div>                
+                <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
+                     height="40" width="40" >
+	            <span id="searchCancelButton" class="searchButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
+                    <img src="resources/closeSearch.png" height="12" width="12"/>
+                </span>
+                <div id="searchHint" class="hint searchHint">
+                    <img src="resources/searchGlass.svg"/>
+                    <span class="hintText">Click here or 's' to search</span>
+                </div>
+                <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="Search">
+	            <span class="searchButton" >
+	                <span id="searchUpBtn" onmousedown="searchButton(event, 'up')" title="Previous Match">
+                        <img src="resources/arrowUp.png" height="8" width="10"/>
+                    </span>
+	                <span id="searchDownBtn" onmousedown="searchButton(event, 'down')" title="Next Match">
+                        <img src="resources/arrowDown.png" height="8" width="10"/>
+                    </span>
+	            </span>
+            </div>
+            <div id="topBarRight">
+
+                <div id="settingsButton" onclick="configManager.toggleSettingsDisplay()">
+                    <span>Settings</span>
+                    <img id="settingsIcon" src="resources/settingsIcon.png" style="padding-left:2px;"/>
+                </div>
+                <div id="actionsButton" onclick="configManager.toggleActionsDisplay()">
+                    <span>Actions</span>
+                    <img id="actionsIcon" src="resources/actionsIcon.png" style="padding-left:5px;"/>
+                </div>
+                
+            </div>
+            
+        </div>
+        <div id="newTopLevelTopic" onClick="addNewTopLevelTopic()">
+            <span id="newTopic">+ ADD A NEW TOP LEVEL TOPIC</span>
+            <span id="resizer" class="draggable-icon ui-widget-content">&larr;|&rarr;</span> 
+
+        </div>
+        <div id="trialExpiredWarning">
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.closeTrialExpiredWarning()">
+          <div id="nagHeading">
+          YOUR 30 DAY NAG-FREE TRIAL HAS EXPIRED
+          </div>
+          <div id="nagContent">
+            <img id="BTTrialBuddy" src="resources/BTTrialBuddy.png" alt="trial Buddy">
+            <p id="nagText">Hello there! <br/>It looks like your 30 trial has expired and you haven't signed up as a Supporter. Please consider doing so to support the creation and ongoing evolution of BrainTool.<br/> <a href="#" onclick="configManager.closeTrialExpiredWarning(); return false;">Go to Settings for Supporter options.</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="settingsActions" id="settings" style="margin-bottom: 5px">
+        <div id="youShallNotPass">
+          <p id="warningBanner">Supporter<br/>Zone</p>
+        </div>
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.toggleSettingsDisplay()">
+          
+          <div class="settingsTitle">BrainTool Settings</div>
+        <hr/>
+        <div id="settingsLocation">
+          <div class="settingsSubtitle">Topic Manager Location:</div>
+          <div id="panelToggle" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsLocationPanel" name="location" value="PANEL" checked>
+              <label for="settingsLocationPanel">Side panel</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsLocationTab" name="location" value="TAB" >
+              <label for="settingsLocationTab">Browser tab</label>
+            </span>
+          </div>
+          <div class="settingsFootnote">* Applies next time the Topic Manager is opened.</div>
+          <hr/>
+        </div>
+        <!--
+        <div id="settingsGrouping">
+          <div class="settingsSubtitle">Use Tabgroups?</div>
+          <div id="tabGroupToggle" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsGroupingTG" name="grouping" value="TABGROUP" checked>
+              <label for="settingsGroupingTG">Yes</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsGroupingTab" name="grouping" value="NONE">
+              <label for="settingsGroupingTab">No</label>
+            </span>
+          </div>
+          <hr/>
+        </div>
+      -->
+        
+        <div id="settingsSync">
+          <div class="settingsSubtitle">Sync To:</div>
+          <div id="syncSetting" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsSyncGDrive" name="sync" value="gdrive">
+              <label for="settingsSyncGDrive">Google Drive file</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsSyncLocal" name="sync" value="local">
+              <label for="settingsSyncLocal">Local file</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsSyncNone" name="sync" value="none" checked>
+              <label for="settingsSyncNone">No sync</label>
+            </span>
+          </div>
+          <div class="settingsFootnote">* You will need to grant appropriate permissions</div>
+          <hr/>
+        </div>
+        
+        <div id="settingsSyncStatus" style="display:none">
+            <div class="settingsSubtitle"><span id="syncType"></span> Sync Enabled</div>
+            <div class="settingsFootnote" id="fileLocation" style="display:none"></div>
+          <div class="settingsFootnote settingsFootnoteSecondLine">Disable current syncing (under Actions) to change this setting</div>
+          <div id="settingsBackups">
+            <input type="checkbox" id="backups">
+            <label for="backups">Keep Backups (Saves recent, daily and monthly backups)</label>
+          </div>
+          <hr/>
+        </div>
+
+        <!--
+        <div id="settingsSticky">
+          <div class="settingsSubtitle">Sticky Tabs?</div>
+          <div id="stickyToggle" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsStickyOn" name="sticky" value="STICKY" checked>
+              <label for="settingsStickyOn">Yes</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsStickyOff" name="sticky" value="NOTSTICKY">
+              <label for="settingsStickyOff">No</label>
+            </span>
+          </div>
+          <hr/>
+        </div>
+      -->
+
+        <div id="settingsTheme">
+          <div class="settingsSubtitle">Dark Mode?</div>
+          <div id="themeToggle" class="settingsInput">
+            <span>
+              <input type="radio" id="settingsThemeLight" name="theme" value="DARK" checked>
+              <label for="settingsThemeLight">Yes</label>
+            </span>
+            <span>
+              <input type="radio" id="settingsThemeDark" name="theme" value="LIGHT">
+              <label for="settingsThemeDark">No</label>
+            </span>
+          </div>
+          <hr/>
+        </div>
+
+        <div id="settingsFavicons">
+            <div class="settingsSubtitle">Show Favicons?</div>
+            <div id="faviconToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsFaviconOn" name="favicon" value="ON" checked>
+                    <label for="settingsFaviconOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsFaviconOff" name="favicon" value="OFF">
+                    <label for="settingsFaviconOff">No</label>
+                </span>
+            </div>
+            <hr/>
+        </div>
+
+        <div id="settingsDense">
+            <div class="settingsSubtitle">Compact?</div>
+            <div id="denseToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsDenseOn" name="dense" value="DENSE" >
+                    <label for="settingsDenseOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsDenseOff" name="dense" value="NOTDENSE" checked>
+                    <label for="settingsDenseOff">No</label>
+                </span>
+            </div>
+            <hr/>
+        </div>
+<!--
+        <div id="settingsNotes">
+            <div class="settingsSubtitle">Show Notes?</div>
+            <div id="notesToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsNotesOn" name="notes" value="NOTES" checked>
+                    <label for="settingsNotesOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsNotesOff" name="notes" value="NONOTES">
+                    <label for="settingsNotesOff">No</label>
+                </span>
+            </div>
+            <hr/>
+        </div>
+-->
+        <div id="settingsLarge">
+            <div class="settingsSubtitle">Large Font?</div>
+            <div id="largeToggle" class="settingsInput">
+                <span>
+                    <input type="radio" id="settingsLargeOn" name="large" value="LARGE" >
+                    <label for="settingsLargeOn">Yes</label>
+                </span>
+                <span>
+                    <input type="radio" id="settingsLargeOff" name="large" value="NOTLARGE" checked>
+                    <label for="settingsLargeOff">No</label>
+                </span>
+            </div>
+            <hr/>
+        </div>
+
+        <div id="settingsTooltips">
+          <div class="settingsSubtitle">Show Tooltips?</div>
+          <div id="tooltipsToggle" class="settingsInput">
+              <span>
+                  <input type="radio" id="settingsTooltipsOn" name="tooltips" value="ON" checked>
+                  <label for="settingsTooltipsOn">Yes</label>
+              </span>
+              <span>
+                  <input type="radio" id="settingsTooltipsOff" name="tooltips" value="OFF" >
+                  <label for="settingsTooltipsOff">No</label>
+              </span>
+          </div>
+          <hr/>
+      </div>
+        
+        <div id="settingsSubscription">
+          <div class="settingsSubtitle">Supporter Status:</div>
+          <div id="settingsSubscriptionAdd">
+            <div class="settingsSubText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
+            <div id="settingsSubscriptionButtons" class="settingsInput">
+              <button onClick="handlePurchase(Monthly)" class="subButton">Month $1.33</button>
+              <button onclick="handlePurchase(Annual)"  class="subButton">Year $10.66</button>
+              <button onclick="handlePurchase(OTP)"  class="subButton">Lifetime $20.99</button>
+            </div>
+            <i>Coupons applied at checkout</i>
+            <div class="settingsFootnote">
+              <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a><br/>
+              <div class="settingsFootnote" id="importKey" onclick="importKey()">Click here to manually enter a license code.</a>
+              </div>
+            </div>
+          </div>
+          <div id="settingsSubscriptionStatus" style="display:none">
+            <div class="settingsSubText" id="sub">You have a valid BrainTool subscription (ID = <span class="subId"></span>) <br/> Renews on <span id="renewDate"></span><br>Thank you for your support!</div>
+            <div class="settingsSubText" id="otp">You have a permanent BrainTool license (ID = <span class="subId"></span>) <br/> Thank you for your support!</div>
+            <a id="portalLink" href="https://billing.stripe.com" title="Manage Subscription" onclick="openStripePortal(); return false;" target="_blank">Manage your subscription</a>
+          </div>
+        </div>
+      </div>
+      <div class="settingsActions" id="actions">
+          
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.toggleActionsDisplay()">
+          
+          <div class="settingsTitle">BrainTool Actions</div>
+          <hr/>
+          <div id="actionsImportExport">
+              <div class="settingsSubtitle">Import/Export:</div>
+
+              <div id="settingsDropdowns" class="settingsInput">
+                  <div class="dropdown">
+		              
+                      <button class="button_text general_button dropdown_button">
+		                  <span class="dropdown_text">Import:</span>
+		                  <span class="button_image_wrapper">
+                              <img class="split_image" src="resources/expanded.png">
+		                  </span>		    
+                      </button>
+		              
+                      <div class="dropdown_content">                    
+                          <div onClick="importBookmarks()">
+                              <label for="import_bookmarks" class="button_text">Browser Bookmarks</label>
+                              <input id="import_bookmarks" type="button" style="display:none">
+                          </div>
+                          
+                          <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">
+                              <label for="org_upload" class="button_text">An Org-mode file</label>
+                              <input type="file" id="org_upload" name="org_upload" accept=".org"
+                                     style="display:none" onchange="importOrgFile()">
+                          </div>
+                          
+                          <div style="border-top: solid 1px #ddd" onClick="$('#to_upload').val('');">
+                              <label for="to_upload" class="button_text">A TabsOutliner export</label>
+                              <input type="file" id="to_upload" name="to_upload" accept=".tree,.json"
+                                     style="display:none" onchange="importTabsOutliner()">
+                          </div>
+                      </div>
+                      
+                  </div>
+                  
+                  <div class="dropdown">
+		              
+                      <button class="button_text general_button dropdown_button">
+		                  <span class="dropdown_text">Export To:</span>
+		                  <span class="button_image_wrapper">
+                              <img class="split_image" src="resources/expanded.png">
+		                  </span>		    
+                      </button>
+		              
+		              <div class="dropdown_content">
+                          <div>
+		                        <label class="button_text" for="export_bookmarks">Browser Bookmarks</label>
+                            <input id="export_bookmarks" type="button" style="display:none" onClick="exportBookmarks()">
+                          </div>
+
+		                  <div style="border-top: solid 1px #ddd">
+                              <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none" onclick="exportOrgFile()">Local Org-mode file</a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <hr/>
+          
+          <div id="actionsSyncStatus" style="display:none">
+              
+              <div class="settingsSubtitle" id="autoSaveLabel"></div>
+            <div class="settingsInput">
+              <button id="refresh" class="button_text" onclick="refreshTable(true)">Refresh from File</button>
+              <button class="button_text" onclick="stopSyncing()">Stop Syncing</button>
+            </div>
+
+          </div>
+
+        </div>
+          
+      </div>
+      
+      <div class="settingsActions" id="help">
+          
+          <img class="panelClose" type="image" alt="Close" title="Close"
+               src="resources/close.png"  height="17" width="20"
+               onclick="configManager.toggleHelpDisplay()">
+          <div class="settingsTitle">Help and Support</div>
+          <div id='BTVersion'><i>BTVersion</i></div>  
+          <hr/>
+          <div>
+              <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org/support/userGuide10.html')">User Guide and General Help</div>
+          </div>
+          <hr/>
+          <div>
+              <div id="helpKeys" class="settingsSubtitle helpAction" onclick="configManager.toggleKeyCommands()">
+                  Keyboard Commands (or just press 'h' or '?')
+              </div>
+              <div id="keyCommands" style="display:none;">
+                  <table id="keyCommandsTable" style="border-spacing:4px;">
+                  <tr>
+                      <td rowspan="5" class="row_divider verticalCol">Nav</td>
+                      <td class="keyCol">s,r,/ (&darr;&uarr;,<span class="alt_opt">Option</span>-s/r)</td>
+                      <td>Search/Reverse-search (next/prev match)</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol">n,p,&uarr;&darr;</td>
+                      <td>Navigate to Next, Previous row</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol">&larr; &rarr;</td>
+                      <td>Navigate up/down hierarchy</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol">1-9</td>
+                      <td>Show tree nodes up to level N</td>
+                  </tr>
+                  <tr >
+                      <td class="keyCol row_divider">Tab</td>
+                      <td class="row_divider">Subtree cycle expand one level/all-levels/collapse</td>
+                  </tr>
+                  <tr>
+                      <td rowspan="2" class="row_divider verticalCol">Browse&nbsp;</td>
+                      <td class="keyCol">Space (w)</td>
+                      <td>Show/open item (in a new window)</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol row_divider">Enter</td>
+                      <td class="row_divider">Open/Close in the browser</td>
+                  </tr>
+                  <tr>
+                      <td rowspan="6" class="row_divider verticalCol">Edit</td>
+                      <td class="keyCol"><span class="alt_opt">Option</span>-z</td>
+                      <td >Undo last deletion</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol"><span class="alt_opt">Option</span> &uarr;&darr;</td>
+                      <td >Move selection up/down</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol"><span class="alt_opt">Option</span> &larr;</td>
+                      <td>Promote selection up a level</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol">t, e</td>
+                      <td>t cycle TODO state, e Edit</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol">Delete</td>
+                      <td>Delete selection</td>
+                  </tr>
+                  <tr>
+                      <td class="keyCol row_divider"><span class="alt_opt">Option</span>-Enter</td>
+                      <td class="row_divider">Create a new sub Topic</td>
+                  </tr>
+                  <tr>
+                      <td/>
+                      <td class="keyCol"><span class="alt_opt">Option</span>-b-b</td>
+                      <td>Open BT SidePanel (this window)</td>
+                  </tr>
+
+                  </table>
+                  <p class="settingsFootnote">NB Option is a modifier key like shift or control. It is also called Alt.</p>
+              </div>
+          </div>
+
+          <hr/>
+          <div>
+              <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org/support.html')">FAQs and How-tos</div>
+          </div>
+          <hr/>
+          <div>
+              <div class="settingsSubtitle helpAction" onclick="window.open('https://braintool.org')">BrainTool Website</div>
+          </div>
+      </div>
+
+
+    
+    <div id="loading">
+      <p id="loadingMessage" style="text-align: center; margin-top:500px">
+        <br/>Loading your BrainTool file<br/>...</p>
+    </div>
+    
+    <div id="buttonRow" style="display: none;">
+        <span id="otherButtons" style="display: none;">
+            <span data-wenk="Delete item (del)" class="wenk--left">
+                <img id="deleteRow" src="resources/delete.svg" class="rowButton"
+                     onClick="deleteRow(event)">
+            </span>
+            <span data-wenk="ToDo (t)" class="wenk--left">
+                <img id="star" src="resources/star.svg" class="rowButton"
+                     onClick="toDo(event)">
+            </span>
+            <span data-wenk="Drag to move (m-&uarr;&darr;)" class="wenk--left">
+                <img id="move" src="resources/drag.svg" class="rowButton"
+                     style="cursor: move;">
+            </span>
+            <span data-wenk="Promote up hierarchy" class="wenk--left">
+                <img id="outdent" src="resources/outdent.svg" class="rowButton"
+                     onClick="promote(event)">
+            </span>
+            <span data-wenk="Add child topic (m-enter)" class="wenk--left">
+                <img id="addChild" src="resources/addSubtopic.svg" class="rowButton"
+                     onClick="addChild(event)">
+            </span>
+            <span data-wenk="Edit item (e)" class="wenk--left">
+                <img id="editRow" src="resources/edit.svg" class="rowButton"
+                     onClick="editRow(event)">
+            </span>
+            <span data-wenk="Open in new window (w)" class="wenk--left">
+                <img id="openWindow" src="resources/openWindow.svg" class="rowButton"
+                     onClick="openRow(event, true)">
+            </span>
+        </span>
+        <span id="basebuttons">      
+            <span data-wenk="Open/show in browser (space)" class="wenk--left">  
+                <img id="openTab" alt="Open" onClick="openRow(event)"
+                     src="resources/openTab.svg" class="rowButton openClose">
+            </span>
+            
+            <span data-wenk="Close in browser (enter)" class="wenk--left">
+                <img id="closeRow" alt="Close" onClick="closeRow(event)" class="rowButton openClose" 
+                     src="resources/closeItem.svg" height="28" width="26" >
+            </span>
+            
+            <span data-wenk="More tools" class="wenk--left" id="moreToolsSpan">
+                <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
+                     onClick="toggleMoreButtons(event);"  height="28" width="26">
+            </span>
+        </span>
+        
+    </div>
+    
+    <img id="backgroundLogo" type="image" src="resources/backgroundLogo.svg">
+    
+    <table id="content" >
+    </table>
+
+    <div id="messageContainer">
+        <img id="messageClose" src="resources/closeTip.png" height="14" width="14" onclick="messageManager.hideMessage()" />
+        <div id="messageTitle"><b>Tip of the day:</b></div>
+        <div id="message"></div>
+        <img id="messageNext" src="resources/nextTip.png" height="18" width="18"
+             onclick="messageManager.showMessage()" />
+    </div>
+
+    <div id="footer">
+        <img id="footerSavedIcon" type="image" alt="#File Saves"
+             src="resources/fileSave.png" height="16" width="16">
+        <span id="footerSavedInfo">
+          Last saved
+        </span>
+        <span id="footerInfo">
+          <span id="footerItemInfo">Topics, pages</span>
+          <span id="footerOpenInfo">
+            (open)
+          </span>
+        </span>
+
+        <div id="footerHelp" onclick="configManager.toggleHelpDisplay()">
+            <span id="footerHelpText">
+                Help
+            </span>
+            <img id="footerHelpIcon" type="image" alt="#Help"
+                 src="resources/help.png" height="16" width="16">
+        </div>
+    </div>
+    
+    <div id="editOverlay">
+      <dialog id="dialog" >
+            <div id="distinguishedName"></div>
+
+            <div id="topic">
+                <input type="text" id="topicName" class="editNode" tabindex="1" aria-label="Topic">
+                <span id="newTopicNameHint" class="hint" >Name the Topic</span>
+            </div>
+            <input type="text" id="titleText" class="editNode" tabindex="1" aria-label="Title" value='title'>
+            <textarea id="titleUrl" class="editNode" tabindex="2" aria-label="URL">url</textarea>
+            <textarea id="textText" class="editNode" tabindex="3" aria-label="Note"></textarea>
+
+            <div class="buttonDiv" style="display:flex; justify-content: space-between; margin-top: 10px;">
+                <button id="cancel" class="editNode" tabindex="5" onClick="closeDialog(cancelEdit)">Cancel</button>
+                <button id="update" class="editNode" tabindex="4" onClick="updateRow()">Update</button>
+            </div>
+      </dialog>
+
+      <dialog id="permissions" style="display:none; top: 100px">
+        <p>BrainTool needs to re-establish local file access.<br/>The browser will now ask for your permission.</p>
+        <button id="grant">OK</button>
+      </dialog>
+      
+      <div id="intro" style="display:none">
+        <div class="topBanner" id="slideHeader">
+          <img id="headerImage" src="resources/headerImage.png" height="100%" />
+          <div id="introTitle">Welcome to BrainTool</div>
+          <div id="introSubtitle">Slide <span id="slideNum">1</span> of 6</div>
+          <img id="introClose" src="resources/close.png" height="17" width="20" onclick="messageManager.hideIntro()" />
+        </div>
+        <div id="slide"><!-- Filled in by messageManager --></div>
+        <div id="introButtons">
+          <div id="bookmarksIntro" class="introButton"
+               onclick="messageManager.bookmarksIntro()">Import Bookmarks</div>
+          <div id="sessionIntro" class="introButton"
+               onclick="messageManager.sessionIntro()">Import browser session</div>
+          <div id="justIntro" class="introButton"
+               onclick="messageManager.hideIntro()">Just get started</div>
+        </div>
+        <div id="introNext" class="introNavButton" onclick="messageManager.nextSlide()">Next
+          <img id="introNext-" src="resources/nextSlide.png" height="18" width="18" />
+        </div>
+        <div id="introPrev" class="introNavButton" onclick="messageManager.prevSlide()">&nbsp;&nbsp;&nbsp;Previous
+          <img id="introPrev-" src="resources/prevSlide.png" height="18" width="18" />
+        </div>
+        <div id="slideFooter" onclick="messageManager.dontShowIntro()">Don't show me this slideshow again
+          <img id="dontShow" src="resources/actionsIconLight.png" height="15" width="15" />
+        </div>
+      </div>
+
+    </div>
+    
+    <script src="orga-bundlev2.js"></script>
+    <script src="BTNode.js"></script>
+    <script src="fileManager.js"></script>
+    <script src="configManager.js"></script>
+    <script src="gDriveFileManager.js"></script>
+    <script src="localFileManager.js"></script>
+    <script src="subscriptionManager.js"></script>
+    <script src="bt.js"></script>
+    <script src="messageManager.js"></script>
+    <script src="BTAppNode.js"></script>
+    <script src="parser.js"></script>
+    <script src="../utilities/converters.js"></script>
+  </body>
+</html>
