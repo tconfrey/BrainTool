@@ -205,10 +205,10 @@ function handlePendingDeletions() {
     return pending.length;
 }
 
-function handleInitialTabs(tabs, tgs) {
+async function handleInitialTabs(tabs, tgs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
 
-    tabs.forEach(async (tab) => {
+    const tabPromises = tabs.map(async (tab) => {
 	    const node = BTNode.findFromURL(tab.url) || await BTAppNode.findFromAlias(tab.url);
 	    if (!node) return;
 
@@ -230,6 +230,8 @@ function handleInitialTabs(tabs, tgs) {
             AllNodes[node.parentId].tabGroupId = node.tabGroupId;
         }
     });
+    await Promise.all(tabPromises);                         // wait for all to complete => node.parent.tabGroupId is set
+
     if (tgs)
         tgs.forEach((tg) => {
             tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
