@@ -16,7 +16,7 @@
  ***/
 'use strict';
 
-const localFileManager = (() => {
+const localStorageManager = (() => {
 
     // The following is pulled from https://github.com/jakearchibald/idb-keyval
     // Seems its the only way to persist the filehandle across sessions (needs deep clone)
@@ -43,6 +43,19 @@ const localFileManager = (() => {
             defaultGetStoreFunc = createStore('keyval-store', 'keyval');
         }
         return defaultGetStoreFunc;
+    }
+    const DBs = [];
+    function getDB(dbName) {
+        const match = DBs.find((db) => db.name === dbName);
+        if (match) {
+            return match.getStore;
+        }
+        const db = {
+            name: dbName,
+            getStore: createStore(dbName, dbName),
+        };
+        DBs.push(db);
+        return db.getStore;
     }
     /**
      * Get a value by its key.
@@ -84,7 +97,19 @@ const localFileManager = (() => {
             return promisifyRequest(store.transaction);
         });
     }
-    // ------------------------------------------------
+
+    return {
+        set: set,
+        get: get,
+        clear: clear,
+        getDB: getDB
+    };
+})();
+
+// ------------------------------------------------
+
+
+const localFileManager = (() => {
 
     let LocalDirectoryHandle, LocalFileHandle, BackupDirectoryHandle;
     let savePending = false;
@@ -152,15 +177,15 @@ const localFileManager = (() => {
 	        saveBT(content);
 	    }
         
-        set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
-        set('localDirectoryHandle', LocalDirectoryHandle);     // store for subsequent sessions
+        localStorageManager.set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
+        localStorageManager.set('localDirectoryHandle', LocalDirectoryHandle);     // store for subsequent sessions
         return LocalFileHandle;
     }
 
     async function reestablishLocalFilePermissions() {
         // Called at startup. if there's a file handle (=> local storage option) set up perms
 
-        LocalFileHandle = await get('localFileHandle');
+        LocalFileHandle = await localStorageManager.get('localFileHandle');
         if (!LocalFileHandle) return false;
         
         if ((await LocalFileHandle.queryPermission({mode: 'readwrite'})) !== 'granted') {
@@ -232,23 +257,21 @@ const localFileManager = (() => {
     }
 
     async function getLocalFileHandle() {
-        return LocalFileHandle || await get('localFileHandle');
+        return LocalFileHandle || await localStorageManager.get('localFileHandle');
     }
     async function getLocalDirectoryHandle() {
-        return LocalDirectoryHandle || await get('localDirectoryHandle');
+        return LocalDirectoryHandle || await localStorageManager.get('localDirectoryHandle');
     }
     
     async function getBackupDirectoryHandle() {
-        return BackupDirectoryHandle || await get('backupDirectoryHandle');
+        return BackupDirectoryHandle || await localStorageManager.get('backupDirectoryHandle');
     }
 
     function reset() {
         // utility to clear out memory of localFileHandle. Called when sync turned off.
-        clear();
+        localStorageManager.clear();
         LocalFileHandle = null;
         LocalDirectoryHandle = null;
-        //del('localFileHandle');
-        //del('localDirectoryHandle');
     }
 
     async function initiateBackups() {
@@ -261,7 +284,7 @@ const localFileManager = (() => {
                 return;
             }
             BackupDirectoryHandle = backupDirectoryHandle;
-            set('backupDirectoryHandle', BackupDirectoryHandle);
+            localStorageManager.set('backupDirectoryHandle', BackupDirectoryHandle);
             alert(`Backups will be stored in "${BackupDirectoryHandle.name}" under "${LocalDirectoryHandle.name}"`);
         } catch (err) {
           alert('Error accessing BT-Backups folder');
@@ -287,8 +310,6 @@ const localFileManager = (() => {
     }
 
     return {
-        set: set,
-        get: get,
         saveBT: saveBT,
         authorizeLocalFile: authorizeLocalFile,
         checkBTFileVersion: checkBTFileVersion,

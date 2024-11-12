@@ -301,11 +301,36 @@ class BTAppNode extends BTNode {
         });
     }
 
+    static getFaviconDB;
+    static getAliasDB;
+    static {
+        BTAppNode.getFaviconDB = localStorageManager.getDB('faviconDB');
+        BTAppNode.getAliasDB = localStorageManager.getDB('aliasDB');
+    }
+    storeAlias(aliasURL) {
+        // store an alias to this nodes actual saved url. Used with sticky navigation
+        try {
+            localStorageManager.set(aliasURL, this.URL, BTAppNode.getAliasDB);
+        }
+        catch (e) {
+            console.warn(`Error storing alias: ${e}`);
+        }
+    }
+    static async findFromAlias(url) {
+        // find the node, if any, for which this url is an alias for the actual url
+        try {
+            let nodeURL =  await localStorageManager.get(url, BTAppNode.getAliasDB);
+            return nodeURL && AllNodes.find(n => n?.URL == nodeURL);
+        }
+        catch (e) {
+            console.warn(`Error finding alias: ${e}`);
+        }
+    }
     storeFavicon() {
         // store favicon in browser local storage
         try {
             const host = this.URL.split(/[?#]/)[0];              // strip off any query or hash
-            localFileManager.set(host, this.faviconUrl);
+            localStorageManager.set(host, this.faviconUrl, BTAppNode.getFaviconDB);
         }
         catch (e) {
             console.warn(`Error storing favicon: ${e}`);
@@ -319,7 +344,7 @@ class BTAppNode extends BTNode {
         const favClass = (configManager.getProp('BTFavicons') == 'OFF') ? 'faviconOff' : 'faviconOn';
         const favUrl =
               this.faviconUrl ||
-              await localFileManager.get(host) ||
+              await localStorageManager.get(host, BTAppNode.getFaviconDB) ||
               `https://www.google.com/s2/favicons?domain=${host}`;
         this.faviconUrl = favUrl;
         const dn = this.getDisplayNode();

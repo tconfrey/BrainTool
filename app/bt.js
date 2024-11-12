@@ -208,8 +208,8 @@ function handlePendingDeletions() {
 function handleInitialTabs(tabs, tgs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
 
-    tabs.forEach((tab) => {
-	    const node = BTNode.findFromURL(tab.url);
+    tabs.forEach(async (tab) => {
+	    const node = BTNode.findFromURL(tab.url) || await BTAppNode.findFromAlias(tab.url);
 	    if (!node) return;
 
         setNodeOpen(node);                                  // set and propogate open in display
@@ -1013,6 +1013,7 @@ function tabNavigated(data) {
                 // Might be nav away from BT tab or maybe the tab sticks with the BT node
                 if (sticky) {
                     tabNode.navigated = true;
+                    tabNode.storeAlias(tabUrl);
                     tabActivated(data);         // handles updating localstorage/popup with current topic etc
                 }
                 else closeAndUngroup();
@@ -1142,6 +1143,7 @@ function tabJoinedTG(data) {
         tabNode.tabGroupId = tgId;
         tabNode.faviconUrl = tab.favIconUrl;
         $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), tabNode.HTML());
+        tabNode.storeFavicon();
         tabNode.populateFavicon();
         initializeUI();
         tabActivated(data);             // handles setting topic etc into local storage for popup
