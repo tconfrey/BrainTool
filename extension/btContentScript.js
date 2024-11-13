@@ -50,7 +50,7 @@ window.addEventListener('message', async function(event) {
             await setToLocalStorage(event.data.data);
         }
         catch (e) {
-            const err = chrome.runtime.lastError.message || e;
+            const err = chrome.runtime?.lastError?.message || e;
             console.warn("Error saving to storage:", err, "\nContact BrainTool support");
         }
         return;
