@@ -22,7 +22,7 @@ table.treetable td.right {
   width: 50%;
   max-width: 0px;
   cursor: default;
-  padding: 3px 1px;
+  padding: 2px 1px;
   background-color: var(--btNoteBackground);
   font-size: var(--btNoteFontSize);
   font-weight: var(--btNoteFontWeight);
@@ -111,6 +111,7 @@ table.treetable td.dropOver-pulse {
 table.treetable td.left {
   width: 50%;
   max-width: 0px;
+  padding: 0px 1px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

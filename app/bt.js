@@ -1341,7 +1341,7 @@ function buttonShow(e) {
     // detach and center vertically on new td
     $("#buttonRow").detach().appendTo($(td));
     const offset = $(this).offset().top;
-    const rowtop = offset + ($(this).hasClass('branch') ? 3 : 2);
+    const rowtop = offset + 2;
 
     // figure out if tooltips are on and would go off bottom
     const tooltips = configManager.getProp('BTTooltips') == 'ON';
