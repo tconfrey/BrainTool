@@ -378,12 +378,20 @@ function processBTFile(fileText = BTFileText) {
 }
 
 
-// initialize column resizer on startupfunction 
+/**
+ *      Column resizing functionality
+ **/
+
 function initializeNotesColumn() {
-    // when window is too small drop the notes column, also used when set in settings
+    // set position of the column resizer, read from BTNotes peoperty.
+    // Above 95% snaps to 100% right aligned offset by 26px width, but when window is narrow thats >5% so 13px
+    // Called from initial settings and checkCompact after window resize
+    // Calls out to handleResizer,
     const notesPref = configManager.getProp('BTNotes');
     const percent = parseInt(notesPref);
-    $("#resizer").css('left', `calc(${percent}% - 13px`);
+    const left = (percent >= 95) ? 100 : percent;
+    const offset = ($(window).width() > 260) ? 26 : 13;  // adjust for narrow windows
+    $("#resizer").css('left', `calc(${left}% - ${offset}px`);
     handleResizer();
 }
 let Resizing = false;                                   // set while resizing in progress to avoid processing other events
@@ -391,13 +399,14 @@ function handleResizer() {
     // Resizer has been dragged, or during set up
     const left = $("#resizer").position().left + 13;
     const fullWidth = $(window).width();
-    const percent = left / fullWidth * 100;
+    const percent = parseInt(left / fullWidth * 100);
+
     if (percent < 95) {
+        $("#content").addClass('showNotes').removeClass('hideNotes');
         $("td.left").css("width", percent + "%");
         $("td.right").css("width", (100 - percent) + "%");
-        $("td.right").css("display", "table-cell");
     } else {
-        $("td.right").css("display", "none");
+        $("#content").addClass('hideNotes').removeClass('showNotes');
     }
 }
 $("#resizer").draggable({
@@ -410,7 +419,7 @@ $("#resizer").draggable({
     stop: () => setTimeout(() => {
         const left = $("#resizer").position().left + 13;
         const fullWidth = $(window).width();
-        const percent = left / fullWidth * 100;
+        const percent = parseInt(left / fullWidth * 100);
         configManager.setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
         handleResizer();
         Resizing = false;
@@ -427,6 +436,10 @@ function displayNotesForSearch() {
         $("td.right").css("width", "50%");
     }
 }
+
+/**
+ *      General UI Setup
+ */
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified

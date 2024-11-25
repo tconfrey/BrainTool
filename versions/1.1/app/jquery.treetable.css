@@ -22,7 +22,7 @@ table.treetable td.right {
   width: 50%;
   max-width: 0px;
   cursor: default;
-  padding: 3px 1px;
+  padding: 2px 1px;
   background-color: var(--btNoteBackground);
   font-size: var(--btNoteFontSize);
   font-weight: var(--btNoteFontWeight);
@@ -111,12 +111,25 @@ table.treetable td.dropOver-pulse {
 table.treetable td.left {
   width: 50%;
   max-width: 0px;
+  padding: 0px 1px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   border-right: solid;
   border-right-width: 1px;
   border-right-color: var(--btRowBorderColor);
+}
+
+table.treetable.hideNotes td.left {
+  width: 100%;
+  border-right: none;
+}
+table.treetable.hideNotes td.right {
+  width: 0%;
+  display: none;
+}
+table.treetable.showNotes td.right {
+  display: table-cell;
 }
 
 table.treetable span.indenter a {
