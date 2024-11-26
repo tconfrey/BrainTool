@@ -30,23 +30,39 @@ try {
 var LocalTest = false;                            // control code path during unit testing
 var InitialInstall = false;                       // should we serve up the welcome page
 var UpdateInstall = false;                        // or the release notes page
+let BTPort = null;                                // port to side panel
 
 async function btSendMessage(msg) {
-    // send message to BT window/tab. Wrapper to facilitate debugging messaging
+    // send message to Topic Manager in window, tab or side panel
 
     const [BTTab, BTWin] = await getBTTabWin();
-    if (!BTTab) {
-        console.log('BTTab not set, message not sent:', msg);
+    if (!BTTab && !BTPort) {
+        console.warn(`No BTTab or BTPort, not sending: ${JSON.stringify(msg)}`);
         return;
     }
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
     try {
-        await chrome.tabs.sendMessage(BTTab, msg);
+        if (BTTab)
+            await chrome.tabs.sendMessage(BTTab, msg);
+        if (BTPort)
+            await chrome.runtime.sendMessage(msg);
         check('btSendMEssage says:');
     } catch (error) {
-        console.warn('Error sending to BT:', error);
+        console.warn(`Error sending ${JSON.stringify(msg)} to BT: ${error}`);
     }
 }
+
+chrome.runtime.onConnect.addListener((port) => {
+    // Listen for port connection from side panel, serves as heartbeat so we know when its closed
+    if (port.name !== "BTSidePanel") return;
+        
+    BTPort = port;
+    BTPort.onDisconnect.addListener(() => {
+        console.log('BTPort disconnected');
+        BTPort = null;
+        suspendExtension();
+    });
+});
 
 async function getBTTabWin(reset = false) {
     // read from local storage then cached. reset => topic mgr exit
@@ -58,7 +74,7 @@ async function getBTTabWin(reset = false) {
         return getBTTabWin.cachedValue;
     }
     let p = await chrome.storage.local.get(['BTTab', 'BTWin']);
-    if (p.BTTab && p.BTWin) getBTTabWin.cachedValue = [p.BTTab, p.BTWin];
+    if (p.BTTab || p.BTWin) getBTTabWin.cachedValue = [p.BTTab, p.BTWin];
     return getBTTabWin.cachedValue || [0, 0];
 }
 
@@ -70,18 +86,18 @@ function check(msg='') {
 }
 
 /* Document data kept in storage.local */
-const storageKeys = ["BTFileText",                // golden source of BT .org text data
-                     "TabAction",                 // remember popup default action
+const storageKeys = ["BTFileText",                  // golden source of BT .org text data
+                     "TabAction",                   // remember popup default action
                      "currentTabId",
                      "currentTopic",                // for setting badge text
                      "currentText",
-                     "mruTopics",                 // mru items used to default mru topic in popup
-                     "newInstall",                // true/false, for popup display choice
-                     "newVersion",                // used for popup to indicate an update to user
-                     "permissions",               // perms granted
-                     "ManagerHome",               // open in Panel or Tab
-                     "ManagerLocation",           // {top, left, width, height} of panel
-                     "topics"];                   // used for popup display
+                     "mruTopics",                   // mru items used to default mru topic in popup
+                     "newInstall",                  // true/false, for popup display choice
+                     "newVersion",                  // used for popup to indicate an update to user
+                     "permissions",                 // perms granted
+                     "BTManagerHome",               // open in Window, browser Side Panel or Tab
+                     "BTManagerLocation",           // {top, left, width, height} of panel
+                     "topics"];                     // used for popup display
 
 chrome.runtime.onUpdateAvailable.addListener(deets => {
     // Handle update. Store version so popup can inform and then upgrade
@@ -129,14 +145,16 @@ const Handlers = {
     "moveOpenTabsToTG": moveOpenTabsToTG,
     "updateGroup": updateGroup,
     "saveTabs": saveTabs,
+    "getBookmarks": getBookmarks,
+    "exportBookmarks": exportBookmarks,
 };
 
 var Awaiting = false;
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if ((msg.from != 'btwindow' && msg.from != 'popup') || (msg.type == 'AWAIT_RESPONSE'))
+    if ((msg.from != 'btwindow' && msg.from != 'popup'))
         return;
     
-    async function handleMessage() {
+    async function handleAwaitMessage() {
         try {
             const result = await Handlers[msg.function](msg, sender);
             sendResponse({ status: "success", message: result });
@@ -149,7 +167,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type == "AWAIT" && Handlers[msg.function]) {
         Awaiting = true;
         console.log("Background AWAITing ", msg.function, JSON.stringify(msg));
-        handleMessage();
+        handleAwaitMessage();
         setTimeout(() => Awaiting = false, 500);
         return true;
     }
@@ -163,25 +181,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         Handlers[msg.function](msg, sender);
         return;
     }
-    if (msg.function == 'getBookmarks' || msg.function == 'exportBookmarks') {
-        // request bookmark permission prior to bookmark operations
+    if (msg.function == 'allowSidePanel') {
+        // request sidebar permission
         // NB not using the dispatch cos that loses that its user triggered and Chrome prevents
-        
-        if (LocalTest) {
-            getBookmarks(); return;
-        }
         chrome.permissions.request(
-            {permissions: ['bookmarks']}, granted => {
-                if (granted) {
-                    (msg.function == 'getBookmarks') ? getBookmarks() : exportBookmarks();
-                } else {
-                    // send back denial 
-                    btSendMessage({'function': 'loadBookmarks', 'result': 'denied'});
-                }
+            {permissions: ['sidePanel']}, granted => {
+                btSendMessage({'function': 'sidePanelPermission', 'granted': granted});
             });
-            return;
-        }
-        if (msg.type == 'LOCALTEST') {
+        return;
+    }
+    if (msg.type == 'LOCALTEST') {
             // Running under test so there is no external BT top level window
             chrome.tabs.query({'url' : '*://localhost/test*'}, tabs => {
             check();
@@ -222,8 +231,9 @@ chrome.tabs.onMoved.addListener(logEventWrapper("tabs.onMoved", async (tabId, ot
 
 chrome.tabs.onRemoved.addListener(logEventWrapper("tabs.onRemoved", async (tabId, otherInfo) => {
     // listen for tabs being closed and let BT know
+    if (!tabId) return;
     const [BTTab, BTWin] = await getBTTabWin();
-    if (!tabId || !BTTab) return;         // closed?
+    if (!BTPort && !BTTab) return;         // closed?
     if (tabId == BTTab) {
         setTimeout(() => suspendExtension(), 100);
         console.log('BTTab closed, suspending extension');
@@ -238,7 +248,7 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
     if (Awaiting) return;                                           // ignore events while we're awaiting 'synchronous' commands to take effect
 
     const [BTTab, BTWin] = await getBTTabWin();
-    if (!tabId || !BTTab || (tabId == BTTab)) return;               // not set up yet or don't care
+    if (!tabId || (!BTTab && !BTPort) || (tabId == BTTab)) return;               // not set up yet or don't care
 
     const indices = await tabIndices();                             // keep indicies in sync
     if (changeInfo.status == 'complete') {
@@ -349,12 +359,13 @@ chrome.windows.onBoundsChanged.addListener(async (window) => {
     const [BTTab, BTWin] = await getBTTabWin();
     if (BTWin != window.id) return;
     const location = {top: window.top, left: window.left, width: window.width, height: window.height};
-    chrome.storage.local.set({'ManagerLocation': location});
+    chrome.storage.local.set({'BTManagerLocation': location});
 });
 
 // listen for connect and immediate disconnect => open BT panel
 chrome.runtime.onConnect.addListener(logEventWrapper("runtime.onConnect", async (port) => {
 
+    if (port.name !== "BTPopup") return;
     const [BTTab, BTWin] = await getBTTabWin();
     const connectTime = Date.now();
     port.onDisconnect.addListener(() => {
@@ -363,7 +374,7 @@ chrome.runtime.onConnect.addListener(logEventWrapper("runtime.onConnect", async 
         if ((disconnectTime - connectTime) < 500)
             chrome.windows.update(BTWin, {'focused': true}, () => {
                 check();
-                chrome.tabs.update(BTTab, {'active': true});
+                BTTab && chrome.tabs.update(BTTab, {'active': true});
             });
     });
 }));
@@ -421,9 +432,11 @@ function getOpenTabGroups() {
 
 async function initializeExtension(msg, sender) {
     // sender is the BTContent script. We pull out its identifiers
-    const BTTab = sender.tab.id;
-    const BTWin = sender.tab.windowId;
+    const BTTab = sender.tab?.id;
+    const BTWin = sender.tab?.windowId || msg.BTWin;
+    console.log(`Initializing extension with BTTab: ${BTTab}, BTWin: ${BTWin}`);
     const BTVersion = chrome.runtime.getManifest().version;
+    const perms = await chrome.permissions.getAll();
     chrome.storage.local.set({'BTTab': BTTab, 'BTWin': BTWin});
     getBTTabWin(true);                         // clear cache
 
@@ -453,13 +466,21 @@ async function initializeExtension(msg, sender) {
     }
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
+    if (BTPort)                     
+        // if panel is open, turn off close-on-click behavior
+        chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: false}); 
 }
 
 function suspendExtension() {
     // called when the BTWin/BTTab is detected to have been closed
 
+    chrome.storage.local.get(['BTManagerHome'], async val => {
+        if (val.BTManagerHome == 'SIDEPANEL')
+            chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true});      // open side panel on next icon click
+    });
     chrome.storage.local.set({'BTTab': 0, 'BTWin': 0});
     getBTTabWin(true);                         // clear cache
+    BTPort = null;
     updateBTIcon('', 'BrainTool is not running.\nClick to start', '#e57f21');
     chrome.action.setIcon({'path': 'images/BrainToolGray.png'});
 

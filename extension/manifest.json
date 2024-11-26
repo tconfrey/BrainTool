@@ -5,6 +5,7 @@
     "default_locale": "en",
     "version": "1.2",
     "permissions": ["tabs", "storage", "tabGroups", "webNavigation", "bookmarks"],
+    "optional_permissions": ["sidePanel"],
     "background": {
         "service_worker": "background.js"
     },
@@ -38,5 +39,8 @@
                 "default": "Alt+B"
             }
         }
+    }, 
+    "side_panel": {
+        "default_path": "sidepanel.html"
     }
 }

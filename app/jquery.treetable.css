@@ -120,6 +120,18 @@ table.treetable td.left {
   border-right-color: var(--btRowBorderColor);
 }
 
+table.treetable.hideNotes td.left {
+  width: 100%;
+  border-right: none;
+}
+table.treetable.hideNotes td.right {
+  width: 0%;
+  display: none;
+}
+table.treetable.showNotes td.right {
+  display: table-cell;
+}
+
 table.treetable span.indenter a {
   display: inline-flex;
   align-items: center;

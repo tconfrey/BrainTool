@@ -40,10 +40,11 @@ function setToLocalStorage(obj) {
 
 // Listen for messages from the App
 window.addEventListener('message', async function(event) {
-    // Handle message from Window, NB ignore msgs relayed from this script in listener below
-    if (event.source != window || event.data.from == "btextension")
-        return;
-    console.log(`Content-IN ${event.data.function || event.data.type} from TopicManager:`, event.data);
+    // Handle message from Window, NB ignore msgs relayed from this script in listener below or fomr other windows
+    if (event.data.from == "btextension") return;
+    if (event.source != window && event.source.parent != window) return;
+
+    console.log(`Content-IN ${event.data.function || event.data.type} from TopicManager@ ${event.origin} :`, event.data);
     if (event.data.function == 'localStore') {
         // stores topics, preferences, current tabs topic/note info etc for popup/extensions use
         try {
@@ -62,7 +63,7 @@ window.addEventListener('message', async function(event) {
             event.data["from"] = "btwindow";
             const response = await callToBackground(event.data);
             // Send the response back to the web page
-            window.postMessage({type: "AWAIT_RESPONSE", response: response}, event.origin);
+            sendMessage({from: "btextension", type: "AWAIT_RESPONSE", response: response});
         } catch (error) {
             console.error("Error sending message:", JSON.stringify(error));
         }
@@ -88,6 +89,14 @@ async function callToBackground(message) {
     });
 }
 
+// sendMessage utility, communicates from contentScript to TM either in containing tab, or contained iframe (sidepanel)
+function sendMessage(msg) { 
+    console.log(`sending message to TopicManager:`, msg);
+    const iframe = document.getElementById('BTTopicManager');       // frame to talk to
+    const target = iframe ? iframe.contentWindow : window;
+    target.postMessage(msg, '*');
+}
+
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // Handle messages from extension
@@ -101,31 +110,27 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         chrome.storage.local.get('bookmarks', data => {
             msg.data = data;
             msg["from"] = "btextension";
-            window.postMessage(msg);
+            sendMessage(msg);
             /* !!!!!!!!!!!!  Release Candidate debugging change. Undo in 1.0 release !!!!!!!!!!!!! 
             chrome.storage.local.remove('bookmarks');             // clean up space
             */
         });
         break;
-    case 'launchApp':           // set up btfiletext before passing on to app, see below
+    case 'launchApp':           // set up btfiletext etc before passing on to app, see below
         launchApp(msg);
         break;
     default:
         // handle all other default type messages
         msg["from"] = "btextension";
-        window.postMessage(msg);
+        sendMessage(msg);
     }
 });
 
-
-// Let extension know bt window is ready. Should only run once
-var NotLoaded = true;
-if (!window.LOCALTEST && NotLoaded) {
-    chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
-    NotLoaded = false;
-    //setTimeout(waitForKeys, 5000);
-    console.count('Content-OUT:initializeExtension');
-}
+(async function () {
+    // Let extension know bt window is ready. NB also sent, seperately, from sidepanel.js cos it needs to wait for iframe to load
+    if (typeof SIDEPANEL === 'undefined')
+        chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension' });
+})();
 
 
 async function launchApp(msg) {
@@ -134,7 +139,7 @@ async function launchApp(msg) {
     // and then just pass on to app
     
     if (window.LOCALTEST) return;                          // running inside test harness
-    
+    console.log("launching App");
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
         let response = await fetch('/app/BrainTool.org');
@@ -152,8 +157,9 @@ async function launchApp(msg) {
     let Config = await getFromLocalStorage('Config');
     if (BTId) msg["bt_id"] = BTId;
     if (Config) msg["Config"] = Config;
+    msg["SidePanel"] = (typeof SIDEPANEL !== 'undefined');
     
     msg["from"] = "btextension";
     msg["BTFileText"] = btdata;
-    window.postMessage(msg);
+    sendMessage(msg);
 }

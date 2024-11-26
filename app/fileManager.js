@@ -64,7 +64,7 @@ async function saveBT(localOnly = false, newContent = true) {
     BTFileText = BTAppNode.generateOrgFile();
     if (window.LOCALTEST) return;
 
-    window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
+    sendMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     if (localOnly) return;                       // return if we're just remember folded state
 
     setTimeout(brainZoom, 1000);                 // swell the brain

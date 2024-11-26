@@ -25,6 +25,7 @@ var UpgradeInstall = false;
 var GroupingMode = 'TABGROUP';                            // or 'NONE'
 var MRUTopicPerWindow = {};                               // map winId to mru topic
 var BTTabId = null;                                       // tabId of BT
+var SidePanel = false;                                    // true if running in side panel => dictates how to send msgs
 
 /***
  *
@@ -39,7 +40,8 @@ async function launchApp(msg) {
     InitialInstall = msg.initial_install;
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
-        
+    SidePanel = msg.SidePanel;
+
     BTFileText = msg.BTFileText;
     processBTFile();                                          // create table etc
     
@@ -240,7 +242,7 @@ async function handleInitialTabs(tabs, tgs) {
             if (node) node.groupAndPosition();
         });
     // remember topic per window for suggestions in popup
-    window.postMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
+    sendMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
     updateStatsRow();
 }
 
@@ -346,8 +348,8 @@ function processBTFile(fileText = BTFileText) {
     BTAppNode.generateTopics();
 
     // Let extension know about model
-    window.postMessage({'function': 'localStore', 'data': {'topics': Topics}});
-    window.postMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
+    sendMessage({'function': 'localStore', 'data': {'topics': Topics}});
+    sendMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
     
     // initialize ui from any pre-refresh opened state
     OpenedNodes.forEach(oldNode => {
@@ -380,12 +382,20 @@ function processBTFile(fileText = BTFileText) {
 }
 
 
-// initialize column resizer on startupfunction 
+/**
+ *      Column resizing functionality
+ **/
+
 function initializeNotesColumn() {
-    // when window is too small drop the notes column, also used when set in settings
+    // set position of the column resizer, read from BTNotes peoperty.
+    // Above 95% snaps to 100% right aligned offset by 26px width, but when window is narrow thats >5% so 13px
+    // Called from initial settings and checkCompact after window resize
+    // Calls out to handleResizer,
     const notesPref = configManager.getProp('BTNotes');
     const percent = parseInt(notesPref);
-    $("#resizer").css('left', `calc(${percent}% - 13px`);
+    const left = (percent >= 95) ? 100 : percent;
+    const offset = ($(window).width() > 260) ? 26 : 13;  // adjust for narrow windows
+    $("#resizer").css('left', `calc(${left}% - ${offset}px`);
     handleResizer();
 }
 let Resizing = false;                                   // set while resizing in progress to avoid processing other events
@@ -393,13 +403,14 @@ function handleResizer() {
     // Resizer has been dragged, or during set up
     const left = $("#resizer").position().left + 13;
     const fullWidth = $(window).width();
-    const percent = left / fullWidth * 100;
+    const percent = parseInt(left / fullWidth * 100);
+
     if (percent < 95) {
+        $("#content").addClass('showNotes').removeClass('hideNotes');
         $("td.left").css("width", percent + "%");
         $("td.right").css("width", (100 - percent) + "%");
-        $("td.right").css("display", "table-cell");
     } else {
-        $("td.right").css("display", "none");
+        $("#content").addClass('hideNotes').removeClass('showNotes');
     }
 }
 $("#resizer").draggable({
@@ -412,7 +423,7 @@ $("#resizer").draggable({
     stop: () => setTimeout(() => {
         const left = $("#resizer").position().left + 13;
         const fullWidth = $(window).width();
-        const percent = left / fullWidth * 100;
+        const percent = parseInt(left / fullWidth * 100);
         configManager.setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
         handleResizer();
         Resizing = false;
@@ -429,6 +440,10 @@ function displayNotesForSearch() {
         $("td.right").css("width", "50%");
     }
 }
+
+/**
+ *      General UI Setup
+ */
 
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
@@ -662,7 +677,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     // update the rest of the app, backing store
     saveBT();
     BTAppNode.generateTopics();
-    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {
@@ -934,9 +949,9 @@ function saveTabs(data) {
     // update topic list, sync extension, reset ui and save changes.
     BTAppNode.generateTopics();
     let lastTopicNode = Array.from(changedTopicNodes).pop();
-    window.postMessage({'function': 'localStore', 
+    sendMessage({'function': 'localStore', 
                         'data': { 'topics': Topics, 'mruTopics': MRUTopicPerWindow, 'currentTopic': lastTopicNode?.topicName() || '', 'currentText': note}});
-    window.postMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
+    sendMessage({'function' : 'brainZoom', 'tabId' : data.tabs[0].tabId});
 
     initializeUI();
     saveBT();
@@ -1070,7 +1085,7 @@ function tabActivated(data) {
         m1 = {'currentTopic': '', 'currentText': '', 'currentTitle': '', 'tabNavigated': false};
         clearSelected();
     }
-    window.postMessage({'function': 'localStore', 'data': {...m1, ...m2}});
+    sendMessage({'function': 'localStore', 'data': {...m1, ...m2}});
 }
 
 
@@ -1355,7 +1370,7 @@ function buttonShow(e) {
         $("#buttonRow span").removeClass("wenk--right").addClass("wenk--left");
 
     // Open/close buttons 
-    const node = getActiveNode(e);open
+    const node = getActiveNode(e);
     const topic = node.isTopic() ? node : AllNodes[node.parentId];
     $("#openTab").hide();
     $("#openWindow").hide();
@@ -1626,11 +1641,12 @@ function deleteNode(id) {
         propogateClosed(parent.parentId);                       // recurse
     }
     
-    // Ungroup and highlight the tab if it's open and the Topic Manager is in side panel, otherwise we leave the TMgr tab
+    // Highlight the tab if it's open and the Topic Manager is not TAB (jarring to swap active tabs)
     // (good user experience and side effect is to update the tabs badge info
     const BTHome = configManager.getProp('BTManagerHome');
-    if (node.tabId && (BTHome == 'TAB'))
+    if (node.tabId && (BTHome !== 'TAB'))
         node.showNode();
+    // Ungroup if topic w open tabs
     if (openTabs.length) {
         const tabIds = openTabs.map(t => t.tabId);
         callBackground({'function': 'ungroup', 'tabIds': tabIds});
@@ -1645,7 +1661,7 @@ function deleteNode(id) {
     // if wasTopic remove from Topics and update extension
     if (wasTopic) {
         BTAppNode.generateTopics();
-        window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+        sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     }
     
     // Update File 
@@ -1683,7 +1699,7 @@ function updateRow() {
 
     // Update extension
     BTAppNode.generateTopics();
-    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     console.count('BT-OUT: Topics updated to local store');
 
     // reset ui
@@ -1728,7 +1744,7 @@ function promote(e) {
     // save to file, update Topics etc
     saveBT();
     BTAppNode.generateTopics();
-    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
 function _displayForEdit(newNode) {
@@ -1807,7 +1823,7 @@ async function processImport(nodeId) {
 function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
-    window.postMessage({'function': 'getBookmarks'});
+    sendMessage({'function': 'getBookmarks'});
 }
 
 function loadBookmarks(msg) {
@@ -1884,12 +1900,12 @@ function exportBookmarks() {
         return {'displayTopic': n.displayTopic, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
     });
     const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
-    window.postMessage({'function': 'localStore',
+    sendMessage({'function': 'localStore',
                         'data': {'AllNodes': nodeList,
                                  title: 'BrainTool Export ' + dateString}});
 
     // wait briefly to allow local storage too be written before background tries to access
-    setTimeout(() => window.postMessage({'function': 'exportBookmarks'}), 100);
+    setTimeout(() => sendMessage({'function': 'exportBookmarks'}), 100);
     gtag('event', 'BookmarkExport', {'event_category': 'Export'});
 }
 
@@ -1904,7 +1920,7 @@ function groupingUpdate(from, to) {
 
 function importSession() {
     // Send msg to result in subsequent session save
-    window.postMessage({'function': 'saveTabs', 'type': 'Session', 'topic': '', 'from':'btwindow'});
+    sendMessage({'function': 'saveTabs', 'type': 'Session', 'topic': '', 'from':'btwindow'});
 }
 
 /***
@@ -2468,6 +2484,6 @@ function undo() {
     initializeUI();
     saveBT();
     BTAppNode.generateTopics();
-    window.postMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
 
 }

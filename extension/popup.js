@@ -39,7 +39,7 @@ function hideElements(elementIds) {
 //    b. new tab => show topic selector and note entry
 //    c. tab in tg => select to greate new topic or use tg name
 
-const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'ManagerHome', 'ManagerLocation'];
+const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'BTManagerHome', 'BTManagerLocation', 'BTPortConnected'];
 chrome.storage.local.get(contextVariables, async val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
     const introTitle = document.getElementById('introTitle');
@@ -71,23 +71,28 @@ chrome.storage.local.get(contextVariables, async val => {
 
     // Else launching Topic Mgr if its not open, or just normal bookmarker
     let topicManagerTab = null;
+    const home = val['BTManagerHome'] || 'WINDOW';
     if (val['BTTab']) {
         try {
-            topicManagerTab = await chrome.tabs.get(val['BTTab']);  
+            topicManagerTab = await chrome.tabs.get(val['BTTab']);
+            !topicManagerTab && chrome.storage.local.remove('BTTab');
         } catch (e) {
             // tab no longer exists, clear it
             chrome.storage.local.remove('BTTab');
         }
     }
-    if (topicManagerTab) {
+    if (topicManagerTab || home === 'SIDEPANEL') {
         populateBookmarker();
         return;
     }
     
     // Last case - need to re-open Topic Manager with home and location values
-    const home = val['ManagerHome'] || 'PANEL';
-    const location = val['ManagerLocation'];
+    const location = val['BTManagerLocation'];
     
+    if (home == "SIDEPANEL") {
+        // Just exit, sidepanel is set to open on action click
+        return;
+    }
     // Show the splash notice for two seconds and open the topic mgr
     const version = chrome.runtime.getManifest().version;
     introTitle.textContent = introTitle.textContent + version;
@@ -106,10 +111,10 @@ function reloadExtension() {
         })
     );
 }
-
-function openTopicManager(home = 'PANEL', location) {
-    // Create the BT Topic Manager
-    // home == tab => create manager in a tab, PANEL => in a side panel, default
+  
+function openTopicManager(home = 'WINDOW', location) {
+    // Create the BT Topic Manager. Note browser side panel opening is handled onclick on the BT icon, see SIDEPANEL.
+    // home == tab => create manager in a tab, WINDOW => in a side panel window, default
     // location {top, left, width, height} filled in by bg whenever Topic Manager is resized
     
     // First check for existing BT Tab eg error condition or after an Extension restart.
@@ -124,8 +129,8 @@ function openTopicManager(home = 'PANEL', location) {
     // const url = "https://BrainTool.org/versions/"+version+'/app/';
     console.log('loading from ', url);
     
-    // Default open in side panel
-    if (home != "TAB") {
+    // Default open in side window
+    if (home == "WINDOW") {
         chrome.windows.getCurrent(async mainwin => {
             // create topic manager window where last placed or aligned w current window left/top
             const wargs = location ? {
@@ -148,10 +153,12 @@ function openTopicManager(home = 'PANEL', location) {
                 await chrome.windows.update(mainwin.id, {focused: false, left: (mainwin.left + 150)});
             createTopicManagerWindow(wargs);
         });
-    } else {
-            // open in tab
-            console.log('opening in tab');
-            chrome.tabs.create({'url': url});
+    }
+
+    if (home == "TAB") {
+        // open in tab
+        console.log('opening in tab');
+        chrome.tabs.create({'url': url});
     }
 }
 
@@ -184,7 +191,7 @@ function createTopicManagerWindow(wargs) {
 async function populateBookmarker() {
     // Find tab info and open bookmarker
     
-    chrome.runtime.connect();           // tell background popup is open
+    chrome.runtime.connect({name: 'BTPopup'});           // tell background popup is open
     chrome.tabs.query({currentWindow: true}, list => {
         const activeTab = list.find(t => t.active);
         openBookmarker(activeTab);

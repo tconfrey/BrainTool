@@ -76,7 +76,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             chrome.storage.local.get('bookmarks', data => {
                 msg.data = data;
                 msg["from"] = "btextension";
-                window.postMessage(msg);
+                window.sendMessage(msg);
                 chrome.storage.local.remove('bookmarks');             // clean up space
             });
         break;
@@ -86,7 +86,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         default:
         // handle all other default type messages
         msg["from"] = "btextension";
-        window.postMessage(msg);
+        window.sendMessage(msg);
     }
 });
 
@@ -194,7 +194,7 @@ async function launchAppTests(msg) {
     
     msg["from"] = "btextension";
     msg["BTFileText"] = BTFileText;
-    window.postMessage(msg);
+    window.sendMessage(msg);
 }
 
 async function sendTestMessages(messageSet) {
@@ -206,7 +206,7 @@ async function sendTestMessages(messageSet) {
     }
     for (const msg of messageSets[messageSet]) {
         console.log(`Content-OUT ${msg.function} to Extension:`, msg);
-        window.postMessage(msg);
+        window.sendMessage(msg);
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 }

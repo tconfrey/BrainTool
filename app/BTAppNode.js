@@ -530,13 +530,13 @@ class BTAppNode extends BTNode {
     showNode() {
         // highlight this nodes associated tab or window
         if (this.tabId)
-            window.postMessage(
+            sendMessage(
                 {'function' : 'showNode', 'tabId': this.tabId});
         else if (this.tabGroupId)
-            window.postMessage(
+            sendMessage(
                 {'function' : 'showNode', 'tabGroupId': this.tabGroupId});
         else if (this.windowId)
-            window.postMessage(
+            sendMessage(
                 {'function' : 'showNode', 'windowId': this.windowId});
     }
 
@@ -590,11 +590,11 @@ class BTAppNode extends BTNode {
         // if we don't care about grouping just open each tab
         if (GroupingMode == 'NONE') {
             const tabsToOpen = this.listOpenableTabs();              // [{nodeId, url}..}
-            window.postMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
+            sendMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
         }
         else {                      // need to open all urls in single (possibly new) window
             const tabGroupsToOpen = this.listOpenableTabGroups();    // [{tg, [{id, url}]},..]
-            window.postMessage({'function': 'openTabGroups', 'tabGroups': tabGroupsToOpen,
+            sendMessage({'function': 'openTabGroups', 'tabGroups': tabGroupsToOpen,
                                 'newWin': newWin});
         }
     }
@@ -614,7 +614,7 @@ class BTAppNode extends BTNode {
             const index = node?.expectedTabIndex() || 0;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
-        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
+        sendMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
                             'windowId': this.windowId, 'tabInfo': tabInfo,
                             'groupName': this.topicName(), 'topicId': this.id,
                         });
@@ -626,7 +626,7 @@ class BTAppNode extends BTNode {
         const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
         const groupId = this.isTopic() ? this.id : AllNodes[this.parentId]?.id;
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
-        window.postMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
+        sendMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
                             'groupName': groupName, 'topicId': groupId,});
     }
@@ -634,7 +634,7 @@ class BTAppNode extends BTNode {
     closeTab() {
         // Close tabs associated w this node
         if (this.tabId)
-            window.postMessage({'function': 'closeTab', 'tabId': this.tabId});
+            sendMessage({'function': 'closeTab', 'tabId': this.tabId});
         this.childIds.forEach(id => {
             const node = AllNodes[id];
             node.closeTab();
@@ -663,7 +663,7 @@ class BTAppNode extends BTNode {
         if (this.hasOpenChildren()) {
             const openTabIds = this.childIds.flatMap(
                 c => AllNodes[c].tabId ? [AllNodes[c].tabId] : []);
-            window.postMessage({
+            sendMessage({
                 'function': 'moveOpenTabsToTG', 'groupName': this.displayTopic,
                 'tabIds': openTabIds, 'windowId': this.windowId
             });
@@ -1112,12 +1112,22 @@ const Handlers = {
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
     "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
+    "sidePanelPermission": sidePanelPermission,
 };
+
+function sidePanelPermission(data) {
+    // bg is letting us know if we have permission to open the side panel
+    if (data.granted) return;
+    // Not granted, so set the radio button to WINDOW
+    $('#panelToggle :radio[name=location]').filter(`[value='WINDOW']`).prop('checked', true);
+}
 
 // Set handler for extension messaging
 window.addEventListener('message', event => {
-    if (event.source != window || event.functionType == 'AWAIT')        // async handled below
-        return;
+    console.log("BTAppNode received: ", event);
+    if (event.source != window && event.source != window.parent) return;            // not our business
+    if (event?.data?.type == 'AWAIT') return;                                       // outbound msg from callBackground
+    if (event?.data?.type == 'AWAIT_RESPONSE') return;                              // sync rsp handled below
 
     //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
     if (Handlers[event.data.function]) {
@@ -1126,23 +1136,25 @@ window.addEventListener('message', event => {
     }
 });
 
-// Function to send a message to the content script and await a response
+// Function to send a message to the content script or side panel and await a response
 function callBackground(message) {
     return new Promise((resolve) => {
+        // Send the message to the content script
+        message.type = "AWAIT";
+        sendMessage(message);
+
         // Listen for the response from the content script
         window.addEventListener("message", function handler(event) {
-            if (event.source !== window || event.type !== 'AWAIT') {
-                return;
-            }
-            
-            if (event.data && event.data.type === "AWAIT_RESPONSE") {
-                window.removeEventListener("message", handler);
-                resolve(event.data.response);
-            }
+            if (event?.data?.type !== 'AWAIT_RESPONSE')   return;                          // async handled above
+            if (event.source != window && event.source != window.parent)  return;           // not our business            
+            window.removeEventListener("message", handler);
+            resolve(event.data.response);
         });
-        
-        // Send the message to the content script with the page's origin as targetOrigin
-        message.type = "AWAIT";
-        window.postMessage(message, window.origin);
     });
+}
+
+function sendMessage(message) {
+    // Send message to extension via contained content script or side panel container
+    const dest = SidePanel ? window.parent : window;
+    dest.postMessage(message, '*');
 }

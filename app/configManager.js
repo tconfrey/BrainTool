@@ -34,12 +34,14 @@ const configManager = (() => {
         'stats': [  'BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime', 
                     'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
     };
-    let Config, Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
+    let Config = {};
+    let Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};                     
 
     function setConfigAndKeys(msg) {
         // takes message from background/Content script and pulls out settings
         Config = msg.Config || {};
         if (!Config['BTStats']) Config['BTStats'] = {};
+        if (msg.SidePanel) Config['BTManagerHome'] = 'SIDEPANEL';
         if (msg.BTVersion) Config['BTAppVersion'] = msg.BTVersion;
         Keys.CLIENT_ID = msg.client_id;
         Keys.API_KEY = msg.api_key;
@@ -52,7 +54,7 @@ const configManager = (() => {
 
         if (Properties.localStorageProps.includes(prop)) {
             Config[prop] = value;       
-	        window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	        sendMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
         if (Properties.orgProps.includes(prop)) {
             Config[prop] = value;
@@ -61,7 +63,7 @@ const configManager = (() => {
         }	 
         if (Properties.stats.includes(prop)) {
             Config['BTStats'][prop] = value;
-    	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+    	    sendMessage({'function': 'localStore', 'data': {'Config': Config}});
         }
     };
 
@@ -77,8 +79,8 @@ const configManager = (() => {
         if (Properties.keys.includes(prop)) {
             return Keys[prop];
         }
-        if (Properties.stats.includes(prop)) {
-            return Config['BTStats'][prop];
+        if (Properties.stats.includes(prop) && Config.BTStats) {
+            return Config.BTStats[prop];
         }
         return null;
     };
@@ -114,7 +116,7 @@ const configManager = (() => {
         Config['BTStats'][statName] = oldVal + 1;
         Config['BTStats']['BTLastActivityTime'] = date;
         checkNewDayOfUse(previousActivityTime, date);                   // see above
-	    window.postMessage({'function': 'localStore', 'data': {'Config': Config}});
+	    sendMessage({'function': 'localStore', 'data': {'Config': Config}});
     };
 
     function setStat(statName, statValue) {
@@ -125,21 +127,21 @@ const configManager = (() => {
     function updatePrefs() {
         // update preferences based on configuration
 
+        /*
         let groupMode = configManager.getProp('BTGroupingMode');
         if (groupMode) {
             const $radio = $('#tabGroupToggle :radio[name=grouping]');
             $radio.filter(`[value=${groupMode}]`).prop('checked', true);
             GroupingMode = groupMode;
 	    }
+        */
 
-        // does the topic manager live in a tab or a window?
-        const managerHome = configManager.getProp('BTManagerHome');
         let $radio;
-        if (managerHome) {
-            $radio = $('#panelToggle :radio[name=location]');
-            $radio.filter(`[value=${managerHome}]`).prop('checked', true);
-            window.postMessage({'function': 'localStore', 'data': {'ManagerHome': managerHome}});
-        }
+        // does the topic manager live in a tab or a window?
+        const managerHome = configManager.getProp('BTManagerHome') || 'WINDOW';
+        $radio = $('#panelToggle :radio[name=location]');
+        $radio.filter(`[value=${managerHome}]`).prop('checked', true);
+        sendMessage({'function': 'localStore', 'data': {'BTManagerHome': managerHome}});
 
         // Fill in initial value for SettingsBackups checkbox
         const backupsOn = configManager.getProp('BTBackupsOn');
@@ -205,9 +207,11 @@ const configManager = (() => {
     $(document).ready(function () {
         $('#panelToggle :radio').change(function () {
             const newHome = $(this).val();
+            if (newHome == 'SIDEPANEL')
+                sendMessage({'function': 'allowSidePanel'});
             configManager.setProp('BTManagerHome', newHome);
             // Let extension know
-            window.postMessage({'function': 'localStore', 'data': {'ManagerHome': newHome}});
+            sendMessage({'function': 'localStore', 'data': {'BTManagerHome': newHome}});
         });
 
         /*
@@ -270,7 +274,7 @@ const configManager = (() => {
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
             $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
             // Let extension know
-            window.postMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
+            sendMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
         });
 
         $('#faviconToggle :radio').change(function () {
