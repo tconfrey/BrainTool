@@ -967,7 +967,7 @@ class BTAppNode extends BTNode {
         // find topic from tab group
         return AllNodes.find(node => node && node.isTopic() && node.tabGroupId == groupId);
     }
-    
+
     static findOrCreateFromTopicDN(topicDN) {
         // Walk down tree of topics from top, finding or creating nodes & tt display nodes
         let components = topicDN.match(/.*?:/g);
@@ -976,20 +976,20 @@ class BTAppNode extends BTNode {
         const topTopic = (components && components.length) ? components[0] : topic;
 
         // Find or create top node
-        let topNode = AllNodes.find(node => node && node.topicName() == topTopic);
+        let topNode = AllNodes.find(node => node && (node.topicName() == topTopic) && (node.isTopic()));
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);
             topNode.createDisplayNode();
         }
-            
+
         if (!components) return topNode;
-        
+
         // Remove, now handled first elt, Walk down rest creating as needed
         let currentNode = topNode;
         components.shift();
         components.forEach((t) => {
             let node = currentNode;
-            currentNode = currentNode.findChild(t);
+            currentNode = currentNode.findTopicChild(t);
             if (!currentNode) {
                 currentNode = new BTAppNode(t, node.id, "", node.level + 1);
                 currentNode.createDisplayNode();
@@ -997,8 +997,8 @@ class BTAppNode extends BTNode {
         });
 
         // finally find or create the leaf node
-        if (currentNode.findChild(topic))
-            return currentNode.findChild(topic);
+        if (currentNode.findTopicChild(topic))
+            return currentNode.findTopicChild(topic);
         let newLeaf = new BTAppNode(topic, currentNode.id, "", currentNode.level + 1);
         newLeaf.createDisplayNode();
         topNode.redisplay();                              // since new nodes created
