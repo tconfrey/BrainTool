@@ -207,8 +207,6 @@ const configManager = (() => {
     $(document).ready(function () {
         $('#panelToggle :radio').change(function () {
             const newHome = $(this).val();
-            if (newHome == 'SIDEPANEL')
-                sendMessage({'function': 'allowSidePanel'});
             configManager.setProp('BTManagerHome', newHome);
             // Let extension know
             sendMessage({'function': 'localStore', 'data': {'BTManagerHome': newHome}});

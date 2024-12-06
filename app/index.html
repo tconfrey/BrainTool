@@ -326,7 +326,7 @@
                       <div class="dropdown_content">                    
                           <div onClick="importBookmarks()">
                               <label for="import_bookmarks" class="button_text">Browser Bookmarks</label>
-                              <input id="import_bookmarks" type="button" style="display:none">
+                              <input id="import_bookmarks" type="button" style="display:none" onClick="event.stopPropagation()">
                           </div>
                           
                           <div style="border-top: solid 1px #ddd" onClick="$('#org_upload').val('');">

@@ -1001,7 +1001,7 @@ class BTAppNode extends BTNode {
         const topTopic = (components && components.length) ? components[0] : topic;
 
         // Find or create top node
-        let topNode = AllNodes.find(node => node && node.topicName() == topTopic);
+        let topNode = AllNodes.find(node => node && (node.topicName() == topTopic) && (node.isTopic()));
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);
             topNode.createDisplayNode();
@@ -1014,7 +1014,7 @@ class BTAppNode extends BTNode {
         components.shift();
         components.forEach((t) => {
             let node = currentNode;
-            currentNode = currentNode.findChild(t);
+            currentNode = currentNode.findTopicChild(t);
             if (!currentNode) {
                 currentNode = new BTAppNode(t, node.id, "", node.level + 1);
                 currentNode.createDisplayNode();
@@ -1022,8 +1022,8 @@ class BTAppNode extends BTNode {
         });
 
         // finally find or create the leaf node
-        if (currentNode.findChild(topic))
-            return currentNode.findChild(topic);
+        if (currentNode.findTopicChild(topic))
+            return currentNode.findTopicChild(topic);
         let newLeaf = new BTAppNode(topic, currentNode.id, "", currentNode.level + 1);
         newLeaf.createDisplayNode();
         topNode.redisplay();                              // since new nodes created
@@ -1112,15 +1112,7 @@ const Handlers = {
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
     "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
-    "sidePanelPermission": sidePanelPermission,
 };
-
-function sidePanelPermission(data) {
-    // bg is letting us know if we have permission to open the side panel
-    if (data.granted) return;
-    // Not granted, so set the radio button to WINDOW
-    $('#panelToggle :radio[name=location]').filter(`[value='WINDOW']`).prop('checked', true);
-}
 
 // Set handler for extension messaging
 window.addEventListener('message', event => {

@@ -99,9 +99,9 @@ class BTNode {
             this._childIds.splice(index, 1);
     }
 
-    findChild(childTopic) {
+    findTopicChild(childTopic) {
         // does this topic node have this sub topic
-        const childId = this.childIds.find(id => AllNodes[id].topicName() == childTopic);
+        const childId = this.childIds.find(id => (AllNodes[id].isTopic () && (AllNodes[id].topicName() == childTopic)));
         return childId ? AllNodes[childId] : null;
     }
     

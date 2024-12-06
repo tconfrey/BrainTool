@@ -25,6 +25,7 @@ var UpgradeInstall = false;
 var GroupingMode = 'TABGROUP';                            // or 'NONE'
 var MRUTopicPerWindow = {};                               // map winId to mru topic
 var BTTabId = null;                                       // tabId of BT
+var BTWinId = null;                                       // winId of BT
 var SidePanel = false;                                    // true if running in side panel => dictates how to send msgs
 
 /***
@@ -40,6 +41,7 @@ async function launchApp(msg) {
     InitialInstall = msg.initial_install;
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
+    BTWinId = msg.BTWin;                                    // got mad knowledge of self
     SidePanel = msg.SidePanel;
 
     BTFileText = msg.BTFileText;
@@ -170,7 +172,7 @@ function updateStats() {
 function handleFocus(e) {
     // BTTab comes to top
     
-    document.activeElement.blur();      // Links w focus interfere w BTs selection so remove
+    document.activeElement.blur();                      // Links w focus interfere w BTs selection so remove
     const deletions = handlePendingDeletions();         // handle any pending deletions
     if (!deletions) warnBTFileVersion(e);               // check file version, warn if stale, NB if deletions then save will overwrite
 }
@@ -1063,13 +1065,13 @@ function tabActivated(data) {
     // user switched to a new tab or win, fill in storage for popup's use and select in ui
 
     const tabId = data['tabId'];
+    const winId = data['windowId'];
 
     if (tabId == BTTabId) {
         handleFocus({'reason': 'BTTab activated'});       // special case when the tab is us!
         return;
     }
 
-    const winId = data['windowId'];
     const groupId = data['groupId'];
     const node = BTAppNode.findFromTab(tabId);
     const winNode = BTAppNode.findFromWindow(winId);
@@ -1086,6 +1088,11 @@ function tabActivated(data) {
         clearSelected();
     }
     sendMessage({'function': 'localStore', 'data': {...m1, ...m2}});
+
+    if (SidePanel && (winId == BTWinId)) {
+        handleFocus({'reason': 'BTTab activated'});       // window w BT Sidepanel got focus
+        return;
+    }
 }
 
 
@@ -1371,15 +1378,16 @@ function buttonShow(e) {
 
     // Open/close buttons 
     const node = getActiveNode(e);
+    if (!node) return;
     const topic = node.isTopic() ? node : AllNodes[node.parentId];
     $("#openTab").hide();
     $("#openWindow").hide();
     $("#closeRow").hide();
-    if (node && node.countOpenableTabs()){
+    if (node.countOpenableTabs()){
         $("#openTab").show();
         if (!topic?.hasOpenChildren() || (GroupingMode != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
-    if (node && node.countClosableTabs()) {
+    if (node.countClosableTabs()) {
         $("#closeRow").show();
     }
 

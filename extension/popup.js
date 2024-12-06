@@ -31,19 +31,45 @@ function hideElements(elementIds) {
 }
   
 // Popup is launched from scratch on each invocation, So we need to figure out the situation and populate the display appropriately.
+// 0. if TM is in the sidepanel check that its open and if not do the needful
 // 1. New install => show welcome page
 // 2. New version => show upgrade page
-// 3. Launch of Topic Manager => show launch splash and open in tab or side panel
+// 3. Launch of Topic Manager => show launch splash and open in tab or window
+// NB this code doesn't run on side panel opening, see sidePanel.js and logic in suspendExtension in bg
 // 4. Normal Bookmarker opening => populate based on:
 //    a. existing BT item => only show note update
 //    b. new tab => show topic selector and note entry
 //    c. tab in tg => select to greate new topic or use tg name
 
-const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'BTManagerHome', 'BTManagerLocation', 'BTPortConnected'];
+const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'BTManagerHome', 'BTManagerLocation'];
 chrome.storage.local.get(contextVariables, async val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
-    const introTitle = document.getElementById('introTitle');
 
+    const home = val['BTManagerHome'] || 'WINDOW';
+
+    // 0. Handle Sidepanel case
+    if (home === 'SIDEPANEL') {
+        let sidePanelOpen = false;
+        try {
+            const rsp = await chrome.runtime.sendMessage({'function': 'reconnect'});
+            if (typeof rsp === 'object') sidePanelOpen = true;
+            console.log('sidepanel open', sidePanelOpen);
+        }
+        catch (e) {
+            console.log('sidepanel not open');
+        }
+        if (!sidePanelOpen) {
+            hideElements(['openingMessage', 'welcomeMessage', 'introImage', 'openingImage', 'upgradeMessage']);
+            document.getElementById("okButton").addEventListener('click', async (e) => {
+                const window = await chrome.windows.getCurrent();
+                chrome.sidePanel.open({windowId: window.id});
+            });
+            // if (confirm('BrainTool is not currently open. Click OK to open it now.')) { chrome.sidePanel.open({}); }
+            return;
+        }
+    }
+
+    const introTitle = document.getElementById('introTitle');
     if (val['Theme']) {        
         // Change theme by setting attr on document which overide a set of vars. see top of .css
         document.documentElement.setAttribute('data-theme', val['Theme']);
@@ -52,7 +78,7 @@ chrome.storage.local.get(contextVariables, async val => {
     if (val['newInstall']) {
         // This is a new install, show the welcome page
         introTitle.textContent = introTitle.textContent + val['newVersion'];
-        hideElements(['openingMessage', 'upgradeMessage', 'openingImage']);
+        hideElements(['openingMessage', 'upgradeMessage', 'openingImage', 'sidepanelMessage']);
         showElements(['welcomeMessage', 'introImage', 'welcome']);
         chrome.storage.local.remove(['newInstall', 'newVersion']);
         document.getElementById("okButton").addEventListener('click', e => openTopicManager());
@@ -63,7 +89,7 @@ chrome.storage.local.get(contextVariables, async val => {
         // Background has received updateAvailable, so inform user and upgrade
         document.getElementById('upgradeVersion').textContent = val['newVersion'];
         introTitle.textContent = introTitle.textContent + val['newVersion'];
-        hideElements(['openingMessage', 'welcomeMessage', 'introImage']);
+        hideElements(['openingMessage', 'welcomeMessage', 'introImage', 'sidepanelMessage']);
         showElements(['upgradeMessage', 'openingImage', 'welcome']);
         document.getElementById("okButton").addEventListener('click', e => reloadExtension());
         return;
@@ -71,7 +97,6 @@ chrome.storage.local.get(contextVariables, async val => {
 
     // Else launching Topic Mgr if its not open, or just normal bookmarker
     let topicManagerTab = null;
-    const home = val['BTManagerHome'] || 'WINDOW';
     if (val['BTTab']) {
         try {
             topicManagerTab = await chrome.tabs.get(val['BTTab']);
@@ -81,7 +106,8 @@ chrome.storage.local.get(contextVariables, async val => {
             chrome.storage.local.remove('BTTab');
         }
     }
-    if (topicManagerTab || home === 'SIDEPANEL') {
+    if (topicManagerTab || (home === 'SIDEPANEL')) {
+        // Topic Manager is open, so just run the bookmarker
         populateBookmarker();
         return;
     }
@@ -89,14 +115,10 @@ chrome.storage.local.get(contextVariables, async val => {
     // Last case - need to re-open Topic Manager with home and location values
     const location = val['BTManagerLocation'];
     
-    if (home == "SIDEPANEL") {
-        // Just exit, sidepanel is set to open on action click
-        return;
-    }
     // Show the splash notice for two seconds and open the topic mgr
     const version = chrome.runtime.getManifest().version;
     introTitle.textContent = introTitle.textContent + version;
-    hideElements(['welcomeMessage', 'introImage', 'upgradeMessage', 'okButton']);
+    hideElements(['welcomeMessage', 'introImage', 'upgradeMessage', 'okButton', 'sidepanelMessage']);
     showElements(['welcome', 'openingMessage']);
     setTimeout(() => openTopicManager(home, location), 2000);
     return;
@@ -124,9 +146,12 @@ function openTopicManager(home = 'WINDOW', location) {
         (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
         );
     
-    // const url = "https://BrainTool.org/app/";
-    const url = "http://localhost:8000/app/"; // versions/"+version+"/app/";
-    // const url = "https://BrainTool.org/versions/"+version+'/app/';
+    // Get server url from the manifest object. nb manifest needs app/* so need to strip *
+    const manifest = chrome.runtime.getManifest();
+    const contentScripts = manifest.content_scripts;
+    const match = contentScripts[0].matches[0];
+    const url = match.replace(/\*+$/, '');
+
     console.log('loading from ', url);
     
     // Default open in side window
@@ -375,5 +400,5 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         }
         break;
     }
-    console.count("IN:"+msg.type);
+    console.log("Popup In:"+msg);
 });

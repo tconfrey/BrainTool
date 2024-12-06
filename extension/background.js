@@ -19,7 +19,7 @@
 
 'use strict';
 
-var Keys;
+let Keys;
 try {
     importScripts('config.js');
 } catch (e) {
@@ -27,10 +27,11 @@ try {
     Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
 }
 
-var LocalTest = false;                            // control code path during unit testing
-var InitialInstall = false;                       // should we serve up the welcome page
-var UpdateInstall = false;                        // or the release notes page
+let LocalTest = false;                            // control code path during unit testing
+let InitialInstall = false;                       // should we serve up the welcome page
+let UpdateInstall = false;                        // or the release notes page
 let BTPort = null;                                // port to side panel
+let BTManagerHome = 'WINDOW';                    // default to Window
 
 async function btSendMessage(msg) {
     // send message to Topic Manager in window, tab or side panel
@@ -63,6 +64,36 @@ chrome.runtime.onConnect.addListener((port) => {
         suspendExtension();
     });
 });
+
+function setUpSidepanel() {
+    // Called at startup and on suspend to set the icon bahavior (panel can only open on 'user action')
+    if (BTManagerHome === 'SIDEPANEL') {
+        chrome.action.setPopup({popup: ''});
+        chrome.action.onClicked.addListener((tab) => {
+            chrome.sidePanel.open({windowId: tab.windowId});
+            chrome.action.setPopup({popup: 'popup.html'});
+        });
+    }
+    if (BTManagerHome === 'WINDOW' || BTManagerHome === 'TAB') {
+        chrome.action.setPopup({popup: 'popup.html'});
+    }
+}
+// Immediately executing fn to re-setup side panel after worker suspension
+(async function () {
+    const mHome = await chrome.storage.local.get(['BTManagerHome']);
+    BTManagerHome = mHome.BTManagerHome || 'WINDOW';
+    if (BTManagerHome !== 'SIDEPANEL') return;
+    console.log('asking sidepanel to connect...');
+    try {
+        const rsp = await chrome.runtime.sendMessage({'function': 'reconnect'});
+        console.log('sidepanel connection:', rsp);
+        if (typeof rsp === 'undefined') setUpSidepanel();
+    }
+    catch (e) {
+        console.log('NA, setting up sidepanel');
+        setUpSidepanel();
+    }
+})();
 
 async function getBTTabWin(reset = false) {
     // read from local storage then cached. reset => topic mgr exit
@@ -174,22 +205,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
     sendResponse();
-    
     console.log(`Background received: [${msg.function}]: ${JSON.stringify(msg)}`);
     if (Handlers[msg.function]) {
         console.log("Background dispatching to ", msg.function);
         Handlers[msg.function](msg, sender);
         return;
     }
-    if (msg.function == 'allowSidePanel') {
-        // request sidebar permission
-        // NB not using the dispatch cos that loses that its user triggered and Chrome prevents
-        chrome.permissions.request(
-            {permissions: ['sidePanel']}, granted => {
-                btSendMessage({'function': 'sidePanelPermission', 'granted': granted});
-            });
-        return;
-    }
+
     if (msg.type == 'LOCALTEST') {
             // Running under test so there is no external BT top level window
             chrome.tabs.query({'url' : '*://localhost/test*'}, tabs => {
@@ -288,8 +310,7 @@ chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (i
     chrome.tabs.get(info.tabId, tab => {
         check();
         if (!tab) return;
-        btSendMessage({ 'function': 'tabActivated', 'tabId': info.tabId,
-                        'windowId': tab.windowId, 'groupId': tab.groupId});
+        btSendMessage({ 'function': 'tabActivated', 'tabId': info.tabId, 'groupId': tab.groupId});
         setTimeout(function() {setBadge(info.tabId);}, 250);
     });
 }));
@@ -349,7 +370,7 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
         check();
         if (!tabs?.length) return;
-        btSendMessage({'function': 'tabActivated', 'tabId': tabs[0].id});
+        btSendMessage({'function': 'tabActivated', 'tabId': tabs[0].id, 'windowId': windowId});
         setTimeout(function() {setBadge(tabs[0].id);}, 200);
     });
 }));
@@ -447,7 +468,7 @@ async function initializeExtension(msg, sender) {
     btSendMessage(
         {'function': 'launchApp', 'client_id': Keys.CLIENT_ID,
          'api_key': Keys.API_KEY, 'fb_key': Keys.FB_KEY,
-         'stripe_key': Keys.STRIPE_KEY, 'BTTab': BTTab,
+         'stripe_key': Keys.STRIPE_KEY, 'BTTab': BTTab, 'BTWin': BTWin,
          'initial_install': InitialInstall, 'upgrade_install': UpdateInstall, 'BTVersion': BTVersion,
          'all_tabs': allTabs, 'all_tgs': allTGs});
 
@@ -458,26 +479,24 @@ async function initializeExtension(msg, sender) {
               'https://braintool.org/support/releaseNotes';
         chrome.tabs.create({'url': welcomePage},
                            () => {
-                               chrome.windows.update(BTWin,
-                                                     {'focused' : true},
-                                                     () => check());
+                               BTWin && chrome.windows.update(BTWin, {'focused' : true}, () => check());
                            });
         InitialInstall = null; UpdateInstall = null;
     }
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
-    if (BTPort)                     
-        // if panel is open, turn off close-on-click behavior
-        chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: false}); 
 }
 
-function suspendExtension() {
-    // called when the BTWin/BTTab is detected to have been closed
+async function suspendExtension() {
+    // called when the BTWin/BTTab/Sidepanel is detected to have been closed
+    console.log("suspending service worker");
 
-    chrome.storage.local.get(['BTManagerHome'], async val => {
-        if (val.BTManagerHome == 'SIDEPANEL')
-            chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true});      // open side panel on next icon click
-    });
+    // re query BTManagerHome, might have changed
+    const mHome = await chrome.storage.local.get(['BTManagerHome']);
+    BTManagerHome = mHome.BTManagerHome || 'WINDOW';
+
+    setUpSidepanel();                           // reset sidepanel to default behavior
+
     chrome.storage.local.set({'BTTab': 0, 'BTWin': 0});
     getBTTabWin(true);                         // clear cache
     BTPort = null;

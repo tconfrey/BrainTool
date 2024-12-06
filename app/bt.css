@@ -197,6 +197,9 @@ a:link {
 a:hover {
   text-decoration: underline;
 }
+a:hover.wenk--bottom {
+  text-decoration: none;
+}
 
 html {
     background: var(--btEmptyBackground);
@@ -840,11 +843,11 @@ textarea:focus, input[type="text"]:focus {
 #introNext- {
     /* caret >> indicator png */
     position: relative;
-    left: 45px;
+    left: 30px;
 }
 #introPrev- {
     position: relative;
-    left: -105px;
+    left: -90px;
 }
 
 
@@ -885,7 +888,7 @@ textarea:focus, input[type="text"]:focus {
 }
 #dontShow {
     position: relative;
-    top: 5px;
+    top: 3px;
     display: none;
 }
     

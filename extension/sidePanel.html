@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>BrainTool</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-    <script src="sidePanel.js"></script>
-    <script src="btContentScript.js"></script>
-  </head>
-  <body>
-    <iframe src="http://localhost:8000/app/" id="BTTopicManager">
-    </iframe>
-  </body>
+<head>
+  <title>BrainTool</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    iframe {
+      height: 100%;
+      width: calc(100% - 15px); /* Full width minus the left and right margins */
+      border: none;
+      display: block;
+      position: relative;
+      margin-left: 10px;
+      margin-right: 5px;
+    }
+  </style>
+  <script src="btContentScript.js"></script>
+</head>
+<body>
+  <iframe id="BTTopicManager"></iframe>
+  <script src="sidePanel.js"></script>
+</body>
 </html>
