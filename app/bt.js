@@ -2160,13 +2160,16 @@ function rowsInViewport() {
 
 function scrollIntoViewIfNeeded(element) {
     // Helper function to make sure search or nav to item has its row visible but only scroll if needed
+    // NB needed the timeout for block:center to work
     const height = $(window).height();
     const topOfRow = $(element).position().top;
     const displayTop = $(document).scrollTop();
-    if (topOfRow < displayTop)
-        element.scrollIntoView(true);
-    if (topOfRow > (displayTop + height - 200))
-        element.scrollIntoView(false);
+
+    if (topOfRow < displayTop || topOfRow > (displayTop + height - 200)) {
+        setTimeout(() => {
+            element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }, 0);
+    }
 }
 
 function extendedSearch(sstr, currentMatch) {
