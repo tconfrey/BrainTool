@@ -150,7 +150,8 @@ function openTopicManager(home = 'WINDOW', location) {
     const manifest = chrome.runtime.getManifest();
     const contentScripts = manifest.content_scripts;
     const match = contentScripts[0].matches[0];
-    const url = match.replace(/\*+$/, '');
+    const version = manifest.version;
+    const url = match.replace(/\*+$/, '') + version + '/app';
 
     console.log('loading from ', url);
     
