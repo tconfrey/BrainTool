@@ -6,6 +6,11 @@ tagline: The Topic Manager for your Online Life
 audience: user
 ---
 
+# BrainTool 1.2
+The notable change in 1.2 is the ability to run the Topic Manager in the browsers side panel. It kindof feels like BT has been pulled inside the browser!
+
+![Topic Manager in side panel](../site/postAssets/TM-in-Sidepanel.png)
+
 # BrainTool 1.1
 The major change in 1.1 is the addition of automatic local file backups. Other minor improvements include:
 - Improved scrolling and arrow key support for search and row navigation.
