@@ -881,7 +881,7 @@ textarea:focus, input[type="text"]:focus {
     position: absolute;
     cursor: pointer;
     bottom: 0px;
-    left: 25%;
+    left: 15%;
     font-size: 15px;
     color: #636363;
     display: none;

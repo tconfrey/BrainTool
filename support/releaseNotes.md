@@ -9,6 +9,11 @@ audience: user
 # BrainTool 1.2
 The notable change in 1.2 is the ability to run the Topic Manager in the browsers side panel. It kindof feels like BT has been pulled inside the browser!
 
+Look for it under Settings. Your options are now:
+- On a browser **'Tab'**. Perhaps a good option if you're annotating and organizing stuff inside the Topic Manager itself.
+- In the new browser **'Side Panel'**. Middle ground, maybe ideal? Best if you're working within a single window across tab groups/topics.
+- In the original 'side panel' **'Window'**. A separate window from which you can see and control all the action across other browser windows and tab groups, as well as all your topics in the topic tree. I called the BrainTool window the 'side panel' before Google added theirs, so its confusing!
+
 ![Topic Manager in side panel](../site/postAssets/TM-in-Sidepanel.png)
 
 # BrainTool 1.1
