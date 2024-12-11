@@ -146,12 +146,13 @@ function openTopicManager(home = 'WINDOW', location) {
         (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
         );
     
-    // Get server url from the manifest object. nb manifest needs app/* so need to strip *
+    // Get server url from the manifest object, add '${version}/app' unless local. nb manifest needs app/* so need to strip *
     const manifest = chrome.runtime.getManifest();
     const contentScripts = manifest.content_scripts;
     const match = contentScripts[0].matches[0];
+    const localhost = match.includes('localhost');
     const version = manifest.version;
-    const url = match.replace(/\*+$/, '') + version + '/app';
+    const url = match.replace(/\*+$/, '') + (localhost ? '' : (version + '/app'));
 
     console.log('loading from ', url);
     

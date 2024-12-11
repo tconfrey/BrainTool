@@ -20,7 +20,7 @@
     --btHeaderBackground: linear-gradient(180deg, #F1F1F1 0%, #C3CBCB 52.6%, #C8CFD0 100%);
     --btBodyBackground: linear-gradient(180deg, rgba(196, 196, 196, 0.28) 0%, rgba(196, 196, 196, 0.3) 14.58%, rgba(196, 196, 196, 0.1) 100%);
     --btTextColor: #0C4F6B;
-    --btBackground: #bed8be;
+    --btBackground: white;
 
     --btHighlightColor: #cec;
     --btSelected: #7bb07b;
@@ -46,8 +46,7 @@
     --btInputForeground: white;
     --awesompleteBackground: #566564; /*linear-gradient(to bottom, black, hsla(0,0%,0%,.6));*/
 
-    --btBackground: #bed8be;
-
+    --btBackground: #c3cac3;
 }
 
 
@@ -58,7 +57,7 @@ body {
     padding-bottom: 30px;
     overflow: hidden;
     margin: 0px;
-    background: white;
+    background: var(--btBackground);
     
     font-family: var(--btFont);
     font-style: normal;
@@ -99,12 +98,14 @@ h2 {
     font-weight: 700;
     font-size: 12px;
     line-height: 14px;
+    color: #0C4F6B;
 }
 h3 {
     font-weight: 400;
     font-size: 12px;
     line-height: 14px;
     margin-bottom: 6px;
+    color: #0C4F6B;
 }
 .tgPages {
     display: none;
@@ -119,6 +120,7 @@ hr {
 label {
     position: relative;
     top: -3px;
+    color: #0C4F6B;
 }
 #saveSpan {
     float:left;
@@ -188,7 +190,7 @@ input[type=text], textarea {
     margin-bottom: -5px;
     margin-right: 15px;
     font-style: italic;
-    color: var(--btTextColor);
+    color:  #0C4F6B;
     display: none;
 }
 .awesomplete {
