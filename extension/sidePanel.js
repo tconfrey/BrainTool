@@ -3,6 +3,8 @@
     - open a port so extension knows when sidepanel is closed
     - set iframe src to the server url in manifest
     - wait for iframe to load before initializing, then send window.id to extension to set BTWin
+    - add listeners for mouseleave/out events, let the app know
+    - set background color based on theme
     - listen for reconnect request from worker or popup
 */
 const SIDEPANEL=true;
@@ -30,6 +32,25 @@ document.addEventListener('DOMContentLoaded', function() {
         iframe.addEventListener('load', () => chrome.runtime.sendMessage({'from': 'btwindow', 'function': 'initializeExtension', 'BTWin': window.id }));
         iframe.focus();
     });
+
+    // add listeners on mouse leave/out. its hard to capture these from inside the iframe
+    iframe.addEventListener('mouseleave', () => sendMessage({function: 'mouseOut'}) );
+    window.addEventListener('mouseout', () => sendMessage({function: 'mouseOut'}) );
+
+    // set backgrond color base on dark/light mode
+    chrome.storage.local.get(['Theme'], async val => {
+        if (val['Theme'] === 'DARK') {
+            document.body.style.backgroundColor = '#2D2D2D';
+        } else {
+            document.body.style.backgroundColor = '#whitesmoke';
+        }
+    });
+});
+
+// add listener on mouse out
+window.addEventListener('mouseout', (e) => {
+    console.log('--SP --mouse out');
+    sendMessage({function: 'mouseOut'});
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
