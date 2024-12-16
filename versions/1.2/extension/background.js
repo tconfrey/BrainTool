@@ -126,7 +126,7 @@ const storageKeys = ["BTFileText",                  // golden source of BT .org 
                      "newInstall",                  // true/false, for popup display choice
                      "newVersion",                  // used for popup to indicate an update to user
                      "permissions",                 // perms granted
-                     "BTManagerHome",               // open in Window, browser Side Panel or Tab
+                     "Config",                      // General config values
                      "BTManagerLocation",           // {top, left, width, height} of panel
                      "topics"];                     // used for popup display
 
@@ -150,7 +150,15 @@ chrome.runtime.onInstalled.addListener(deets => {
                 chrome.storage.local.remove(key);
             });
         });
-        UpdateInstall = deets.previousVersion;
+
+        // Set updateInstall only if not a point release. ie 1->2 or 1.1 -> 1.2 are upgrades, 1.2 -> 1.2.1 is not
+        const newVersion = chrome.runtime.getManifest().version;
+        const prevVersion = deets.previousVersion;
+        const [newMajor, newMinor] = newVersion.split('.').map(Number);
+        const [prevMajor, prevMinor] = prevVersion.split('.').map(Number);
+        if (newMajor !== prevMajor || newMinor !== prevMinor) {
+            UpdateInstall = prevVersion;
+        }
     }
 });
 

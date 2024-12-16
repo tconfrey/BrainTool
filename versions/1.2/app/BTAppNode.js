@@ -1112,6 +1112,7 @@ const Handlers = {
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,
     "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
+    "mouseOut": sidePanelMouseOut,          // sidepanel tells us mouse is out, undo hover states etc
 };
 
 // Set handler for extension messaging

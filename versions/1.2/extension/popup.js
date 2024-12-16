@@ -64,7 +64,7 @@ chrome.storage.local.get(contextVariables, async val => {
                 const window = await chrome.windows.getCurrent();
                 chrome.sidePanel.open({windowId: window.id});
             });
-            // if (confirm('BrainTool is not currently open. Click OK to open it now.')) { chrome.sidePanel.open({}); }
+            val['BTTab'] && chrome.tabs.remove(val['BTTab']);        // close tab if its open
             return;
         }
     }
@@ -146,12 +146,17 @@ function openTopicManager(home = 'WINDOW', location) {
         (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
         );
     
-    // Get server url from the manifest object. nb manifest needs app/* so need to strip *
+    // Get server url from the manifest object, add '${version}/app' unless local. nb manifest needs app/* so need to strip *
     const manifest = chrome.runtime.getManifest();
     const contentScripts = manifest.content_scripts;
     const match = contentScripts[0].matches[0];
-    const version = manifest.version;
-    const url = match.replace(/\*+$/, '') + version + '/app';
+    const localhost = match.includes('localhost');
+    let version = manifest.version;
+    // version is x.y.z or x.y, need to strip off the .z if present
+    const parts = version.split('.');
+    if (parts.length > 2) version = parts.slice(0, 2).join('.');
+    
+    const url = match.replace(/\*+$/, '') + (localhost ? '' : (version + '/app'));
 
     console.log('loading from ', url);
     
