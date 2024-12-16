@@ -64,7 +64,7 @@ chrome.storage.local.get(contextVariables, async val => {
                 const window = await chrome.windows.getCurrent();
                 chrome.sidePanel.open({windowId: window.id});
             });
-            // if (confirm('BrainTool is not currently open. Click OK to open it now.')) { chrome.sidePanel.open({}); }
+            val['BTTab'] && chrome.tabs.remove(val['BTTab']);        // close tab if its open
             return;
         }
     }

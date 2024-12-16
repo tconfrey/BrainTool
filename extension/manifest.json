@@ -3,7 +3,7 @@
     "name": "__MSG_appName__",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
-    "version": "1.2",
+    "version": "1.2.1",
     "permissions": ["tabs", "storage", "tabGroups", "webNavigation", "bookmarks", "sidePanel"],
     
     "background": {
@@ -40,6 +40,6 @@
         }
     }, 
     "side_panel": {
-        "default_path": "sidepanel.html"
+        "default_path": "sidePanel.html"
     }
 }
