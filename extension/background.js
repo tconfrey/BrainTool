@@ -385,6 +385,7 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
 
 chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
+    if (BTManagerHome === 'SIDEPANEL') return;          // doesn't apply
     const [BTTab, BTWin] = await getBTTabWin();
     if (BTWin != window.id) return;
     const location = {top: window.top, left: window.left, width: window.width, height: window.height};

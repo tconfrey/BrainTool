@@ -18,8 +18,13 @@ let BTPort;
     const contentScripts = manifest.content_scripts;
     const match = contentScripts[0].matches[0];
     const localhost = match.includes('localhost');
-    const version = manifest.version;
+    let version = manifest.version;
+    // version is x.y.z or x.y, need to strip off the .z if present
+    const parts = version.split('.');
+    if (parts.length > 2) version = parts.slice(0, 2).join('.');
+    
     const url = match.replace(/\*+$/, '') + (localhost ? '' : (version + '/app'));
+
     const iframe = document.getElementById('BTTopicManager');
     iframe.src = url;
 })();
