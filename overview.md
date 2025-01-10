@@ -54,17 +54,15 @@ Occurrences of information about a topic are the things you save and capture int
 -->
 
 ## Roadmap
-There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. After the 1.0 release efforts will be focused on adding premium features and scaling. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
-
-See the 1.0 version of the [Release Notes](support/releaseNotes), the [User Guide](support/UserGuide) and the available [Release Candidate Build](support/localInstall) for current functionality.
+There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
 
 *Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.*
 
-- **Backups and Alternative Backends**: While the current app allows on-demand local file export and a continuously synced local or Google Drive file, it would be nice to support different back ends for continuous storage as well as regularly scheduled backup file creation.
+- **Alternative Backends**: While the current app allows on-demand local file export and a continuously synced local or Google Drive file with automated backups, it would be nice to support different storage back ends.
 - **In-Page Highlighting**: Some similar tools find value in allowing the user to capture text from within a saved page, this might make sense for BrainTool also.
 - **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that it's all just text, emacs or any other text editor can be used. That said, it is a goal for BT to allow note taking in-place within the browser via some kind of simple but beautiful and highly satisfying editor tool.
 - **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool could provide an intuitive overlay for a subset of Orgs most important functionality - TODO lists, journaling, agendas etc.
 - **Deep Search**: Searching the full text of your links and notes is fully supported. Longer term it will be possible to crawl the actual contents of all of your saved pages, to augment browser search and maybe even to pre-prompt or customize an LLM to provide a conversational interface to your personal information space.
 - **Tags and Bi-Directional Linking**: In addition to containment it should be possible to model other kinds of relationships between topics and to tag information occurrences as being relevant to multiple topics.
 - **Multi-file Support**: It should be possible to save, share and sync individual topic tree files. For example a 'Recipes' topic could point to a dedicated recipes.org file which is loaded on demand and maintained collaboratively. 
-- **Topic Tree Repository**: BrainTool will host best-practice topic trees and templates around common areas such as 'Productivity Tools', 'Knowledge Management', 'Wedding Organizer', 'Trip Planner' etc.
+- **Topic Tree Repository**: BrainTool will host best-practice topic trees and templates around common areas such as 'Productivity Tools', 'Knowledge Management', 'Wedding Organizer', 'Trip Planner' etc. See some early examples [here](https://braintool.org/topicTrees/).

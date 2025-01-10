@@ -6,7 +6,7 @@ description: Go beyond bookmarks with BrainTool, a better way of organizing thin
 audience: nonuser
 ---
 
-# Special One-Time Offers!
+# Special One-Time Offer!
 In celebration of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
 <!-- - Filling out this survey:[link] -->
 - Posting an honest, positive review or mention on a social network feed<sup>**</sup>, newsletter, blog post, app store review, etc.
@@ -22,11 +22,11 @@ There's been a trend for the last while to give software away for free and make 
 
 The fully-functional free version and current low pricing are designed to encourage broad adoption. See the [vision and overview](overview) page for more details.
 
-<i><small>NB the previous 0.9.9 Store version of the extension had different, higher, subscription costs but had no enforcement or non-free features. Based on input received the pricing has been reduced and a one-time purchase option added</small></i>
+<p style="margin-top: -20px;"><i><small>NB Based on user feedback the previous subscription cost has been reduced and a one-time purchase option added.</small></i></p>
 # Pricing
 <div class="row">
 <div class="cell left" style="padding-right: 30px;">
-<h2>Non-Supporter</h2>
+<h2><b>Non-Supporter</b></h2>
 
 <p>
 Unlimited saved items
@@ -60,18 +60,17 @@ Session Saving
 </p>
 </div>
 <div class="cell right" style="padding-left: 30px;">
-<h2>Supporter</h2>
+<h2><b>Supporter</b></h2>
 <p>
 Control of Dark, Dense, Large and Favicon modes
 <p>
+Automated Backups.
+</p>
 <p>
-Nag-free
+Nag-free.
 </p>
 <p>
 <i><b>Planned Features:</b></i>
-</p>
-<p>
-<i>Automated Backups.</i>
 </p>
 <p>
 <i>Multi-file support with per-Topic files.</i>
@@ -92,5 +91,5 @@ Nag-free
 <p>
 <b>
 $1.33/M, $10.66/Y, $20.99 One-time
-</b>
-</p>
+</b><br/>
+<i><small>NB The $0.xx cents cover Stripe transactional costs</small></i> 
