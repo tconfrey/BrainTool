@@ -31,7 +31,8 @@ let LocalTest = false;                            // control code path during un
 let InitialInstall = false;                       // should we serve up the welcome page
 let UpdateInstall = false;                        // or the release notes page
 let BTPort = null;                                // port to side panel
-let BTManagerHome = 'WINDOW';                    // default to Window
+let BTManagerHome = 'WINDOW';                     // default to Window
+let heldMessageQueue = [];                        // queue of messages to be sent when sidepanel port is set
 
 async function btSendMessage(msg) {
     // send message to Topic Manager in window, tab or side panel
@@ -39,6 +40,9 @@ async function btSendMessage(msg) {
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab && !BTPort) {
         console.warn(`No BTTab or BTPort, not sending: ${JSON.stringify(msg)}`);
+        if (BTManagerHome === 'SIDEPANEL') {
+            heldMessageQueue.push(msg);             // will retry when port is connected
+        }
         return;
     }
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
@@ -56,8 +60,12 @@ async function btSendMessage(msg) {
 chrome.runtime.onConnect.addListener((port) => {
     // Listen for port connection from side panel, serves as heartbeat so we know when its closed
     if (port.name !== "BTSidePanel") return;
-        
     BTPort = port;
+
+    // Send any message held while the port was connecting
+    heldMessageQueue.forEach(msg => btSendMessage(msg));
+    heldMessageQueue = [];
+    // And set disconnect behavior
     BTPort.onDisconnect.addListener(() => {
         console.log('BTPort disconnected');
         BTPort = null;
