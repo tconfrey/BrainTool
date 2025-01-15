@@ -35,7 +35,7 @@ BT supports adding a TODO status to topics and links, so org-agenda can show a u
 
 ## Mobile Setup
 
-Chrome does not support extensions on mobile so BrainTool itself does not run on my phone. However it is very useful to have a read-only view on your phone and to be able to tap through into saved links. To make that work I run the [https://metactrl.com/](AutoSync for Google Drive) Android app which regularly syncs all my .org files onto the phone. I can then use the excellent Orgzly app to interact with my BrainTool resources in a read-only fashion. This has saved my bacon a few times when I needed to access something in my braintool while out and about.
+Chrome does not support extensions on mobile so BrainTool itself does not run on my phone. However it is very useful to have a read-only view on your phone and to be able to tap through into saved links. To make that work I run the [AutoSync for Google Drive](https://metactrl.com/) Android app which regularly syncs all my .org files onto the phone. I can then use the excellent Orgzly app to interact with my BrainTool resources in a read-only fashion. This has saved my bacon a few times when I needed to access something in my braintool while out and about.
 
 ## Topic Model
 
