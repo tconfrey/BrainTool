@@ -23,7 +23,11 @@ var BTId;
 
 async function handlePurchase(product) {
     // handle monthly or annual subscribe. Load Stripe code, load and init FB, check for existing sub or purchase, then pass to Stripe to complete txn
-
+    
+    if (configManager.getProp('BTManagerHome') == "SIDEPANEL") {
+        alert("Unfortunately purchasing is not currently supported in the side panel. \n\nPlease set the Topic Manager Location to Window or Tab to make a purchase.");
+        return;
+    }
     // First Check if Stripe script is already loaded
     try {
         if (!window.Stripe) {
