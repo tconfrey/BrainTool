@@ -448,13 +448,13 @@ class BTAppNode extends BTNode {
     }
 
     static searchNodesToRedisplay = new Set();
-    extendedSearch(sstr) {
+    extendedSearch(sstr, forceVisible = false) {
 	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
 	    
 	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
 	    let lmatch, rmatch;
 	    const node = this.getDisplayNode();
-        if (!$(node).is(":visible")) return;                 // return if not displayed
+        if (!forceVisible && !$(node).is(":visible")) return;                 // return if not displayed
         
 	    let titleStr;
 	    // Look for match in title/topic, url and note
