@@ -54,7 +54,9 @@
                     <span class="hintText">Click here or 's' to search</span>
                 </div>
                 <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="Search">
-	            <span class="searchButton" >
+                <img id="todoFilter" src="resources/star-transparent.svg" onClick="filterToDos(event)" title="Filter ToDos">
+                <img id="searchFilter" src="resources/filter.svg" style="display:none" onmousedown="filterSearch(event)" title="Filter Matches">
+	              <span class="searchButton" >
 	                <span id="searchUpBtn" onmousedown="searchButton(event, 'up')" title="Previous Match">
                         <img src="resources/arrowUp.png" height="8" width="10"/>
                     </span>
