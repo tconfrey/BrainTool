@@ -328,6 +328,16 @@ body {
 .searchButton {
     display: none;
 }
+#todoFilter, #searchFilter{
+    position: absolute;
+    top: 12px;
+    left: calc((100% - 120px) * 0.9);
+    cursor: pointer;
+    scale: 1.15;
+}
+#searchFilter {
+    top: 14px;
+}
     
 .hint {
     /* alex */
