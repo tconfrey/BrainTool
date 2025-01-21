@@ -1984,18 +1984,22 @@ function enableSearch(e) {
 
     // Initialize cache of displayed order of nodes to search in display order
     BTAppNode.setDisplayOrder();
+
+    // hide the todo filter, search filter button is shown when >2 chars searched
+    $("#todoFilter").hide();
 }
 
 function disableSearch(e = null) {
     // turn off search mode
-    if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
     // special handling if tabbed into search box from card editor to allow edit card tabbing
     const editing = ($($("#dialog")[0]).is(':visible'));
     if (editing) {
         e.code = "Tab";
         handleEditCardKeyup(e);
         return;
-    }
+    } 
+    // special handling if the filter button was just clicked
+    if (filterSearch.isFiltered) return;
     
     $("#search_entry").removeClass('failed');
     $("#search_entry").val('');
@@ -2039,6 +2043,10 @@ function disableSearch(e = null) {
 
     // reset compact mode (ie no notes) which might have changed while showing matching search results
     initializeNotesColumn();
+
+    // hide the search filter and show the todo filter button
+    $("#searchFilter").hide();
+    $("#todoFilter").show();
 }
 
 function searchButton(e, action) {
@@ -2109,6 +2117,10 @@ function search(keyevent) {
     $("td").removeClass('searchLite');
     
     if (sstr.length < 1) return;                              // don't search for nothing!
+    if (sstr.length > 2)
+        $("#searchFilter").show();
+    else
+        $("#searchFilter").hide();
 
     // Find where we're starting from (might be passed in from backspace key handling
     let row = (ReverseSearch) ? 'last' : 'first';
@@ -2201,6 +2213,81 @@ function extendedSearch(sstr, currentMatch) {
 		n.extendedSearch(sstr);
     });
 }
+
+function searchAll() {
+    // Show all matches for current search string in extendedSearch fashion (current hit is already noted)
+    // Used by filterSearch (below)
+    const sstr = $("#search_entry").val();
+    const selectedDisplayNode = $("tr.selected")[0];
+    const selectedAppNodeId = $(selectedDisplayNode).attr('data-tt-id');
+
+    // loop thru allNodes calling nodes extendedSearch fn
+    AllNodes.forEach((n) => {
+        if (!n || n.id == selectedAppNodeId) return;
+        n.extendedSearch(sstr, true);               // force visible to show all hits
+    })
+}
+function showSelected() {
+    // factored out cos used in both filters below. make sure the selected row is visible after filtering
+    const selectedKeywordRow = $("#content tr.selected");
+    if (selectedKeywordRow.length > 0) {
+        // If the row is not already visible, call showForSearch on the row's node
+        if (!selectedKeywordRow.is(":visible")) {
+            const nodeId = selectedKeywordRow.attr("data-tt-id");
+            if (nodeId && AllNodes[nodeId]) {
+                AllNodes[nodeId].showForSearch();
+            }
+        }
+        scrollIntoViewIfNeeded(selectedKeywordRow[0]);
+    }
+}
+function filterSearch(e) {
+    // toggle showing only all search hits in the tree
+    if (filterSearch.isFiltered) {
+        // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
+        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+        showSelected();
+        // Toggle the state and icon
+        filterSearch.isFiltered = !filterSearch.isFiltered;
+        e.target.src = 'resources/filter.svg';
+    } else {
+        // First find all search hits
+        searchAll();
+        // now mark all currently visible rows, hide them, then show rows with search hits
+        $("#content tr:visible").addClass("hidden-by-filter").hide();
+        $("#content td.searchLite").closest("tr").addClass("visible-by-filter").show();
+        $("tr.selected").show();
+        // Toggle the state and icon
+        e.target.src = 'resources/filter-depressed.svg';
+        filterSearch.isFiltered = !filterSearch.isFiltered;
+    }
+    // reselect the search_entry field
+    $("#search_entry").focus();
+}
+// Initialize the isFiltered attribute
+filterSearch.isFiltered = false;
+
+function filterToDos(e) {
+    // toggle showing only ToDos in the tree
+
+    if (filterToDos.isFiltered) {
+        // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
+        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+        e.target.src = 'resources/star-transparent.svg';
+        showSelected();
+    } else {
+        // Filter: Mark all currently visible rows, hide them, then show rows with span.keyword
+        $("#content tr:visible").addClass("hidden-by-filter").hide();
+        $("#content span.keyword").closest("tr").addClass("visible-by-filter").show();
+        e.target.src = 'resources/star-depressed.svg';
+    }
+    // Toggle the state
+    filterToDos.isFiltered = !filterToDos.isFiltered;
+}
+// Initialize the isFiltered attribute
+filterToDos.isFiltered = false;
 
 /***
  * 
