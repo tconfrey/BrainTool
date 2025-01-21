@@ -738,13 +738,12 @@ async function updateGroup(msg, sender) {
     check('UpdateGroup:');
 }
 
+function signalError(type, id) {
+    // send back message so TM can fix display
+    btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
+}
 function showNode(msg, sender) {
     // Surface the window/tab associated with this node
-
-    function signalError(type, id) {
-        // send back message so TM can fix display
-        btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
-    }
 
     if (msg.tabId) {
         chrome.tabs.get(msg.tabId, function(tab) {
@@ -776,12 +775,18 @@ function closeTab(msg, sender) {
     // Close a tab, NB tab listener will catch close and alert app
 
     const tabId = msg.tabId;
-    chrome.tabs.remove(tabId, ()=> check()); // ignore error
+    chrome.tabs.get(tabId, function(tab) {
+        check(); 
+        if (!tab) { signalError('tab', tabId); return;}
+        chrome.tabs.remove(tabId, ()=> check()); // ignore error
+    });
 }
 
 async function moveTab(msg, sender) {
     // move tab to window.index
     try {
+        const tab = await chrome.tabs.get(msg.tabId);
+        if (!tab) { signalError('tab', msg.tabId); return;}
         await chrome.tabs.move(msg.tabId, {'windowId': msg.windowId, 'index': msg.index});
         if (msg.tabGroupId)
             await chrome.tabs.group({'groupId': msg.tabGroupId, 'tabIds': msg.tabId});
