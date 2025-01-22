@@ -2161,6 +2161,7 @@ function search(keyevent) {
         
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
+        resetFilterSearch();                                // reset search filter button 
 	    ExtendedSearchCB = setTimeout(() => extendedSearch(sstr, node), 200);
     } else {
 	    $("#search_entry").addClass('failed');
@@ -2242,15 +2243,15 @@ function showSelected() {
     }
 }
 function filterSearch(e, forceOff = false) {
-    // toggle showing only all search hits in the tree, if forceOff don't act as a toggle
+    // toggle showing only all search hits in the tree, if forceOff don't act as a toggle (eg number key entered)
 
     if (forceOff && !filterSearch.isFiltered) return;          // already off, just return
     if (filterSearch.isFiltered) {
         // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
-        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
         $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
         showSelected();
-        // Toggle the state and icon
+        // Toggle the state and icon and complete search
         filterSearch.isFiltered = !filterSearch.isFiltered;
         $('#searchFilter').attr('src', 'resources/filter.svg');
         disableSearch();
@@ -2264,7 +2265,19 @@ function filterSearch(e, forceOff = false) {
         // Toggle the state and icon
         $('#searchFilter').attr('src', 'resources/filter-depressed.svg');
         filterSearch.isFiltered = !filterSearch.isFiltered;
+        // Focus on the search box after above finishes
+        setTimeout(()=> {
+            const searchEntry = $("#search_entry");
+            const length = searchEntry.val().length;
+            searchEntry.focus();
+            searchEntry[0].setSelectionRange(length, length);
+        }, 100);
     }
+}
+function resetFilterSearch() {
+    // reset the search filter to off without changing display (allows multiple searches)
+    filterSearch.isFiltered = false;
+    $('#searchFilter').attr('src', 'resources/filter.svg');
 }
 filterSearch.isFiltered = false;        // Initialize the isFiltered attribute
 
@@ -2403,6 +2416,8 @@ function keyUpHandler(e) {
                 tt.treetable("expandNode", node.id);
             if (node?.level >= lvl)
                 tt.treetable("collapseNode", node.id);
+            if (node?.level > lvl)
+                $(node.getDisplayNode()).hide();
         });
         rememberFold();                                       // save to storage
     }
