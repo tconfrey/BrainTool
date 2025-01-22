@@ -2241,8 +2241,10 @@ function showSelected() {
         scrollIntoViewIfNeeded(selectedKeywordRow[0]);
     }
 }
-function filterSearch(e) {
-    // toggle showing only all search hits in the tree
+function filterSearch(e, forceOff = false) {
+    // toggle showing only all search hits in the tree, if forceOff don't act as a toggle
+
+    if (forceOff && !filterSearch.isFiltered) return;          // already off, just return
     if (filterSearch.isFiltered) {
         // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
         $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
@@ -2250,7 +2252,8 @@ function filterSearch(e) {
         showSelected();
         // Toggle the state and icon
         filterSearch.isFiltered = !filterSearch.isFiltered;
-        e.target.src = 'resources/filter.svg';
+        $('#searchFilter').attr('src', 'resources/filter.svg');
+        disableSearch();
     } else {
         // First find all search hits
         searchAll();
@@ -2259,35 +2262,32 @@ function filterSearch(e) {
         $("#content td.searchLite").closest("tr").addClass("visible-by-filter").show();
         $("tr.selected").show();
         // Toggle the state and icon
-        e.target.src = 'resources/filter-depressed.svg';
+        $('#searchFilter').attr('src', 'resources/filter-depressed.svg');
         filterSearch.isFiltered = !filterSearch.isFiltered;
     }
-    // reselect the search_entry field
-    $("#search_entry").focus();
 }
-// Initialize the isFiltered attribute
-filterSearch.isFiltered = false;
+filterSearch.isFiltered = false;        // Initialize the isFiltered attribute
 
-function filterToDos(e) {
+function filterToDos(e, forceOff = false) {
     // toggle showing only ToDos in the tree
 
+    if (forceOff && !filterToDos.isFiltered) return;          // already off, just return
     if (filterToDos.isFiltered) {
         // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
         $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
         $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
-        e.target.src = 'resources/star-transparent.svg';
+        $("#todoFilter").attr('src', 'resources/star-transparent.svg');
         showSelected();
     } else {
         // Filter: Mark all currently visible rows, hide them, then show rows with span.keyword
         $("#content tr:visible").addClass("hidden-by-filter").hide();
         $("#content span.keyword").closest("tr").addClass("visible-by-filter").show();
-        e.target.src = 'resources/star-depressed.svg';
+        $("#todoFilter").attr('src', 'resources/star-depressed.svg');
     }
     // Toggle the state
     filterToDos.isFiltered = !filterToDos.isFiltered;
 }
-// Initialize the isFiltered attribute
-filterToDos.isFiltered = false;
+filterToDos.isFiltered = false;     // Initialize the isFiltered attribute
 
 /***
  * 
@@ -2395,6 +2395,8 @@ function keyUpHandler(e) {
     if (digits.includes(key)) {
         const lvl = digits.indexOf(key) + 1;   // level requested
         const tt = $("table.treetable");
+        filterToDos(e, true);                             // turn off todo filter if on
+        filterSearch(e, true);                            // turn off search filter if on
         AllNodes.forEach(function(node) {
             if (!tt.treetable("node", node.id)) return;	      // no such node
             if (node?.level < lvl)
