@@ -407,20 +407,25 @@ class BTAppNode extends BTNode {
 	    }
     }
     
-    search(sstr) {
+    search(sstr, filteringOn = false) {
 	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
 	    
 	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
 	    let match = false;
-	    const node = this.getDisplayNode();
 	    let titleStr;
+	    const node = this.getDisplayNode();
+
+        // if filtering is in use only search nodes with visible-by-filter attribute
+        if (filteringOn && !$(node).hasClass('visible-by-filter')) return false;
+        
         if (this.keyword && reg.test(this.keyword)) {
             titleStr = `<span class='highlight tabgroup'>${this.keyword}</span> ${this.displayTopic}`;
 	        $(node).find("span.btTitleText").html(titleStr);
             match = true;
         } else if (reg.test(this.displayTopic)) {
+            const keywordText = (this.keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
 	        titleStr = this.displayTopic.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
-	        $(node).find("span.btTitleText").html(titleStr);
+	        $(node).find("span.btTitleText").html(keywordText + titleStr);
 	        match = true;
 	    } else if (reg.test(this.url())) {
 	        const hurl = this.url().replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
@@ -459,9 +464,9 @@ class BTAppNode extends BTNode {
 	    let titleStr;
 	    // Look for match in title/topic, url and note
 	    if (reg.test(this.displayTopic)) {
+            const keywordText = (this.keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
 	        titleStr = this.displayTopic.replaceAll(reg, `<span class='extendedHighlight'>${sstr}</span>`);
-	       // $(node).find("span.btTitle").html(titleStr);
-	        $(node).find("span.btTitleText").html(titleStr);
+	        $(node).find("span.btTitleText").html(keywordText + titleStr);
 	        lmatch = true;
 	    }
 	    if (!lmatch && reg.test(this.url())) {

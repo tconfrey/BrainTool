@@ -2013,6 +2013,12 @@ function disableSearch(e = null) {
     
     BTAppNode.redisplaySearchedNodes();                      // fix searchLite'd nodes
     AllNodes.forEach((n) => n.unshowForSearch());            // fold search-opened nodes back closed
+
+    // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
+    $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+    $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+    filterToDos(null, true);                                 // Reset any potential todo filtering in place
+    filterSearch(null, true);                                // Reset any potential search filtering in place
     
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
@@ -2027,8 +2033,8 @@ function disableSearch(e = null) {
         node = AllNodes[SearchOriginId || 1];
         displayNode = node.getDisplayNode();
         $(displayNode).addClass('selected');
-	    displayNode.scrollIntoView({block: 'center'});
     }
+    displayNode.scrollIntoView({block: 'center'});
     
     if (ExtendedSearchCB)                                     // clear timeout if not executed
 	    clearTimeout(ExtendedSearchCB);
@@ -2135,7 +2141,8 @@ function search(keyevent) {
     }
 
     // Do the search starting from node until we find a match or loop back around to where we started
-    while(node && !node.search(sstr)) {
+    const filteringOn = filterSearch.isFiltered || filterToDos.isFiltered;
+    while(node && !node.search(sstr, filteringOn)) {
         node = node.nextDisplayNode(ReverseSearch);
         if (node.id == prevNodeId)
             node = null;
