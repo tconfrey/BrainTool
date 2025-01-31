@@ -1984,18 +1984,22 @@ function enableSearch(e) {
 
     // Initialize cache of displayed order of nodes to search in display order
     BTAppNode.setDisplayOrder();
+
+    // hide the todo filter, search filter button is shown when >2 chars searched
+    $("#todoFilter").hide();
 }
 
 function disableSearch(e = null) {
     // turn off search mode
-    if (e && e.currentTarget == $("#search")[0]) return;     // don't if still in search div
     // special handling if tabbed into search box from card editor to allow edit card tabbing
     const editing = ($($("#dialog")[0]).is(':visible'));
     if (editing) {
         e.code = "Tab";
         handleEditCardKeyup(e);
         return;
-    }
+    } 
+    // special handling if the filter button was just clicked
+    if (filterSearch.isFiltered) return;
     
     $("#search_entry").removeClass('failed');
     $("#search_entry").val('');
@@ -2009,6 +2013,12 @@ function disableSearch(e = null) {
     
     BTAppNode.redisplaySearchedNodes();                      // fix searchLite'd nodes
     AllNodes.forEach((n) => n.unshowForSearch());            // fold search-opened nodes back closed
+
+    // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
+    $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+    $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+    filterToDos(null, true);                                 // Reset any potential todo filtering in place
+    filterSearch(null, true);                                // Reset any potential search filtering in place
     
     // redisplay selected node to remove any scrolling, url display etc
     const selectedNodeId = $($("tr.selected")[0]).attr('data-tt-id');
@@ -2023,8 +2033,8 @@ function disableSearch(e = null) {
         node = AllNodes[SearchOriginId || 1];
         displayNode = node.getDisplayNode();
         $(displayNode).addClass('selected');
-	    displayNode.scrollIntoView({block: 'center'});
     }
+    displayNode.scrollIntoView({block: 'center'});
     
     if (ExtendedSearchCB)                                     // clear timeout if not executed
 	    clearTimeout(ExtendedSearchCB);
@@ -2039,6 +2049,10 @@ function disableSearch(e = null) {
 
     // reset compact mode (ie no notes) which might have changed while showing matching search results
     initializeNotesColumn();
+
+    // hide the search filter and show the todo filter button
+    $("#searchFilter").hide();
+    $("#todoFilter").show();
 }
 
 function searchButton(e, action) {
@@ -2109,6 +2123,10 @@ function search(keyevent) {
     $("td").removeClass('searchLite');
     
     if (sstr.length < 1) return;                              // don't search for nothing!
+    if (sstr.length > 2)
+        $("#searchFilter").show();
+    else
+        $("#searchFilter").hide();
 
     // Find where we're starting from (might be passed in from backspace key handling
     let row = (ReverseSearch) ? 'last' : 'first';
@@ -2123,7 +2141,8 @@ function search(keyevent) {
     }
 
     // Do the search starting from node until we find a match or loop back around to where we started
-    while(node && !node.search(sstr)) {
+    const filteringOn = filterSearch.isFiltered || filterToDos.isFiltered;
+    while(node && !node.search(sstr, filteringOn)) {
         node = node.nextDisplayNode(ReverseSearch);
         if (node.id == prevNodeId)
             node = null;
@@ -2149,6 +2168,7 @@ function search(keyevent) {
         
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
+        resetFilterSearch();                                // reset search filter button 
 	    ExtendedSearchCB = setTimeout(() => extendedSearch(sstr, node), 200);
     } else {
 	    $("#search_entry").addClass('failed');
@@ -2201,6 +2221,93 @@ function extendedSearch(sstr, currentMatch) {
 		n.extendedSearch(sstr);
     });
 }
+
+function searchAll() {
+    // Show all matches for current search string in extendedSearch fashion (current hit is already noted)
+    // Used by filterSearch (below)
+    const sstr = $("#search_entry").val();
+    const selectedDisplayNode = $("tr.selected")[0];
+    const selectedAppNodeId = $(selectedDisplayNode).attr('data-tt-id');
+
+    // loop thru allNodes calling nodes extendedSearch fn
+    AllNodes.forEach((n) => {
+        if (!n || n.id == selectedAppNodeId) return;
+        n.extendedSearch(sstr, true);               // force visible to show all hits
+    })
+}
+function showSelected() {
+    // factored out cos used in both filters below. make sure the selected row is visible after filtering
+    const selectedKeywordRow = $("#content tr.selected");
+    if (selectedKeywordRow.length > 0) {
+        // If the row is not already visible, call showForSearch on the row's node
+        if (!selectedKeywordRow.is(":visible")) {
+            const nodeId = selectedKeywordRow.attr("data-tt-id");
+            if (nodeId && AllNodes[nodeId]) {
+                AllNodes[nodeId].showForSearch();
+            }
+        }
+        scrollIntoViewIfNeeded(selectedKeywordRow[0]);
+    }
+}
+function filterSearch(e, forceOff = false) {
+    // toggle showing only all search hits in the tree, if forceOff don't act as a toggle (eg number key entered)
+
+    if (forceOff && !filterSearch.isFiltered) return;          // already off, just return
+    if (filterSearch.isFiltered) {
+        // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        showSelected();
+        // Toggle the state and icon and complete search
+        filterSearch.isFiltered = !filterSearch.isFiltered;
+        $('#searchFilter').attr('src', 'resources/filter.svg');
+        disableSearch();
+    } else {
+        // First find all search hits
+        searchAll();
+        // now mark all currently visible rows, hide them, then show rows with search hits
+        $("#content tr:visible").addClass("hidden-by-filter").hide();
+        $("#content td.searchLite").closest("tr").addClass("visible-by-filter").show();
+        $("tr.selected").show();
+        // Toggle the state and icon
+        $('#searchFilter').attr('src', 'resources/filter-depressed.svg');
+        filterSearch.isFiltered = !filterSearch.isFiltered;
+        // Focus on the search box after above finishes
+        setTimeout(()=> {
+            const searchEntry = $("#search_entry");
+            const length = searchEntry.val().length;
+            searchEntry.focus();
+            searchEntry[0].setSelectionRange(length, length);
+        }, 100);
+    }
+}
+function resetFilterSearch() {
+    // reset the search filter to off without changing display (allows multiple searches)
+    filterSearch.isFiltered = false;
+    $('#searchFilter').attr('src', 'resources/filter.svg');
+}
+filterSearch.isFiltered = false;        // Initialize the isFiltered attribute
+
+function filterToDos(e, forceOff = false) {
+    // toggle showing only ToDos in the tree
+
+    if (forceOff && !filterToDos.isFiltered) return;          // already off, just return
+    if (filterToDos.isFiltered) {
+        // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible, note the order
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
+        $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        $("#todoFilter").attr('src', 'resources/star-transparent.svg');
+        showSelected();
+    } else {
+        // Filter: Mark all currently visible rows, hide them, then show rows with span.keyword
+        $("#content tr:visible").addClass("hidden-by-filter").hide();
+        $("#content span.keyword").closest("tr").addClass("visible-by-filter").show();
+        $("#todoFilter").attr('src', 'resources/star-depressed.svg');
+    }
+    // Toggle the state
+    filterToDos.isFiltered = !filterToDos.isFiltered;
+}
+filterToDos.isFiltered = false;     // Initialize the isFiltered attribute
 
 /***
  * 
@@ -2308,12 +2415,16 @@ function keyUpHandler(e) {
     if (digits.includes(key)) {
         const lvl = digits.indexOf(key) + 1;   // level requested
         const tt = $("table.treetable");
+        filterToDos(e, true);                             // turn off todo filter if on
+        filterSearch(e, true);                            // turn off search filter if on
         AllNodes.forEach(function(node) {
             if (!tt.treetable("node", node.id)) return;	      // no such node
             if (node?.level < lvl)
                 tt.treetable("expandNode", node.id);
             if (node?.level >= lvl)
                 tt.treetable("collapseNode", node.id);
+            if (node?.level > lvl)
+                $(node.getDisplayNode()).hide();
         });
         rememberFold();                                       // save to storage
     }

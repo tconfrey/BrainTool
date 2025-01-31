@@ -64,5 +64,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.function === 'reconnect') {
         BTPort = chrome.runtime.connect({name: "BTSidePanel"});
         sendResponse(BTPort);
+        return true;                        // Indicate that sendResponse will be called asynchronously
     }
 });

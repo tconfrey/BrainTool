@@ -31,7 +31,8 @@ let LocalTest = false;                            // control code path during un
 let InitialInstall = false;                       // should we serve up the welcome page
 let UpdateInstall = false;                        // or the release notes page
 let BTPort = null;                                // port to side panel
-let BTManagerHome = 'WINDOW';                    // default to Window
+let BTManagerHome = 'WINDOW';                     // default to Window
+let heldMessageQueue = [];                        // queue of messages to be sent when sidepanel port is set
 
 async function btSendMessage(msg) {
     // send message to Topic Manager in window, tab or side panel
@@ -39,6 +40,9 @@ async function btSendMessage(msg) {
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab && !BTPort) {
         console.warn(`No BTTab or BTPort, not sending: ${JSON.stringify(msg)}`);
+        if (BTManagerHome === 'SIDEPANEL') {
+            heldMessageQueue.push(msg);             // will retry when port is connected
+        }
         return;
     }
     console.log(`Sending to BT: ${JSON.stringify(msg)}`);
@@ -56,8 +60,12 @@ async function btSendMessage(msg) {
 chrome.runtime.onConnect.addListener((port) => {
     // Listen for port connection from side panel, serves as heartbeat so we know when its closed
     if (port.name !== "BTSidePanel") return;
-        
     BTPort = port;
+
+    // Send any message held while the port was connecting
+    heldMessageQueue.forEach(msg => btSendMessage(msg));
+    heldMessageQueue = [];
+    // And set disconnect behavior
     BTPort.onDisconnect.addListener(() => {
         console.log('BTPort disconnected');
         BTPort = null;
@@ -385,6 +393,7 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
 
 chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
+    if (BTManagerHome === 'SIDEPANEL') return;          // doesn't apply
     const [BTTab, BTWin] = await getBTTabWin();
     if (BTWin != window.id) return;
     const location = {top: window.top, left: window.left, width: window.width, height: window.height};
@@ -729,13 +738,12 @@ async function updateGroup(msg, sender) {
     check('UpdateGroup:');
 }
 
+function signalError(type, id) {
+    // send back message so TM can fix display
+    btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
+}
 function showNode(msg, sender) {
     // Surface the window/tab associated with this node
-
-    function signalError(type, id) {
-        // send back message so TM can fix display
-        btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
-    }
 
     if (msg.tabId) {
         chrome.tabs.get(msg.tabId, function(tab) {
@@ -767,12 +775,18 @@ function closeTab(msg, sender) {
     // Close a tab, NB tab listener will catch close and alert app
 
     const tabId = msg.tabId;
-    chrome.tabs.remove(tabId, ()=> check()); // ignore error
+    chrome.tabs.get(tabId, function(tab) {
+        check(); 
+        if (!tab) { signalError('tab', tabId); return;}
+        chrome.tabs.remove(tabId, ()=> check()); // ignore error
+    });
 }
 
 async function moveTab(msg, sender) {
     // move tab to window.index
     try {
+        const tab = await chrome.tabs.get(msg.tabId);
+        if (!tab) { signalError('tab', msg.tabId); return;}
         await chrome.tabs.move(msg.tabId, {'windowId': msg.windowId, 'index': msg.index});
         if (msg.tabGroupId)
             await chrome.tabs.group({'groupId': msg.tabGroupId, 'tabIds': msg.tabId});

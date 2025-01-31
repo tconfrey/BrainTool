@@ -46,7 +46,7 @@ const messageManager = (() => {
     const messageArray = [
         "Welcome to the BrainTool 1.2!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
         "The Topic Manager can now run inside the browser window in a side panel. See Settings.",
-        "Check out the new ToDo and search results filtering! Click the ⭐️ button in Search.",
+        "Check out the new ToDo and search results filtering! Click the ⭐️ or <img src='resources/filter.svg' style='height:20px;vertical-align:middle'> button in Search.",
     ];
     const introSlidesArray = [
         `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,

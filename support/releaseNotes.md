@@ -5,6 +5,8 @@ layout: default
 tagline: The Topic Manager for your Online Life
 audience: user
 ---
+# BrainTool 1.2.2
+New buttons inside the search box now allow you to filter rows to just show TODO's or just show the search matches.
 
 # BrainTool 1.2
 The notable change in 1.2 is the ability to run the Topic Manager in the browsers side panel. It kindof feels like BT has been pulled inside the browser!
