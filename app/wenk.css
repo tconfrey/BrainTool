@@ -99,6 +99,20 @@ tr.expanded [data-wenk].wenk--bottom:hover:after {
     -webkit-transform: translate(3px, 3px);
             transform: translate(3px, 3px);
 }
+
+
+/* used for the search/todo filter buttons */
+[data-wenk].wenk--top {
+    position: static;
+}
+[data-wenk].wenk--top:after {
+    bottom: 10px;
+    left: calc((100% - 60px) * 0.9);
+    line-height: 1.2rem;
+    font-family: var(--btFont);
+    font-weight: bold;
+}
+
 /*
 [data-wenk].wenk--bottom:after, [data-wenk][data-wenk-pos="bottom"]:after {
     bottom: auto;

@@ -182,9 +182,11 @@ const configManager = (() => {
         if (tooltips == 'ON') {
             $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
             $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+            $("#topBar .filter-button").removeClass("wenk--off");
         } else {
             $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
             $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+            $("#topBar .filter-button").addClass("wenk--off");
         }
 
         // More Tools?
@@ -304,9 +306,11 @@ const configManager = (() => {
             if (newT == 'ON') {
                 $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
                 $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+                $("#topBar .filter-button").removeClass("wenk--off");
             } else {
                 $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
                 $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+                $("#topBar .filter-button").addClass("wenk--off");
             }
         });
     });
