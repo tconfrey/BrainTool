@@ -46,7 +46,7 @@
             <div>                
                 <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                      height="40" width="40" >
-	            <span id="searchCancelButton" class="searchButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
+	              <span id="searchCancelButton" class="searchButton" onmousedown="searchButton(event, 'exit')" title="Exit Search">
                     <img src="resources/closeSearch.png" height="12" width="12"/>
                 </span>
                 <div id="searchHint" class="hint searchHint">
@@ -54,16 +54,16 @@
                     <span class="hintText">Click here or 's' to search</span>
                 </div>
                 <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="Search">
-                <img id="todoFilter" src="resources/star-transparent.svg" onClick="filterToDos(event)" title="Filter ToDos">
-                <img id="searchFilter" src="resources/filter.svg" style="display:none" onmousedown="filterSearch(event)" title="Filter Matches">
+                <span  data-wenk="Filter TODOs" class="wenk--top filter-button"><img id="todoFilter" src="resources/star-transparent.svg" onClick="filterToDos(event)"></span>
+                <span  data-wenk="Filter Matches" class="wenk--top filter-button"><img id="searchFilter" src="resources/filter.svg" style="display:none" onmousedown="filterSearch(event)"></span>
 	              <span class="searchButton" >
 	                <span id="searchUpBtn" onmousedown="searchButton(event, 'up')" title="Previous Match">
                         <img src="resources/arrowUp.png" height="8" width="10"/>
-                    </span>
+                  </span>
 	                <span id="searchDownBtn" onmousedown="searchButton(event, 'down')" title="Next Match">
                         <img src="resources/arrowDown.png" height="8" width="10"/>
-                    </span>
-	            </span>
+                  </span>
+	              </span>
             </div>
             <div id="topBarRight">
 
