@@ -127,14 +127,13 @@ const configManager = (() => {
     function updatePrefs() {
         // update preferences based on configuration
 
-        /*
+        // NB settings change is not visible any more but leaving ability to turn on via console for now
         let groupMode = configManager.getProp('BTGroupingMode');
         if (groupMode) {
-            const $radio = $('#tabGroupToggle :radio[name=grouping]');
-            $radio.filter(`[value=${groupMode}]`).prop('checked', true);
+            // const $radio = $('#tabGroupToggle :radio[name=grouping]');
+            // $radio.filter(`[value=${groupMode}]`).prop('checked', true);
             GroupingMode = groupMode;
 	    }
-        */
 
         let $radio;
         // does the topic manager live in a tab or a window?
