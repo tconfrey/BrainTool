@@ -140,6 +140,11 @@ const localFileManager = (() => {
             alert("Sorry, local file saving is not supported on your browser (NB Brave has a config setting to enable.)");
             return null;
         }
+        if (configManager.getProp('BTManagerHome') == 'SIDEPANEL') {
+            alert("Local file saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
+            return null;
+        }
+
         alert("Choose where you want to store your BrainTool file");
         const options = {startIn: 'documents', create: true};
         LocalDirectoryHandle = await window.showDirectoryPicker(options);
