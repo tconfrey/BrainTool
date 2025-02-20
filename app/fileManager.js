@@ -128,7 +128,7 @@ function savePendingP() {
 }
 
 async function checkBTFileVersion() {
-    // pass to correct file manager
+    // pass to correct file manager, true if sync file is newer than local
     if (GDriveConnected)
         return await gDriveFileManager.checkBTFileVersion();
     if (LocalFileConnected)
