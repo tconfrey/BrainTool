@@ -1032,6 +1032,7 @@ function tabPositioned(data, highlight = false) {
     const windowId = data.windowId;
     const parentId = AllNodes[nodeId]?.parentId || nodeId;
     
+    if (!node) return;
     node.tabId = tabId;         
     node.windowId = windowId;
     node.tabIndex = tabIndex;

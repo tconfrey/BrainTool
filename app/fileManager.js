@@ -74,18 +74,24 @@ async function saveBT(localOnly = false, newContent = true) {
         InitialInstall = false;
     }
 
-    // also save to GDrive or local file if connected and drop an event
-    let event = "local_storage_save";
+    // also check before saving, save to GDrive or local file if connected and drop an event
+    let eventType = "local_storage_save";
+    const warnNewer = await checkBTFileVersion();
+    if ((warnNewer) && 
+        (confirm("The synced version of your BrainTool file has newer data. \n\nClick OK the refresh from it, or Cancel to overwrite with this change."))) {
+            refreshTable(true);
+            return;
+    }
     if (GDriveConnected) {
         await gDriveFileManager.saveBT(BTFileText, newContent);     // if !newContent, don't force re-auth
-        event = "gdrive_save";
+        eventType = "gdrive_save";
     } else if (LocalFileConnected) {
         await localFileManager.saveBT(BTFileText);
-        event = "local_file_save";
+        eventType = "local_file_save";
     }
     updateStatsRow();                            // update num cards etc
     messageManager.removeWarning();              // remove stale warning if any
-    gtag('event', event, {'event_category': 'Save', 'event_label': 'NumNodes', 'value': AllNodes.length});
+    gtag('event', eventType, {'event_category': 'Save', 'event_label': 'NumNodes', 'value': AllNodes.length});
     configManager.incrementStat('BTNumSaves');
 }
 
