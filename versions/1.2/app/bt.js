@@ -2255,8 +2255,8 @@ function filterSearch(e, forceOff = false) {
     if (forceOff && !filterSearch.isFiltered) return;          // already off, just return
     if (filterSearch.isFiltered) {
         // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible
-        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
         $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
         showSelected();
         // Toggle the state and icon and complete search
         filterSearch.isFiltered = !filterSearch.isFiltered;
@@ -2294,8 +2294,8 @@ function filterToDos(e, forceOff = false) {
     if (forceOff && !filterToDos.isFiltered) return;          // already off, just return
     if (filterToDos.isFiltered) {
         // Unfilter: Show all rows that were marked as hidden and hide those that were marked as visible, note the order
-        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
         $("#content tr.visible-by-filter").removeClass("visible-by-filter").hide();
+        $("#content tr.hidden-by-filter").removeClass("hidden-by-filter").show();
         $("#todoFilter").attr('src', 'resources/star-transparent.svg');
         showSelected();
     } else {
