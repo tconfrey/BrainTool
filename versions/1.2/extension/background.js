@@ -116,7 +116,6 @@ async function getBTTabWin(reset = false) {
     if (p.BTTab || p.BTWin) getBTTabWin.cachedValue = [p.BTTab, p.BTWin];
     return getBTTabWin.cachedValue || [0, 0];
 }
-
 function check(msg='') {
     // check for error
     if (chrome.runtime.lastError) {
@@ -907,7 +906,7 @@ async function saveTabs(msg, sender) {
     // Create array of appropriate tab data and send to BT window
 
     const currentTabs = msg.currentWindowId ? await chrome.tabs.query({'active': true, 'windowId': msg.currentWindowId}) : [];
-    const currentTab = currentTabs[0];
+    const currentTab = currentTabs[0]|| {} ;
     const saveType = msg.type;
     const [BTTab, BTWin] = await getBTTabWin();
     const allTabs = await getOpenTabs();                             // array of tabs
@@ -946,6 +945,12 @@ async function saveTabs(msg, sender) {
         }
         if (saveType == 'Session') {
             tab['topic'] = (topic ? topic+":" : "📝 Scratch:") + sessionName + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
+            tabsToSave.push(tab);
+        }
+        if (saveType == 'Tab' && t.url == msg.url) {
+            // special case for msg sent from ui in case of tab drag onto tree
+            tab['topic'] = msg.topic
+            tab['title'] = t.title;                               // original or popup-edited tab title
             tabsToSave.push(tab);
         }
     });

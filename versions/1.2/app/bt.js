@@ -496,7 +496,6 @@ function initializeUI() {
 
     updateStatsRow(configManager.getProp('BTTimestamp'));   // show updated stats w last save time
 }
-
 function reCreateButtonRow() {
     // For some unknown reason very occasionally the buttonRow div gets lost/deleted
     console.log("RECREATING BUTTONROW!!");
@@ -557,11 +556,74 @@ function dragStart(event, ui) {
     $(this).addClass("dragTarget");
     makeRowsDroppable(node);
 }
+
+/* 
+    Set dragover handler for content area. Needed to allow dropping from url bar.
+    NB only want first (of many) firings
+    */
+function contentDragoverHandler(event) {
+    event.preventDefault();
+    if (!contentDragoverHandler.droppableInitialized) {
+        console.log('#content dragover initialized');
+        makeRowsDroppable();
+        contentDragoverHandler.droppableInitialized = true;
+    }
+
+    // Scroll handling. Skip this event if it's too soon since the last scroll
+    const now = Date.now();
+    if (now - contentDragoverHandler.lastScrollTime < 50) return;
+    contentDragoverHandler.lastScrollTime = now;
+
+    const container = document.documentElement;
+    const scrollSpeed = 10; // Adjust scroll speed as needed
+    const scrollThreshold = 100; // Distance from edge to start scrolling
+
+    const mouseY = event.clientY;
+    if (mouseY < (container.scrollTop + scrollThreshold)) {
+        container.scrollTop -= scrollSpeed;        // Scroll up
+    } else if (mouseY > (window.innerHeight - scrollThreshold)) {
+        container.scrollTop += scrollSpeed;        // Scroll down
+    }
+}
+$("#content").on("dragover", contentDragoverHandler);
+
 function makeRowsDroppable(node) {
     // make rows droppable
-    console.log("into makeRowsDroppable");
+
+    // Detect when a tab url is being dragged from the browser into the topic manager. 
+    // Handled differently cos can't use JQuery and drop is a create not a move. 
+    // dragover and dragleave trigger jq's over and out events
+    $("table.treetable tr").on("dragover", function (event) {
+        event.preventDefault(); // Allow drop
+        $(this).data("ui-droppable")._trigger("over", event, { draggable: null });
+    });
+    $("table.treetable tr").on("dragleave", function (event) {
+        $(this).data("ui-droppable")._trigger("out", event, { draggable: null });
+    });
+    // This drop is creating a new node, not moving an existing one, as below.
+    $("table.treetable tr").on("drop", function (event) {
+        event.preventDefault();
+        let dataTransfer = event.originalEvent.dataTransfer;
+        if (!dataTransfer) return;
+        let url = dataTransfer.getData("text/uri-list") || dataTransfer.getData("text/plain");
+
+        if (url) {
+            const dropNode = $($(".dropOver")[0]).parent();
+            const dropNodeId = $(dropNode).attr('data-tt-id');
+            if (dropNode && dropNodeId && AllNodes[dropNodeId]) {
+                console.log("Dropped URL:", url, " under node id:", dropNodeId);
+                // Create new node by simulating a save of the active tab
+                sendMessage({'function': 'saveTabs', 'type': 'Tab', 
+                            'topic': AllNodes[dropNodeId].topicPath, 'url': url, 'from':'btwindow'});
+            }
+        }
+        // We're done. Clean up the display and reset the handler for next time
+        $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
+        $("#content").on("dragover", contentDragoverHandler);
+    });
 
     $("table.treetable tr").droppable({
+        accept: "*", // Accept any draggable
         drop: function(event, ui) {
             // Remove unfold timeout
             const timeout = $(this).data('unfoldTimeout');
@@ -601,6 +663,7 @@ function makeRowsDroppable(node) {
     });
 
     // disable droppable for self and all descendants, can't drop into self!
+    if (!node) return;
     let ids = node.getDescendantIds();
     ids.push(node.id);
     ids.forEach(id => {
@@ -971,6 +1034,7 @@ function tabPositioned(data, highlight = false) {
     const windowId = data.windowId;
     const parentId = AllNodes[nodeId]?.parentId || nodeId;
     
+    if (!node) return;
     node.tabId = tabId;         
     node.windowId = windowId;
     node.tabIndex = tabIndex;

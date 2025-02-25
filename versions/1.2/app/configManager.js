@@ -130,8 +130,8 @@ const configManager = (() => {
         // NB settings change is not visible any more but leaving ability to turn on via console for now
         let groupMode = configManager.getProp('BTGroupingMode');
         if (groupMode) {
-            // const $radio = $('#tabGroupToggle :radio[name=grouping]');
-            // $radio.filter(`[value=${groupMode}]`).prop('checked', true);
+            const $radio = $('#tabGroupToggle :radio[name=grouping]');
+            $radio.filter(`[value=${groupMode}]`).prop('checked', true);
             GroupingMode = groupMode;
 	    }
 
@@ -213,7 +213,6 @@ const configManager = (() => {
             sendMessage({'function': 'localStore', 'data': {'BTManagerHome': newHome}});
         });
 
-        /*
         $('#tabGroupToggle :radio').change(function () {
             const oldVal = GroupingMode;
             const newVal = $(this).val();
@@ -221,7 +220,6 @@ const configManager = (() => {
             configManager.setProp('BTGroupingMode', GroupingMode);
             groupingUpdate(oldVal, newVal);
         });
-        */
 
         $('#syncSetting :radio').change(async function () {
             try {
