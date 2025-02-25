@@ -610,10 +610,12 @@ function makeRowsDroppable(node) {
         if (url) {
             const dropNode = $($(".dropOver")[0]).parent();
             const dropNodeId = $(dropNode).attr('data-tt-id');
-            console.log("Dropped URL:", url, " under node id:", dropNodeId);
-            // Create new node by simulating a save of the active tab
-            sendMessage({'function': 'saveTabs', 'type': 'Tab', 
-                        'topic': AllNodes[dropNodeId].topicPath, 'url': url, 'from':'btwindow'});
+            if (dropNode && dropNodeId && AllNodes[dropNodeId]) {
+                console.log("Dropped URL:", url, " under node id:", dropNodeId);
+                // Create new node by simulating a save of the active tab
+                sendMessage({'function': 'saveTabs', 'type': 'Tab', 
+                            'topic': AllNodes[dropNodeId].topicPath, 'url': url, 'from':'btwindow'});
+            }
         }
         // We're done. Clean up the display and reset the handler for next time
         $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
