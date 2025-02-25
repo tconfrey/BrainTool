@@ -585,20 +585,29 @@ function contentDragoverHandler(event) {
         container.scrollTop += scrollSpeed;        // Scroll down
     }
 }
+function contentDragleaveHandler(event) {
+    console.log('#content dragleave');
+    contentDragoverHandler.droppableInitialized = false;
+}
 $("#content").on("dragover", contentDragoverHandler);
+$("#content").on("dragleave", contentDragleaveHandler);
 
 function makeRowsDroppable(node) {
-    // make rows droppable
+    // make rows droppable. Two parts, first handle drag from outside, then drag of tree row
 
     // Detect when a tab url is being dragged from the browser into the topic manager. 
     // Handled differently cos can't use JQuery and drop is a create not a move. 
-    // dragover and dragleave trigger jq's over and out events
+    // Using dragover and dragleave trigger jq's over and out events
     $("table.treetable tr").on("dragover", function (event) {
         event.preventDefault(); // Allow drop
-        $(this).data("ui-droppable")._trigger("over", event, { draggable: null });
+        if (!$(this).data("overTriggered")) {
+            $(this).data("ui-droppable")._trigger("over", event, { draggable: null });
+            $(this).data("overTriggered", true);
+        }
     });
     $("table.treetable tr").on("dragleave", function (event) {
         $(this).data("ui-droppable")._trigger("out", event, { draggable: null });
+        $(this).data("overTriggered", false);
     });
     // This drop is creating a new node, not moving an existing one, as below.
     $("table.treetable tr").on("drop", function (event) {
@@ -622,8 +631,9 @@ function makeRowsDroppable(node) {
         $("#content").on("dragover", contentDragoverHandler);
     });
 
+    // Handle row dragging inside table
     $("table.treetable tr").droppable({
-        accept: "*", // Accept any draggable
+        accept: "*", // Accept any draggable, so above works
         drop: function(event, ui) {
             // Remove unfold timeout
             const timeout = $(this).data('unfoldTimeout');
