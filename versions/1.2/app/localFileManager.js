@@ -137,10 +137,10 @@ const localFileManager = (() => {
     async function authorizeLocalFile() {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
-            alert("Sorry, local file saving is not supported on your browser (NB Brave has a config setting to enable.)");
+            alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags)");
             return null;
         }
-        if (configManager.getProp('BTManagerHome') == 'SIDEPANEL') {
+        if (SidePanel) {
             alert("Local file saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
             return null;
         }
@@ -171,16 +171,12 @@ const localFileManager = (() => {
             alert('Error accessing local file, cancelling sync');
             return null;
         }
-            
         LocalFileConnected = true;                             // used in fileManager facade
-        if (fileExists &&
-            confirm("BrainTool.org file already exists. Click OK to use its contents")) {
+        if (fileExists && confirm("BrainTool.org file already exists. Click OK to use its contents"))
 		    await refreshTable(true);
-	    } else {
-	        // else do a save to sync everything up
-	        const content = BTAppNode.generateOrgFile();
-	        saveBT(content);
-	    }
+	    
+        const content = BTAppNode.generateOrgFile();
+	    saveBT(content);                                        // Either way do a save to sync everything up
         
         localStorageManager.set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
         localStorageManager.set('localDirectoryHandle', LocalDirectoryHandle);     // store for subsequent sessions
@@ -206,8 +202,13 @@ const localFileManager = (() => {
             let p = new Promise(function (resolve, reject) {
                 var listener = async () => {
                     $("#editOverlay").off('click', listener);
-                    await LocalFileHandle.requestPermission({mode: 'readwrite'});
-                    resolve(event);
+                    try {
+                        await LocalFileHandle.requestPermission({mode: 'readwrite'});
+                        resolve(event);
+                    } catch (error) {
+                        alert('Error requesting file permission:', JSON.stringify(error));
+                        reject(error);
+                    }
                 };
                 $("#grant").on('click', listener);
                 $("#editOverlay").on('click', listener);
