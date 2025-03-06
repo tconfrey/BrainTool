@@ -47,7 +47,7 @@ async function handleStartupFileConnection() {
 
 async function saveBT(localOnly = false, newContent = true) {
     // Save org version of BT Tree to local storage and potentially gdrive.
-    // localOnly => don't save to GDrive backing and don't send gtag stat. Used when folding/unfolding
+    // localOnly => don't save to GDrive/Local backing and don't send gtag stat. Used when folding/unfolding
     // newContent => true if we're saving new content, false if just saving folded state
     // Don't force GDrive re-auth if we're just folding/unfolding
 
@@ -73,15 +73,16 @@ async function saveBT(localOnly = false, newContent = true) {
         gtag('event', 'first_save', {'event_category': 'General'});
         InitialInstall = false;
     }
-
-    // also check before saving, save to GDrive or local file if connected and drop an event
     let eventType = "local_storage_save";
+
+    // Check if we're about to overwrite newer data in the sync file
     const warnNewer = await checkBTFileVersion();
     if ((warnNewer) && 
         (confirm("The synced version of your BrainTool file has newer data. \n\nClick OK the refresh from it, or Cancel to overwrite with this change."))) {
             refreshTable(true);
             return;
     }
+
     if (GDriveConnected) {
         await gDriveFileManager.saveBT(BTFileText, newContent);     // if !newContent, don't force re-auth
         eventType = "gdrive_save";

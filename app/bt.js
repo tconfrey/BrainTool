@@ -177,16 +177,23 @@ function handleFocus(e) {
     if (!deletions) warnBTFileVersion(e);               // check file version, warn if stale, NB if deletions then save will overwrite
 }
 
+async function checkFileFreshness() {
+    // POpup has opened, shoudl we warn the file is stale?
+    if (!syncEnabled()) return;
+    const warnNewer = await checkBTFileVersion();
+    if (warnNewer)
+        sendMessage({'function': 'warnStaleFile'});
+}
+
 async function warnBTFileVersion(e) {
     // warn in ui if there's a backing file and its newer than local data or if GDrive auth has expired
 
     if (!syncEnabled()) return;
-    messageManager.removeWarning();
 
     if (GDriveConnected) {
         const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
         if (!lastModifiedTime) {
-            const cb = (async e => { gDriveFileManager.renewToken(); messageManager.removeWarning(); });
+            const cb = async () => { gDriveFileManager.renewToken(); messageManager.removeWarning(); };
             messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
             return;
         }
@@ -194,7 +201,7 @@ async function warnBTFileVersion(e) {
 
     const warnNewer = await checkBTFileVersion();
     if (warnNewer) {
-        const cb = (async e => { refreshTable(true); messageManager.removeWarning(); });
+        const cb = async () => { refreshTable(true); messageManager.removeWarning(); };
         messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.", cb);
     }
 }

@@ -325,8 +325,8 @@ async function openBookmarker(tab) {
         ['topics', 'currentTabId', 'currentTopic', 'currentText', 'tabNavigated',
          'currentTitle', 'mruTopics', 'saveAndClose'],
         data => {
-            let title = (tab.title.length < 150) ? tab.title :
-                tab.title.substr(0, 150) + "...";            
+            let title = (tab.title.length < 60) ? tab.title :
+                tab.title.substr(0, 60) + "...";
             titleH2.textContent = title;
             
             if (!data.saveAndClose) {
@@ -367,6 +367,7 @@ function topicSelected() {
 }
 function cardCompleted() {
     // CB from enter in notes field of card
+    if (Warned) return;    // don't save if file is out of date
     const close = (SaveAndCloseBtn.classList.contains('activeButton')) ? true : false;
     saveCB(close);       
 }
@@ -396,13 +397,20 @@ async function saveCB(close) {
     window.close();
 }
 
-// Listen for messages from other components. Currently just to know to close BT popup.
+// Listen for messages from other components. Currently just to know to close BT popup or warn the file is out of date
+let Warned = false;
 chrome.runtime.onMessage.addListener((msg, sender) => {
     switch (msg.from) {
     case 'btwindow':
         if (msg.function == 'initializeExtension') {
             console.log("BT window is ready");
             window.close();
+        }
+        if (msg.function == 'warnStaleFile') {
+            document.getElementById('warning').style.display = 'block';
+            document.getElementById('saveAndClose').disabled = true;
+            document.getElementById('saveAndGroup').disabled = true;
+            Warned = true;
         }
         break;
     }
