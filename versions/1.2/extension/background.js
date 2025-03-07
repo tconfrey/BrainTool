@@ -405,6 +405,7 @@ chrome.runtime.onConnect.addListener(logEventWrapper("runtime.onConnect", async 
     if (port.name !== "BTPopup") return;
     const [BTTab, BTWin] = await getBTTabWin();
     const connectTime = Date.now();
+    btSendMessage({'function': 'checkFileFreshness'});
     port.onDisconnect.addListener(() => {
         const disconnectTime = Date.now();
         if (!BTWin) return;	                                 // might have been closed
