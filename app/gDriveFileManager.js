@@ -206,6 +206,10 @@ const gDriveFileManager = (() => {
         // called from initial launch or Connect button (=> userInitiated)
         // gapi needed to access gdrive not yet loaded => this script needs to wait
 
+        if (SidePanel) {
+            alert("GDrive saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
+            return null;
+        }
         console.log('Loading Google API...');
         gtag('event', 'auth_initiated', {'event_category': 'GDrive'});
         if (userInitiated) {
