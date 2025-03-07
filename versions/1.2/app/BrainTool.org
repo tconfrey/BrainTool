@@ -4,6 +4,7 @@
 
 * 👋  Welcome
 Feel free to edit or delete these sample Topics
+* TODO Use the star ⭐️ to make items as to-dos
 * Topic (eg Projects)
 Keep all your project links and notes in one place.
 
