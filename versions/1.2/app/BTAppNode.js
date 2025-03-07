@@ -1118,6 +1118,7 @@ const Handlers = {
     "tabGroupUpdated": tabGroupUpdated,
     "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
     "mouseOut": sidePanelMouseOut,          // sidepanel tells us mouse is out, undo hover states etc
+    "checkFileFreshness": checkFileFreshness, // bg is asking if we need to reload the org file
 };
 
 // Set handler for extension messaging
