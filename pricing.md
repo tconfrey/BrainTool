@@ -59,7 +59,7 @@ Session Saving
 <b>Free</b>
 </p>
 </div>
-<div class="cell right" style="padding-left: 30px;">
+<div class="cell right" style="padding-left: 30px; padding-right: 7%;">
 <h2><b>Supporter</b></h2>
 <p>
 Control of Dark, Dense, Large and Favicon modes

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="import" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 640 640">
+  <!-- Generator: Adobe Illustrator 29.3.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 151)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fafafa;
+      }
+    </style>
+  </defs>
+  <path class="st0" d="M320,44c-152.4,0-276,123.6-276,276s123.6,276,276,276,276-123.6,276-276S472.4,44,320,44ZM505.6,396.2c0,16.4-13.3,29.8-29.8,29.8h-24.9c-9.9,0-19.3,4.1-26.1,11.2l-66.9,70.5,1.9-61.9c.3-10.8-8.4-19.8-19.2-19.8h-168c-16.4,0-29.8-13.3-29.8-29.8v-185.7c0-16.4,13.3-29.8,29.8-29.8h303.2c16.4,0,29.8,13.3,29.8,29.8v185.7Z"/>
+</svg>
