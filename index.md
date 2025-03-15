@@ -378,7 +378,7 @@ audience: landingpage
   </div>
   <div class="feature">
     <img src="/site/pageAssets/import.svg" alt="Feature 3 icon">
-    <p>The file can be separately edited, used across devices with import and export to/from multiple sourcesorg-mode files.</p>
+    <p>The file can be separately edited, used across devices with import and export to/from multiple sources.</p>
   </div>
   <div class="feature">
     <img src="/site/pageAssets/search.svg" alt="Feature 4 icon">

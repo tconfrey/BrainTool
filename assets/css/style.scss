@@ -83,7 +83,7 @@ small {
     margin-left: 50px;
 }
 #media {
-    background-image: url('{{ site.url }}/media/zdnet.svg'); 
+    background-image: url('/media/zdnet.svg'); 
     background-size: cover;
     background-position: center;
     width: 100%;
@@ -100,7 +100,7 @@ small {
 }
 
 #store-button {
-    background-image: url('{{ site.url }}/media/chromeStoreButton.svg');
+    background-image: url('/media/chromeStoreButton.svg');
     background-size: contain;
     background-repeat: no-repeat;
     width: 150px;
