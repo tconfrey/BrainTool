@@ -4,60 +4,52 @@ layout: default
 description: BrainTool is a way of organizing things you want to remember and get back to, using notes and nested Topics. Its also a better way to control your browser.
 audience: landingpage
 ---
-
 <div class="row">
-    <div class="cell left" >
-        <h1 class="landing-header"> Tame your Tabs</h1>
-        <h3>
-            BrainTool organizes all your tabs and groups them by Topic.
-            <br/>
-            Open and close multiple tabs for a Topic with a click.
-        </h3>
-    </div>
-    <div class="cell right" >
-        <img src="/media/topicsAndTabs.png" alt="BrainTool sidepanel" style="border:solid; border-width:thin; height:200px; opacity: 0.7; margin-left:100px;">
-    </div>
-</div>
-
-<div class="row" style="background: #e6e6e6">
     <div class="cell left">
-        <img src="/media/saver.png" alt="Autocomplete topics" style="border:solid; border-width:thin; height:200px; opacity: 0.7; margin-left:100px;">
-    </div>
-    <div class="cell right">
-        <h1 class="landing-header"> Control your Browser</h1>
+        <h1 class="landing-header">Tame Your Tabs</h1>
         <h3>
-            Switch between contexts with ease.
-            <br/> Keep your workspace clean.
-            <br/><br/>
+            Easily Save Tabs by Topic.<br/>
+            Then close them until needed.<br/><br/>
             No longer fear closing a tab!
         </h3>
     </div>
+    <div class="cell right">
+        <img src="/media/saver.png" alt="Autocomplete topics">
+    </div>
 </div>
-
-<div class="row">
+<div class="row" style="background: #e6e6e6">
     <div class="cell left">
         <h1 class="landing-header">Curate your Topics</h1>
         <h3>
-            Trivially add a page into your Topic tree and close it out.
-            <br/>
-            Or keep detailed notes on the Topic card associated with every item.
+            Organize and group your Topics however you wish.<br/>
+            Add Notes and TODOs
         </h3>
     </div>
     <div class="cell right">
-        <img src="/media/editCard.png" alt="Card editor" style="border:solid; border-width:thin; height:200px; opacity: 0.7; margin-left:100px; ">
+        <img src="/media/editCard.png" alt="Card editor">
     </div>
 </div>
-
+<div class="row">
+    <div class="cell left" >
+        <h1 class="landing-header">Control your Browser</h1>
+        <h3>
+            Switch between contexts with ease.<br/>
+            Keep your workspace distraction-free!
+        </h3>
+    </div>
+    <div class="cell right" >
+        <img src="/media/topicsAndTabs.png" alt="BrainTool sidepanel">
+    </div>
+</div>
 <div class="row" style="background: #4b4b4b">
-  <div class="cell left">
+  <div class="cell left" style="padding-left: 3rem;">
     <img src="/media/ZDNet.png" id="ZDNet" >
   </div>
-  <div class="cell right" style="padding-left: 3rem">
+  <div class="cell right" style="padding-left: 3rem; padding-right: 3rem">
     <h1 class="landing-header" style="color: white !important; margin-top: 0px">What the Press says:</h1>
     <h3 style="color: #D0FF4B; font-size: 12px; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
   </div>
 </div>
-
 <div class="row feature-grid" style="background:#b2b2b2; margin-top: -8px">
   <div class="feature">
     <img src="/site/pageAssets/bookmark.svg" alt="Feature 1 icon">
@@ -108,8 +100,7 @@ audience: landingpage
     <p>Free forever at any scale, optional premium features lock after 30 days.</p>
   </div>
 </div>
-
-<div class="row commendations" style="background-color: #FF90D6">
+<div class="row commendations" style="background-color: #FF90D6; display:inline-block;">
   <h2 style="color: white; margin-top: 10px; margin-left: 50px;">What Our Users Say:</h2>
   <div class="testimonial-container">
     <div class="testimonial-scroll">
@@ -366,7 +357,6 @@ audience: landingpage
     </div>
   </div>
 </div>
-
 <div class="row feature-grid2" style="background-color: #0EBE00">
   <div class="feature">
     <img src="/site/pageAssets/noSpy.svg" alt="Feature 1 icon">

@@ -138,12 +138,20 @@ iframe {
 }
 .row {
     width: 100%;
-    display: inline-block;
-    position: relative;
+    display: flex;
 }
 .cell {
     width: 50%;
-    padding-top: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.cell > img {
+  border:solid; 
+  border-width:thin; 
+  height:200px;
+  margin-left: auto; /* Remove the left margin */
+  margin-right: auto; /* Center the image */
+  display: block; /* Make image a block element */
 }
 .left {
     float: left;
@@ -154,11 +162,8 @@ iframe {
     padding-right: 6rem;
 }
 #ZDNet {
-    position: absolute; 
-    max-width: 50%;
-    max-height: 100%;
-    margin-left: -6%;
-    bottom: 0px;
+  border: none;
+  bottom: 0px;
 }
 
 @media screen and (min-width: 72em) {
@@ -178,11 +183,25 @@ iframe {
 	    display: none;
     }
     .logo {
-        height: 70px;
+      height: 70px;
+    } 
+    /* Change row to stack cells vertically instead of side by side */
+    .row {
+        flex-direction: column; /* This changes the flex direction from row to column */
+        align-items: center; /* Center the cells horizontally */
     }
     .cell {
-	    width: 100%;
-	    margin-top: 15px;
+        width: 100%;
+        margin-top: 15px;
+        float: none; /* Remove the float */
+        padding-left: 0; /* Remove the left padding */
+        padding-right: 0; /* Remove the right padding */
+        margin-left: auto; /* Center horizontally */
+        margin-right: auto; /* Center horizontally */
+        text-align: center; /* Center the content inside */
+    }
+    .landing-header {
+      text-align: center !important;
     }
     .beyond-bookmarks {
 	    font-size: 2.1rem;
@@ -275,12 +294,14 @@ iframe {
   width: 100%;
   box-sizing: border-box;
   margin-top: -8px;
+  align-items: start;
 }
   .feature {
     padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    height: auto;
     transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add smooth transition */
   }
   
