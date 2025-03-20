@@ -14,7 +14,7 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right">
-        <img src="/media/saver.png" alt="Autocomplete topics">
+        <img src="/media/saver.png" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #e6e6e6">
@@ -26,7 +26,7 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right">
-        <img src="/media/editCard.png" alt="Card editor">
+        <img src="/media/editCard.png" class="landing-image" alt="Card editor">
     </div>
 </div>
 <div class="row">
@@ -38,12 +38,12 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right" >
-        <img src="/media/topicsAndTabs.png" alt="BrainTool sidepanel">
+        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
     </div>
 </div>
 <div class="row" style="background: #4b4b4b">
   <div class="cell left" style="padding-left: 3rem;">
-    <img src="/media/ZDNet.png" id="ZDNet" >
+    <img src="/media/ZDNet.png" class="landing-image" id="ZDNet" >
   </div>
   <div class="cell right" style="padding-left: 3rem; padding-right: 3rem">
     <h1 class="landing-header" style="color: white !important; margin-top: 0px">What the Press says:</h1>
@@ -52,51 +52,51 @@ audience: landingpage
 </div>
 <div class="row feature-grid" style="background:#b2b2b2; margin-top: -8px">
   <div class="feature">
-    <img src="/site/pageAssets/bookmark.svg" alt="Feature 1 icon">
+    <img src="/site/pageAssets/bookmark.svg" alt="Organize into topics">
     <p>Organize your tabs and bookmarks into a common set of Topics.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/tab.svg" alt="Feature 2 icon">
+    <img src="/site/pageAssets/tab.svg" alt="Categorize and close">
     <p>Quickly categorize, save and close tabs to unclutter your browser.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/search.svg" alt="Feature 3 icon">
+    <img src="/site/pageAssets/search.svg" alt="Incremental search">
     <p>Incremental search and filtering makes it easy to find things again.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/hierarchy.svg" alt="Feature 4 icon">
+    <img src="/site/pageAssets/hierarchy.svg" alt="Topics are hierarichal">
     <p>Organize and nest topics to add structure.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/comment.svg" alt="Feature 5 icon">
+    <img src="/site/pageAssets/comment.svg" alt="Add notes">
     <p>Add notes to any bookmark or webpage for future reference.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/import.svg" alt="Feature 6 icon">
+    <img src="/site/pageAssets/import.svg" alt="Open and close tabs">
     <p>Use the Topic Manager to open and close individual tabs or multiple tabs by topic.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/customize.svg" alt="Feature 7 icon">
+    <img src="/site/pageAssets/customize.svg" alt="Customize colors">
     <p>Customize topics with colors and icons.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/toDo.svg" alt="Feature 8 icon">
+    <img src="/site/pageAssets/toDo.svg" alt="TODO functionality">
     <p>Mark bookmarks and tabs as tasks with TODO functionality.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/tab.svg" alt="Feature 9 icon">
+    <img src="/site/pageAssets/tab.svg" alt="Keyboard controls">
     <p>Keyboard shortcuts and support for power users.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/drag.svg" alt="Feature 10 icon">
+    <img src="/site/pageAssets/drag.svg" alt="Drag and Drop">
     <p>Intuitive drag and drop from the browser bar into and within the Topic Manager.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/customize.svg" alt="Feature 11 icon">
+    <img src="/site/pageAssets/configurable.svg" alt="Dark mode">
     <p>Fully configureable display including density, font size and darkmode.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/customize.svg" alt="Feature 12 icon">
+    <img src="/site/pageAssets/infinite.svg" alt="Free Forever">
     <p>Free forever at any scale, optional premium features lock after 30 days.</p>
   </div>
 </div>
@@ -357,39 +357,21 @@ audience: landingpage
     </div>
   </div>
 </div>
-<div class="row feature-grid2" style="background-color: #0EBE00">
+<div class="row feature-grid2">
   <div class="feature">
-    <img src="/site/pageAssets/noSpy.svg" alt="Feature 1 icon">
+    <img src="/site/pageAssets/noSpy.svg" alt="Private">
     <p>Your data is kept in plain text in a private continuously synced and versioned text file.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/comment.svg" alt="Feature 2 icon">
+    <img src="/site/pageAssets/lock.svg" alt="Org-mode">
     <p>No lock-in! <br/>BrainTool uses structured org-mode syntax compatible with other productivity tools.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/import.svg" alt="Feature 3 icon">
+    <img src="/site/pageAssets/editable.svg" alt="Plain Text">
     <p>The file can be separately edited, used across devices with import and export to/from multiple sources.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/search.svg" alt="Feature 4 icon">
+    <img src="/site/pageAssets/openSource.svg" alt="Open Source">
     <p>BrainTool is open source. You can see what its doing!</p>
   </div>
 </div>
-
-<!--
-<h1 class="landing-header"> Private, Secure, Plain-Text </h1>
-- Your data is stored in a private, continuously synced, text file.
-- BrainTool uses structured [org-mode](http://orgmode.org) syntax.
-- The file can be separately edited, backed-up or shared.
-- You can import and export to and from bookmarks or org-mode files.
-- See how it works for Brian in this promotional video:
-<div style="position: relative; width: 100%; padding-bottom: 56.25%;">
-<iframe src="https://www.youtube.com/embed/1iTQNN0bhwg?si=JM4v5sJNh0MEgOei" title="BrainTool promotional video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" style="position:absolute; top:0px; left:0px; width:100%; height:100%;" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
-
-<h1 class="landing-header">More Info</h1>
-<!--
-<iframe width="500" height="315" src="https://www.youtube.com/embed/videoseries?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-BrainTool is usable for free forever, an optional subscription or one-time purchase unlocks some customizations. See the [Vision Statement](http://braintool.org/overview) for philosophy and roadmap information. There is also an [official privacy policy](./BrainToolPrivacyPolicy.pdf). Or just [download](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) and try it out!
--->

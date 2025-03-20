@@ -147,11 +147,13 @@ iframe {
 }
 .cell > img {
   border:solid; 
-  border-width:thin; 
-  height:200px;
+  border-width:thin;
   margin-left: auto; /* Remove the left margin */
   margin-right: auto; /* Center the image */
   display: block; /* Make image a block element */
+}
+.cell > img.landing-image {
+  height: 200px;
 }
 .left {
     float: left;
@@ -295,6 +297,7 @@ iframe {
   box-sizing: border-box;
   margin-top: -8px;
   align-items: start;
+  background-color: #0EBE00;
 }
   .feature {
     padding: 10px;
@@ -306,10 +309,16 @@ iframe {
   }
   
   .feature:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    background: #9c9c9c;
+    border-radius: 10px;
   }
   
+  .feature-grid2 .feature:hover {
+    background: #0eaa00;
+  }
+
   .feature img {
     width: 45px;
     height: 45px;

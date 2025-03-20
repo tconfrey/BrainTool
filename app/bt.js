@@ -621,6 +621,10 @@ function makeRowsDroppable(node) {
         event.preventDefault();
         let dataTransfer = event.originalEvent.dataTransfer;
         if (!dataTransfer) return;
+        for (let item of dataTransfer.items) {
+            console.log("Type:", item.type);
+            item.getAsString((ml) => console.log("Drop Data:", ml));
+        }
         let url = dataTransfer.getData("text/uri-list") || dataTransfer.getData("text/plain");
 
         if (url) {
