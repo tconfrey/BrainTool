@@ -355,7 +355,37 @@ audience: landingpage
         <p>Amazing App. I love that it's in plain text and uses org mode!</p>
       </div>
     </div>
-  </div>
+  
+  <div class="scroll-indicator">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 7 11 12 6 17"></polyline><polyline points="13 7 18 12 13 17"></polyline></svg>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    const testimonialScroll = document.querySelector('.testimonial-scroll');
+    
+    if (scrollIndicator && testimonialScroll) {
+      scrollIndicator.style.cursor = 'pointer';
+      
+      scrollIndicator.addEventListener('click', function() {
+        // Add class to show scrollbar
+        testimonialScroll.classList.add('show-scrollbar');
+        
+        // Scroll right
+        testimonialScroll.scrollBy({
+          left: 500,
+          behavior: 'smooth'
+        });
+        
+        // Remove class after 2 seconds
+        setTimeout(() => {
+          testimonialScroll.classList.remove('show-scrollbar');
+        }, 5000);
+      });
+    }
+  });
+</script>
+</div>
+</div>
 </div>
 <div class="row feature-grid2">
   <div class="feature">

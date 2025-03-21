@@ -373,16 +373,60 @@ iframe {
     width: 100%;
     overflow-x: hidden;
     padding: 0;
+    position: relative; /* Add this to position the indicator relative to container */
   }
   
+  /* Add this new style for the scroll indicator */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 0px;
+    right: 20px;
+    z-index: 10;
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 18px;
+    padding: 3px 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #FF90D6; /* Match your pink theme color */
+    animation: scrollHint 2s ease-in-out infinite;
+    line-height: 0; /* Remove extra space inside */
+  }
+  
+  @keyframes scrollHint {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+  }
   .testimonial-scroll {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 5px 0 30px 20px;
+    padding: 5px 0 22px 20px;
+    
+    /* Hide scrollbar by default (when not scrolling) */
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+      background-color: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: transparent;
+      transition: background-color 0.3s ease;
+    }
+    /* Show scrollbar on hover */
+    &:hover {
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.3);
+        border-radius: 4px;
+      }
+    }
   }
+  /* Show scrollbar class */
+.testimonial-scroll.show-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 4px;
+}
+
   .testimonial-card {
     flex: 0 0 auto;
     width: 260px;
