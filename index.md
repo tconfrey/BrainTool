@@ -152,7 +152,7 @@ audience: landingpage
                 <img class="five-stars" src="site/pageAssets/5stars.png" alt="Five star rating">
             </div>
         </div>
-        <p>Amazingly well thought tool that makes my browser life so streamlined.</p>
+        <p>Amazingly well thought out tool that makes my browser life so streamlined.</p>
       </div>
       <div class="testimonial-card">
         <div class="review-images">
@@ -360,22 +360,35 @@ audience: landingpage
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 7 11 12 6 17"></polyline><polyline points="13 7 18 12 13 17"></polyline></svg>
   <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // scroll indicator behavior
     const scrollIndicator = document.querySelector('.scroll-indicator');
     const testimonialScroll = document.querySelector('.testimonial-scroll');
-    
     if (scrollIndicator && testimonialScroll) {
       scrollIndicator.style.cursor = 'pointer';
-      
+      // Check scroll position initially
+      checkScrollPosition();
+      // Add scroll event listener to the testimonial-scroll element
+      testimonialScroll.addEventListener('scroll', checkScrollPosition);
+      // Function to check if scrolled to end
+      function checkScrollPosition() {
+        // Calculate if we're at the end (or within 5px of the end)
+        const isAtEnd = testimonialScroll.scrollLeft + testimonialScroll.clientWidth >= 
+                        testimonialScroll.scrollWidth - 5;
+        // Hide indicator if at end, show if not
+        if (isAtEnd) {
+          scrollIndicator.style.display = 'none';
+        } else {
+          scrollIndicator.style.display = 'block';
+        }
+      }
       scrollIndicator.addEventListener('click', function() {
         // Add class to show scrollbar
-        testimonialScroll.classList.add('show-scrollbar');
-        
+        testimonialScroll.classList.add('show-scrollbar'); 
         // Scroll right
         testimonialScroll.scrollBy({
           left: 500,
           behavior: 'smooth'
         });
-        
         // Remove class after 2 seconds
         setTimeout(() => {
           testimonialScroll.classList.remove('show-scrollbar');
