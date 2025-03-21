@@ -84,7 +84,7 @@ audience: landingpage
     <p>Mark bookmarks and tabs as tasks with TODO functionality.</p>
   </div>
   <div class="feature">
-    <img src="/site/pageAssets/tab.svg" alt="Keyboard controls">
+    <img src="/site/pageAssets/keyshort.svg" alt="Keyboard controls">
     <p>Keyboard shortcuts and support for power users.</p>
   </div>
   <div class="feature">
