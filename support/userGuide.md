@@ -7,21 +7,24 @@ audience: user
 ---
 
 # User Guide
-BrainTool is a 'Topic' Manager for your tabs. Topics are the basic unit of organization. The BrainTool Topic Manager shows your topic hierarchy and provides tools for editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any web page or resource that you want to keep track of.
+## Introduction
+BrainTool is a "Topic" Manager for your tabs and bookmarks. Topics are the basic unit of organization. A topic can be any category, or grouping or tag that you might apply to a set of web pages. Examples might include: "Vacation Research", "Ireland hotel options", "XYZ Project", "Party Playlist" etc.
+
+The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of.
 <div class="row">
 <div class="cell left">
 <img src="/site/TopicManager.png" alt="side-panel" style="width:80%">
 </div>
 <div class="cell right">
-<img src="/site/Bookmarker.png" alt="popup" style="width: 80%">
+<img src="/site/Bookmarker.png" alt="popup" style="width: 80%;">
 </div>
 </div>
 
-A topic is a category or a tag or any grouping of a set of web pages. Topics can be nested inside each other to any depth. All topics and saved pages have associated notes. By making it quick and easy to save a web page under a specific topic and drop in a text note, BrainTool allows you to build up your own topic map - a map of all of the information you want to keep track of.
+Topics can be nested inside each other to any depth, eg hotel options might live inside the larger "Vacation Research" category. All topics and saved pages have associated notes. By making it quick and easy to save a web page under a specific topic and drop in a text note, BrainTool allows you to build up your own topic map - a map of all of the information you want to keep track of.
 
 Getting your links and notes into BT is easy, but once there they give you a unique ability to control your browser and navigate your online resources. From the Topic Manager you can open and close individual pages or all pages for a topic, as well as see which pages are open and pop any one to the top. Everything is controllable via keyboard commands in addition to the mouse. This ability to navigate sites and tabs from the Topic Manager can greatly improve your browser workflow.
 
-Finally, all of the above takes place in the browser. But BrainTool doesn't want to lock all this valuable information away! Underlying what you see on the screen is a plain text based representation. You can turn on a continuous sync to a local or Google Drive file or manually save versions of your topic map. Beyond just being a backup this allows you to access and edit your notes and links in any text editor. 
+Finally, all of the above takes place in the browser. But BrainTool doesn't want to lock all this valuable information away! Underlying what you see on the screen is a plain text based representation. You can turn on a continuous sync to a local or Google Drive file or manually save versions of your topic map. Beyond just being a backup this allows you to share across environments as well as access and edit your notes and links in any text editor. 
 
 
 ## Installation
@@ -49,7 +52,7 @@ Then add a note or just hit Enter. You can also edit the page title which is how
 </div>
 </div>
 
-If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces. If you leave the topic blank (ie just hit enter) the page will be assigned to the generic 'Scratch' topic.
+If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces. If you leave the topic blank (ie just hit enter) the page will be assigned to the generic "Scratch" topic.
 
 Hitting Enter will save the page into your topic map and close the Bookmarker. You can choose to close the page(s) after saving or leave it open grouped with its peers of the same topic.
 
@@ -81,7 +84,7 @@ Note not all tools apply to every item and so not all will be shown every time. 
 <img src="/site/Help.png" alt="Key commands" style="width:none; border: none">
 </div>
 <div class="cell right">
-BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will show all the available keyboard commands.
+BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will open Help, where you can see all the available keyboard commands.
 <br/><br/>
 One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in green in the tree.
 </div>
@@ -200,7 +203,7 @@ Unless you are using tab groups for other purposes the best approach is to turn 
 If you need the Chrome tab group functionality its best to turn off BT's tab group usage under Settings.
 
 ## Sticky Tabs
-One challenge in the design of BT is what constitutes a unique saved item, or web place. With the modern web, what you consider a single item saved, eg a analytics dashboard in an app, might have many different urls. BT handles this by 'sticking' an item to the tab as it navigates and trying to be smart about recognizing when you've navigated away to a different unique web place. 
+One challenge in the design of BT is what constitutes a unique saved item, or web place. With the modern web, what you consider a single item saved, eg a analytics dashboard in an app, might have many different urls. BT handles this by 'sticking' the BT item to the tab as it navigates and trying to be smart about recognizing when you've navigated away to a different unique web place. 
 
 When you open the Bookmarker for an already saved item you get the option to update the items notes. But when you open a page from BT and then navigate to a different page via in-page links you might want to save that page as a new item. In this latter case you'll be warned that you are saving a new item. The original item will be marked as closed in the Topic Manager, and a new item will be created and saved into the same topic as the original item.
 
