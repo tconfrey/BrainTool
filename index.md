@@ -14,19 +14,19 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right">
-        <img src="/media/saver.png" class="landing-image" alt="Autocomplete topics">
+        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
     </div>
 </div>
 <div class="row" style="background: #e6e6e6">
+    <div class="cell right">
+        <img src="/media/editCard.png" class="landing-image" alt="Card editor">
+    </div>
     <div class="cell left">
         <h1 class="landing-header">Curate your Topics</h1>
         <h3>
             Organize and group your Topics however you wish.<br/>
             Add Notes and TODOs
         </h3>
-    </div>
-    <div class="cell right">
-        <img src="/media/editCard.png" class="landing-image" alt="Card editor">
     </div>
 </div>
 <div class="row">
@@ -38,7 +38,7 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right" >
-        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
+        <img src="/site/pageAssets/controlYourBrowserStatic.png" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #4b4b4b">
@@ -395,6 +395,24 @@ audience: landingpage
         }, 5000);
       });
     }
+    // Find all landing images
+    const landingImages = document.querySelectorAll('.landing-image');
+    landingImages.forEach(image => {
+      // Find the parent row element
+      const rowElement = image.closest('.row');
+      if (!rowElement) return;
+      // Store original image source
+      const staticImageSrc = image.src;
+      // Create the animated GIF path by replacing Static.png with Animated.gif
+      const animatedImageSrc = staticImageSrc.replace('Static.png', 'Animated.gif');
+      // Add event listeners to the row
+      rowElement.addEventListener('mouseenter', function() {
+        image.src = animatedImageSrc;
+      });
+      rowElement.addEventListener('mouseleave', function() {
+        image.src = staticImageSrc;
+      });
+    });
   });
 </script>
 </div>

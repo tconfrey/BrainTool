@@ -52,6 +52,11 @@
         let storeLink = "https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio";
         if (navigator.userAgent.indexOf('Edg/') >= 0) {
           storeLink = "https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol";
+          // Change the button background image for Edge
+          const storeButtons = document.querySelectorAll('#store-button');
+          storeButtons.forEach(button => {
+            button.style.backgroundImage = "url('/media/edgeStoreButton.svg')";
+          });
         }
         function gotoStore() {
           (typeof gtag !== 'undefined') && gtag('event', 'Add_to_Click', {'event_category': 'Website', 'event_label': document.title, 'value': 1.0});

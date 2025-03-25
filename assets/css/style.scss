@@ -139,6 +139,8 @@ iframe {
 .row {
     width: 100%;
     display: flex;
+    padding-left: 100px;
+    padding-right: 100px;
 }
 .cell {
     width: 50%;
@@ -154,6 +156,7 @@ iframe {
 }
 .cell > img.landing-image {
   height: 200px;
+  border: none;
 }
 .left {
     float: left;
@@ -161,7 +164,6 @@ iframe {
 }
 .right {
     float: right;
-    padding-right: 6rem;
 }
 #ZDNet {
   border: none;
@@ -282,7 +284,7 @@ iframe {
     grid-template-columns: repeat(4, 1fr); /* 4 columns */
     grid-template-rows: repeat(3, 1fr);    /* 3 rows */
     gap: 20px;
-    padding: 50px;
+    padding: 50px 100px;
     width: 100%;
     box-sizing: border-box;
   }
@@ -292,7 +294,7 @@ iframe {
   grid-template-columns: repeat(4, 1fr); /* 4 columns */
   grid-template-rows: repeat(1, 1fr);    /* 1 rows */
   gap: 20px;
-  padding: 30px 50px 30px 50px;
+  padding: 30px 100px;
   width: 100%;
   box-sizing: border-box;
   margin-top: -8px;
@@ -368,7 +370,10 @@ iframe {
       margin-left: 30px;
     }
   }
-
+  .commendations {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
   .testimonial-container {
     width: 100%;
     overflow-x: hidden;
