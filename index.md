@@ -14,12 +14,12 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right">
-        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
+        <img src="/site/pageAssets/tameYourTabsStatic.png" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #e6e6e6">
     <div class="cell right">
-        <img src="/media/editCard.png" class="landing-image" alt="Card editor">
+        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
     </div>
     <div class="cell left">
         <h1 class="landing-header">Curate your Topics</h1>
