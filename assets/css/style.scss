@@ -18,14 +18,12 @@
 
 #content h1 {
     font-family: Roboto;
-    text-align: center;
     font-weight: 300;
     color: #606c71;
 }
 
 .landing-header {
   font-family: Roboto;
-  text-align: left !important;
   font-weight: 700 !important;
   font-size: 24px !important;
   color: #0EBE00 !important;
@@ -147,35 +145,36 @@ iframe {
 .row {
     width: 100%;
     display: flex;
-    padding-left: 100px;
-    padding-right: 100px;
+    padding-left: 86px;
+    padding-right: 86px;
+    align-items: center;
 }
-.cell {
-    width: 50%;
-    padding-top: 10px;
-    padding-bottom: 10px;
+.cell.text {
+  width: 33%;
+  text-align: right;
 }
+.cell.text.right {
+  text-align: left;
+}
+.cell.image {
+  width: 67%;
+}
+
 .cell > img {
   border:solid; 
   border-width:thin;
-  margin-left: auto; /* Remove the left margin */
-  margin-right: auto; /* Center the image */
-  display: block; /* Make image a block element */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 .cell > img.landing-image {
-  height: 200px;
+  height: 350px;
   border: none;
-}
-.left {
-    float: left;
-    padding-left: 6rem;
-}
-.right {
-    float: right;
 }
 #ZDNet {
+  position: relative;
   border: none;
-  bottom: 0px;
+  bottom: 8px;
 }
 
 @media screen and (min-width: 72em) {
@@ -201,13 +200,22 @@ iframe {
     }
     .cell {
         width: 100%;
-        margin-top: 15px;
         float: none; /* Remove the float */
         padding-left: 0; /* Remove the left padding */
         padding-right: 0; /* Remove the right padding */
         margin-left: auto; /* Center horizontally */
         margin-right: auto; /* Center horizontally */
         text-align: center; /* Center the content inside */
+    }
+    .cell.image {
+      width: 100%;
+    }
+    .cell.text {
+      width: 100%;
+      text-align: center;
+    }
+    .cell.text.right {
+      text-align: center;
     }
     .landing-header {
       text-align: center !important;
@@ -221,7 +229,7 @@ iframe {
         height: auto !important;
     }
     #ZDNet {
-        max-width: 85%;
+        max-width: 100%;
         position: relative;
     }
 }

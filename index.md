@@ -5,7 +5,7 @@ description: BrainTool is a way of organizing things you want to remember and ge
 audience: landingpage
 ---
 <div class="row">
-    <div class="cell left">
+    <div class="cell text">
         <h1 class="landing-header">Tame Your Tabs</h1>
         <h3>
             Easily Save Tabs by Topic.<br/>
@@ -13,15 +13,15 @@ audience: landingpage
             No longer fear closing a tab!
         </h3>
     </div>
-    <div class="cell right">
+    <div class="cell image">
         <img src="/site/pageAssets/tameYourTabsStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #e6e6e6">
-    <div class="cell right">
+    <div class="cell image">
         <img src="/site/pageAssets/curateYourTopicsStatic.jpg" class="landing-image" alt="BrainTool sidepanel">
     </div>
-    <div class="cell left">
+    <div class="cell text right">
         <h1 class="landing-header">Curate your Topics</h1>
         <h3>
             Organize and group your Topics however you wish.<br/>
@@ -30,23 +30,23 @@ audience: landingpage
     </div>
 </div>
 <div class="row">
-    <div class="cell left" >
+    <div class="cell text" >
         <h1 class="landing-header">Control your Browser</h1>
         <h3>
             Switch between contexts with ease.<br/>
             Keep your workspace distraction-free!
         </h3>
     </div>
-    <div class="cell right" >
+    <div class="cell image" >
         <img src="/site/pageAssets/controlYourBrowserStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
-<div class="row" style="background: #4b4b4b">
-  <div class="cell left" style="padding-left: 3rem;">
+<div class="row ZDNet" style="background: #4b4b4b">
+  <div class="cell image">
     <img src="/media/ZDNet.png" class="landing-image" id="ZDNet" >
   </div>
-  <div class="cell right" style="padding-left: 3rem; padding-right: 3rem">
-    <h1 class="landing-header" style="color: white !important; margin-top: 0px">What the Press says:</h1>
+  <div class="cell text right">
+    <h1 class="landing-header" style="color: white !important; margin-top: 0px;">What the Press says:</h1>
     <h3 style="color: #D0FF4B; font-size: 12px; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
   </div>
 </div>
