@@ -14,12 +14,12 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right">
-        <img src="/site/pageAssets/tameYourTabsStatic.png" class="landing-image" alt="Autocomplete topics">
+        <img src="/site/pageAssets/tameYourTabsStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #e6e6e6">
     <div class="cell right">
-        <img src="/media/topicsAndTabs.png" class="landing-image" alt="BrainTool sidepanel">
+        <img src="/site/pageAssets/curateYourTopicsStatic.jpg" class="landing-image" alt="BrainTool sidepanel">
     </div>
     <div class="cell left">
         <h1 class="landing-header">Curate your Topics</h1>
@@ -38,7 +38,7 @@ audience: landingpage
         </h3>
     </div>
     <div class="cell right" >
-        <img src="/site/pageAssets/controlYourBrowserStatic.png" class="landing-image" alt="Autocomplete topics">
+        <img src="/site/pageAssets/controlYourBrowserStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
 <div class="row" style="background: #4b4b4b">
@@ -404,7 +404,7 @@ audience: landingpage
       // Store original image source
       const staticImageSrc = image.src;
       // Create the animated GIF path by replacing Static.png with Animated.gif
-      const animatedImageSrc = staticImageSrc.replace('Static.png', 'Animated.gif');
+      const animatedImageSrc = staticImageSrc.replace('Static.jpg', 'Animated.webp');
       // Add event listeners to the row
       rowElement.addEventListener('mouseenter', function() {
         image.src = animatedImageSrc;
