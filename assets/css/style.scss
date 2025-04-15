@@ -172,6 +172,14 @@ small {
   bottom: 8px;
   padding-top: 20px;
 }
+.cell.left {
+  width: 50%;
+  padding-left: 6rem;
+}
+.cell.right {
+  width: 50%;
+  padding-right: 6rem;
+}
 
 @media screen and (min-width: 72em) {
 }
@@ -242,10 +250,10 @@ small {
 .main-content > h3,
 .main-content > ul {
   margin-right: 5%;
-  padding : 0 6rem 0 6rem;
+  padding : 0 12rem 0 12rem;
 }
 .main-content > ul {
-  padding-left: 136px;
+  padding-left: 14rem;   /* bullet indent */
 }
 .main-content h1:first-child {
     margin-top: 30px;

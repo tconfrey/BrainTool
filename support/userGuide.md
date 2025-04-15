@@ -12,10 +12,10 @@ BrainTool is a "Topic" Manager for your tabs and bookmarks. Topics are the basic
 
 The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of.
 <div class="row">
-<div class="cell left">
+<div class="cell left" style="width:50%">
 <img src="/site/TopicManager.png" alt="side-panel" style="width:80%">
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 <img src="/site/Bookmarker.png" alt="popup" style="width: 80%;">
 </div>
 </div>
@@ -29,10 +29,10 @@ Finally, all of the above takes place in the browser. But BrainTool doesn't want
 
 ## Installation
 <div class="row">
-<div class="cell left" style="text-align:justify">
+<div class="cell left" style="text-align:justify" style="width:50%">
 Install BrainTool from the <a href="https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio">Chrome</a> or <a href="https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol">Edge</a> store. You will need to grant permissions for BT to see your browsing history and access your bookmarks. This puts a small extension inside your browser and adds the BT icon. The icon shows on your browser bar or, on Chrome, under the generic extension 'puzzle-piece' icon. You can, and should, pin the icon to your browser bar using the push-pin icon.
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 <img src="/site/initialInstall.png" alt="Install" style="width:90%; margin-left:2rem;">
 </div>
 </div>
@@ -40,14 +40,14 @@ BrainTool is launched by clicking the icon, or using the Alt/Option-b keyboard a
 
 ## Assigning a Topic - the Bookmarker
 <div class="row">
-<div class="cell left" style="text-align:justify">
+<div class="cell left" style="text-align:justify" style="width:50%">
 To save the current web page into BrainTool just hit the icon or keyboard accelerator. This will open the BT Bookmarker with the Topic field selected. 
 <br/><br/>
 The topic selector shows an overview of your current topics in a navigable tree. You can select one with your mouse or just start typing. Auto-complete will show possible topic options. Hit enter to select. If BT has a good guess as to the topic it might be pre-populated. In this case either just hit enter to use it, or delete to clear out the suggestion. 
 <br/><br/>
 Then add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree. There are also options to allow you to save all the currently unsaved tabs in a tab group, window, or entire browser session.
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 <img src="/site/SaverSuggestions10.png" alt="popup" style="width:75%; margin-left:2rem;">
 </div>
 </div>
@@ -80,10 +80,10 @@ Note not all tools apply to every item and so not all will be shown every time. 
 
 ## Keyboard Accelerators
 <div class="row">
-<div class="cell left">
+<div class="cell left" style="width:50%">
 <img src="/site/Help.png" alt="Key commands" style="width:none; border: none">
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will open Help, where you can see all the available keyboard commands.
 <br/><br/>
 One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in green in the tree.
@@ -111,10 +111,10 @@ Items in the tree can be dragged to new positions just by selecting the item and
 ## Settings and Actions
 Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.
 <div class="row">
-<div class="cell left">
+<div class="cell left" style="width:50%">
 <img src="/site/Settings.png" alt="side-panel" style="width:none; border: none">
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 <img src="/site/Actions.png" alt="popup" style="width: none; border: none">
 </div>
 </div>
@@ -147,12 +147,12 @@ Finally you have the option to upgrade to a 'Supporter' version of BrainTool bas
 Hitting one of the purchase buttons will redirect you to the third-party Stripe payment system. After your purchase you should be redirected back to the Topic Manager with the license code in place. 
 
 <div class="row">
-<div class="cell left">
+<div class="cell left" style="width:50%">
 After the 30 day trial period the display customization settings are locked for non supporters and a friendly solicitation  message is shown on startup. See the <a href="../pricing">Pricing</a> page for details.
 <br/><br/>
 <img src="/site/CollatoralMaterial/trialExpired.png" alt="side-panel" style="border:solid; border-width:thin; width:90%">
 </div>
-<div class="cell right">
+<div class="cell right" style="width:50%">
 <img src="/site/CollatoralMaterial/ThouShallNotPass.png" alt="side-panel" style="border:none; width:90%">
 </div>
 </div>
