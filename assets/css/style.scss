@@ -65,9 +65,9 @@ small {
   background-color: #c8c8c8ff;;
 }
 #header-image {
-  max-width: 100%; /* Ensure the image doesn't exceed its natural width */
+  max-width: 100%;
   height: auto; /* Maintain aspect ratio */
-  max-height: 50vh; /* Stop scaling when the header reaches 50% of the viewport height */
+  max-height: calc(50vh - 50px); /* Stop scaling when the header reaches 50% of the viewport height - menu bar */
   margin: 0 auto; /* Center the image horizontally */
   display: block; /* Ensure the image is treated as a block element */
 }
