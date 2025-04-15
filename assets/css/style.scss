@@ -117,11 +117,6 @@ small {
     display: block;
 }
 
-iframe {
-    display: block;
-    margin: auto;
-}
-
 .PageNavigation {
     font-size: 14px;
     display: block;
@@ -175,6 +170,7 @@ iframe {
   position: relative;
   border: none;
   bottom: 8px;
+  padding-top: 20px;
 }
 
 @media screen and (min-width: 72em) {
@@ -223,11 +219,6 @@ iframe {
     .beyond-bookmarks {
 	    font-size: 2.1rem;
     }
-    iframe {
-        max-width: 100% !important;
-        width: auto !important;
-        height: auto !important;
-    }
     #ZDNet {
         max-width: 100%;
         position: relative;
@@ -268,7 +259,7 @@ iframe {
 .bt-footer {
     display: flex;
     background-color: #8A8A8A;
-    padding: 10px 0 50px 0;
+    padding: 10px 100px 50px 100px;
     color: white;
 }
 .bt-footer a {
@@ -282,7 +273,7 @@ iframe {
 .bt-footer-column {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 50px 0 50px;
+    padding: 0 50px 0 10px;
 }
 .bt-footer-column h3 {
   color: white !important;
@@ -343,7 +334,7 @@ iframe {
   
   .feature p {
     margin: 0;
-    font-size: 12px;
+    font-size: 16px;
     color: #fff;
     font-family: Roboto;
     font-weight: 300;
@@ -352,12 +343,16 @@ iframe {
   
   /* Responsive adjustments */
   @media screen and (max-width: 900px) {
+    .feature-grid, .feature-grid2, .bt-footer {
+      padding-left: 75px;
+      padding-right: 75px;
+    }
     .feature-grid {
       grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
       grid-template-rows: repeat(4, 1fr);    /* 4 rows */
     }
     .bt-footer-column {
-      padding: 0 40px 0 40px;
+      padding: 0 40px 0 10px;
     }
     .header-buttons a {
       margin-left: 40px;
@@ -365,6 +360,10 @@ iframe {
   }
   
   @media screen and (max-width: 600px) {
+    .feature-grid, .feature-grid2, .bt-footer {
+      padding-left: 50px;
+      padding-right: 50px;
+    }
     .feature-grid {
       grid-template-columns: repeat(2, 1fr); /* 2 column on small screens */
       grid-template-rows: repeat(6, 1fr); /* 6 rows */
@@ -374,7 +373,7 @@ iframe {
       grid-template-rows: repeat(2, 1fr);    /* 1 rows */
     }
     .bt-footer-column {
-      padding: 0 25px 0 25px;
+      padding: 0 25px 0 10px;
     }
     .hideWhenNarrow {
       display: none;

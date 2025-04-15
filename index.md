@@ -41,13 +41,13 @@ audience: landingpage
         <img src="/site/pageAssets/controlYourBrowserStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
-<div class="row ZDNet" style="background: #4b4b4b">
+<div class="row" style="background: #4b4b4b">
   <div class="cell image">
     <img src="/media/ZDNet.png" class="landing-image" id="ZDNet" >
   </div>
   <div class="cell text right">
     <h1 class="landing-header" style="color: white !important; margin-top: 0px;">What the Press says:</h1>
-    <h3 style="color: #D0FF4B; font-size: 12px; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
+    <h3 style="color: #D0FF4B; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
   </div>
 </div>
 <div class="row feature-grid" style="background:#b2b2b2; margin-top: -8px">
