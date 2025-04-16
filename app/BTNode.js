@@ -204,9 +204,10 @@ class BTNode {
     
     replaceURLandTitle(newURL, newTitle) {
         // replace the [[url][title]] part of the title with newTitle preserving any other text before/after
-        let match = this.title.match(/\[\[(.*?)\]\[(.*?)\]\]/);
+        let match = this.title.match(/(.*?)\[\[(.*?)\]\[(.*?)\]\](.*?)/);
         if (match) {
-            this.title = this.title.replace(match[1], newURL).replace(match[2], newTitle);
+            //was: this.title = this.title.replace(match[1], newURL).replace(match[2], newTitle);
+            this.title = `${match[1]}[[${newURL}][${newTitle}]]${match[4]}`;
         }
         return this.title;
     }
