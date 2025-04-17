@@ -178,16 +178,25 @@ small {
 }
 .cell.right {
   width: 50%;
-  padding-right: 6rem;
+  padding-right: 2rem;
+  padding-left: 1rem;
 }
 
 @media screen and (min-width: 72em) {
 }
 @media screen and (min-width: 60em) and (max-width: 72em){
 }
-@media screen and (min-width: 48em) and (max-width: 60em) {
+@media screen and (min-width: 800px) and (max-width: 1000px) {
+  .row {
+      padding-left: 36px;
+      padding-right: 36px;
+  }
+  .cell.right {
+    padding-right: 2rem;
+  }
+  
 }
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 800px) {
     .page-header {
 	    padding: 0.3rem 0rem;
     }
@@ -201,6 +210,8 @@ small {
     .row {
         flex-direction: column; /* This changes the flex direction from row to column */
         align-items: center; /* Center the cells horizontally */
+        padding-left: 16px;
+        padding-right: 16px;
     }
     .cell {
         width: 100%;
@@ -217,6 +228,9 @@ small {
     .cell.text {
       width: 100%;
       text-align: center;
+    }
+    .cell.right {
+      padding-right: 0;
     }
     .cell.text.right {
       text-align: center;
