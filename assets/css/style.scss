@@ -144,6 +144,10 @@ small {
   padding-right: 86px;
   align-items: center;
 }
+.row.pricing {
+  padding-left: 96px;
+  padding-right: 86px;
+}
 .cell.text {
   width: 33%;
   text-align: right;
@@ -170,7 +174,7 @@ small {
   position: relative;
   border: none;
   bottom: 8px;
-  padding-top: 20px;
+  padding-top: 30px;
 }
 .cell.left {
   width: 50%;
@@ -202,6 +206,8 @@ small {
   }
   #store-button {
     margin-right: 10px;
+    height: 20px;
+    width: 100px;
   }
   .logo {
     height: 70px;
@@ -212,6 +218,10 @@ small {
     align-items: center; /* Center the cells horizontally */
     padding-left: 16px;
     padding-right: 16px;
+  }
+  .row.pricing {
+    padding-left: 0px;
+    padding-right: 0px;
   }
   .cell {
     width: 100%;
@@ -234,6 +244,9 @@ small {
   }
   .cell.text.right {
     text-align: center;
+  }
+  .cell.left.pricing {
+    padding-left: 0px;
   }
   .landing-header {
     text-align: center !important;
@@ -363,6 +376,11 @@ small {
   line-height: 1.2;
 }
 
+.posts {
+  padding-left: 6rem !important;
+  padding-right: 2rem !important;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 900px) {
   .feature-grid, .feature-grid2, .bt-footer {
@@ -379,6 +397,9 @@ small {
   .header-buttons a {
     margin-left: 40px;
   }
+  .cell.left.pricing {
+    padding-left: 0px;
+  }
   
   .main-content > p,
   .main-content > table,
@@ -391,6 +412,11 @@ small {
   }
   .main-content > ul {
     padding-left: 7rem;   /* bullet indent */
+  }
+  
+  .posts {
+    padding-left: 4rem !important;
+    padding-right: 1rem !important;
   }
 }
 
@@ -415,6 +441,7 @@ small {
   }
   .header-buttons a {
     margin-left: 30px;
+    font-size: 18px;
   }
   .main-content > p,
   .main-content > table,
@@ -427,6 +454,9 @@ small {
   }
   .main-content > ul {
     padding-left: 3rem;   /* bullet indent */
+  }
+  .posts {
+    padding-left: 2rem !important;
   }
 }
 .commendations {

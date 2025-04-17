@@ -4,7 +4,7 @@ title: BrainTool Posts and Case Studies
 description: Control your browser with BrainTool, don't let it control you. Free and private. Download now!
 audience: nonuser
 ---
-<ul>
+<ul class="posts">
     {% for post in site.posts %}
         <a href="{{ post.url }}"><h1>{{ post.title }}</h1></a>
         <table><tr><td style="border:none">

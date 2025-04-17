@@ -24,8 +24,8 @@ The fully-functional free version and current low pricing are designed to encour
 
 <p style="margin-top: -20px;"><i><small>NB Based on user feedback the previous subscription cost has been reduced and a one-time purchase option added.</small></i></p>
 # Pricing
-<div class="row" style="align-items: start">
-<div class="cell left" style="padding-right: 30px; padding-left: 8rem;">
+<div class="row pricing" style="align-items: start">
+<div class="cell left pricing">
 <h2><b>Non-Supporter</b></h2>
 <p>
 Unlimited saved items
@@ -58,7 +58,7 @@ Session Saving
 <b>Free</b>
 </p>
 </div>
-<div class="cell right" style="padding-left: 30px; padding-right: 7%;">
+<div class="cell right pricing">
 <h2><b>Supporter</b></h2>
 <p>
 Control of Dark, Dense, Large and Favicon modes
