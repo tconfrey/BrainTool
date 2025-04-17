@@ -5,21 +5,21 @@
 
 
 .page-header {
-    background-color: #fff;
-    background-image: none;
-    box-sizing: content-box;
-    width: 100%;
-    max-height: 50vh; /* Ensure the header is no more than 50% of the viewport height */
-    overflow: hidden; /* Prevent content from overflowing */
+  background-color: #fff;
+  background-image: none;
+  box-sizing: content-box;
+  width: 100%;
+  max-height: 50vh; /* Ensure the header is no more than 50% of the viewport height */
+  overflow: hidden; /* Prevent content from overflowing */
 }
 .page-header a {
-    flex: 1;
+  flex: 1;
 }
 
 #content h1 {
-    font-family: Roboto;
-    font-weight: 300;
-    color: #606c71;
+  font-family: Roboto;
+  font-weight: 300;
+  color: #606c71;
 }
 
 .landing-header {
@@ -30,35 +30,35 @@
 }
 
 #content h2 {
-    font-family: Roboto;
-    font-weight: 300;
-    color: #606c71;
+  font-family: Roboto;
+  font-weight: 300;
+  color: #606c71;
 }
 h2 + p {
-    margin-top: -0.75rem;
+  margin-top: -0.75rem;
 }
 
 #content h3 {
-    font-family: Roboto;
-    font-weight: 400;
-    font-size: 16px;
-    color: #606c71;
-    margin-top: 16px;
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 16px;
+  color: #606c71;
+  margin-top: 16px;
 }
 
 #special-one-time-offer, #braintool-vision {
   margin-top: 2rem;
 }
 h3 + p {
-    margin-top: -0.75rem;
+  margin-top: -0.75rem;
 }
 .row h3 {
-    color: #606c71;
-    font-size: 1.3rem;
+  color: #606c71;
+  font-size: 1.3rem;
 }
 small {
-    line-height: 1.0;
-    font-size: 65%;
+  line-height: 1.0;
+  font-size: 65%;
 }
 
 #header-container {
@@ -72,77 +72,77 @@ small {
   display: block; /* Ensure the image is treated as a block element */
 }
 .header-bar {
-    display:flex;
-    width: 100%;
-    height: 50px;
-    background-color: #8a8a8a;
-    align-items: center;
-    justify-content: space-between; /* flex-start; */
+  display:flex;
+  width: 100%;
+  height: 50px;
+  background-color: #8a8a8a;
+  align-items: center;
+  justify-content: space-between; /* flex-start; */
 }
 .header-buttons {
-    display: flex;
-    flex-grow: 0;
-    font-size: 20px;
+  display: flex;
+  flex-grow: 0;
+  font-size: 20px;
 }
 .header-buttons a {
-    color: white;
-    margin-left: 50px;
+  color: white;
+  margin-left: 50px;
 }
 #media {
-    background-image: url('/media/zdnet.svg'); 
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 20vh;
+  background-image: url('/media/zdnet.svg'); 
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 20vh;
 }
 
 .logo {
-    height: 80px;
-    border-radius:4px;
-    padding:2px;
+  height: 80px;
+  border-radius:4px;
+  padding:2px;
 }
 .logo:hover {
-    background-color: #eee;
+  background-color: #eee;
 }
 
 #store-button {
-    background-image: url('/media/chromeStoreButton.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 185px;
-    height: 37px;
-    margin-left: auto;
-    margin-right: 50px;
-    cursor: pointer;
-    display: block;
+  background-image: url('/media/chromeStoreButton.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 185px;
+  height: 37px;
+  margin-left: auto;
+  margin-right: 50px;
+  cursor: pointer;
+  display: block;
 }
 
 .PageNavigation {
-    font-size: 14px;
-    display: block;
-    width: auto;
-    overflow: hidden;
-    margin-left: 6rem;
-    margin-right: 6rem;
+  font-size: 14px;
+  display: block;
+  width: auto;
+  overflow: hidden;
+  margin-left: 6rem;
+  margin-right: 6rem;
 }
 
 .PageNavigation a {
-    display: block;
-    width: 50%;
-    float: left;
-    margin: 1em 0;
+  display: block;
+  width: 50%;
+  float: left;
+  margin: 1em 0;
 }
 
 .PageNavigation .next {
-    text-align: right;
-    margin-top: 0px;
+  text-align: right;
+  margin-top: 0px;
 }
 .row {
-    width: 100%;
-    display: flex;
-    padding-left: 86px;
-    padding-right: 86px;
-    align-items: center;
+  width: 100%;
+  display: flex;
+  padding-left: 86px;
+  padding-right: 86px;
+  align-items: center;
 }
 .cell.text {
   width: 33%;
@@ -188,8 +188,8 @@ small {
 }
 @media screen and (min-width: 800px) and (max-width: 1000px) {
   .row {
-      padding-left: 36px;
-      padding-right: 36px;
+    padding-left: 36px;
+    padding-right: 36px;
   }
   .cell.right {
     padding-right: 2rem;
@@ -197,65 +197,65 @@ small {
   
 }
 @media screen and (max-width: 800px) {
-    .page-header {
-	    padding: 0.3rem 0rem;
-    }
-    #store-button {
-      margin-right: 10px;
-    }
-    .logo {
-      height: 70px;
-    } 
-    /* Change row to stack cells vertically instead of side by side */
-    .row {
-        flex-direction: column; /* This changes the flex direction from row to column */
-        align-items: center; /* Center the cells horizontally */
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-    .cell {
-        width: 100%;
-        float: none; /* Remove the float */
-        padding-left: 0; /* Remove the left padding */
-        padding-right: 0; /* Remove the right padding */
-        margin-left: auto; /* Center horizontally */
-        margin-right: auto; /* Center horizontally */
-        text-align: center; /* Center the content inside */
-    }
-    .cell.image {
-      width: 100%;
-    }
-    .cell.text {
-      width: 100%;
-      text-align: center;
-    }
-    .cell.right {
-      padding-right: 0;
-    }
-    .cell.text.right {
-      text-align: center;
-    }
-    .landing-header {
-      text-align: center !important;
-    }
-    .beyond-bookmarks {
-	    font-size: 2.1rem;
-    }
-    #ZDNet {
-        max-width: 100%;
-        position: relative;
-    }
+  .page-header {
+    padding: 0.3rem 0rem;
+  }
+  #store-button {
+    margin-right: 10px;
+  }
+  .logo {
+    height: 70px;
+  } 
+  /* Change row to stack cells vertically instead of side by side */
+  .row {
+    flex-direction: column; /* This changes the flex direction from row to column */
+    align-items: center; /* Center the cells horizontally */
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .cell {
+    width: 100%;
+    float: none; /* Remove the float */
+    padding-left: 0; /* Remove the left padding */
+    padding-right: 0; /* Remove the right padding */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
+    text-align: center; /* Center the content inside */
+  }
+  .cell.image {
+    width: 100%;
+  }
+  .cell.text {
+    width: 100%;
+    text-align: center;
+  }
+  .cell.right {
+    padding-right: 0;
+  }
+  .cell.text.right {
+    text-align: center;
+  }
+  .landing-header {
+    text-align: center !important;
+  }
+  .beyond-bookmarks {
+    font-size: 2.1rem;
+  }
+  #ZDNet {
+    max-width: 100%;
+    position: relative;
+  }
 }
 
 .page-header {
-    padding: 0rem; 
+  padding: 0rem; 
 }
 .main-content {
-    font-size: 1.25rem;
-    padding: 0rem;
-    margin-left: 0rem;
-    margin-right: 0rem;
-    max-width: none;
+  font-size: 1.25rem;
+  padding: 0rem;
+  margin-left: 0rem;
+  margin-right: 0rem;
+  max-width: none;
 }
 .main-content > p,
 .main-content > table,
@@ -270,7 +270,7 @@ small {
   padding-left: 14rem;   /* bullet indent */
 }
 .main-content h1:first-child {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 .site-footer {
   padding-top: 0;
@@ -279,23 +279,23 @@ small {
 }
 
 .bt-footer {
-    display: flex;
-    background-color: #8A8A8A;
-    padding: 10px 100px 50px 100px;
-    color: white;
+  display: flex;
+  background-color: #8A8A8A;
+  padding: 10px 100px 50px 100px;
+  color: white;
 }
 .bt-footer a {
-    font-size: 0.75em;
-    color: white;
+  font-size: 0.75em;
+  color: white;
 }
 .bt-footer #store-button {
   margin-top: 20px;
 }
 
 .bt-footer-column {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0 50px 0 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 50px 0 10px;
 }
 .bt-footer-column h3 {
   color: white !important;
@@ -306,15 +306,15 @@ small {
 }
 
 .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 columns */
-    grid-template-rows: repeat(3, 1fr);    /* 3 rows */
-    gap: 20px;
-    padding: 50px 100px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns */
+  grid-template-rows: repeat(3, 1fr);    /* 3 rows */
+  gap: 20px;
+  padding: 50px 100px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .feature-grid2 {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* 4 columns */
@@ -327,210 +327,235 @@ small {
   align-items: start;
   background-color: #0EBE00;
 }
-  .feature {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add smooth transition */
-  }
-  
-  .feature:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    background: #9c9c9c;
-    border-radius: 10px;
-  }
-  
-  .feature-grid2 .feature:hover {
-    background: #0eaa00;
-  }
+.feature {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add smooth transition */
+}
 
-  .feature img {
-    width: 45px;
-    height: 45px;
-    object-fit: contain;
-    margin-bottom: 5px;
+.feature:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  background: #9c9c9c;
+  border-radius: 10px;
+}
+
+.feature-grid2 .feature:hover {
+  background: #0eaa00;
+}
+
+.feature img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
+.feature p {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+  font-family: Roboto;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 900px) {
+  .feature-grid, .feature-grid2, .bt-footer {
+    padding-left: 75px;
+    padding-right: 75px;
+  }
+  .feature-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
+    grid-template-rows: repeat(4, 1fr);    /* 4 rows */
+  }
+  .bt-footer-column {
+    padding: 0 40px 0 10px;
+  }
+  .header-buttons a {
+    margin-left: 40px;
   }
   
-  .feature p {
-    margin: 0;
-    font-size: 16px;
-    color: #fff;
-    font-family: Roboto;
-    font-weight: 300;
-    line-height: 1.2;
+  .main-content > p,
+  .main-content > table,
+  .main-content > h1,
+  .main-content > h2,
+  .main-content > h3,
+  .main-content > ul {
+    margin-right: 5%;
+    padding : 0 6rem 0 6rem;
   }
+  .main-content > ul {
+    padding-left: 7rem;   /* bullet indent */
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .feature-grid, .feature-grid2, .bt-footer {
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 column on small screens */
+    grid-template-rows: repeat(6, 1fr); /* 6 rows */
+  }
+  .feature-grid2 {
+    grid-template-columns: repeat(2, 1fr); /* 3 columns on medium screens */
+    grid-template-rows: repeat(2, 1fr);    /* 1 rows */
+  }
+  .bt-footer-column {
+    padding: 0 25px 0 10px;
+  }
+  .hideWhenNarrow {
+    display: none;
+  }
+  .header-buttons a {
+    margin-left: 30px;
+  }
+  .main-content > p,
+  .main-content > table,
+  .main-content > h1,
+  .main-content > h2,
+  .main-content > h3,
+  .main-content > ul {
+    margin-right: 5%;
+    padding : 0 2rem 0 2rem;
+  }
+  .main-content > ul {
+    padding-left: 3rem;   /* bullet indent */
+  }
+}
+.commendations {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+.testimonial-container {
+  width: 100%;
+  overflow-x: hidden;
+  padding: 0;
+  position: relative; /* Add this to position the indicator relative to container */
+}
+
+/* Add this new style for the scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 0px;
+  right: 20px;
+  z-index: 10;
+  background-color: rgba(255,255,255,0.7);
+  border-radius: 18px;
+  padding: 3px 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #FF90D6; /* Match your pink theme color */
+  animation: scrollHint 2s ease-in-out infinite;
+  line-height: 0; /* Remove extra space inside */
+}
+
+@keyframes scrollHint {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+.testimonial-scroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 5px 0 22px 20px;
   
-  /* Responsive adjustments */
-  @media screen and (max-width: 900px) {
-    .feature-grid, .feature-grid2, .bt-footer {
-      padding-left: 75px;
-      padding-right: 75px;
-    }
-    .feature-grid {
-      grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
-      grid-template-rows: repeat(4, 1fr);    /* 4 rows */
-    }
-    .bt-footer-column {
-      padding: 0 40px 0 10px;
-    }
-    .header-buttons a {
-      margin-left: 40px;
-    }
+  /* Hide scrollbar by default (when not scrolling) */
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: transparent;
   }
-  
-  @media screen and (max-width: 600px) {
-    .feature-grid, .feature-grid2, .bt-footer {
-      padding-left: 50px;
-      padding-right: 50px;
-    }
-    .feature-grid {
-      grid-template-columns: repeat(2, 1fr); /* 2 column on small screens */
-      grid-template-rows: repeat(6, 1fr); /* 6 rows */
-    }
-    .feature-grid2 {
-      grid-template-columns: repeat(2, 1fr); /* 3 columns on medium screens */
-      grid-template-rows: repeat(2, 1fr);    /* 1 rows */
-    }
-    .bt-footer-column {
-      padding: 0 25px 0 10px;
-    }
-    .hideWhenNarrow {
-      display: none;
-    }
-    .header-buttons a {
-      margin-left: 30px;
-    }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    transition: background-color 0.3s ease;
   }
-  .commendations {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-  .testimonial-container {
-    width: 100%;
-    overflow-x: hidden;
-    padding: 0;
-    position: relative; /* Add this to position the indicator relative to container */
-  }
-  
-  /* Add this new style for the scroll indicator */
-  .scroll-indicator {
-    position: absolute;
-    bottom: 0px;
-    right: 20px;
-    z-index: 10;
-    background-color: rgba(255,255,255,0.7);
-    border-radius: 18px;
-    padding: 3px 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    color: #FF90D6; /* Match your pink theme color */
-    animation: scrollHint 2s ease-in-out infinite;
-    line-height: 0; /* Remove extra space inside */
-  }
-  
-  @keyframes scrollHint {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(10px); }
-    100% { transform: translateX(0); }
-  }
-  .testimonial-scroll {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: 5px 0 22px 20px;
-    
-    /* Hide scrollbar by default (when not scrolling) */
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-      background-color: transparent;
-    }
+  /* Show scrollbar on hover */
+  &:hover {
     &::-webkit-scrollbar-thumb {
-      background-color: transparent;
-      transition: background-color 0.3s ease;
-    }
-    /* Show scrollbar on hover */
-    &:hover {
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.3);
-        border-radius: 4px;
-      }
+      background-color: rgba(0,0,0,0.3);
+      border-radius: 4px;
     }
   }
-  /* Show scrollbar class */
+}
+/* Show scrollbar class */
 .testimonial-scroll.show-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(0,0,0,0.3);
   border-radius: 4px;
 }
 
-  .testimonial-card {
-    flex: 0 0 auto;
-    width: 260px;
-    background: white;
-    border-radius: 8px;
-    margin-right: 20px;
-    padding: 15px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    
-    &:hover {
-      transform: translateY(-2px);
-      transition: transform 0.3s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    
-    p {
-      font-size: 12px;
-      color: #333;
-      flex-grow: 1;
-      margin-top: 0px;
-      margin-bottom: 0;
-      line-height: 1.4;
-    }
+.testimonial-card {
+  flex: 0 0 auto;
+  width: 260px;
+  background: white;
+  border-radius: 8px;
+  margin-right: 20px;
+  padding: 15px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
   
-  .review-images {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding-bottom: 12px;
-  }
-  
-  .user-review {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-  }
-  
-  .user-info {
-    display: flex;
-    flex-direction: column;
+  p {
+    font-size: 12px;
+    color: #333;
     flex-grow: 1;
+    margin-top: 0px;
+    margin-bottom: 0;
+    line-height: 1.4;
   }
-  
-  .user-name {
-    font-size: 14px;
-    font-weight: 700;
-    font-family: roboto;
-    color: #585858;
-    margin-bottom: 4px;
-    margin-left: 8px;
-  }
-  
-  .five-stars {
-    width: 125px;
-    height: auto;
-  }
+}
 
-  /* Responsive adjustments */
-  @media screen and (max-width: 768px) {
-    .testimonial-card {
-      width: 250px;
-    }
+.review-images {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-bottom: 12px;
+}
+
+.user-review {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: roboto;
+  color: #585858;
+  margin-bottom: 4px;
+  margin-left: 8px;
+}
+
+.five-stars {
+  width: 125px;
+  height: auto;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .testimonial-card {
+    width: 250px;
   }
+}
