@@ -269,6 +269,9 @@ button:disabled {
     font-weight: var(--btTitleFontWeight);
     font-size: var(--btTitleFontSize);
 }
+#openingMessage, #upgradeMessage, #sidepanelMessage {
+    color: #0c4f6b;
+}
 #introImage {
     object-fit: contain;
     margin-right: 20px;

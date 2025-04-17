@@ -200,7 +200,7 @@ class BTAppNode extends BTNode {
         // Node title as shown in tree, <a> for url.
 
         // handle keywords
-        let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
+        let keywordText = (this._keyword) ? `<span class='keyword ${this._keyword}'>${this._keyword} </span>` : ""; // TODO etc
 
         // escape any html entities
         let title = BTAppNode._decodeHtmlEntities(this.title);

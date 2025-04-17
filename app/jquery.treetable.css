@@ -77,6 +77,9 @@ table.treetable span.btText {
 table.treetable span.keyword {
   color: #e03030;
 }
+table.treetable span.keyword.DONE {
+  color: #0f970f;
+}
 
 table.treetable tr.hovered {
   background-color: var(--btRowHovered);
