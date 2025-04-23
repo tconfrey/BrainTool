@@ -193,6 +193,7 @@ const Handlers = {
     "saveTabs": saveTabs,
     "getBookmarks": getBookmarks,
     "exportBookmarks": exportBookmarks,
+    "saveDroppedURLs": saveDroppedURLs,
 };
 
 var Awaiting = false;
@@ -854,6 +855,142 @@ function brainZoom(msg, sender, iteration = 0) {
             setTimeout(function() {brainZoom(msg, sender, ++iteration);}, 150);
     });
 }
+async function saveDroppedURLs(msg, sender) {
+    // urls were dropped into the Topic tree from the addr bar or bookmark bar or bookmarks.
+    // if there are open tabs send back saveTabs msgs w title, tabId etc
+    // else send back saveTabs msg with url and title populated from Bookmarks or just url if not bookmark
+
+    // Find all urls in msg.dropData string and iterate through them
+    const urlRegex = /(https?:\/\/[^\s]+|file:\/\/[^\s]+)/g;
+    const urls = new Set(msg.dropData.match(urlRegex));
+    if (!urls || !urls.size) return;
+    const parentTopic = msg.topic;
+    const tabsToSave = [];
+
+    // find all open tabs and check if any match the urls
+    const allTabs = await getOpenTabs();
+    allTabs.forEach((tab) => {
+        if (urls.has(tab.url)) {
+            console.log(`Matching tab found for URL: ${tab.url}`);
+            tab.topic = parentTopic;
+            tabsToSave.push(tab);
+            urls.delete(tab.url);                   // Remove the URL from the Set
+        }
+    });
+    
+    // If there are still urls left in the Set, we need to check bookmarks
+    if (urls.size) {
+        const bookmarks = [];
+        for (const url of urls) {
+            const match = await chrome.bookmarks.search({ 'url': url });
+            if (match && match.length) bookmarks.push(match[0]);
+        }    
+        if (bookmarks.length) {
+            const allBookmarks = await chrome.bookmarks.getTree();
+            const flattenedBookmarks = flattenBookmarkTree(allBookmarks);
+            const commonAncestor = findMostSpecificCommonAncestor(bookmarks, flattenedBookmarks);
+            const nodeObjects = generateNodeObjects(bookmarks, flattenedBookmarks, commonAncestor);
+            nodeObjects.forEach((node) => {
+                const bookmark = {
+                    url: node.url,
+                    title: node.title,
+                    topic: node.topic ? `${parentTopic}:${node.topic}`: parentTopic,
+                };
+                urls.delete(node.url);                   // Remove the URL from the Set
+                tabsToSave.push(bookmark);
+            });
+        }
+    }
+    
+    // If there are still urls left then we can't populate info just use the url
+    urls.forEach((url) => {
+        const bookmark = {
+            url: url,
+            title: url,
+            topic: parentTopic
+        };
+        tabsToSave.push(bookmark);
+    });
+
+    // Send the tabsToSave array back to Topic Manager
+    if (tabsToSave.length) {
+        btSendMessage({'function': 'saveTabs', 'tabs': tabsToSave, 
+                        'dropNodeId': msg.dropNodeId, 'note':'', close: false});
+    }
+}
+// Utility function to flatten the bookmark tree
+function flattenBookmarkTree(tree) {
+    const result = [];
+    function traverse(node) {
+        result.push(node);
+        if (node.children) {
+            node.children.forEach(traverse);
+        }
+    }
+    tree.forEach(traverse);
+    return result;
+}
+function findMostSpecificCommonAncestor(nodes, bookmarks) {
+
+    if (nodes.length === 1) return nodes[0].id; // If there's only one node, return its ID
+    // Build a map of nodes by ID for quick lookup
+    const nodeMap = {};
+    bookmarks.forEach(node => nodeMap[node.id] = node);
+
+    // Get all ancestors for a given node
+    const getAncestors = (node) => {
+        const ancestors = [];
+        while (node.parentId) {
+            ancestors.push(node.parentId);
+            node = nodeMap[node.parentId];
+        }
+        return ancestors.reverse(); // Reverse to get root-to-leaf order
+    };
+
+    // Get the ancestor chains for all nodes
+    const allAncestors = nodes.map(node => getAncestors(node));
+
+    // Find the most specific common ancestor
+    let commonAncestor = null;
+    for (let i = 0; i < allAncestors[0].length; i++) {
+        const ancestor = allAncestors[0][i];
+        if (allAncestors.every(ancestors => ancestors[i] === ancestor)) {
+            commonAncestor = ancestor;
+        } else {
+            break;
+        }
+    }
+
+    return commonAncestor;
+}
+
+function generateNodeObjects(nodes, bookmarks, commonAncestor) {
+    // Build a map of nodes by ID for quick lookup
+    const nodeMap = {};
+    bookmarks.forEach(node => nodeMap[node.id] = node);
+
+    // Generate objects with URL, title, and topic
+    return nodes.map(node => {
+        const topicParts = [];
+        let currentNode = node;
+        while (currentNode && currentNode.id !== commonAncestor) {
+            if (currentNode.title && !currentNode.url) {
+                topicParts.unshift(currentNode.title);
+            }
+            currentNode = nodeMap[currentNode.parentId];
+        }
+        // also deal with the common ancestor
+        if (currentNode.title && !currentNode.url) {
+            topicParts.unshift(currentNode.title);
+        }
+        return {
+            url: node.url,
+            title: node.title,
+            topic: topicParts.length ? topicParts.join(":") : '',
+        };
+    });
+}
+
 
 function getBookmarks() {
     // User has requested bookmark import from browser

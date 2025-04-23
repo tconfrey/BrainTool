@@ -48,6 +48,7 @@
     --btWenkBottom: 8px;
     --btWenkPadding:  0.2rem 0.5rem 0.2rem 0.5rem;
     --btIndentStepSize: 30px;
+    --btIndenterLinkColor:#2a3f3e;
 
     --btSettingsSubtextFontSize: 10px;
     --btSettingsSubtextFontWeight: 400;
@@ -190,6 +191,9 @@
     
 a {
     color: var(--btLinkColor);
+}
+span.indenter a {
+    color: var(--btIndenterLinkColor);
 }
 a:link {
   text-decoration: none;
@@ -1060,7 +1064,7 @@ body.waiting * {
     border-top-style: solid;
 }
 #message {
-    padding: 0px 20px 0px 20px;
+    padding: 0px 30px 0px 30px;
 }
 #messageClose {
     position: absolute;

@@ -1007,12 +1007,17 @@ class BTAppNode extends BTNode {
 
         // Find or create top node
         let topNode = AllNodes.find(node => node && (node.topicName() == topTopic) && (node.isTopic()));
+        let newTopNodeId;
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);
             topNode.createDisplayNode();
+            newTopNodeId = topNode.id;
         }
             
-        if (!components) return topNode;
+        if (!components) {
+            topNode.newTopNodeId = newTopNodeId
+            return topNode;
+        }
         
         // Remove, now handled first elt, Walk down rest creating as needed
         let currentNode = topNode;
@@ -1023,6 +1028,7 @@ class BTAppNode extends BTNode {
             if (!currentNode) {
                 currentNode = new BTAppNode(t, node.id, "", node.level + 1);
                 currentNode.createDisplayNode();
+                newTopNodeId = newTopNodeId || currentNode.id;
             }
         });
 
@@ -1030,8 +1036,10 @@ class BTAppNode extends BTNode {
         if (currentNode.findTopicChild(topic))
             return currentNode.findTopicChild(topic);
         let newLeaf = new BTAppNode(topic, currentNode.id, "", currentNode.level + 1);
+        newTopNodeId = newTopNodeId || newLeaf.id;
         newLeaf.createDisplayNode();
         topNode.redisplay();                              // since new nodes created
+        newLeaf.newTopNodeId = newTopNodeId;
         return newLeaf;
     }
     

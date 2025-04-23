@@ -510,8 +510,15 @@ function reCreateButtonRow() {
     $ButtonRowHTML.appendTo($("#dialog"))
 }
 
+/**
+ * 
+ * Drag and Drop Support
+ * Both row dragging to move them in the tree and drops from the browser, or anywhere
+ * to create new nodes. 
+ */
+
 function makeRowsDraggable(recalc = false) {
-    // make rows draggable. refreshPositions is expensive so we on;y turn it on when the unfold timeout hits
+    // make rows draggable. refreshPositions is expensive so we only turn it on when the unfold timeout hits
     if (!makeRowsDraggable.recalcSet) {
         makeRowsDraggable.recalcSet = false;
     }
@@ -586,7 +593,7 @@ function contentDragoverHandler(event) {
     const scrollThreshold = 100; // Distance from edge to start scrolling
 
     const mouseY = event.clientY;
-    if (mouseY < (container.scrollTop + scrollThreshold)) {
+    if (mouseY < scrollThreshold) {
         container.scrollTop -= scrollSpeed;        // Scroll up
     } else if (mouseY > (window.innerHeight - scrollThreshold)) {
         container.scrollTop += scrollSpeed;        // Scroll down
@@ -602,9 +609,8 @@ $("#content").on("dragleave", contentDragleaveHandler);
 function makeRowsDroppable(node) {
     // make rows droppable. Two parts, first handle drag from outside, then drag of tree row
 
-    // Detect when a tab url is being dragged from the browser into the topic manager. 
     // Handled differently cos can't use JQuery and drop is a create not a move. 
-    // Using dragover and dragleave trigger jq's over and out events
+    // Using dragover and dragleave to trigger jq's over and out events
     $("table.treetable tr").on("dragover", function (event) {
         event.preventDefault(); // Allow drop
         if (!$(this).data("overTriggered")) {
@@ -616,37 +622,14 @@ function makeRowsDroppable(node) {
         $(this).data("ui-droppable")._trigger("out", event, { draggable: null });
         $(this).data("overTriggered", false);
     });
-    // This drop is creating a new node, not moving an existing one, as below.
-    $("table.treetable tr").on("drop", function (event) {
-        event.preventDefault();
-        let dataTransfer = event.originalEvent.dataTransfer;
-        if (!dataTransfer) return;
-        for (let item of dataTransfer.items) {
-            console.log("Type:", item.type);
-            item.getAsString((ml) => console.log("Drop Data:", ml));
-        }
-        let url = dataTransfer.getData("text/uri-list") || dataTransfer.getData("text/plain");
-
-        if (url) {
-            const dropNode = $($(".dropOver")[0]).parent();
-            const dropNodeId = $(dropNode).attr('data-tt-id');
-            if (dropNode && dropNodeId && AllNodes[dropNodeId]) {
-                console.log("Dropped URL:", url, " under node id:", dropNodeId);
-                // Create new node by simulating a save of the active tab
-                sendMessage({'function': 'saveTabs', 'type': 'Tab', 
-                            'topic': AllNodes[dropNodeId].topicPath, 'url': url, 'from':'btwindow'});
-            }
-        }
-        // We're done. Clean up the display and reset the handler for next time
-        $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
-        $("#content").on("dragover", contentDragoverHandler);
-    });
+    // This drop is creating a new node, not moving an existing one, as below. Make sure not to add multiply
+    $("table.treetable tr").off("drop").on("drop", handleExternalDropEvent);
 
     // Handle row dragging inside table
     $("table.treetable tr").droppable({
-        accept: "*", // Accept any draggable, so above works
+        accept: "*",                    // Accept any draggable, so above works
         drop: function(event, ui) {
-            // Remove unfold timeout
+            // Remove unfold timeout and drop
             const timeout = $(this).data('unfoldTimeout');
             if (timeout) {
                 clearTimeout(timeout);
@@ -692,8 +675,75 @@ function makeRowsDroppable(node) {
     });
 }
 
+function handleExternalDropEvent(event) {
+    // This drop is creating a new node, not moving an existing one
+    // Initialize inProgress property first time thru
+    if (typeof handleExternalDropEvent.dropInProgress === "undefined") {
+        handleExternalDropEvent.dropInProgress = false;
+    }    
+    // Prevent multiple executions, make sure there's data
+    if (handleExternalDropEvent.dropInProgress) return;
+    handleExternalDropEvent.dropInProgress = true;
+    event.preventDefault();
+    let dataTransfer = event.originalEvent.dataTransfer;
+    if (!dataTransfer) return;
+
+    // Find the parent to drop under
+    const dropDisplayNode = $($(".dropOver")[0]).parent();
+    const dropNodeId = $(dropDisplayNode).attr('data-tt-id');
+    const dropNode = AllNodes[dropNodeId];
+    let parentNode;
+    if (dropNode.isTopic() && !dropNode.folded ) {
+        parentNode = dropNode;
+    } else {
+        parentNode = dropNode.parentId ? AllNodes[dropNode.parentId] : null;
+    }
+    if (!parentNode) return;                            // no parent, no drop
+
+    // Handle drag of web page contents, we get html
+    let links = [];
+    let dropUnderNode = dropDisplayNode[0];
+    if (dataTransfer.getData("text/html")) {
+        // Find href links, pull out the urls and titles
+        const dropData = dataTransfer.getData("text/html");
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(dropData, "text/html");
+        links = doc.querySelectorAll("a");
+        links.forEach(link => {
+            // For each link get details and create child node 
+            const url = link.href;
+            const title = link.textContent || link.innerText;
+            const node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id, "", parentNode.level + 1);
+            $("table.treetable").treetable("loadBranch", parentNode.getTTNode(), node.HTML());
+            node.populateFavicon();
+            positionNode(node.getDisplayNode(), parentNode.id, dropUnderNode);
+            dropUnderNode = node.getDisplayNode();
+        });
+        initializeUI();
+        saveBT();
+    } 
+    if (!links.length && dataTransfer.getData("text/plain")) {
+        // Bookmarks or address bar or just text that might have links. (NB can get same data in html)
+        // send to background to populate tabIds, titles as available from tabs and bookmarks
+        // bg will send saveTabs msgs as necessary, handled out of band in std saveTabs (below)
+        const dropData = dataTransfer.getData("text/plain");
+        console.log("URLs:", dropData);
+        sendMessage({'function': 'saveDroppedURLs', 'topic': parentNode.topicPath, 
+                    'dropData': dropData, 'dropNodeId': dropNodeId, 'from':'btwindow'});
+    }
+
+    // We're done. Clean up the display and reset the handler for next time
+    $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
+    $("#content").on("dragover", contentDragoverHandler);
+
+    // Reset the flag after a short delay
+    setTimeout(() => {
+        handleExternalDropEvent.dropInProgress = false;
+    }, 100);
+}
+
 function dropNode(event, ui) {
-    // Drop node w class=dragTarget below node w class=dropOver
+    // Drop existing node w class=dragTarget below node w class=dropOver
     // NB if dropOver is expanded target becomes first child, if collapsed next sibling
     
     const dragTarget = $(".dragTarget")[0];
@@ -972,9 +1022,11 @@ function tabClosed(data) {
 
 function saveTabs(data) {
     // iterate thru array of tabsData and save each to BT
-    // data is of the form: {'function': 'saveTabs', 'saveType':Tab|TG|Window|Session, 'tabs': [], 'note': msg.note,  'close': msg.close}
+    // data is of the form: {'function': 'saveTabs', 'saveType':Tab|TG|Window|Session, 'tabs': [], 'note': msg.note,  'close': msg.close, 'dropNodeId': node.id}
     // tabs: [{'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url, 'topic': topic, 'title': msg.title, favIconUrl: t.favIconUrl}] 
     // topic is potentially topic-dn:window##:TGName:TODO
+    // dropNodeId is passed back from app, keeping track of the node to create dropped urls under in the tree
+
     console.log('saveTabs: ', data);
     if (data.from == "btwindow") return;                  // ignore our own messages
     const note = data.note;
@@ -985,7 +1037,7 @@ function saveTabs(data) {
     data.tabs.forEach(tab=> {
 
         // Handle existing node case: update and return
-        const existingNode = BTAppNode.findFromTab(tab.tabId);
+        const existingNode = tab.tabId && BTAppNode.findFromTab(tab.tabId);
         if (existingNode && !existingNode.navigated) {
             if (note) {
                 existingNode.text = note;
@@ -1021,9 +1073,20 @@ function saveTabs(data) {
 
         // handle display aspects of single node
         $("table.treetable").treetable("loadBranch", topicNode.getTTNode(), node.HTML());
-        if (close) node.closeTab(); else setNodeOpen(node);     // save and close popup operation
+        if (close) node.closeTab(); else node.tabId && setNodeOpen(node);     // save and close popup operation
         node.storeFavicon(); node.populateFavicon();
         MRUTopicPerWindow[node.windowId] = topicDN;             // track mru topic per window for popup population
+        if (data.dropNodeId) {
+            // save is a result of an earlier drop of external urls, position appropriately. 
+            // newTopNodeId is passed back from findOrCreateFromTopicDN indicating the top new node created, if any
+            // so that it can be positioned under the dropNodeId
+            const newNodeId = topicNode.newTopNodeId ? topicNode.id : node.id;
+            const newNode = $("tr[data-tt-id='"+newNodeId+"']")[0];
+            const dropNode = $("tr[data-tt-id='"+data.dropNodeId+"']")[0];
+            const parentId = topicNode.newTopNodeId ? topicNode.parentId : topicNode.id;
+            positionNode(newNode, parentId, dropNode);
+            topicNode.newTopNodeId = 0;            // reset flag
+        }
     });
 
     // update subtree of each changed topic node
