@@ -709,11 +709,18 @@ function handleExternalDropEvent(event) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(dropData, "text/html");
         links = doc.querySelectorAll("a");
+        const description = (links.length == 1) ? dataTransfer.getData("text/plain") : "";     // Single link => use text as descr
+        if (links.length == 0) {
+            // No links, but we have a text/plain data transfer. Put that as text in dropNode
+            const text = dataTransfer.getData("text/plain");
+            dropNode.text = text;
+            dropNode.redisplay();
+        }
         links.forEach(link => {
             // For each link get details and create child node 
             const url = link.href;
             const title = link.textContent || link.innerText;
-            const node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id, "", parentNode.level + 1);
+            const node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id, description, parentNode.level + 1);
             $("table.treetable").treetable("loadBranch", parentNode.getTTNode(), node.HTML());
             node.populateFavicon();
             positionNode(node.getDisplayNode(), parentNode.id, dropUnderNode);
