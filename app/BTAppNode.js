@@ -18,6 +18,7 @@
 
 'use strict'
 
+const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARK BAR', '🌐🗂️ SESSION'];
 class BTAppNode extends BTNode {
 
     /***
@@ -127,9 +128,7 @@ class BTAppNode extends BTNode {
         // indicate pending deletion on open tab
         this._pendingDeletion = f;
         const displayNode = this.getDisplayNode();
-        const btTitle = $(displayNode).find('.btTitleText');
-        const opacity = f ? 0.4 : 1;
-        $(btTitle).css('opacity', opacity);
+        f ? $(displayNode).addClass('trashed') : $(displayNode).removeClass('trashed');
     }
     get pendingDeletion() {
         return this._pendingDeletion;
@@ -176,6 +175,10 @@ class BTAppNode extends BTNode {
         outputHTML += (this.isTopic()) ? `class='topic ${emptyTopic}' data-tt-branch='true'` : "";
 
         let topicClasses = (this.isTopic()) ? "btTitleText btTitle" : "btTitle";
+        if (specialTopics.includes(this.title))
+            topicClasses += " specialTopic";
+        if (this.trashed) 
+            topicClasses += " trashed";
 	    
         outputHTML += `><td class='left'><span class='${topicClasses}'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
@@ -225,6 +228,37 @@ class BTAppNode extends BTNode {
     getTTNode() {
         // return treetable node (nb not jquery node)
         return $("table.treetable").treetable("node", this.id);
+    }
+
+    isTrash() {
+        // is this node the trash node?
+        return (this.title == "🗑️ TRASH");
+    }
+
+    trash() {
+        // move this node to the trash
+        if (this.isTrash()) return;
+        this.trashed = true;
+        const displayNode = this.getDisplayNode();
+        $(displayNode).addClass('trashed');                  // add class to display node
+        // iterate on child nodes
+        this.childIds.forEach(id => {
+            const node = AllNodes[id];
+            node && node.trash();
+        });
+    }
+
+    untrash() {
+        // opposite of trash fn above, set node and descendants to not trashed
+        if (this.isTrash()) return;
+        this.trashed = false;
+        const displayNode = this.getDisplayNode();
+        $(displayNode).removeClass('trashed');                  // add class to display node
+        // iterate on child nodes
+        this.childIds.forEach(id => {
+            const node = AllNodes[id];
+            node && node.untrash();
+        });
     }
 
     unfoldOne() {
@@ -746,6 +780,7 @@ class BTAppNode extends BTNode {
     orgTextwChildren() {
         // Generate org text for this node and its descendents
         let outputOrg = this.orgText();
+        if (this.isTrash()) return outputOrg;       // don't save trashed nodes
         this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
             let txt = AllNodes[id].orgTextwChildren();
@@ -947,6 +982,7 @@ class BTAppNode extends BTNode {
         function topicsForNode(id) {
             // recurse over children
             if (!AllNodes[id]) return;
+            if (AllNodes[id].isTrash()) return;                  // don't include trash
             if (AllNodes[id].isTopic())
                 Topics.push({'name' : AllNodes[id].topicPath, 'level' : AllNodes[id].level});
             for (const nid of AllNodes[id].childIds)
@@ -1041,6 +1077,17 @@ class BTAppNode extends BTNode {
         topNode.redisplay();                              // since new nodes created
         newLeaf.newTopNodeId = newTopNodeId;
         return newLeaf;
+    }
+
+    static findOrCreateTrashNode() {
+        // Find or create the trash node
+        let trashNode = AllNodes.find(node => node && (node.isTrash()));
+        if (!trashNode) {
+            trashNode = new BTAppNode("🗑️ TRASH", null, "Deleted items. The Delete button empties this Topic.", 1);
+            trashNode.createDisplayNode();
+            trashNode.redisplay();
+        }
+        return trashNode;
     }
     
 }

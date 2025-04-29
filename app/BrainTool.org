@@ -116,5 +116,8 @@ BrainTool topics can be saved and shared. See how and some examples.
 * 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
 
-* 📝 Scratch
-Pages that you save without a Topic will be filed under Scratch
+* 📝 SCRATCH
+Pages that you save without a Topic will be filed under SCRATCH
+
+* 🗑️ TRASH
+Deleted items. The Delete button empties this Topic.

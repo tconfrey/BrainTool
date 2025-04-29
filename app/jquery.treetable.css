@@ -81,6 +81,11 @@ table.treetable span.keyword.DONE {
   color: #0f970f;
 }
 
+table.treetable span.specialTopic {
+  opacity: 75%;
+  font-style: italic;
+}
+
 table.treetable tr.hovered {
   background-color: var(--btRowHovered);
 }
@@ -91,6 +96,10 @@ table.treetable tr.selected {
 
 table.treetable tr.attention {
   background-color: var(--btDrawAttention);
+}
+
+table.treetable tr.trashed {
+  opacity: 50%;
 }
 
 table.treetable td.dropOver {

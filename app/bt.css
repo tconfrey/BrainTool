@@ -146,7 +146,7 @@
     --btControlsHeaderSecondaryColor: rgba(255, 255, 255, 0.7);
     --btControlsDividerColor: rgba(255, 255, 255, 0.3);
 
-    --btLinkColor: #e0e5e5;
+    --btLinkColor: whitesmoke;
     --btLinkOpenedColor: #78c6de;
     --btLinkSelectedOpenedColor: #5bc1e1;
     --btSearchResult: #2A3F3E;
@@ -192,7 +192,7 @@
 a {
     color: var(--btLinkColor);
 }
-span.indenter a {
+span.indenter a, #nagText a {
     color: var(--btIndenterLinkColor);
 }
 a:link {

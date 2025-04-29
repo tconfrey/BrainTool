@@ -325,7 +325,6 @@ function generateTable() {
     return outputHTML;
 }
 
-
 function processBTFile(fileText = BTFileText) {
     // turn the org-mode text into an html table, extract Topics
 
@@ -351,7 +350,7 @@ function processBTFile(fileText = BTFileText) {
     container.innerHTML = table;
 
     $(container).treetable({ expandable: true, initialState: 'expanded', indent: 30,
-                             animationTime: 250, onNodeCollapse: nodeCollapse,
+                             animationTime: 1, onNodeCollapse: nodeCollapse,
                              onNodeExpand: nodeExpand}, true);
 
     BTAppNode.generateTopics();
@@ -383,9 +382,12 @@ function processBTFile(fileText = BTFileText) {
             if (node?.folded)
                 $(container).treetable("collapseNodeImmediate", node.id);
         });
-    }, 200);
-    BTAppNode.populateFavicons();                         // filled in async
+        // set treetable animation time to 250ms. 
+        // The initial 10ms above avoids this collapse happening before the nodes are rendered.
+        $("#content").data("treetable").settings.animationTime = 250;
+    }, 400);
 
+    BTAppNode.populateFavicons();                         // filled in async
     configManager.updatePrefs();
     $('body').removeClass('waiting');
 }
@@ -757,11 +759,20 @@ function dropNode(event, ui) {
     if (!dragTarget) return;                                // no target, no drop
     const dragNodeId = $(dragTarget).attr('data-tt-id');
     const dragNode = AllNodes[dragNodeId];
-    const dropNode = $($(".dropOver")[0]).parent();
-    const dropNodeId = $(dropNode).attr('data-tt-id');
+    const dropDisplayNode = $($(".dropOver")[0]).parent();
+    const dropNodeId = $(dropDisplayNode).attr('data-tt-id');
     const dropBTNode = AllNodes[dropNodeId];
     const oldParentId = dragNode.parentId;
 
+    if (dropBTNode.isTrash() || dropBTNode.trashed) {
+        // Drop into trash => delete node
+        deleteNode(dragNodeId);
+        return;
+    }
+    if (dragNode.trashed && !dropBTNode.trashed && !dropBTNode.isTrash()) {
+        // Dragging a trashed node, drop into a non-trashed node => untrash it
+        dragNode.untrash();
+    }
     if (dropNodeId && dropBTNode) {
         // move node and any associated tab/tgs
         moveNode(dragNode, dropBTNode, oldParentId);
@@ -1061,7 +1072,7 @@ function saveTabs(data) {
             topicNode = AllNodes[existingNode.parentId];
             topicDN = topicNode.topicPath;
         } else {
-            [topicDN, keyword] = BTNode.processTopicString(tab.topic || "📝 Scratch");
+            [topicDN, keyword] = BTNode.processTopicString(tab.topic || "📝 SCRATCH");
             topicNode = BTAppNode.findOrCreateFromTopicDN(topicDN);
         }
         changedTopicNodes.add(topicNode);
@@ -1532,9 +1543,14 @@ function buttonShow(e) {
     else if (tooltips)
         $("#buttonRow span").removeClass("wenk--right").addClass("wenk--left");
 
-    // Open/close buttons 
     const node = getActiveNode(e);
-    if (!node) return;
+    if (!node || node.trashed) return;          // don't allow operations on deleted nodes
+    if (node.isTrash())
+        $('#deleteRow').parent().attr('data-wenk', 'Empty Trash');
+    else
+        $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
+
+    // Open/close buttons 
     const topic = node.isTopic() ? node : AllNodes[node.parentId];
     $("#openTab").hide();
     $("#openWindow").hide();
@@ -1559,7 +1575,7 @@ function buttonShow(e) {
     }
 
     // allow adding children on branches or unpopulated branches (ie no links)
-    if ($(this).hasClass("branch") || !$(this).find('a').length)
+    if (($(this).hasClass("branch") || !$(this).find('a').length) && !node.isTrash())
         $("#addChild").show();
     else
         $("#addChild").hide();
@@ -1647,6 +1663,7 @@ function editRow(e) {
         $("#topic").show();        
         $("#topicName").val($("<div>").html(node.displayTopic).text());
         node.displayTopic && $("#newTopicNameHint").hide();
+        node.isTrash() && $("#topicName").hide();
     } else {
         $("#titleUrl").show();
         $("#titleText").show();
@@ -1787,6 +1804,14 @@ function deleteRow(e) {
     const kids = appNode.childIds.length && appNode.isTopic();         // Topic determines non link kids
     buttonHide();
 
+    // Special handling for Trash node
+    if (appNode.isTrash()) {
+        appNode.childIds.forEach((id) => {
+            deleteNode(id);
+        });
+        return;
+    }
+
     // If children nodes ask for confirmation
     if (!kids || confirm('Delete whole subtree?')) {
         // Remove from UI and treetable
@@ -1795,7 +1820,8 @@ function deleteRow(e) {
 }
 
 function deleteNode(id) {
-    //delete node and clean up
+    // delete node and clean up
+    // firstDelete moves the item into Trash, subsequent deletes it
     id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
@@ -1834,8 +1860,22 @@ function deleteNode(id) {
         callBackground({'function': 'ungroup', 'tabIds': tabIds});
     }
 
-    $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
-    BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
+    if (!node.trashed) {
+        // Move to trash
+        const treeTable = $("#content");
+        const trashNode = BTAppNode.findOrCreateTrashNode();
+        node.handleNodeMove(trashNode.id);
+        treeTable.treetable("move", node.id, trashNode.id);
+        const treeNode = $(`tr[data-tt-id='${node.id}']`)[0];
+        $(treeNode).attr('data-tt-parent-id', trashNode.id);
+        $(treeNode).addClass('trashed');
+        node.trash();
+        initializeUI();
+    } else {
+        // Delete from trash
+        $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
+        BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
+    }
     
     // Update parent display
     propogateClosed(node.parentId);
@@ -1888,7 +1928,6 @@ function updateRow() {
     closeDialog();
     initializeUI();
 }
-
 function toDo(e) {
     // iterate todo state of selected node/row (TODO -> DONE -> '').
     const appNode = getActiveNode(e);

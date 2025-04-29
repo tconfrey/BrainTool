@@ -1074,7 +1074,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'TG' && t.groupId == currentTab.groupId) {
-            tab['topic'] = (topic||"📝 Scratch")+':'+tgName+(todo ? ':'+todo : '');
+            tab['topic'] = (topic||"📝 SCRATCH")+':'+tgName+(todo ? ':'+todo : '');
             tabsToSave.push(tab);
         }
         if (saveType == 'Window' && t.windowId == currentTab.windowId) {
@@ -1082,7 +1082,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'Session') {
-            tab['topic'] = (topic ? topic+":" : "📝 Scratch:") + sessionName + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
+            tab['topic'] = (topic ? topic+":" : "📝 SCRATCH:") + sessionName + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
             tabsToSave.push(tab);
         }
         if (saveType == 'Tab' && t.url == msg.url) {
