@@ -18,7 +18,7 @@
 
 'use strict'
 
-const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARK BAR', '🌐🗂️ SESSION'];
+const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐🗂️ SESSION'];
 class BTAppNode extends BTNode {
 
     /***
