@@ -18,6 +18,7 @@
 ***/
 
 'use strict';
+importScripts('bookmarkHandler.js');
 
 let Keys;
 try {
@@ -192,7 +193,9 @@ const Handlers = {
     "updateGroup": updateGroup,
     "saveTabs": saveTabs,
     "getBookmarks": getBookmarks,
+    "getBookmarksBar": getBookmarksBar,
     "exportBookmarks": exportBookmarks,
+    "syncBookmarksBar": syncBookmarksBar,
     "saveDroppedURLs": saveDroppedURLs,
 };
 
@@ -503,6 +506,8 @@ async function initializeExtension(msg, sender) {
     }
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
+
+    debouncedExportBookmarks();             // initialize bookmark bar
 }
 
 async function suspendExtension() {
@@ -873,6 +878,7 @@ async function saveDroppedURLs(msg, sender) {
         if (urls.has(tab.url)) {
             console.log(`Matching tab found for URL: ${tab.url}`);
             tab.topic = parentTopic;
+            tab.tabId = tab.id;
             tabsToSave.push(tab);
             urls.delete(tab.url);                   // Remove the URL from the Set
         }
@@ -917,125 +923,6 @@ async function saveDroppedURLs(msg, sender) {
         btSendMessage({'function': 'saveTabs', 'tabs': tabsToSave, 
                         'dropNodeId': msg.dropNodeId, 'note':'', close: false});
     }
-}
-// Utility function to flatten the bookmark tree
-function flattenBookmarkTree(tree) {
-    const result = [];
-    function traverse(node) {
-        result.push(node);
-        if (node.children) {
-            node.children.forEach(traverse);
-        }
-    }
-    tree.forEach(traverse);
-    return result;
-}
-function findMostSpecificCommonAncestor(nodes, bookmarks) {
-
-    if (nodes.length === 1) return nodes[0].id; // If there's only one node, return its ID
-    // Build a map of nodes by ID for quick lookup
-    const nodeMap = {};
-    bookmarks.forEach(node => nodeMap[node.id] = node);
-
-    // Get all ancestors for a given node
-    const getAncestors = (node) => {
-        const ancestors = [];
-        while (node.parentId) {
-            ancestors.push(node.parentId);
-            node = nodeMap[node.parentId];
-        }
-        return ancestors.reverse(); // Reverse to get root-to-leaf order
-    };
-
-    // Get the ancestor chains for all nodes
-    const allAncestors = nodes.map(node => getAncestors(node));
-
-    // Find the most specific common ancestor
-    let commonAncestor = null;
-    for (let i = 0; i < allAncestors[0].length; i++) {
-        const ancestor = allAncestors[0][i];
-        if (allAncestors.every(ancestors => ancestors[i] === ancestor)) {
-            commonAncestor = ancestor;
-        } else {
-            break;
-        }
-    }
-
-    return commonAncestor;
-}
-
-function generateNodeObjects(nodes, bookmarks, commonAncestor) {
-    // Build a map of nodes by ID for quick lookup
-    const nodeMap = {};
-    bookmarks.forEach(node => nodeMap[node.id] = node);
-
-    // Generate objects with URL, title, and topic
-    return nodes.map(node => {
-        const topicParts = [];
-        let currentNode = node;
-        while (currentNode && currentNode.id !== commonAncestor) {
-            if (currentNode.title && !currentNode.url) {
-                topicParts.unshift(currentNode.title);
-            }
-            currentNode = nodeMap[currentNode.parentId];
-        }
-        // also deal with the common ancestor
-        if (currentNode.title && !currentNode.url) {
-            topicParts.unshift(currentNode.title);
-        }
-        return {
-            url: node.url,
-            title: node.title,
-            topic: topicParts.length ? topicParts.join(":") : '',
-        };
-    });
-}
-
-
-function getBookmarks() {
-    // User has requested bookmark import from browser
-
-    chrome.bookmarks.getTree(async function(itemTree){
-        itemTree[0].title = "Imported Bookmarks";
-        chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            btSendMessage({'function': 'loadBookmarks', 'result': 'success'});
-        });
-    });
-}
-
-function exportBookmarks() {
-    // Top level bookmark exporter
-    let AllNodes;
-
-    function exportNodeAsBookmark(btNode, parentBookmarkId) {
-        // export this node and recurse thru its children
-        chrome.bookmarks.create(
-            {title: btNode.displayTopic, url: btNode.URL, parentId: parentBookmarkId},
-            (bmNode) => {
-                btNode.childIds.forEach(i => {exportNodeAsBookmark(AllNodes[i], bmNode.id); });
-            });
-    }
-
-    chrome.storage.local.get(['title', 'AllNodes'], data => {
-        AllNodes = data.AllNodes;
-        chrome.bookmarks.create({title: data.title}, bmNode => {
-            // Iterate thru top level nodes exporting them
-            AllNodes.forEach(n => {
-                if (n && !n.parentId)
-                    exportNodeAsBookmark(n, bmNode.id);
-            });
-            chrome.windows.create({'url': 'chrome://bookmarks/?id='+bmNode.id});
-        });
-    });
-}
-
-function createSessionName() {
-    // return a name for the current session, 'session-Mar12
-    const d = new Date();
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-    const monthName = monthNames[d.getMonth()];
-    const day = String(d.getDate()).padStart(2, '0');
-    return 'Session-' + monthName + day + ":";
 }
 
 async function saveTabs(msg, sender) {

@@ -175,6 +175,12 @@ class BTNode {
             newP && AllNodes[newP].addChild(this.id, index);
         }
     }
+    indexInParent() {
+        // return the index of this node in its parent
+        if (!this.parentId) return -1;
+        const parent = AllNodes[this.parentId];
+        return parent.childIds.indexOf(this.id);
+    }
     
     static URLFromTitle(title) {
         // pull url from title string (which is in org format: "asdf [[url][label]] ...")
@@ -230,6 +236,7 @@ class BTNode {
             [/\/$/g, ""]                    // ignore trailing /
         ];
 
+        if (!first || !second) return null;
         if (first.indexOf("mail.google.com/mail") >= 0) {
             // if its a gmail url need to match exactly
             return (first == second);

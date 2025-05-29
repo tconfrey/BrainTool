@@ -106,7 +106,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     
     console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
-    case 'loadBookmarks':
+    case 'getBookmarks':
         chrome.storage.local.get('bookmarks', data => {
             msg.data = data;
             msg["from"] = "btextension";

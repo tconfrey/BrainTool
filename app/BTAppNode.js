@@ -33,6 +33,7 @@ class BTAppNode extends BTNode {
         this._folded = false;
         this._keyword = null;
         this._tabId = 0;
+        this._bookmarkId = 0;
         this._tabGroupId = 0;
         this._windowId = 0;
         this._opening = false;
@@ -60,6 +61,12 @@ class BTAppNode extends BTNode {
     }
     set tabId(id) {
         this._tabId = id;
+    }
+    get bookmarkId() {
+        return this._bookmarkId;
+    }
+    set bookmarkId(id) {
+        this._bookmarkId = id;
     }
     get tabId() {
         return this._tabId;
@@ -259,6 +266,15 @@ class BTAppNode extends BTNode {
             const node = AllNodes[id];
             node && node.untrash();
         });
+    }
+
+    isBookmarksBar() {
+        // is this node the bookmarks bar node?
+        return (this.title == "🔖 BOOKMARKS BAR");
+    }
+    isOnBookmarksBar() {
+        // is this node on the bookmarks bar?
+        return (this.isBookmarksBar() || (this.parentId && AllNodes[this.parentId]?.isOnBookmarksBar()));
     }
 
     unfoldOne() {
@@ -780,7 +796,7 @@ class BTAppNode extends BTNode {
     orgTextwChildren() {
         // Generate org text for this node and its descendents
         let outputOrg = this.orgText();
-        if (this.isTrash()) return outputOrg;       // don't save trashed nodes
+        if (this.isTrash() || this.isBookmarksBar()) return outputOrg;       // don't save these
         this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
             let txt = AllNodes[id].orgTextwChildren();
@@ -946,8 +962,8 @@ class BTAppNode extends BTNode {
         }
     }
     
-    indexInParent() {
-        // Used for tab ordering
+    tabIndexInParent() {
+        // Used for tab ordering, only counts open, tabbed, nodes
         if (!this.parentId) return 0;
         const parent = AllNodes[this.parentId];
         const thisid = this.id;
@@ -973,7 +989,7 @@ class BTAppNode extends BTNode {
     expectedTabIndex() {
         if (!this.parentId) return 0;
         const parent = AllNodes[this.parentId];
-        return parent.leftmostOpenTabIndex() + this.indexInParent();
+        return parent.leftmostOpenTabIndex() + this.tabIndexInParent();
     }
 
     static generateTopics() {
@@ -1002,6 +1018,10 @@ class BTAppNode extends BTNode {
     static findFromTab(tabId) {
         // Return node associated w display tab
         return AllNodes.find(node => node && (node.tabId == tabId));
+    }
+    static findFromBookmark(bookmarkId) {
+        // Return node associated w display tab
+        return AllNodes.find(node => node && (node.bookmarkId == bookmarkId));
     }
     
     static findFromURLTGWin(url, tg, win) {
@@ -1159,7 +1179,9 @@ class BTLinkNode extends BTAppNode {
 
 const Handlers = {
     "launchApp": launchApp,                 // Kick the whole thing off
-    "loadBookmarks": loadBookmarks,
+    "getBookmarks": loadBookmarks,
+    "bookmarksBar": syncBookmarksBar,
+    "bookmarksBarIds": bookmarksBarIds,     // node ids mapped to bookmarks bar node ids
     "tabActivated": tabActivated,           // User nav to Existing tab
     "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
     "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG

@@ -686,69 +686,74 @@ function handleExternalDropEvent(event) {
     // Prevent multiple executions, make sure there's data
     if (handleExternalDropEvent.dropInProgress) return;
     handleExternalDropEvent.dropInProgress = true;
-    event.preventDefault();
-    let dataTransfer = event.originalEvent.dataTransfer;
-    if (!dataTransfer) return;
+    
+    try {
+        event.preventDefault();
+        let dataTransfer = event.originalEvent.dataTransfer;
+        if (!dataTransfer) return;
 
-    // Find the parent to drop under
-    const dropDisplayNode = $($(".dropOver")[0]).parent();
-    const dropNodeId = $(dropDisplayNode).attr('data-tt-id');
-    const dropNode = AllNodes[dropNodeId];
-    let parentNode;
-    if (dropNode.isTopic() && !dropNode.folded ) {
-        parentNode = dropNode;
-    } else {
-        parentNode = dropNode.parentId ? AllNodes[dropNode.parentId] : null;
-    }
-    if (!parentNode) return;                            // no parent, no drop
-
-    // Handle drag of web page contents, we get html
-    let links = [];
-    let dropUnderNode = dropDisplayNode[0];
-    if (dataTransfer.getData("text/html")) {
-        // Find href links, pull out the urls and titles
-        const dropData = dataTransfer.getData("text/html");
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(dropData, "text/html");
-        links = doc.querySelectorAll("a");
-        const description = (links.length == 1) ? dataTransfer.getData("text/plain") : "";     // Single link => use text as descr
-        if (links.length == 0) {
-            // No links, but we have a text/plain data transfer. Put that as text in dropNode
-            const text = dataTransfer.getData("text/plain");
-            dropNode.text = text;
-            dropNode.redisplay();
+        // Find the parent to drop under
+        const dropDisplayNode = $($(".dropOver")[0]).parent();
+        const dropNodeId = $(dropDisplayNode).attr('data-tt-id');
+        const dropNode = AllNodes[dropNodeId];
+        let parentNode;
+        if (dropNode.isTopic() && !dropNode.folded ) {
+            parentNode = dropNode;
+        } else {
+            parentNode = dropNode.parentId ? AllNodes[dropNode.parentId] : dropNode;
         }
-        links.forEach(link => {
-            // For each link get details and create child node 
-            const url = link.href;
-            const title = link.textContent || link.innerText;
-            const node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id, description, parentNode.level + 1);
-            $("table.treetable").treetable("loadBranch", parentNode.getTTNode(), node.HTML());
-            node.populateFavicon();
-            positionNode(node.getDisplayNode(), parentNode.id, dropUnderNode);
-            dropUnderNode = node.getDisplayNode();
-        });
-        initializeUI();
-        saveBT();
-    } 
-    if (!links.length && dataTransfer.getData("text/plain")) {
-        // Bookmarks or address bar or just text that might have links. (NB can get same data in html)
-        // send to background to populate tabIds, titles as available from tabs and bookmarks
-        // bg will send saveTabs msgs as necessary, handled out of band in std saveTabs (below)
-        const dropData = dataTransfer.getData("text/plain");
-        console.log("URLs:", dropData);
-        sendMessage({'function': 'saveDroppedURLs', 'topic': parentNode.topicPath, 
-                    'dropData': dropData, 'dropNodeId': dropNodeId, 'from':'btwindow'});
+        if (!parentNode) return;                            // no parent, no drop
+
+        // Handle drag of web page contents, we get html
+        let links = [];
+        let dropUnderNode = dropDisplayNode[0];
+        if (dataTransfer.getData("text/html")) {
+            // Find href links, pull out the urls and titles
+            const dropData = dataTransfer.getData("text/html");
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(dropData, "text/html");
+            links = doc.querySelectorAll("a");
+            const description = (links.length == 1) ? dataTransfer.getData("text/plain") : "";     // Single link => use text as descr
+            if (links.length == 0) {
+                // No links, but we have a text/plain data transfer. Put that as text in dropNode
+                const text = dataTransfer.getData("text/plain");
+                dropNode.text = text;
+                dropNode.redisplay();
+            }
+            links.forEach(link => {
+                // For each link get details and create child node 
+                const url = link.href;
+                const title = link.textContent || link.innerText;
+                const node = new BTAppNode(`[[${url}][${title}]]`, parentNode.id, description, parentNode.level + 1);
+                $("table.treetable").treetable("loadBranch", parentNode.getTTNode(), node.HTML());
+                node.populateFavicon();
+                positionNode(node.getDisplayNode(), parentNode.id, dropUnderNode);
+                dropUnderNode = node.getDisplayNode();
+            });
+            initializeUI();
+            saveBT();
+        } 
+        if (!links.length && dataTransfer.getData("text/plain")) {
+            // Bookmarks or address bar or just text that might have links. (NB can get same data in html)
+            // send to background to populate tabIds, titles as available from tabs and bookmarks
+            // bg will send saveTabs msgs as necessary, handled out of band in std saveTabs (below)
+            const dropData = dataTransfer.getData("text/plain");
+            console.log("URLs:", dropData);
+            sendMessage({'function': 'saveDroppedURLs', 'topic': parentNode.topicPath, 
+                        'dropData': dropData, 'dropNodeId': dropNodeId, 'from':'btwindow'});
+        }
+
+        // Clean up the display and reset the handler for next time
+        $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
+        $("#content").on("dragover", contentDragoverHandler);
+    } catch (error) {
+        console.error("Error in handleExternalDropEvent:", error);
+    } finally {
+        // Reset the flag after a short delay, regardless of success or error
+        setTimeout(() => {
+            handleExternalDropEvent.dropInProgress = false;
+        }, 100);
     }
-
-    // We're done. Clean up the display and reset the handler for next time
-    $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
-    $("#content").on("dragover", contentDragoverHandler);
-
-    // Reset the flag after a short delay
-    setTimeout(() => {
-        handleExternalDropEvent.dropInProgress = false;
-    }, 100);
 }
 
 function dropNode(event, ui) {
@@ -777,6 +782,13 @@ function dropNode(event, ui) {
         // move node and any associated tab/tgs
         moveNode(dragNode, dropBTNode, oldParentId);
     }
+    if (dragNode.bookmarkId || dropBTNode.bookmarkId)
+        // if dragged node is on or onto bbar then it should be updated to reflect move after actions above complete
+        setTimeout(() => exportBookmarksBar(), 10);
+        
+    if (!dropBTNode.bookmarkId)
+        // => not dropping into bbar, so null out any bookmarkid
+        dragNode.bookmarkId = null;
 }
 
 function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
@@ -784,13 +796,11 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     // browserAction => user dragged tab in browser window, not in topic tree
     
     const treeTable = $("#content");
-    let newParent, dragTr;
     if (dropNode.isTopic() && !dropNode.folded ) {
         // drop into dropNode as first child
         dragNode.handleNodeMove(dropNode.id, 0, browserAction);
-        newParent = dropNode;
         treeTable.treetable("move", dragNode.id, dropNode.id);
-        dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
+        const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
         $(dragTr).attr('data-tt-parent-id', dropNode.id);
     } else {
         // drop below dropNode w same parent
@@ -800,7 +810,6 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
             return;
         }
         const parent = parentId ? AllNodes[parentId] : null;
-        newParent = parent;
         const dropNodeIndex = parent ? parent.childIds.indexOf(parseInt(dropNode.id)) : -1;
         let newIndex;
         if (oldParentId != parentId) {
@@ -813,7 +822,7 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
 
         dragNode.handleNodeMove(parentId, parent ? newIndex : -1, browserAction);
         if (parentId) {
-            dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
+            const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
             const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
             treeTable.treetable("move", dragNode.id, parentId);
             positionNode(dragTr, parentId, dropTr);          // sort into position
@@ -1806,7 +1815,9 @@ function deleteRow(e) {
 
     // Special handling for Trash node
     if (appNode.isTrash()) {
-        appNode.childIds.forEach((id) => {
+        // Create a copy of the childIds array before iterating
+        const childIdsToDelete = [...appNode.childIds];
+        childIdsToDelete.forEach((id) => {
             deleteNode(id);
         });
         return;
@@ -1875,6 +1886,12 @@ function deleteNode(id) {
         // Delete from trash
         $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
         BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
+    }
+
+    if (node.bookmarkId) {
+        // update bookmarks
+        node.bookmarkId = 0;
+        exportBookmarksBar();        // update bookmarks bar
     }
     
     // Update parent display
@@ -2039,95 +2056,6 @@ async function processImport(nodeId) {
     await saveBT();                                           // save w imported data
     refreshTable();                                           // re-gen treetable display
     animateNewImport(nodeId);                                 // indicate success
-}
-
-function importBookmarks() {
-    // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
-    $('body').addClass('waiting');
-    sendMessage({'function': 'getBookmarks'});
-}
-
-function loadBookmarks(msg) {
-    // handler for bookmarks_imported received when Chrome bookmarks are push to local.storage
-    // nested {title: , url: , children: []}
-
-    if (msg.result != 'success') {
-        alert('Bookmark permissions denied');
-        $('body').removeClass('waiting');
-        return;
-    }
-
-    const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
-    const importName = "🔖 Bookmark Import (" + dateString + ")";
-    const importNode = new BTAppNode(importName, null, "", 1);
-
-    msg.data.bookmarks.children.forEach(node => {
-        loadBookmarkNode(node, importNode);
-    });
-    gtag('event', 'BookmarkImport', {'event_category': 'Import'});
-
-    processImport(importNode.id);                             // see above
-}
-
-function loadBookmarkNode(node, parent) {
-    // load a new node from bookmark export format as child of parent BTNode and recurse on children
-
-    if (node?.url?.startsWith('javascript:')) return; // can't handle JS bookmarklets
-    
-    const title = node.url ? `[[${node.url}][${node.title}]]` : node.title;
-    const btNode = new BTAppNode(title, parent.id, "", parent.level + 1);
-    if (btNode.level > 3)                 // keep things tidy
-        btNode.folded = true;
-
-    // handle link children, reverse cos new links go on top
-    node.children.reverse().forEach(n => {
-        let hasKids = n?.children?.length || 0;
-        let isJS = n?.url?.startsWith('javascript:') || false; // can't handle JS bookmarklets
-        if (hasKids || isJS) return;
-        
-        const title = n.url ? `[[${n.url}][${n.title}]]` : n.title;
-        new BTAppNode(title, btNode.id, "", btNode.level + 1);
-    });
-    
-    // recurse on non-link nodes, nb above reverse was destructive, reverse again to preserve order
-    node.children.reverse().forEach(node => {
-        if (!node.children) return;
-        loadBookmarkNode(node, btNode);
-    });
-}
-
-function animateNewImport(id) {
-    // Helper for bookmark import, draw attention
-    const node = AllNodes[id];
-    if (!node) return;
-    const element = $(`tr[data-tt-id='${node.id}']`)[0];
-	element.scrollIntoView({block: 'center'});
-    /*
-    $('html, body').animate({
-        scrollTop: $(element).offset().top
-    }, 750);
-*/
-    $(element).addClass("attention",
-                        {duration: 2000,
-                         complete: function() {
-                             $(element).removeClass("attention", 2000);
-                         }});
-}
-
-function exportBookmarks() {
-    // generate minimal AllNodes for background to operate on
-    const nodeList = AllNodes.map(n => {
-        if (!n) return null;
-        return {'displayTopic': n.displayTopic, 'URL': n.URL, 'parentId': n.parentId, 'childIds': n.childIds.slice()};
-    });
-    const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
-    sendMessage({'function': 'localStore',
-                        'data': {'AllNodes': nodeList,
-                                 title: 'BrainTool Export ' + dateString}});
-
-    // wait briefly to allow local storage too be written before background tries to access
-    setTimeout(() => sendMessage({'function': 'exportBookmarks'}), 100);
-    gtag('event', 'BookmarkExport', {'event_category': 'Export'});
 }
 
 function groupingUpdate(from, to) {

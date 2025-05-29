@@ -1,0 +1,895 @@
+# Source: ./pricing.md
+# Special One-Time Offer!
+In celebration of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following*:
+
+- Posting an honest, positive review or mention on a social network feed**, newsletter, blog post, app store review, etc.
+- Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
+- Creating a video or other instructional content.
+
+If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the BTEarlyFinancer coupon code to receive 50% off.
+*&nbsp;&nbsp; Send a link showing the post to braintool.extension@gmail.com** See @ABrainTool on 
+Twitter, Instagram and FaceBook
+# BrainTool Pricing and Data Philosophy
+There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription or purchase you are paying for those tools and their continued improvement, and keeping your data to yourself.
+
+The fully-functional free version and current low pricing are designed to encourage broad adoption. See the [vision and overview](overview) page for more details.
+
+NB Based on user feedback the previous subscription cost has been reduced and a one-time purchase option added.
+# Pricing
+## Non-Supporter
+Unlimited saved items
+
+Import and export Browser Bookmarks
+
+Import-from and export-to local text file in readable org-mode format.
+
+Optional continuous sync to Google Drive or local file (again in plain text).
+
+Full text search on links, descriptions and notes. 
+
+To-Do/Done annotations.
+
+Tab Group display
+
+Session Saving
+
+30 days nag-free followed by prompts to support
+Free## Supporter
+Control of Dark, Dense, Large and Favicon modes
+
+Automated Backups.
+
+Nag-free.
+Planned Features:Multi-file support with per-Topic files.Live sessions.Deep search on contents of saved pages.Capture and save in-page highlightsTags and bi-directional linking.
+
+$1.33/M, $10.66/Y, $20.99 One-time
+
+NB The $0.xx cents cover Stripe transactional costs
+
+
+# Source: ./overview.md
+## BrainTool Vision
+While working online you should be able to easily capture and categorize all the tasks, information and knowledge you want to keep track of, get back to it when you need it and edit it as part of your personal information space. Having a system you can trust allows you to close out tabs, avoid distraction and stay focused.
+
+Work these days generally takes place in a proliferation of browser tabs. Increasingly knowledge workers are using task managers and personal knowledge management tools to keep track of notes and tasks and ideas. BrainTool unifies these two information spaces making it easy to organize all of your browseable information resources into a set of related 'Topics' and to capture to-dos and free-form notes on those topics within your personal organizational system.
+
+The long term vision for BrainTool is to be the tool your brain needs to keep track of all of your information. It will expand to offer a beautiful and satisfying in-place note taking and curation environment, full content search, productivity tools, and content sharing.
+
+## General Philosophy
+- BrainTool uses *your* data with *your* permission to provide tools to manage, organize and access everything you do in a browser. Your data is stored in a human-readable plain text format that you own and have complete control over. 
+
+- BrainTool endeavors to be a fantastic standalone tool but also to work well with other text-based workflows and to readily integrate with an ecosystem of information management and productivity tools.
+
+- There's a free version of BrainTool because I initially built it for myself using free software and resources to do so, so it seems nice to share! Subscriptions and purchases are cheap because I want a lot of people to use it.
+
+- Some companies give software away for free and make money off collecting and selling user data. With a subscription or purchase you are funding BrainTool's development and continued improvement, and keeping your data to yourself.
+
+## Security
+BrainTool is comprised of a browser extension and a JavaScript web application. The app is entirely a static, source-available, client-side app served from [a public software repository](https://github.com/tconfrey/BrainTool). Your data is stored in browser memory or optionally in a file called BrainTool.org, locally, or on your Google Drive. No information is stored or accessible anywhere else. (See also the [official privacy policy.](./BrainToolPrivacyPolicy.pdf))
+
+## Product Overview
+The BrainTool browser extension is a knowledge/notes/links/browser manager. While browsing use the Bookmarker to assign a Topic to web pages you want to save and optionally add a note. Topics, links and associated notes are stored in your personal braintool file. 
+
+Topics provide a way of organizing your information. Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool Topic Manager, and within the browser by a dedicated window or tab group, with tabs for saved links. 
+
+The Topic Manager is your central controller. With drag and drop and powerful keyboard commands it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
+
+By organizing links and capturing your notes about them you are mapping your personal information space. BrainTool stores that information space in a plain-text file. As you save pages and add notes a file called BrainTool.org is kept updated. That file is regular text but structured in the public [org-mode](http://orgmode.org) format. The text file can be edited in any text editor but ideally in emacs with org-mode.
+
+## Roadmap
+There will always be a fully functional, free and open source version of BrainTool with a continuously evolving and improving feature set. The following is not intended to be complete or in priority order, [feedback is appreciated](https://groups.google.com/u/0/g/braintool-discussion).
+
+*Note that BrainTool is intended to help you actively curate an information space, it is not meant to passively observe or capture all of the random information that flows through your browser.*
+
+- **Alternative Backends**: While the current app allows on-demand local file export and a continuously synced local or Google Drive file with automated backups, it would be nice to support different storage back ends.
+- **In-Page Highlighting**: Some similar tools find value in allowing the user to capture text from within a saved page, this might make sense for BrainTool also.
+- **Notes Editor**: The current BT text editing capabilities are pretty basic. Given that it's all just text, emacs or any other text editor can be used. That said, it is a goal for BT to allow note taking in-place within the browser via some kind of simple but beautiful and highly satisfying editor tool.
+- **Org Functions**: Org-mode itself provides a good roadmap for BrainTool's potential feature set. Org is a massively functional but highly complex personal organizational tool. BrainTool could provide an intuitive overlay for a subset of Orgs most important functionality - TODO lists, journaling, agendas etc.
+- **Deep Search**: Searching the full text of your links and notes is fully supported. Longer term it will be possible to crawl the actual contents of all of your saved pages, to augment browser search and maybe even to pre-prompt or customize an LLM to provide a conversational interface to your personal information space.
+- **Tags and Bi-Directional Linking**: In addition to containment it should be possible to model other kinds of relationships between topics and to tag information occurrences as being relevant to multiple topics.
+- **Multi-file Support**: It should be possible to save, share and sync individual topic tree files. For example a 'Recipes' topic could point to a dedicated recipes.org file which is loaded on demand and maintained collaboratively. 
+- **Topic Tree Repository**: BrainTool will host best-practice topic trees and templates around common areas such as 'Productivity Tools', 'Knowledge Management', 'Wedding Organizer', 'Trip Planner' etc. See some early examples [here](https://braintool.org/topicTrees/).
+
+
+# Source: ./support.md
+# Information Sources
+- The BrainTool [User Guide](/support/userGuide) gives a step by step intro to using BT.
+- The BrainTool [Overview page](/overview) discusses philosophy and direction.
+- Here's a [playlist of short videos](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix). They walk through the complete set of BrainTool features (note that the first one is more of an ad).
+- You can post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback or questions.
+- There's also the [Welcome](/support/welcome) page and the [Release Notes](/support/releaseNotes).
+- And some other relevant stuff on the [blog](/posts.html).
+
+# Common BrainTool Problems
+BrainTool gives you complete and full access to all the data saved in the app by optionally writing it to a file on your Google Drive (if you have a Google account, you have Drive storage). Nothing is stored anywhere else other than in your browser. Ironically taking this hands-off approach to your data requires you to grant the application additional permissions after the extension is installed to permit GDrive syncing. This additional step of walking through the Google permission flow is the cause of confusion and some conflicts with other things going on in your browser.
+
+## I installed the extension but I don't see anything
+By default Chrome hides installed extensions under the little jigsaw piece icon on the nav bar. If the BrainTool extension installed correctly you can see it by clicking the jigsaw piece. You can pin it permanently to the nav bar by clicking the pushpin icon.
+
+## I see 'Error Authenticating' while enabling GDrive
+Google uses what are called 'third-party cookies' to store account information and a popup to ask for your permission. Increasingly browsers default ot not allowing popups and cookies. You need to allow popups from accounts.google.com and braintool.org and allow cookies from accounts.google.com in your Chrome settings. Doing so and restarting BrainTool should solve the problem. (NB do not click the box titled 'Including Third-party cookies on this site'.)
+
+## After clicking Authorize GDrive nothing happens
+Related to the above, some security and privacy related extensions stop web pages from sending messages to third party sites, in some cases I cannot catch this as an error. Privacy Badger is an example of such an extension. You will need to disable such extensions for the braintool.org url. 
+
+## I use two computers and don't see my changes on the second one
+As noted above, your braintool data is stored in the browser and optionally on Google Drive in a file associated with your Google account (the file is called BrainTool.org, you can see it by visiting [drive.google.com](https://drive.google.com)). Thus you will have a single such file across any set of computers you use. If you have BrainTool running simultaneously on multiple computers you need to use the Refresh button (under Options) to reload the latest version of the file when you swap between computers. 
+
+# Some other problem
+Email braintool.extension@gmail.com or post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback.
+
+
+# Source: ./index.md
+# Tame Your Tabs### 
+ Easily Save Tabs by Topic.
+
+ Then close them until needed.
+
+ No longer fear closing a tab!
+ # Curate your Topics### 
+ Organize and group your Topics however you wish.
+
+ Add Notes and TODOs
+ # Control your Browser### 
+ Switch between contexts with ease.
+
+ Keep your workspace distraction-free!
+ # What the Press says:### ...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.
+
+ZDNET BUSINESSOrganize your tabs and bookmarks into a common set of Topics.Quickly categorize, save and close tabs to unclutter your browser.Incremental search and filtering makes it easy to find things again.Organize and nest topics to add structure.Add notes to any bookmark or webpage for future reference.Use the Topic Manager to open and close individual tabs or multiple tabs by topic.Customize topics with colors and icons.Mark bookmarks and tabs as tasks with TODO functionality.Keyboard shortcuts and support for power users.Intuitive drag and drop from the browser bar into and within the Topic Manager.Fully configureable display including density, font size and darkmode.Free forever at any scale, optional premium features lock after 30 days.## What Our Users Say:Alice FreeIt truly feels like the developers KNOW my brain. I checked off every bullet point on my list of needs and then some. I don't know how I ever lived without it.Evan SmithI've tried other options, but BrainTool far surpasses them. It integrates seamlessly with my workflow, especially with organizing my research links and bookmarks, which is a game-changer for me.Strati VourakieThe 1.0 update is phenomenal. Looks absolutely gorgeous, very visually pleasing & appealing, and a significant upgrade.Boisjere KayastaMANAGES WHAT MATTERS: Most tab, session or bookmark managers miss what really matters. The point is to manage the *meaning*, not just the identity of the target.Kapil BhallaAmazingly well thought out tool that makes my browser life so streamlined.Eliot BakerImpressed with what BrainTool can do! The concept is brilliant, integrating bookmarks and tabs seamlessly with emacs org-mode notes fits into my workflow perfectly.Wade FogartyEverything is categorized and notated so I don't have to keep all the tabs open to keep track of all the crazy stuff I'm doing. Great extension!Ronna BruceI frequently need to open the same four websites, and this tool allows me to open them all at once or individually, which is fantastic!Ching Yeow PangBrainTool has helped me get my life organized in a way that I never thought possible.Adrian Boncan5 stars for the amount of smart thinking that went into this, for the vision...it's a brilliant tab manager and you can use it to save content to hierarchies (topic maps) that work for you.Stefanos Kalantzisit's a life saver, and a game changer for productivity and digital well-being...I especially love this project's PhilosophytsukiLong time, I had trouble with bookmarks. But BT released me from confusion. I got back happy web surfing. Thank you very much!Jorge Bracerhaving tried almost every other tab management extension I could find, this is the one that I finally believe is on the right track.Solaire PhantomThis extension naturally fits the bill of organizing such tab groups into a logical hierarchy of "work units" that can be quickly accessed / switched to.Joel Robertsthe tool itself is amazing...use this with TabFS, todoist.el, and rclone to do some pretty neat things. Very elegant.Jeff RussellI've been using Braintool for several months now and I've been thrilled with it...The really great thing in BrainTool is the ability to save notes along with the link...The keyboard shortcuts also make it incredibly quick and easy to useRichard LlyodThis extension has me hooked as it's definitely not like your normal bookmark manager...The ability to use an org file to sycn was a genius move.George CraioveanuThis is becoming a powerhouse productivity tool! It is Bookmarks+Sessions+Outliner in one place...also, the whole idea of basing this on an org file is just brilliant!Trevor LewisI've used Session Buddy and OneTab. This is far superior...8 months later BrainTool absolutely still deserves 5 starsKrishthe reason I am leaving 5 stars is because of tagging, categorization, and notes taking that is clean and visible.M Schupanlook beyond the surface of BrainTool to discover it's hidden powers ... which are desperately needed in today's cloud-based environments where lots of information is hidden in the fog.CSW MVPFor a long time I was looking for a Tabs Outliner replacement because it is not actively developed. With Braintool I have found it.Carina BracerMy husband recommended this extension as I stopped using Tabs OutlinerJonathan BauerAs a current Tabs Outliner user, my first reaction is that BrainTool, even in its pre-1.0 release, is far more polished.Michael DiamondAmazing App. I love that it's in plain text and uses org mode!Your data is kept in plain text in a private continuously synced and versioned text file.No lock-in! 
+BrainTool uses structured org-mode syntax compatible with other productivity tools.The file can be separately edited, used across devices with import and export to/from multiple sources.BrainTool is open source. You can see what its doing!
+
+
+# Source: ./_posts/2024-07-01-The-best-Tabs-Outliner-alternative.md
+# BrainTool 1.0 is the best Tabs Outliner Alternative
+
+Tabs Outliner is a venerable and highly functional browser extension for managing tabs and sessions. It's tree structure and side panel display were an inspiration during BrainTool's early development. BrainTool is different than Tabs Outliner, however the two tools have significant overlap and many Tabs Outliner users have found that BrainTool is the better tool for their workflow. Google is in the process of discontinuing support for its Manifest V2 extension infrastructure and Tabs Outliner is looking moribund. Tabs Outliner users should evaluate BrainTool. 
+ 
+ 
+ UPDATE AUGUST 2024: Tabs Outliner has been updated to MV3. However if you are user of Tabs Outliner then BrainTool might still be of interest.
+ 
+![TabsOutliner and BrainTool](../../../site/postAssets/BT-TO.png)
+## The Pending Deadline
+Chrome browser extensions are built using a set of exposed APIs and run in a controlled sandbox environment. BrainTool was built on 'Manifest V2'. For a number of years Google has been tying to enforce the use of the 'Manifest V3' version of its browser api's and extension infrastructure, reportedly for security and performance reasons. An initial conversion deadline last year failed after developers revolted and pointed out that the V3 API could not support the needs of many very highly used extensions (most particularly ad blockers and other content filters).
+
+To their credit Google retrenched and worked with developers, pushing out the deadline to this year. Well that deadline is [now upon us](https://www.theverge.com/2024/5/30/24168057/google-chrome-extension-change-manifest-v3-ad-blockers). The June version of Chrome's 'canary' build (a pre-release version available to developers, or anyone, wanting to try it out) turns off support for extensions running on V2. That canary version will soon make it into production, at which point Google will start turning off V2 extensions for swaths of users. Exactly when or how that will happen is not public, maybe not even decided yet. 
+
+Tabs Outliner is one of many highly used and successful extensions that have been on the Chrome Extension Store for years with no updates or signs of support. Thats a success story in many ways, but users of those extensions are now at risk of loosing access to the tool and associated data. Having put in the work to migrate BrainTool I can report that it was a non-trivial effort. (Albeit a good forcing function for me to release BrainTool 1.0!) I received input on a pre-release candidate from a number of Tabs Outliner users and have put some effort into smoothing the migration path.
+
+## Tabs Outliner Vs BrainTool operating model
+![TO hierarchy](../../../site/postAssets/TO-hierarchy.png)
+
+Tabs Outliner shows a dense tree with Window nodes containing Tab nodes representing your currently open windows and tabs. Sessions can be saved - the tree will show saved sessions alongside the live one. There are also pure notes nodes and visual separators of various kinds. When tabs are opened from other tabs they are nested in the tree creating a deep structure. Tab groups are ignored and search uses the browser search which only operates on visible text.
+
+![BT hierarchy](../../../site/postAssets/BT-Hierarchy.png)
+
+BrainTool focuses on helping you build a curated tree of online resources and then using that tree to subsequently find, open and close tabs and tabgroups with ease. The tree hierarchy is composed of Topics, which are groupings or categories into which you organize tabs. It has explicit topic/sub-topic/sub-sub-topic semantics. Adding notes is encouraged, full text incremental search makes it easy to find things and all functionality is available via keyboard commands. BrainTool does not (currently) have a live view of windows and tabs and does not save anything unless it's explicitly added via the Bookmarker tool. In 1.0 BT makes heavy use of browser tab groups to reflect its topic structure in the browser. Using plain text [org-mode](https://orgmode.org) as its storage format allows BT to interact with other productivity tools. 
+
+## How to Migrate from Tabs Outliner to BrainTool
+
+1. Clean up!
+- In my useage Tabs Outliner saved a lot of spurious tabs and windows and sessions that I subsequently just left in the tree. If you are going to try migrating to BrainTool I recommend reviewing your current tree and deleting anything you obviously don't need to save. 
+
+2. Export from Tabs Outliner
+- From the Tabs Outliner bottom menu click the Settings item.
+- If you haven't previously done so enable the Google Drive Backup Controls. This is required to unlock the export function. 
+- Scroll down to the Export heading and select "Export Tree to File"
+- This should create a .tree file in your Downloads folder.
+3. [Install BrainTool](https://chromewebstore.google.com/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) and set up your high level structure
+- BrainTool comes with a small default Topic hierarchy but this is a good opportunity to review how you are categorizing your online resources and define your initial working Topic hierarchy. 
+4. Import to BT
+- Open BT and click Actions. There's an option for Tabs Outliner under Import. Find the file saved above from your Downloads folder and import it. A version of the TO tree should be created in your BrainTool tree.
+5. Drag/drop/move and organize your tabs. Some useful features:
+ - The number keys will expand, or collapse, the BrainTool tree to the corresponding depth. The tab key cycles the expanded state of the selected node.
+ - M-up/down will move the selected node, and any children, up or down in the tree.
+ - M-left arrow will promote the selected node up the hierarchy.
+6. Give it some time 
+- BrainTool is not complicated but, like Tabs Outliner, takes a little getting used to. 
+
+## BrainTool verses Other Alternatives
+
+There are many (many, many) tools that are, or claim to be, some combination of tabs and session managers or bookmarkers or other takes on browser productivity tools. See here and here for some descriptions and reviews. None, that I'm aware of, are an exact match for Tabs Outliner and there are many different approaches, but IMHO BrainTool has one of the most similar mindset. In addition: 
+
+ - BrainTool is [source available](https://github.com/tconfrey/BrainTool).
+ - BrainTool imports from Tabs Outliner.
+ - BrainTool also imports/exports bookmarks and org-mode files and syncs to a local plain text file you can edit. 
+ - Google Drive sync is also supported for multi-computer syncing.
+ - While not as dense as TO, BrainTool fits a lot of information and structure into its display, unlike visual bookmarking tools like [RainDrop](https://raindrop.io) or sharing tools like [Toby](https://www.gettoby.com/).
+ 
+## In Conclusion
+Its not yet clear how the Manifest V3 migration will progress but now is a good time to check out BrainTool 1.0 running on MV3. It's fully usable free and can even be used in parallel with Tabs Outliner.
+
+
+# Source: ./_posts/2022-03-10-Five-tools-for-browser-productivity.md
+# Five Tools for Browser Productivity
+
+We're all spending more and more time working in a browser. We sit with a bunch of tabs open, trying to keep up with the deluge of information inflow. It can be overwhelming. All those tabs are distracting and slow down the computer. But without someplace safe to save them we might loose them, and restoring the context will take time and mental effort. So we leave them open.
+ 
+
+BrainTool is designed to make working in a browser more efficient. It is part of an ecosystem of browser extensions and web apps that have sprung up recently to address aspects of these problems. This is a description of the five main classes of tools within that ecosystem.
+
+## Tab Managers
+The two major symptoms of the too-many-tabs problem are human and computer overload. Tab managers address these symptoms by making it easy to close a bunch of tabs such that you can get them back later (easing mental overload), or by suspending/deactivating tabs such that they stop using resources (easing computer overload). 
+
+One Tab turns all the tabs in a window into a single new tab with links to each previous tab's content. Tab Suspender replaces inactive tabs with a static image of the tabs contents.
+
+## Session Managers
+A step up in terms of complexity, are session managers, which save and manage sets of tabs geared to a particular purpose. [Session Buddy](https://chrome.google.com/webstore/detail/session-buddy/edacconmaakjimmfgnblocblbcdcpbko) lets you see and manage open tabs, save sets of tabs into a named session and restore previous sessions. [Tabs Outliner](https://chrome.google.com/webstore/detail/tabs-outliner/eggkanocgddhmamlbiijnphhppkpkmkl) shows a side panel window with a hierarchical representation of sessions, windows and tabs with associated notes. Live and historical sessions are intermingled.
+
+Worth noting here is the "tab groups" feature in most modern browsers. [Tab groups](https://blog.google/products/chrome/manage-tabs-with-google-chrome/) provide a visual color-coded and named grouping of tabs which can be collapsed to save space in the tab row. They can be used to create an in-browser session.
+
+BrainTool (BT) can fill the role of a session manager with tree functionality similar to TabsOutliner and the ability to save and restore sets of annotated tabs. By default BT groups tabs for a topic into a tab group.
+
+## Bookmark Managers
+While tabs and session managers are oriented around browser tabs and windows, bookmark managers focus on the contents of the tabs, helping you keep track of your information where it lives, outside the browser. There are many approaches to this, with different primary purposes and varying organizational and retrieval schemes. Here are some common flavors:
+
+### Organizers
+The basic function of a bookmark manager is to help you organize your stuff. Organizing bookmarkers generally have a dedicated tab with some representation of bookmarks in various groupings or nested categories. [Bookmark Ninja](https://www.bookmarkninja.com/) aims to make your bookmarks available on all your platforms. [Partizion](https://www.partizion.io/) offers distinct workspaces and [Webcull](https://webcull.com/#) creates folders and stacks against a customizable background.
+
+### Visual Bookmarkers
+Visual bookmarkers give you a visual clipping or other representation of each bookmarked web page. The visual representations are then organized as a set. [Raindrop](Https://raindrop.io/) and [Mymind](Https://mymind.com/) are examples of these kinds of tools (see [this informative video](https://www.youtube.com/watch?v=BoyUM99M_R0) if you are trying to choose between them).
+
+### Highlighters
+
+Highlighter tools are research aids. By capturing highlights and annotations on web pages they add a personalization layer to the internet. [Diigo](https://www.diigo.com) provides annotation, highlighting and web 'sticky notes'. [LINER](https://getliner.com) is a highlighter extension that uses crowd sourced highlights to augment search results.
+
+### Read Later Tools
+Some bookmark-type tools focus on maintaining and accessing a reading list. [Pocket](https://getpocket.com/premium?ep=1) and [Instapaper](https://www.instapaper.com/) have distraction-free reading modes, and store a permanent copy of your articles with your notes and annotations.
+
+### Sharing Tools
+
+Shared and social bookmarks have been a thing since the legendary [del.icio.us](https://en.wikipedia.org/wiki/Delicious_(website)) in the early 2000's. [PInterest](https://www.pinterest.com/) is a more modern incarnation. Most sharing bookmarkers are focused on team productivity and knowledge sharing. [Tagpacker](https://tagpacker.com/) creates tagged bookmark packs to share. [Toby](https://www.gettoby.com/product) has shared team collections and workspaces. [Workona](https://workona.com/) adds shared files and tasks with a project focus.
+
+### BrainTool
+There are no doubt other ways to categorize bookmarkers and many of the examples above have features in multiple categories. BrainTool is a text-focused organizing bookmark manager, it supports an infinitely nested topic tree with drag and drop organization and a focus on efficiency, keyboard navigation and search.
+
+## Special Mention - Task Managers
+An open tab is often just a placeholder for an associated to-do item, so while they are not purely browser productivity tools it's worth mentioning task managers such as [Workflowy](https://workflowy.com/) and [Todoist](https://todoist.com/). These organizer type tools can help siphon off and organize the underlying task associated with an open tab so you can close it.
+
+BrainTool supports assigning a TODO status to any topic or page, re-finding TODO items and subsequently marking them as DONE or closing them out.
+
+## Personal Knowledge Management Tools
+
+If bookmark managers help you manage and organize your online information sources and resources, PKM tools help you manage and organize... everything - notes, journal entries, thoughts, to-dos, contacts, books, papers, research, recipes, watch lists, etc. 
+
+The original PKM tools like [Evernote](https://evernote.com/) and [OneNote](https://www.microsoft.com/en-us/microsoft-365/onenote/digital-note-taking-app) use a notes and notebooks model, more recent tools like [Roam Research](https://roamresearch.com/) and [LogSeq](https://logseq.com/) are based on a bidirectional linking model, enabling the generation of knowledge graphs like this one. Of necessity these tools are more complex, with a steep learning curve, targeted to people building a [second brain](https://www.buildingasecondbrain.com/).
+
+Given its ability to create a searchable hierarchy of topics with notes and links, BrainTool can be seen as a lightweight PKM tool. Since it saves your data in org-mode syntax* BT can also be used as a browser manager that can integrate with more extensive PKM tools such as LogSeq or [emacs/org](https://orgmode.org).
+
+## So which should I use?
+The lightest weight approach to tabs overload is to use a tabs or session manager. Like a bandaid or pain killer these tools address the symptoms rather than the underlying cause of the problem. They don't help you organize or search your information and so aren't a scaleable solution, but they may provide temporary relief. 
+
+If you are a visual thinker, deep researcher or just looking to manage your reading list check out the appropriate bookmarker category. If you are willing to invest some time and are interested in building a second brain try one of the modern PKM tools. Alternately if you need to get your arms around your to-do list, experiment with a task management tool.
+
+## The BrainTool Topic Manager
+
+BrainTool is a unique combination of many of these features and best described as a 'Topic Manager'. Like the best bookmarkers, BT makes it easy to capture and categorize pages, close them out and get back to them later. By using topics to control tab groups, BT replaces any need for tab or session managers. Given its hierarchy of topics with TODO's, notes and search, BT is also an entry level PKM tool and task manager. Finally, by providing open access in a well used data format, BrainTool can operate in conjunction with other tools in the category.
+Please post any comments or questions to this twitter thread.
+
+*The case for org-mode markup
+
+
+# Source: ./_posts/2021-12-8-Clean-up-your-tabs-with-BrainTool.md
+# BrainTool Browser Hygiene
+Keeping good tab hygiene can reduce the cognitive load of having so many distractions and open loops in your head. It's also pretty satisfying! I recently found myself with 20+ open tabs and decided to record a demo of my process for cleaning up a workspace by saving what I need to keep into BrainTool. 
+
+This was also a good opportunity to show the new Bookmarker widget in action. The 0.9.8 release separates out the note card from the topic selection, turning saving a tab into a simplified two step process. There are more details below but check out the video and LMK what you think (sound required for narration).
+
+## Further Details
+- Access the Bookmarker with the accelerator key (Option-b for Mac, Alt-b on PC) or just click the icon.
+- The first thing you see is the note card for the page. It shows the title, which is editable, the url, which is not, and the notes field.
+- By default only the current tab is in play but you can toggle to operate on all open tabs in the window.
+- Just hitting enter when the note card pops up will move you on to the topic selector if you don't want to add a note.
+- The topic selector still does search with autocomplete so you can just start typing to find the topic you want.
+- However you can also use the mouse to expand and explore the topic tree, in place, and select the one you want.
+- Adding a ':new topic' after the name of an existing topic will save the page into a newly created subtopic under the existing topic.
+- Adding ':TODO' after the topic will save the page with a TODO annotation.
+- If there's enough context the topic selector offers a guess at the topic. If its correct just hit enter, otherwise a single backspace will delete it.
+- Opening the Bookmarker for an already saved page will allow you to edit its note.
+
+
+# Source: ./_posts/2021-04-21-My-BrainTool-orgmode-and-emacs-workflow.md
+# Adding BrainTool into an emacs & org-mode workflow
+
+BrainTool is a browser plugin with a tree-structured side panel showing your personal hierarchical 'Topic' list. It's easy to assign a tab, or many tabs, to a topic and add associated notes. Tabs and whole topics can be opened and closed easily, so it helps keep your tabs tidy and your research organized. Most importantly for this post, it writes all data to an org-mode formatted text file. See more details in this overview.
+
+I'm an ascii-text note taker. Over the years I've experimented with a paper notebook per topic, then a single big notebook for everything, then smart pens and clipboards, then scannable paper notebooks, then an iPad with Pencil or the Galaxy Note. I've played with mindmap tools and EverNote. But I've always based my development environment around emacs, so inevitably I drift back to a text buffer in emacs - I type faster than I write, my handwriting is hard to read, its easy to cut and paste and organize text, and I can search or grep to find things fast even in the middle of a conversation.
+
+I've experimented with org-mode a few times and been rebuffed by its steep learning curve. However during my recent experiment in becoming an indie hacker I've put in the time to get set up with org and to drill a set of commands into the muscle memory of my fingers. I'm not an org wizard but I've found huge value in just getting to the (non trivial) basics of todo's, tags and timestamps, interspersed among nested headings and plain old paragraph text. Adding BrainTool, which pulls in and organizes all my online resources, is (I think) a winning combination!
+
+This post lays out the basics of my setup and how you might adopt it.
+
+Screenshot showing BrainTool with emacs and Chrome views
+
+## Desktop Setup
+
+It turns out I only need a few files to track everything. I keep a single long daily-log.org file with a heading for each day, tracking what I'm doing, decisions made, capturing TODO tasks etc. I take notes on calls and meetings in place under an appropriately named sub-header. I aggregate weekly and monthly summaries so I can see progress. I have a network.org file separately tracking networking interactions I want to save, with a header per person and links into the daily log file. I also have a cheatsheets file (to help me get back to those org-mode key commands) and a random-notes file. In addition to those, BrainTool's BrainTool.org file holds my entire knowledge base for topics, notes and links to resources.
+
+All of my org-mode files live in a folder on my Google Drive. I use the Google Backup and Sync app to map the GDrive folder onto my local machine. I generally keep BrainTool.org open in emacs so I can search it or add content. Since the BrainTool app writes to it when I'm working in the browser I turn on [auto-revert-mode](https://www.gnu.org/software/emacs/manual/html_node/emacs/Auto-Revert.html) so that emacs keeps the file up to date. I make a habit of hitting BrainTool's 'Refresh from GDrive' button whenever I swap out of emacs and into Chrome.
+
+_Note that recent versions of BrainTool (BT) both warn if the file is out of sync and are not dependent on a GDrive link at all. You can import from and save to a local .org file, so if your corporate network does not allow GDrive access you can still use this process_.
+
+BT supports adding a TODO status to topics and links, so org-agenda can show a unified TODO list across all my files. As noted, I'm not (yet) a heavy user of many org features. If you are, you are not limited in your use of org features, BT is pretty good about copying through all the org markup so you can add lists, tables, blocks etc to the BrainTool.org file. BT does use drawers and properties for some meta-data (eg the folded state of the topic tree). I don't like seeing those in my notes so I have an elisp function to completely hide them on demand (hit me up if you want the code).
+
+## Mobile Setup
+
+Chrome does not support extensions on mobile so BrainTool itself does not run on my phone. However it is very useful to have a read-only view on your phone and to be able to tap through into saved links. To make that work I run the [AutoSync for Google Drive](https://metactrl.com/) Android app which regularly syncs all my .org files onto the phone. I can then use the excellent Orgzly app to interact with my BrainTool resources in a read-only fashion. This has saved my bacon a few times when I needed to access something in my braintool while out and about.
+
+## Topic Model
+
+BT does not impose any structure on the topics you create. Personally I try to approximate Forte Labs [PARA](https://fortelabs.co/blog/para/) model - Projects, Areas, Resources and Archive. Although I add a 'T' for 'To Read' or 'To Do' (so I guess PARA+T). Those are all top level topics.
+
+Under the Project hierarchy each of my active projects is a next level topic. To illustrate, 'BrainTool' is a project, under which I have a topic called 'Admin' where all my BT admin links live (eg the Chrome Web Store Admin page, the Google Analytics page, the BT group chat link etc). There is also a 'Press' topic capturing any press articles about BT, 'Complementary' and 'Competitive' tool topics etc. 'Kitchen Reno' is another project topic gathering all my links on cabinet makers, 3d modeling tools etc. See the screenshot above for how that looks on my screen.
+
+Areas stands for 'areas of responsibility'. Topics under there include Finances, Health, and House; with links to google sheets, tax records, health portal logins and so on.
+
+Under Archive I keep old projects (the kitchen project will move there very soon - thankfully!) and Resources is all over the board.
+
+BrainTool is a work in progress and I've been using it as I build it, so my personal model is still very much in flux but thus far this general framework seems to be working for me.
+
+## Conclusion
+
+I like the way BT is evolving and how it fits into my personal organizational and knowledge management system. I'm hearing from users that it has value to them as a standalone tool, but in addition I think it has potential to be a shallower onramp for emacs users, like I was, who would like to start leveraging the power of org-mode. Start using BrainTool as your uber-bookmark/browser manager and then open it up in emacs to add notes, todos, tags and timestamps and thereby also drive a unified org-agenda based task tracking system.
+
+I'd love to hear your thoughts and experiences in the [BrainTool discussion group.](https://groups.google.com/u/0/g/braintool-discussion)
+
+
+# Source: ./_posts/2021-10-06-Control-Your-Browser-with-the-Keyboard.md
+# BrainTool Search and Keyboard Controls
+The latest version of BrainTool added the ability to search across all your topics, pages and notes. As with all BrainTool functions it is fully keyboard enabled. Using search to navigate across your notes, find what you are looking for and then open or close tabs and tab groups, all without lifting your fingers from the keyboard, makes for a transformed browser experience!
+
+See what I mean by listening through the brief (
+
+
+# Source: ./_posts/2022-01-28-Browser-based-Productivity-and-pkm-with-emacs-org-mode-LogSeq-and-BrainTool.md
+# Browser-based Productivity and PKM with emacs, org-mode, LogSeq and BrainTool
+
+BrainTool is a free and open source browser bookmark tool that makes it easy to add notes to your bookmarks, organize them into a topic hierarchy and then use that hierarchy to open and close groups of tabs and thus control your browser. It is unique as a bookmark manager in that it is designed to interoperate as part of a larger system of personal knowledge management and productivity tools. 
+
+It achieves this interoperability by saving your data into an accessible plain text file written in the emacs standard org-mode format. Org mode is a set of plain text tools used to manage tasks, to do lists, notes, links, journal entries and almost any form of text-based information. 
+
+Most org mode users interact with it via the emacs text editor but it can be used in any text editor and is increasingly used as a format by other tools such as the [LogSeq](https://logseq.com)* personal knowledge manager, the [Flat Habits](https://flathabits.com/) iOS ToDo manager and [Plain Org](https://plainorg.com/), an iOS org-mode editor.
+
+The embedded video shows how the notes, links and todo items captured by BrainTool in your browser can be accessed and edited in org mode and then used to drive a task manager. The same plain text file is also shown synced to LogSeq and being navigated in the LogSeq user interface. 
+
+All three tools are automatically kept in sync by virtue of using the same org mode file as backing store. Currently this requires syncing BrainTool to a Google Drive file and using the Google Sync app to sync your GDrive to a desktop folder. Emacs and LogSeq can then read and write the BrainTool data file locally. Some care needs to be taken to allow time for the local and remote files to sync before moving between tools.
+
+If you are new to BrainTool the [other videos in this playlist]( https://youtube.com/playlist?list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP) give a short introduction. 
+
+To comment on the post reply to [this tweet](https://twitter.com/ABraintool/status/1487190355208507400?s=20&t=ZWuOkiyA2WR-26vKElz-QQ)
+
+*LogSeq is an open source alternative to tools like Roam Research, Obsidian and Notion. Like Obsidian (and BrainTool), LogSeq saves your data in accessible plain text files, unlike Obsidian Logseq was originally built to use org mode.
+
+
+# Source: ./_posts/2024-08-15-BrainTool-PKM-Bill_of_Rights.md
+# BrainTool PKM Bill of Rights 
+
+I've written previously about the [philosophy](https://braintool.org/overview) behind BrainTool's approach to transparency, data management and [storage format](https://braintool.org/2022/04/29/Tools4Thought-should-use-Org-for-interop.html), but I've been thinking that it'd be worth formulating a specific list of rights that BT grants its users. I like the alliteration of "BrainTool Bill of Rights", but I think it's a set of rights and assurances that other tools managing user data should aspire to. 
+
+I'd love to see these evolve into a widely acknowledged Personal Knowledge Management (PKM)/Productivity tool bill of rights. What do you think?
+(Spoiler: It's your data and BT is just one tool you've empowered to help you manage it.)
+
+## **Tool User Rights:**
+**1) You have the right to full and exclusive access to your data.**
+
+It's your data! No one likes large corporations owning their personal data, using it for model training or marketing purposes, and exposing it to security risks. Too many tools today offer a free service but earn revenue by processing and selling the associated data. 
+
+BrainTool is a Bring Your Own Data (BYOD) tool with no server or database.
+
+**2) You have the right to re-use your data across tools.**
+
+Your data should be accessible from different tools insofar as the same things are being worked with. Tools should be able to read and edit Appointments, Tasks, Tags, Notes, Lists, Journal entries etc created in other tools. 
+
+BrainTool uses [org-mode](https://orgmode.org) syntax which means you can access your BT bookmarks, notes and to-dos in other tools[*](#footnote) or any text editor.
+
+**3) You have the right to inspect the code and logic of tools accessing your data.**
+
+There needs to be a way users can verify the operations they are trusting tools to perform on their behalf.
+
+BrainTool is source available and statically hosted in public on [github](https://github.com/tconfrey/BrainTool).
+
+**4) You have the right to human-readable data formats.**
+
+Your data should be interpretable outside the context of a specific tool. 
+
+BrainTool uses readable plain text ASCII which can be viewed or edited in any text editor.
+
+**5) You have the right to structure your data how you see fit.**
+
+Insofar as your data has hierarchy, tagging, ordering, sorting and linking elements you should be able to define that structure. 
+
+Your BrainTool topic tree can be take any shape with infinite topic nesting.
+
+### **BrainTool Grants the following Additional Rights**
+**6) You have the right to a fully functional extended evaluation period.**
+
+You need to be able to climb the learning curve for a tool to assess it's utility for your use case - before having to commit to a purchase. 
+
+BrainTool is usable free forever, cheap to support and free for friends. There are no limits on use. After 30 days some features and preferences are restricted to supporters.
+
+**7) You have the right to a one-time purchase**
+
+In today's subscription-for-everything world, opaque recurring costs are a source of user frustration.
+
+BrainTool offers a one-time purchase in addition to recurring supporter subscriptions.
+
+## **Tool Maker Aspirations**
+In addition to these basic rights tool makers should commit to the following aspirations:
+
+**a) Tools should solve real world day to day problems.**
+
+BrainTool solves your biggest browser headaches: the "too-many-tabs problem" and the "how do I save and re-find my stuff problem".
+
+**b) Tools should be easy, pleasing and fun to use.**
+
+Easier said than done, but always aspirational!
+
+**c) Tools should continually evolve based on user feedback.**
+
+Feedback loops fuel improvement. BT has an active and vocal [discussion group](https://groups.google.com/u/0/g/braintool-discussion).
+
+**d) Tools should be information dense.**
+
+You have lots of sites to store and tabs to wrangle. BT fits a lot in a small space.
+
+**e) Tools should be easy to pick up but reward expertise.**
+
+BT's incremental search and keyboard commands will make you more efficient over time.
+
+**f) Tools should minimize distractions.**
+
+A sparse workspace is a productive workspace. By making it easy to save, retrieve, and control tabs en masse, BrainTool encourages filing things away, reducing browser clutter and enhancing focus.
+
+* [Emacs](https://orgmode.org/worg/org-tutorials/org4beginners.html), [LogSeq](https://logseq.com/), [Orgzly](https://www.orgzly.com/), [MobileOrg](https://mobileorg.github.io/), [beorg](https://www.beorg.app/) and [FlatHabits](https://flathabits.com/) among others.
+
+
+# Source: ./_posts/2024-06-12-BrainTool-1-0.md
+# BrainTool 1.0 is Live!
+
+ After a hiatus BrainTool is under development once again, just in time to meet a Google deadline to get the 1.0 release up on the Chrome and Edge App Stores. Lets look at what happened, whats new in the release, why you should give it a try and how much it'll cost you.
+ 
+
+## A Catch-Up
+If you haven't been following along, the early BrainTool story is [here]({{ site.baseurl }}{% post_url 2021-01-14-First-Two-Thousand-BrainTool-Users %}). In summary, I built it for personal use during a Summer sabbatical, put it online, got a good press review and suddenly had two thousand users. I've always wanted to craft my own, personally-created, widely-used, piece of software - the idea that my code is out there in daily use by real people has kind of a great American novel appeal to me. So I decided to invest some time trying to evolve BrainTool into something that a lot of people would use to solve the common problem of keeping track of their online stuff.
+
+Over the subsequent 18 months I put a lot of work into BT while paying (some of) the bills with consulting. I hooked up with a great designer (Alex@whi.digital), got a lot of user feedback and had line of sight to my 1.0 feature set and visuals. 
+
+![Figma](../../../site/postAssets/BT-1-0-Figma.png)
+
+Then in August '22 Alex died; tragically, unexpectedly and way too young. At the same time a fantastic career opportunity opened up for me. I left BrainTool to drift by itself, with every intention of getting around to tying off those few loose ends. But the loss of Alex really took the wind out of my sails and at the new gig a hurricane was blowing. 
+
+Fast forward to today. I recently transitioned back to focusing on BrainTool. At some point Google announced a June deadline to move to their new "MV3" browser infrastructure. So since I free'd up, I've been working on that MV3 migration, collaborating with a set of early adopters, and burning down my BrainTool 1.0 checklist. 
+
+It's been satisfying to bring Alex's designs to life, but I miss working with him 😢. BrainTool 1.0 isn't yet everything I want it to be, but I like how its evolving and the migration deadline is here.
+
+## The 1.0 Vision
+BrainTool encourages you to assign a topic to any web page or online resource you want to save, keep track of, or come back to. The Bookmarker tool makes it trivial to categorize tabs by topic, and the Topic Manager allows you to intuitively organize, annotate and edit your evolving hierarchy of topics. 
+
+In 1.0 Topics present themselves as BrainTool controlled tabgroups in your browser. Webpages saved under a given topic become tabs in a named browser tabgroup.
+
+![TabGroups](../../../site/CollatoralMaterial/TabGroups.png)
+
+Grouping tabs into topics that can be jointly opened, closed or folded away lowers the impedance to closing tabs and allows you to focus on one project or group of tasks at a time. Between the hierarchy, notes and incremental search, its easy to subsequently find what you need and re-open the tabs to pop back into context.
+
+## The Itch
+The personal itch I was scratching in creating BrainTool was a need to integrate an ever increasing proliferation of web-based resources, tools and information sources, with the rest of my to-do's and notes, which I keep in a bulleted plain text format. So BrainTool saves your topics, tabs and associated notes and to-do's locally, on your machine, in that same [org-mode](https://orgmode.org) plain text structure. There's no big database. You own and store your data, and can access and use it with other productivity tools, [like I do]({{ site.baseurl }}{% post_url 2021-04-21-My-BrainTool-orgmode-and-emacs-workflow %}).
+
+## Pricing
+As part of my initial run at BrainTool I did some research on pricing models for similar tools and based on that implemented a subscription scheme, charging $3.99/month or $40/year. There was no enforcement so it has been satisfying to see a stream of purchases. That said, I received feedback that it was overpriced and no one likes subscription services. 
+
+I'd love to be able to go fulltime evolving Braintool supported by its sales, but I'd prefer to have a million free users than a few thousand high paying ones. So this new version is unrestricted but has $1/10/20 monthly/ yearly/ permanent 'Supporter' tiers*.
+
+## A Call to Arms
+I like the way BrainTool is evolving and, as you can see if you scroll through the reviews ([here](https://chromewebstore.google.com/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio/reviews) & [here](https://microsoftedge.microsoft.com/addons/detail/braintool-beyond-bookma/igibjpnabjgljgnfajjpapocagidmeol)), it really resonates with some people. Its not for everyone but maybe it will resonate with you. Give it a try, pass it along. Give me [feedback](mailto:braintool.extension@gmail.com). 
+
+* Disclosure: After 30 days some nagging turns on and some preferences turn off.
+
+
+# Source: ./_posts/2021-01-14-First-Two-Thousand-BrainTool-Users.md
+# The First Two Thousand BrainTool Users
+
+[BrainTool 0.6.3](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) just hit the Chrome Store, so it seems like a good time to record some observations. 
+### Backstory
+My whole life I've been looking for, and thinking of building, the perfect note-taking and personal information management tool. But it was always too complicated, with too many things to track, in too many places. Revisiting my personal process with a clean slate and some time to invest in early 2019 I realized that these days almost everything I refer to is in my browser and that an MVP-for-me tool was within my ability to prototype over a Summer sabbatical. The resulting Chrome extension fit my needs and allowed me to save tagged links directly into my text-based notes file.
+
+Over the next year, in fits and starts, the prototype evolved into its current form, with hierarchical tags and notes, text-file syncing, and tab control. Recently I got some positive feedback that it was MVP for more than just me and decided to send it out into the world.
+
+### Launch
+I publicly posted a 0.5 version to the Chrome App store around Thanksgiving. Then I waited for all the users to find it, eager to see if others shared my mental model for how to keep track of things.
+
+And I waited, and waited. No surprise in retrospect, but I had assumed I'd at least get to double digit installs without resorting to bribing family members! Turns out if you build it, and "it" is one of 200,000 Chrome extensions, they will not come! So I put some energy into "growth hacking" ... and edged toward double digits.
+
+Then over the weekend of 12/5 I got lucky, and confused. I started getting emails, most from people having trouble installing BrainTool, one or two letting me know I'd received a review or a rating. Multiple emails an hour. There was an error message people were seeing that complained of a missing file, but the file was there. And the Web Store still said 8 downloads. 
+
+After a while someone pointed me to the [ZDNet article by Adrian Kingsley-Hughes](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/) that caused all the excitement, and I figured out the error was isolated to Chromebook/Linux users. I had a typo in my package manifest. Not clear why only Linux cared, but easy to fix!
+
+After that things settled down. Eventually the download numbers on the Store started to change. Over the next few days my download numbers went up by hundreds every day, getting bumps as the article was published in French and then Hungarian, until "1000+", then topping out after a week at "2000+".
+
+### Beyond
+Now at 2800 weekly users I'm concluding that there is a user-base for BrainTool beyond just me. Of whatever number of people were exposed to Adrian's article more than two thousand were moved to install, the significant majority of those still have BT running, and there are many vocal enthusiasts. I'm mapping a path to a more full featured 1.0 version and beyond.
+
+The latest update maxes out the visibility of the "Authorize" button, adds bookmark import and export and gives more ways to create and organize tags. It also fixes a couple of bugs reported with the GDrive connection and solicits for input on the other feature requests I've heard about. See the [Support page]({% link support.md %}) for my current backlog.
+
+If you've tried BrainTool, or even just have thoughts on what the ideal personal information management tool looks like, join the conversation on the [BrainTool discussion group](https://groups.google.com/u/2/g/braintool-discussion).
+
+Tony
+
+PS I've added some more detailed observations on the launch [here]({% post_url 2021-01-18-Observations-on-Chrome-Store-Launch %}).
+
+
+# Source: ./_posts/2021-05-15-Browser-Productivity-with-a-Topic-Manager.md
+# Browser Productivity with a Topic Manager
+
+We're all overburdened with information sources. We spend too much time trying to keep track of things and how to get back to them, and just leaving those 45 browser tabs open because we don't know what to do with them. Having all these open loops and loose ends leads to a heavy psychic burden. Much has been written about the value of an empty mind to enable focus, productivity and flow. 'Mind like water' is the pleasant phrase David Allen uses in his [Getting Things Done classic](https://www.betterworldbooks.com/product/detail/Getting-Things-Done--The-Art-of-Stress-Free-Productivity-9780143126560). A key aspect of GTD is getting things out of your mind, but safely stored and retrievable. BrainTool is a new type of tool designed to be a key part of how you do that. It's a browser-based Topic Manager that revives and evolves the idea of a [Topic Map](https://ontopia.net/topicmaps/materials/tao.html) - a supercharged index of all your information sources. 
+
+## Why a Topic Manager?
+How to organize information about information, aka metadata, has been a problem since the first library was built, but became an area of study with the age of electronics. Vannevar Bush's 1945 classic [As We May Think](https://www.theatlantic.com/magazine/archive/1945/07/as-we-may-think/303881/) describes an informational 'Memex' traversed by 'associative trails'. The original conception of the web in the 80's was as a traversable knowledge graph with information sources linked together - a 'Semantic Web'. Throughout the 90's attempts to make the evolving web more semantic produced metadata models such as [RDF](https://www.xml.com/pub/a/2001/01/24/rdf1.html), [OWL](https://en.wikipedia.org/wiki/Web_Ontology_Language) and [Topic Maps](https://www.informit.com/store/xml-topic-maps-creating-and-using-topic-maps-for-the-9780201749601). 
+
+These efforts did not take broad hold mainly (IMO) because efficient search provided most of the value without all the work. (Does anyone use the index in an eBook?) However the concepts laid out still provide value in thinking about how to organize and access our own information. Topic Maps in particular present a good model for how to map and index a personal [information space](https://informationspace.net).
+
+## The BrainTool Topic Manager
+Topic Maps consist of **Topics** - categories of things that you need to keep track of, **Occurrences** of information or resources related to the topic, and **Associations** between them. Think of topics as the things you'd look up in the index at the back of the book containing your personal information space. The entries in the index refer you to places you've marked as information or resources relevant to the topic, analogous to pages in the book of your online life.
+
+Until recently your topic occurrences (i.e. the categorized stuff you want to keep track of) would have been accessed using a large variety of different applications (Word, Outlook, iPhoto, Illustrator, Excel, iTunes, Acrobat etc) so it was difficult, if not impossible, to create a single working index. These days almost all your topic occurrences are viewed in a web browser, which makes it the ideal place to host your topic manager. Each web page is an occurrence of information or a resource you might care about in the context of a specific topic. Obviously browser bookmarks are a built-in attempt to allow the capture of pages of interest, but current implementations are woefully inadequate as fully fledged topic managers. 
+
+That's where BrainTool comes in! Each time you open a new tab you are adding an open loop into your psychic space. BrainTool (BT) allows you to quickly save a tab as an occurrence of a topic, capture a quick note or TODO, and file it away out of mind. BT keeps your evolving topic map visually accessible and operates as a control panel for your browser, making it easy to navigate your topics and occurrences, opening and closing browser tabs, tab groups and windows as needed. 
+
+These factors combined allow you to get into the habit of slotting away things not actively being used, so you avoid keeping everything ever-present, background processing in your brain. The image above shows my personal braintool with the 'Check daily' and 'BT Press' topics open in tab groups.
+
+## Lowering Impedance
+I've tracked and used productivity and note taking tools for many years. There's been kind of an ebb and flow from early wikis to tools like EverNote and OneNote and now more recently Roam and Obsidian. And through it all text files and paper notebooks.
+
+An issue with all these tools has been the gap between the tool and the topic occurrence. There is an impedance between coming across a resource and saving it away such that you can get to it easily at the pertinent moment in the future. That impedance makes it more likely that you'll just leave the tab open. If you do take the time to copy and paste, then in that future moment there is still the context switch between fetching the resource you need from one app and opening it in another. With the convergence of all your stuff into the browser, where BrainTool lives, that gap is minimized so you are more likely to click, click, save, and close the tab away.
+
+While content capture is designed to be fast in the browser, the BT side-panel provides full curation capabilities. Drag and drop and powerful keyboard commands allow you to refine your topic tree structure, and note cards associated with each topic and occurrence let you keep detailed notes.
+
+## Organizing Topics
+
+There's no right way to organize topics - your information space is unique to you. BT encourages the creation of a hierarchical topic tree where topics are divided into finer grained subtopics. One good organizing framework is Forte Labs 'PARA' model which divides your topics into the Projects you are working on, your Areas of responsibility, informational Resources that you have captured and refer to, and Archived items that you don't want to lose but which are no longer in your active workspace. 
+
+In working inside the browser, adding To Read (or 'To get back to') as a top level topic also makes sense as a way of keeping your working space uncluttered.
+
+For me the Projects topic holds the small number of major initiatives I'm working on and have deliverables for, each containing further subtopics with a set of relevant links to Jira boards, Slack channels, test servers etc. In addition to my professional areas of responsibility, Areas contains personal topics such as 'Finance' where I keep my bank and investment account links, links to Google sheets etc, as well as subtopics such as 'Taxes'. It also has an 'Entertainment' topic with links to my Hulu account, my Netflix queue, YouTube playlists etc. I keep my 'Recipes' links and notes under the 'Resources' top level topic, as well as grouping of things I've been researching, for example my links on 'Healthcare Data Standards'.
+
+'ToRead' is my catch all for interesting longer articles or videos that I intend to come back to. And 'Archive' is where completed projects or no longer relevant research links get moved to.
+
+## Underlying Data
+BrainTool is built on the notion that plain text is best and that as a user you should always have full and complete access-to, and control-over, your data. Your BrainTool topic map is saved as an [org-mode](https://orgmode.org/) file that can be edited independently in any text editor.
+
+Org-mode is a longstanding infinitely flexible organizational framework for text-based information. At its simplest it's a hierarchical outlining tool, but it has a complete markup syntax ([arguably better than any of the markdown dialects](https://karl-voit.at/2017/09/23/orgmode-as-markup-only/)) and support for journaling, to-do lists, dates and deadlines, internal linking, and full project management.
+
+In its current incarnation, in addition to being a standalone topic manager, BrainTool can be used as part of an org-mode based workflow, bridging the gap between text-based notes and all of your online resources. For those so-inclined it is a shallow on-ramp to starting to work with org. (In subsequent posts I'll outline how to take your first steps in that direction and there's a description of my setup [here.]({% post_url 2021-04-21-My-BrainTool-orgmode-and-emacs-workflow%}))
+
+Longer term it is envisioned that BrainTool will expand to provide an intuitive interface to an ever larger subset of org-mode's functionality, becoming an all-inclusive personal productivity and knowledge management tool.
+
+## Conclusion
+
+A Topic Manager is a tool for managing all of the information, notes and resources relevant to the topics you need to keep track of. With its tight integration into the browser, BrainTool minimizes the cognitive effort required to assign a topic and close out a tab, thus keeping your workspace clean and your mind clear. Being based on org-mode allows BrainTool to be part of a larger text-based productivity and note taking workflow. It continues to evolve but is available now free from the [Chrome Web Store.](https://chrome.google.com/webstore/detail/braintool-beyond-bookmark/fialfmcgpibjgdoeodaondepigiiddio) See the [Overview](/overview) on this site for more details.
+
+
+# Source: ./_posts/2022-04-29-Tools4Thought-should-use-Org-for-interop.md
+# Tools for Thought need a standard for data interoperability. It should be org-mode
+
+## What are Tools for Thought
+
+ Tools for Thought is a general term for software applications that help us capture, process, store, and retrieve all of the stuff we need to absorb in our information-overloaded lives. The Tools For Thought (#TfT) space is exploding, with new products becoming available every day. Journaling tools, task managers, outliners, and networked note-taking apps are all tools for thought. Second brain app is another term used for these kinds of tools.
+ 
+
+## Why do Tools for Thought need data interoperability
+ No one tool does it all. People need to be able to use multiple productivity and personal knowledge management tools (heres [Paco's opinion](https://medium.datadriveninvestor.com/why-duplicating-data-in-2-apps-of-your-pkm-is-not-a-drama-if-your-workflow-is-well-defined-791d8630f88c)). People also want to share subsets of their second brain content with others. Tools in the space continually appear, evolve and disappear. For these and other reasons there should be a base level of interoperability between tools in the #TfT space.
+
+ Interoperability needs an understanding of the things we're describing and the language or format we're using to do so. For #TfTs those things include paragraphs of marked up text, outline hierarchies, dates, tasks, tags, lists, tables, pointers to external resources (eg bookmarks) and internal links/relationships. Formats include XML, JSON and just plain text.
+
+## Options for an interop format
+ Over time there have been many efforts to standardize how we exchange information, and information about information, (semantic web, XML/WSDL, RDF, OWL etc), but none successfully addressing the semantics required to describe the set of #TfT entities above.
+
+ Markdown was defined in 2004 as a human readable markup language, it has been adopted by a number of note taking and [Zettlekasten](https://virtuwise.com/zettlekasten-method/) tools such as [Obsidian](https://obsidian.md/) and [Bear](https://bear.app). It is an obvious option for an interop format. But it only covers a subset of the semantics and has been extended inconsistently across applications, so much so that there is now an effort ([CommonMark](https://commonmark.org)) to re-standardize the variants. Markdown does not have good developer support and has other deficiencies as outlined by @kmelve [here](https://www.smashingmagazine.com/2022/02/thoughts-on-markdown/).
+
+ Dave Winer has [advocated using OPML](http://scripting.com/2021/12/19/152625.html?title=followingMyTweetsInDrummer#a153247), a long-standing XML-based hierarchy/outline description. But again, small semantic footprint. 
+ 
+ Most tools use proprietary formats and app-specific APIs, but there are efforts underway to define new models. Portable Text and atJSON are JSON specifications targeted at the space. There are also a number of other build-something-new proposals.
+
+ While there are plenty of interesting options, XML and JSON based formats all have the disadvantage of not being human readable, and anything new is going to take time to evolve. So is there something existing that fits the bill? Turns out there is, it's Org-mode!
+
+## Org-mode for interop
+[Org-mode](https://orgmode.org), developed in 2003, was "designed for notes, planning, and authoring" as a module inside the [emacs text editor](https://www.gnu.org/software/emacs). It is both an application running inside emacs, controlled with keyboard commands, and a plain text markup language for describing content. It has broad adoption within the emacs community and has been continuously refined as a personal text-based #TfT by productivity and process savants for decades. In its current state [org-mode syntax](https://orgmode.org/worg/dev/org-syntax.html) can model all the listed aspects needed for #TfT interop. In addition it is at least as human readable as markdown, [see Voit](https://karl-voit.at/2017/09/23/orgmode-as-markup-only/).
+
+There are an increasing number of [tools using org-mode outside emacs](#f1). Org-mode has strong developer tool support, and there are a number of [parsers available](#f2). Rather than reinvent the wheel, build something proprietary, or adopt an inferior solution, I recommend companies in the #TfT space look at adopting Org for interoperability between tools and, ideally, as a user-accessible data store.
+ 
+
+![org-mode for #TfT interop](../../../site/postAssets/org-interop.png)
+
+### Why don't #TfTs already use org-mode
+ Well actually some do! Obviously the original org-mode/emacs combo qualifies as a #TfT, but in addition the popular [LogSeq](https://loogseq.com) app reads and writes Org, as does BrainTool. That said, Org, living in the self-contained emacs ecosystem, has an enormously steep learning curve for the outsider and so has never been widely known. Plus, until recently the only definition of org syntax was embodied in the emacs lisp code running the Org application (as noted above this is no longer the case).
+
+## What would it look like to use org-mode for interop
+From an end user perspective using Org for #TfT interop would look like having a repository of plain text files stored somewhere and giving various applications access to those files to perform their specific function. A 'task' created in my journaling app should then show up in my task manager. When I mark it complete in the task manager, it should also show as complete when I revisit my journal (perhaps with annotations as to when it was completed). See [this demo](https://braintool.org/2022/01/28/Browser-based-Productivity-and-pkm-with-emacs-org-mode-LogSeq-and-BrainTool.html) for an example of the same tasks being usable across BrainTool, emacs/org and Logseq.
+
+Org-mode covers a lot of ground and not every application needs all of those entity types. The minimal bar for an application to be 'Org compliant' is that it read and write plain text without screwing up any embedded Org markup. From this perspective any plain text editor is level zero compliant and could be used to edit Org-based #TfT content. 
+
+Karl Voit has proposed ['OrgDown'](https://gitlab.com/publicvoit/orgdown/-/tree/master) which is a model for defining increasing subsets of Org as conforming to different levels of compliance. Thus far only an OD-1 level is defined. Personally I would prefer to see a more granular enumerated list of OrgDown entity types for which applications can demonstrate support. See the [addendum](#addendum) below for one take at such a list.
+
+Have thoughts? Drop a comment on the [Twitter thread](https://twitter.com/tconfrey/status/1521934272617136131).
+
+#### Addendum: Proposed Org syntax components
+OD-itemDescriptionOD-0Read and write plain text preserving any markup.OD-Outlines Nested outlines/headers with paragraph text.OD-Markup Basic text markup (bold, italic etc).OD-ListsAndCheckboxes Bulleted and numbered lists. Lists of checkbox items.OD-EscapesAndComments Sections not subject to interpretation as markup. Meta comments not intended to be interpreted by an application.OD-Tables Basic table formatting.OD-Links 
+ 1) One-directional 
+
+ 2) Bidirectional.OD-Tasks 1) Basic todo/done toggle
+
+ 2) Configurable lifecycle.OD-Tags Tag assignment to outline headers with inheritance along the outline hierarchy. OD-Properties Name value pairs of meta-data properties associated with an outline or file. Useful for app-specific content.
+#### Org-Mode tools outside Emacs
+- [https://BrainTool.org](https://BrainTool.org)
+- [https://logseq.com](https://logseq.com)
+- [https://plainorg.org](https://plainorg.org)
+- [https://orgzly.com](https://orgzly.com)
+- [https://flathabits.com](https://flathabits.com)
+- [https://beorg.app](https://beorg.app)
+- [https://easyorgmode.com](https://easyorgmode.com)
+- [https://organice.200ok.ch](https://organice.200ok.ch)
+- [https://orgro.org](https://orgro.org)
+ 
+ 
+
+#### Org-Mode Parsers
+- [https://github.com/200ok-ch/org-parser](https://github.com/200ok-ch/org-parser)
+- [https://github.com/orgapp/orgajs](https://github.com/orgapp/orgajs)
+- [https://hackage.haskell.org/package/org-mode](https://hackage.haskell.org/package/org-mode)
+- [https://github.com/logseq/mldoc](https://github.com/logseq/mldoc)
+
+
+# Source: ./_posts/2021-01-18-Observations-on-Chrome-Store-Launch.md
+# Observations on the initial BrainTool launch
+
+After recently upgrading BrainTool on the [Chrome Store](https://chrome.google.com/webstore/detail/braintool/fialfmcgpibjgdoeodaondepigiiddio) I posted the story of [getting to 2000 users]({% post_url 2021-01-14-First-Two-Thousand-BrainTool-Users %}) and thought I'd follow up here with some more specific observations.
+
+- Most of my efforts to publicize BrainTool did not move the needle at all. But a single [positive review](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/) in a well-respected publication like ZDNet gave me all the early adopters I could handle.
+- Chrome Store user data is two days behind. I got exact numbers up to one thousand at which point it changed to "1000+" until it changed to "2000+". It seems like numbers are updated once or twice a day with data that is two days old. Reviews seem to arrive online randomly relative to when they are added.
+- After the initial bump, installations dropped off rapidly. I'm now around ten a day with higher numbers of uninstalls. I assume the latter are mostly members of the early cohort realizing the tool is not what they need. I've been surprised that the overall user numbers did not drop more.
+- The BrainTool permissions and authorization are very scary for users. The installation asks to track browsing and then once launched the user needs to grant BrainTool access to write to their GDrive. This requires a hand-off to a Google Auth flow that can vary among users but it might ask for a Google login ("I have to put in my Google password?!") and then ask for permission to read and write to their Drive. First, a lot of people missed the button asking for permission, and then many were scared away. This cost me a couple of one star reviews.
+- BrainTool is a lot of things but right now for most users its mostly a better bookmark system. So its a head smacker as to why it never occurred to me that I should be able to import bookmarks! (You can now do so.)
+- Generally feedback was very positive, although I had a few users very nicely tell me that my tool sucks! My overall conclusion is that there's clearly a user-base for BrainTool beyond just me. Of whatever number of people were exposed to the ZDNet article more than two thousand were moved to install, the significant majority of those still have BT installed, and there are many vocal enthusiasts. 
+- On my opening screen I inform people that they are among the first users and solicit constructive criticism via email rather than a bad review. I think that helped and as a nice side effect it opened up a dialog for me with a few dozen early adopters.
+- Enthusiastically following up every possible interaction with an end user has paid great dividends. I got a lot of thoughtful input, help prioritizing this first point release, and even a bunch of great folks willing to manually install an early build of 0.6 and give me bug reports.
+
+See the [Support page]({% link support.md %}) for my current backlog or join the conversation on the [BrainTool discussion group](https://groups.google.com/u/2/g/braintool-discussion).
+
+Tony
+
+
+# Source: ./_posts/2021-08-25-Managing-your-Browser-with-BrainTool.md
+# Managing your Browser with BrainTool
+
+## The Problem
+- You have hundreds of sites and pages and apps that you visit regularly in a browser.
+- You keep dozens of tabs open and can't find the one you want. 
+
+- You're afraid to close a tab because you won't be able to find it again.
+- You have no good way to track all your online stuff.
+
+Bookmarks just don't cut it. Pinned tabs, tab groups and vertical tabs only help a little.
+
+**BrainTool gives you a better way to work in your browser.**
+## The Solution
+BrainTool is an extension that sits inside your browser. It helps you keep track of pages and manage your tabs. It works by letting you assign a topic to any tab and then use those topics to control the browser. 
+
+A Topic is a category or grouping, anything from "Kitchen Renovation" to "Productivity Tool Research". In BrainTool nested topics help keep things organized (e.g. Projects&#8594;Kitchen renovation&#8594;Lighting options&#8594;Under-counter lights).
+
+The BrainTool Bookmarker (right) is where you attach a note to a web page and save it into your topic tree.
+
+The BrainTool Topic Manager holds your topic hierarchy. The Topic Manager makes it easy to find what you're looking for, to open and close pages en masse, and to know where to save new things you come across.
+
+All the pages for a topic are grouped within a visible tab group or a separate window to keep them organized and together.
+
+## How you should use BrainTool
+Import and organize your existing bookmarks. Or just start assigning topics to your open tabs via the Bookmarker. (Then you can finally close them out!)
+
+Work proactively, create topics before you start a new piece of research. Or re-actively - as you leave each tab just assign a topic and close it out.
+
+Keep short (or long) notes on topics and their associated pages to build out your personal information space. Assign a TODO state to any topic or page to track a task.
+
+BrainTool comes with a set of example topics and a proposed organizational structure. You can customize that one or build your own from scratch.
+
+For improved focus get in the habit of working within a single topic, or small number of related topics, and being purposeful about context switching.
+
+## What you should know
+Your topics and notes are your personal and private information. BrainTool is structured such that no one else has any access to your data. The tool running inside your browser uses local browser storage or a synced file that is solely under your control.
+
+To further support efficient browser operation and in homage to its roots, BrainTool supports complete keyboard control - use 'h' from the side panel for the full list. _(See below, BT navigating the topic hierarchy and controlling vertical tabs in Edge.)_
+
+BrainTool stores your information in [Org-mode](https://orgmode.org) syntax. You can sync to an Org file, keep your braintool data in there, and then use other tools to edit it also.
+
+For a deeper dive into various aspects see [the blog](/posts). The [privacy policy](/BrainToolPrivacyPolicy.pdf), [pricing](/pricing) and [vision](/overview) pages might also be of interest.
+
+BrainTool has recently been selected by [Windows Report](https://windowsreport.com) as one of the [best tab extensions for Chrome](https://windowsreport.com/chrome-tab-manager/). Windows Report is a highly trusted web resource for all things Windows, including news and tips for tech users.
+
+
+# Source: ./support/userGuide.md
+# User Guide
+## Introduction
+BrainTool is a "Topic" Manager for your tabs and bookmarks. Topics are the basic unit of organization. A topic can be any category, or grouping or tag that you might apply to a set of web pages. Examples might include: "Vacation Research", "Ireland hotel options", "XYZ Project", "Party Playlist" etc.
+
+The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of.
+
+Topics can be nested inside each other to any depth, eg hotel options might live inside the larger "Vacation Research" category. All topics and saved pages have associated notes. By making it quick and easy to save a web page under a specific topic and drop in a text note, BrainTool allows you to build up your own topic map - a map of all of the information you want to keep track of.
+
+Getting your links and notes into BT is easy, but once there they give you a unique ability to control your browser and navigate your online resources. From the Topic Manager you can open and close individual pages or all pages for a topic, as well as see which pages are open and pop any one to the top. Everything is controllable via keyboard commands in addition to the mouse. This ability to navigate sites and tabs from the Topic Manager can greatly improve your browser workflow.
+
+Finally, all of the above takes place in the browser. But BrainTool doesn't want to lock all this valuable information away! Underlying what you see on the screen is a plain text based representation. You can turn on a continuous sync to a local or Google Drive file or manually save versions of your topic map. Beyond just being a backup this allows you to share across environments as well as access and edit your notes and links in any text editor. 
+
+## Installation
+
+Install BrainTool from the Chrome or Edge store. You will need to grant permissions for BT to see your browsing history and access your bookmarks. This puts a small extension inside your browser and adds the BT icon. The icon shows on your browser bar or, on Chrome, under the generic extension 'puzzle-piece' icon. You can, and should, pin the icon to your browser bar using the push-pin icon.
+
+BrainTool is launched by clicking the icon, or using the Alt/Option-b keyboard accelerator. On first click it will open the Topic Manager which comes pre-populated with a default set of topics. You can add your data into this structure or create your own. On the first launch BT will shift your current browser window to make room for the Topic Manager. This is a one-time operation to make sure you see the side-panel, you should feel free to re-arrange your windows as you see fit. The Topic Manager will re-open in the position it was last closed from.
+
+## Assigning a Topic - the Bookmarker
+
+To save the current web page into BrainTool just hit the icon or keyboard accelerator. This will open the BT Bookmarker with the Topic field selected. 
+
+The topic selector shows an overview of your current topics in a navigable tree. You can select one with your mouse or just start typing. Auto-complete will show possible topic options. Hit enter to select. If BT has a good guess as to the topic it might be pre-populated. In this case either just hit enter to use it, or delete to clear out the suggestion. 
+
+Then add a note or just hit Enter. You can also edit the page title which is how the page will be identified in the topic tree. There are also options to allow you to save all the currently unsaved tabs in a tab group, window, or entire browser session.
+
+If a topic name is not unique the auto-complete will show a colon:separated hierarchy. Typing in an unknown topic will create a new one at the top level. Entering an existing topic followed by a colon:subtopic creates a new subtopic under that parent topic (EG Projects:My new project). Topic names can have spaces. If you leave the topic blank (ie just hit enter) the page will be assigned to the generic "Scratch" topic.
+
+Hitting Enter will save the page into your topic map and close the Bookmarker. You can choose to close the page(s) after saving or leave it open grouped with its peers of the same topic.
+
+You can also drag a URL from the url bar and drop it under a topic in the Topic Manager to save an open tab without using the Bookmarker.
+## The Topic Manager
+Once you have a set of pages saved into your personal braintool you can use the Topic Manager to control the browser. You can select it as you would any other browser window, or double click the icon or use the accelerator Alt/Option-b-b (ie hit b twice) to pop it into focus.
+
+The Topic Manager shows your topic hierarchy in an expandable table. The triangles next to topics allows you to expand or collapse the hierarchy. Pages that are open in a tab are highlighted as are topics which have one or more of their pages open. If an open topic is hidden under a collapsed parent the parent is shown in blue text.
+
+Hovering your mouse over a row in the table reveals a set of buttons that perform operations on that row. As shown below, right to left, the operations are as follows:
+
+- **More/Fewer Tools:** Expand to show the full set of tool buttons, or shrink to show the summary set.
+- **Close:** Close an open tab or all open tabs for a topic.
+- **Open Tab:** Open the page in a tab or all the topics pages in a tab group, or a set of tabs.
+- **Open in Window:** Open in a new browser window. This can be useful to separate out groups of tabs.
+- **Edit:** Show the Topic card associated with each entry. This allows you to change the topic's title or a pages label or url, as well as to edit the notes for the item.
+- **Add Child:** Create a new child topic under this one and open its Topic card.
+- **Promote:** Move an item up the topic hierarchy.
+- **Move:** Allow the item to be dragged elsewhere in the hierarchy and dropped into a new position. If it's a topic all its children will be moved along with it.
+- **TODO:** Each item in the table can be assigned as a TODO or DONE. This button toggles between the TODO states. Adding :TODO after the Topic name when saving from Bookmarker will create the item as a TODO. Note also that the star (⭐️) icon in the search bar filters to show all of your TODOs.
+- **Delete:** Delete the page or topic. If it's a topic also delete all its children. In the latter case a confirmation warning will be shown.
+
+Note not all tools apply to every item and so not all will be shown every time. All the tools can also be accessed using keyboard accelerators.
+
+## Keyboard Accelerators
+
+BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will open Help, where you can see all the available keyboard commands.
+
+One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in green in the tree.
+
+## Search
+
+s is the Search accelerator, or just click into the search box. As you type the next matching row will be selected and shown with matching text highlighted, searching downward from the current selected row (or the top row if there is no selection).
+
+Hitting Alt/Opt-s, or down arrow, will select the next matching row. If search hits the bottom row without a match the search box will show in pale red. Hitting Down/Opt-s again will loop the search around to the top row.
+
+R is Reverse search, it works like search but searches upward from the selection (or from the bottom row). At any point you can use up/down or alt-s/-r to find the next or previous match.
+
+Hitting Enter exits search leaving you with the selected row which you can then operate on (eg open in a browser window by hitting enter again, or edit by typing 'e').
+
+Note that search will find matches in the link title, link url and your notes, in open as well as hidden rows. The url, which is usually not displayed, will be shown if its the only match in the row.
+
+In addition to the key commands, buttons for Up, Down and eXit are shown next to the search box and can be used when search is active. Additionally after three search characters have been entered the funnel icon filters the table to only show matching rows.
+
+There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Control-Your-Browser-with-the-Keyboard%}) (using an older version of the UI).
+
+## Drag and Drop Organization
+Items in the tree can be dragged to new positions just by selecting the item and moving it. An indicator bar will show the drop location. Dragging past the top or bottom of the tree will scroll. Hovering over a collapsed topic for a couple of seconds will expand that topic to allow you to drop your item inside. You can further expand sub-topics to drop an item anywhere in your tree. Dropping below an expanded topic will make the item a child of that topic. Dropping below a collapsed topic will make the item a sibling of that topic, ie they will have the same parent topic. 
+
+## Settings and Actions
+Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.
+
+## Actions
+There are a number of Import and Export tools. You can import from browser bookmarks, an org-mode text file or an exported file from the TabsOutliner extension. You can export your topic hierarchy back out to browser bookmarks or to a local org-mode format text file. If org-mode and TabsOutliner are not familiar to you don't worry about it, they are not important! (Note that importing can take some time if you have a lot of data.)
+
+If file syncing is enabled (see below) Actions also shows a button allowing a file refresh and another to turn syncing off.
+
+## Settings
+Via the 'Topic Manager Location:' selector you can change the default location of the Topic Manager such that it opens in a standard browser tab rather than the standalone window or in the browser Sidepanel. To effect the change, toggle the setting, then close and re-open the Topic Manager. 
+
+Next there is the option to link your personal braintool topic map to a file on your local machine, or associated with a Google Drive account. If you have a Google account you can walk through an authorization step to allow BT to write all your data into a file you can access via Drive (in addition to saving it in browser storage). Alternatively you can sync to a local file which can then subsequently also be saved to DropBox, github or some other cloud storage. 
+
+Note that you can only sync to one external file source. The GDrive option has the advantage that you can use the same synced file on different machines, browsers or accounts. Also Google will automatically keep incremental versions of your BrainTool file which can help with recovery if you overwrite or delete your data. The disadvantage is that Google requires *frequent* re-authorizations via a popup. The Local File saving has the option to 'Keep Backups' which will keep the last three versions, plus versions for the last three days of activity and a version for each of the last three months.
+
+If you edit the file externally, or via BrainTool on another browser or machine, BT will warn you that your data is out of date the next time the Topic Manager gets focus and will offer to refresh from the external version. You can also use the 'Refresh from File' button in the Actions panel at any point.
+
+The next few Settings control various BT display customizations:
+- Use the Dark Mode theme
+- Show favicons for saved pages
+- Use the new Compact Mode to fit more on the screen
+- Use a larger font size.
+- Turn off the display of tooltips.
+
+The 'Use Tabgroups?' option determines whether BT tabs are grouped by tab groups or opened as individual tabs wherever the browser puts them. The default, Tab Groups, uses the recent tab group functionality in Chrome and Edge (as well as Brave and some other Chromium-based browsers) to give a visual indication in the browser of which tabs are associated with the same topic. Tab Groups can be named and colored by right clicking on the tab group indicator in the browser. 
+
+Finally you have the option to upgrade to a 'Supporter' version of BrainTool based on a monthly or annual subscription or one-time purchase. The BT licensing model is one license per human user, used across any number of environment. This section shows your license key if you've made a purchase or installed in in this browser. If not it has a link allowing you to paste in your license code froma previous purchase.
+
+Hitting one of the purchase buttons will redirect you to the third-party Stripe payment system. After your purchase you should be redirected back to the Topic Manager with the license code in place. 
+
+After the 30 day trial period the display customization settings are locked for non supporters and a friendly solicitation message is shown on startup. See the Pricing page for details.
+
+A cautionary note on the above, due to browser security restrictions, the purchasing and file backup workflows cannot be initiated when running in the browser side panel. Unfortunately the necessary popups and permissions dialogs cannot be displayed. You will need to jump back to Window or Tab mode to make these changes.
+
+# Warnings, Messages and Tips
+The BT Message pane is shown each time the Topic Manager is invoked. It shows a Warning if there is a file version mismatch, a Message if there's something new to bring to your attention or else a random tip on the use of BT. The pane can be closed using the button the left. Messages and tips can be cycled through using the More ('>>') button on the right.
+
+Here are all the tips for reference. Send suggestions for inclusion to braintool.extension@gmail.com and maybe they'll end up in the app!
+
+- Add ':' at the end of a topic in the BT Bookmarker to create a new subtopic.
+- Double click on a table row to highlight its' open window, if any.
+- Type ':TODO' after a topic in the BT Bookmarker to make the item a TODO in the BT tree.
+- Create topics like ToRead or ToWatch to keep track of pages you want to come back to.
+- Remember to Refresh if you've been editing the BrainTool.org file directly.
+- Alt/Option-b is the BrainTool accelerator key. You can change that in extension settings
+- You can save individual gmails or google docs into the BT tree.
+- Save LinkedIn pages under specific topics to keep track of your contacts in context.
+- Use the TODO (⭐️) button on a row to toggle between TODO, DONE and none.
+- See BrainTool.org for the BrainTool blog and other info.
+- Follow @ABrainTool on Twitter!
+- Check out the Bookmark import/export functions under Actions
+- You can click on the topics shown in the Bookmarker instead of typing out the name.
+- Use the forward (>>) button on the right to cycle through tips
+- Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the BrainTool side panel.
+- When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.
+- Click on a row to select it then use keyboard commands. 'h' for a list of them.
+- You can also store local files and folders in BrainTool. 
+Enter something like users/tconfrey/Documents/' in the browser address bar.
+- Try hitting '1','2','3' etc to collapse the tree to that level.
+- Import public topic trees and useful links from braintool.org/topicTrees.
+- Try the new DARK theme. It's under Settings.
+- Tab cycles a selected topic from collapsed, to showing children, to showing all descendants.
+- &#128512; You can use emojis to &#127774; brighten up your topic names. &#128079; &#128736;
+
+# Advanced Topics
+Ideally BrainTool is intuitive and just makes sense, however due to its operating model spanning tabs, tab groups, and bookmarks, there are some corner cases which may cause confusion.
+
+## Tab Groups
+In BT tab groups are used to show which BT topic a tab is part of. Chrome has recently rolled out some changes to the way tab groups work that conflict with BrainTools useage. Specifically these relate to Chrome's saving of tab groups and their display on the bookmark bar, with both these features being defaulted to on. This functionality is not available to extensions and so BrainTool is aware only of tab groups with open browser tabs. 
+
+This means, for example, that when BT opens a new tab for a topic and displays it in a tab group, that tab group shows up in the bookmark bar and gets saved to your google account. If you close the tab group it is still saved in your bookmark bar. If you then re-open the item from BT, it will again put it into a new tab group named after the items topic, thus you will have two tab groups of the same name in your bookmark bar - confusing!
+
+Relatedly, when you close tabs, BT marks them as closed but they are still part of the topic. In Chrome when you close a tab it is deleted from the saved tab group. So the items in a Chrome saved tab group end up being completely different from the items saved under a topic in BT. A side effect of this is that when you close the last tab in a tab group, Chrome will warn you that it is about to delete the tab group, which since it has the same name as the BT Topic can be concerning.
+
+Unless you are using tab groups for other purposes the best approach is to turn off the display of tab groups in the bookmarks bar (right click on the bookmarks bar for the option). Also, check "Don't warn again" on the popup that warns about tab group deletion.
+
+If you need the Chrome tab group functionality its best to turn off BT's tab group usage under Settings.
+
+## Sticky Tabs
+One challenge in the design of BT is what constitutes a unique saved item, or web place. With the modern web, what you consider a single item saved, eg a analytics dashboard in an app, might have many different urls. BT handles this by 'sticking' the BT item to the tab as it navigates and trying to be smart about recognizing when you've navigated away to a different unique web place. 
+
+When you open the Bookmarker for an already saved item you get the option to update the items notes. But when you open a page from BT and then navigate to a different page via in-page links you might want to save that page as a new item. In this latter case you'll be warned that you are saving a new item. The original item will be marked as closed in the Topic Manager, and a new item will be created and saved into the same topic as the original item.
+
+When BT concludes that a page navigation was to a new web place, eg if you type a url in the address bar or click a bookmark bar link, it will mark the original BT item as closed and move the tab out of the associated tab group.
+
+# What Next?
+For more information see the [FAQ and How-to page](../support) or reach out on the [BrainTool discussion group](https://groups.google.com/u/0/g/braintool-discussion).
+
+If you are finding BT useful, tell a friend!
+
+
+# Source: ./support/welcome.md
+# Welcome to BrainTool!
+
+We're very glad to have you as a new user. This page should help you get up and running on some things that might not be immediately obvious.
+
+## Launching BrainTool
+
+Chrome hides new extensions under the jigsaw piece icon on the top right of its window. You can pin the BrainTool icon to your browser toolbar by clicking the puzzle piece and hitting the pin next to the BT icon. 
+
+Launch BrainTool by clicking the toolbar icon or using the Alt/Option-b accelerator key. Initially this creates the Topic Manager window, subsequently it opens the BrainTool Bookmarker tool. The Bookmarker allows you to save the current tab, tabgroup, window, or whole session. The Topic Manager allows you to manage your topics and tabs. Hitting b twice (Opt-b-b), or double clicking the icon, will surface the Topic Manager if it's hidden.
+
+## Initial BrainTool tree
+BrainTool is a ['Topic Manager'](https://braintool.org/2021/05/15/Browser-Productivity-with-a-Topic-Manager.html), designed to allow you to categorize and manage all of the topics you need to keep track of. It comes with an example organizational hierarchy to give you an idea of how it can be used. Any of those contents may be deleted. It's up to you to create your own hierarchy. Some people like a big list of minimally organized folders, others go for a deep categorization of nested topics.
+
+## Support and more Info
+Ideally BT is intuitive to use but it's pretty feature rich and not everything is obvious (for example keyboard accelerators), so at least skim the [User Guide](userGuide) and check out the [YouTube channel](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix). For troubleshooting see the [Support page](../support). If that does not help reach out on the [Discussion Group](https://groups.google.com/u/2/g/braintool-discussion). To see the changes in the latest release see the [Release Notes page](releaseNotes.md). All of the above links are already saved for you under the BrainTool topic in BrainTool!
+
+There's also an older [YouTube Playlist](https://www.youtube.com/watch?v=6JGdPIenO38&list=PLhaw8BE1kin1D9uPrY9yF-KoBoWisbBaP&index=1) with a few examples of an earlier version of BrainTool (BT) in use.
+
+## Security and Permissions
+The BrainTool philosophy is to have the absolute minimum set of permissions and data access necessary to maintain your braintool organizer file and perform browser actions on your behalf; and to be completely transparent about what it's doing. Your BrainTool data is stored on the browser locally and, optionally, in a synced plain text file ([org-mode](https://orgmode.org) format), locally or on a Google Drive file. All of the BT extension and application code are open sourced on [github](https://github.com/tconfrey/BrainTool).
