@@ -160,9 +160,18 @@ table.treetable tr.emptyTopic.collapsed span.indenter a {
   background-image: url(resources/emptyTopicCollapsed.png);
   opacity: 75%;
 }
+
+table.treetable tr.emptyTopic.collapsed span.indenter a:hover {
+  opacity: 100%;
+}
+
 table.treetable tr.emptyTopic.expanded span.indenter a {
   background-image: url(resources/emptyTopicExpanded.png);
   opacity: 75%;
+}
+
+table.treetable tr.emptyTopic.expanded span.indenter a:hover {
+  opacity: 100%;
 }
 
 table.treetable span.btTitle img.faviconOn {
