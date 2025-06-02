@@ -1109,7 +1109,16 @@ class BTAppNode extends BTNode {
         }
         return trashNode;
     }
-    
+    static findOrCreateBookmarksBarNode() {
+        // Find or create the bookmarks bar node
+        let bookmarksBarNode = AllNodes.find(node => node && (node.isBookmarksBar()));
+        if (!bookmarksBarNode) {
+            bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, "Synced to your browser bookmarks bar contents.", 1);
+            bookmarksBarNode.createDisplayNode();
+            bookmarksBarNode.redisplay();
+        }
+        return bookmarksBarNode;
+    }
 }
 
 

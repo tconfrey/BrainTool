@@ -41,14 +41,17 @@ const messageManager = (() => {
         "Import public topic trees and useful links from braintool.org/topicTrees.",
         "Try the DARK theme. It's under Settings.",
         "Tab cycles a selected topic from collapsed, to showing children, to showing all descendants.",
+        "The Topic Manager can run inside the browser window in a side panel. See Settings.",
+        "Check out ToDo and search results filtering! Click the ⭐️ or <img src='resources/filter.svg' style='height:20px;vertical-align:middle'> button in Search.",
+        "You can drag a tab from the URL bar and drop onto the Topic Manager to add a page to a given topic.",
         "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
     ];
     const messageArray = [
-        "Welcome to the BrainTool 1.2!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
-        "The Topic Manager can now run inside the browser window in a side panel. See Settings.",
-        "Check out the new ToDo and search results filtering! Click the ⭐️ or <img src='resources/filter.svg' style='height:20px;vertical-align:middle'> button in Search.",
-        "You can now drag a tab from the URL bar and drop onto the Topic Manager to add a page to a given topic.",
-        "Check out the new look of <a target='_blank' href='https://braintool.org'>BrainTool.org</a> and the added <a target='_blank' href='https://braintool.org/support/userGuide.html'>User Guide</a> material!"
+        "Welcome to the BrainTool 1.3!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+        "You can now drag links from inside web pages and drop them onto the Topic Manager to add them to a topic.",
+        "There's a new 'Special' Bookmarks Bar Topic synced to the contents of your browser's Bookmarks Bar. Just delete it to remove.",
+        "There's a new Trash 'special' topic to hold deleted nodes until emptied.",
+        "Check out the updated <a target='_blank' href='https://braintool.org'>BrainTool.org</a> and the added <a target='_blank' href='https://braintool.org/support/userGuide.html'>User Guide</a> material!"
     ];
     const introSlidesArray = [
         `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,

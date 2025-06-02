@@ -78,9 +78,19 @@ async function launchApp(msg) {
     initializeNotesColumn();                              // set up notes column width based on slider saved position
     checkCompactMode();                                   // tweak display if window is narrow
     updateStats();                                        // record numlaunches etc
+    UpgradeInstall && runUpgrade(msg.BTVersion);          // run any upgrade specific code
 
     if (!configManager.getProp('BTDontShowIntro'))
         messageManager.showIntro();
+}
+function runUpgrade(version) {
+    // Run any upgrade specific code for the given version.
+    switch (version) {
+    case '1.3.0':
+        // First version with bookmarks bar sync. Create the special topic node
+        BTAppNode.findOrCreateBookmarksBarNode();
+        break;
+    }
 }
 
 function updateLicenseSettings() {

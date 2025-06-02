@@ -114,7 +114,7 @@ BrainTool topics can be saved and shared. See how and some examples.
 ** [[https://braintool.org/posts.html][BrainTool Blog]]
 
 * 🔖 BOOKMARKS BAR
-Synced to your browser bookmark bar contents
+Synced to your browser bookmarks bar contents
 
 * 🗄 Archive
 Stuff no longer in active use. Move completed projects here.
