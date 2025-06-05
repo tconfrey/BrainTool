@@ -448,11 +448,16 @@ $("#resizer").draggable({
         configManager.setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
         handleResizer();
         Resizing = false;
+        // Update the resizer position to match the new left column width
+        const newLeft = $($("td.left")[0]).width();
+        $("#resizer").css('left', parseInt(newLeft - 9.5) + "px");
     }, 250),                                            // give time for resize to be processed
 });
 // add on entry and on exit actions to highlight the resizer
 $("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
 $("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
+
+
 function displayNotesForSearch() {
     // when searching the hit might be in the hidden notes column. check for td.right and show if needed
     if ($("td.right").css("display") == "none") {
