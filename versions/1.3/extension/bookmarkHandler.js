@@ -92,13 +92,25 @@ function generateNodeObjects(nodes, bookmarks, commonAncestor) {
 
 
 function getBookmarks() {
-    // User has requested bookmark import from browser
+    // User has requested bookmark import from browser, get 'other bookmarks' cos the bookmarks bar is synced
 
     chrome.bookmarks.getTree(async function(itemTree){
-        itemTree[0].title = "Imported Bookmarks";
-        chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            btSendMessage({'function': 'bookmarks', 'result': 'success'});
-        });
+        // Find the bookmark bar by its type
+        const root = itemTree[0];
+        let bookmarksOtherFolder = null;
+        
+        // Look for the bookmark bar in the children
+        if (root.children) {
+            // Find the child with the "bookmark-bar" type
+            bookmarksOtherFolder = root.children.find(child => child.folderType === 'other');
+        }
+        
+        if (bookmarksOtherFolder) {
+            bookmarksOtherFolder.title = "Imported Bookmarks";
+            chrome.storage.local.set({'bookmarks': bookmarksOtherFolder}, function() {
+                btSendMessage({'function': 'bookmarks', 'result': 'success'});
+            });
+        }
     });
 }
 
@@ -108,18 +120,18 @@ function getBookmarksBar() {
     chrome.bookmarks.getTree(async function(itemTree){
         // Find the bookmark bar by its type
         const root = itemTree[0];
-        let bookmarkBarFolder = null;
+        let bookmarksBarFolder = null;
         
         // Look for the bookmark bar in the children
         if (root.children) {
             // Find the child with the "bookmark-bar" type
-            bookmarkBarFolder = root.children.find(child => child.folderType === 'bookmarks-bar');
+            bookmarksBarFolder = root.children.find(child => child.folderType === 'bookmarks-bar');
         }
         
-        if (bookmarkBarFolder) {
-            bookmarkBarFolder.title = "Bookmarks Bar";
+        if (bookmarksBarFolder) {
+            bookmarksBarFolder.title = "Bookmarks Bar";
             btSendMessage({'function': 'bookmarksBar', 'result': 'success', 'source': 'bookmarkBar',
-                            'data': {'bookmarksBar': bookmarkBarFolder}});
+                            'data': {'bookmarksBar': bookmarksBarFolder}});
         }
     });
 }

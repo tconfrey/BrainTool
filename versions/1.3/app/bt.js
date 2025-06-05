@@ -2071,6 +2071,7 @@ async function processImport(nodeId) {
     await saveBT();                                           // save w imported data
     refreshTable();                                           // re-gen treetable display
     animateNewImport(nodeId);                                 // indicate success
+    sendMessage({'function': 'getBookmarksBar'});
 }
 
 function groupingUpdate(from, to) {
