@@ -38,7 +38,7 @@ function loadBookmarks(msg) {
     const importName = "🔖 Bookmark Import (" + dateString + ")";
     const importNode = new BTAppNode(importName, null, "", 1);
 
-    msg.data.bookmarks.children.forEach(node => {
+    msg?.data?.bookmarks?.children.forEach(node => {
         loadBookmarkNode(node, importNode);
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
