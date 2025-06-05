@@ -2071,7 +2071,7 @@ async function processImport(nodeId) {
     await saveBT();                                           // save w imported data
     refreshTable();                                           // re-gen treetable display
     animateNewImport(nodeId);                                 // indicate success
-    sendMessage({'function': 'getBookmarksBar'});
+    sendMessage({'function': 'getBookmarksBar'});             // bookmarks bar is not saved but synced on startup, re need to reload here.
 }
 
 function groupingUpdate(from, to) {
