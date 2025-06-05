@@ -78,6 +78,17 @@ Hovering your mouse over a row in the table reveals a set of buttons that perfor
 
 Note not all tools apply to every item and so not all will be shown every time. All the tools can also be accessed using keyboard accelerators.
 
+## Special Topics
+There are currently three 'special' topics supported in the tree. 
+
+🗑️ TRASH is a holding area for all deleted items. The delete button on that row empties the trash, fully deleteing all items. Note that deleted items are not saved with the rest of your data, so they do not show up in any backing file and the Trash will be empty any time you restart the Topic Manager.
+
+The 📝 SCRATCH, as mentioned above, is used as the topic for any item you saved without assigning a topic.
+
+The 🔖 BOOKMARKS BAR topic reflects the contents of your browsers bookmarks bar. It is populated on startup and thereafter any changes made to your browser bookmarks bar are upadated to the tree, and vice-versa, any changes you make to re-organize items under the topic in the tree will be reflected in your browser. Note that browser tab groups, which can be optionally shown in the bookmarks bar, are not actually bookmarks and are not included in the sync.
+
+You may move the special topics anywhere in the tree, as with any other topic, you can also make them subtopics of some other top level topic. If you delete the Bookmarks Bar item bookmarks will no longer be synced, until you re-create a similarly named item. If you delete Scratch, it will be recreated as needed. The Trash item is not deleteable. 
+
 ## Keyboard Accelerators
 <div class="row">
 <div class="cell left" style="width:50%">
@@ -107,6 +118,8 @@ There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Contr
 
 ## Drag and Drop Organization
 Items in the tree can be dragged to new positions just by selecting the item and moving it. An indicator bar will show the drop location. Dragging past the top or bottom of the tree will scroll. Hovering over a collapsed topic for a couple of seconds will expand that topic to allow you to drop your item inside. You can further expand sub-topics to drop an item anywhere in your tree. Dropping below an expanded topic will make the item a child of that topic. Dropping below a collapsed topic will make the item a sibling of that topic, ie they will have the same parent topic. 
+
+You can also drag a link from the address bar or from within the contents of a web page and drop it under a topic in the tree, in the same manner as described above. If a single link with associated text is dropped then the text is added as the notes for the new item. If multiple links are dropped each is created as a new item in the tree.
 
 ## Settings and Actions
 Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.

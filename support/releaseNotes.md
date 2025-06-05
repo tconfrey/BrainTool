@@ -5,6 +5,14 @@ layout: default
 tagline: The Topic Manager for your Online Life
 audience: user
 ---
+# BrainTool 1.3
+Three major improvements:
+- Drag and Drop from web pages into the topic tree. Drag individual links or selected text including multiple links and drop under a topic in the tree. With a single link any associated text is added as a note. When text contains multiple links all are added under the topic.
+- 🗑️ TRASH special topic. Deleted items are moved under Trash rather than immediately deleted from the tree. 
+- 🔖 BOOKMARKS BAR special topic. This topic is kept in sync with the items in your browser bookmarks bar. Changes made in the tree are updated to the browser and vice-versa. 
+
+Mulitple minor updates and bug fixes. See the [User Guide](\./support/userGuide) for more details on how these new items work.
+
 # BrainTool 1.2.2
 New buttons inside the search box now allow you to filter rows to just show TODO's or just show the search matches.
 
