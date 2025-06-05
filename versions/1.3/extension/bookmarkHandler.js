@@ -97,7 +97,7 @@ function getBookmarks() {
     chrome.bookmarks.getTree(async function(itemTree){
         itemTree[0].title = "Imported Bookmarks";
         chrome.storage.local.set({'bookmarks': itemTree[0]}, function() {
-            btSendMessage({'function': 'getBookmarks', 'result': 'success'});
+            btSendMessage({'function': 'bookmarks', 'result': 'success'});
         });
     });
 }

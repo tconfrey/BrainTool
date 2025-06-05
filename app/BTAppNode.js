@@ -1188,7 +1188,7 @@ class BTLinkNode extends BTAppNode {
 
 const Handlers = {
     "launchApp": launchApp,                 // Kick the whole thing off
-    "getBookmarks": loadBookmarks,
+    "bookmarks": loadBookmarks,
     "bookmarksBar": syncBookmarksBar,
     "bookmarksBarIds": bookmarksBarIds,     // node ids mapped to bookmarks bar node ids
     "tabActivated": tabActivated,           // User nav to Existing tab
