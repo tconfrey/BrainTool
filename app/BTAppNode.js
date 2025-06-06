@@ -1115,7 +1115,8 @@ class BTAppNode extends BTNode {
         if (!bookmarksBarNode) {
             bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, "Synced to your browser bookmarks bar contents.", 1);
             bookmarksBarNode.createDisplayNode();
-            bookmarksBarNode.redisplay();
+            bookmarksBarNode.redisplay();            
+            $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);            // start closed
         }
         return bookmarksBarNode;
     }

@@ -92,6 +92,7 @@ function syncBookmarksBar(msg) {
 
     // Set to track which bookmark IDs we've processed
     const processedIds = new Set();
+    const bbFolded = bookmarksBarNode.folded; // Store folded state of bookmarks bar
     
     // recursively process folder and subfolders
     if (msg.data.bookmarksBar && msg.data.bookmarksBar.children) {
@@ -102,6 +103,8 @@ function syncBookmarksBar(msg) {
     // Remove bookmarks that no longer exist and save/update
     removeUnprocessedBookmarks(bookmarksBarNode, processedIds);
     initializeUI();
+    bbFolded && $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);        // Restore folded state if it was folded
+
     saveBT();
     
     // Helper function to process a folder's contents
