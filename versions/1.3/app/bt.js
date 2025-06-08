@@ -1954,7 +1954,7 @@ function updateRow() {
     // Update extension
     BTAppNode.generateTopics();
     sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
-    console.count('BT-OUT: Topics updated to local store');
+    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 
     // reset ui
     closeDialog();
@@ -1998,6 +1998,7 @@ function promote(e) {
     saveBT();
     BTAppNode.generateTopics();
     sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
+    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 }
 
 function _displayForEdit(newNode) {
@@ -2039,6 +2040,7 @@ function addChild(e) {
     _displayForEdit(newNode);
 
     $(node.getDisplayNode()).removeClass("emptyTopic");
+    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 
     // Stop the event from selecting the row
     e.stopPropagation();
