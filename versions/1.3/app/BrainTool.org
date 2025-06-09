@@ -114,6 +114,9 @@ BrainTool topics can be saved and shared. See how and some examples.
 ** [[https://braintool.org/posts.html][BrainTool Blog]]
 
 * 🔖 BOOKMARKS BAR
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
 Synced to your browser bookmarks bar contents
 
 * 🗄 Archive
