@@ -113,14 +113,14 @@ BrainTool topics can be saved and shared. See how and some examples.
 
 ** [[https://braintool.org/posts.html][BrainTool Blog]]
 
+* 🗄 Archive
+Stuff no longer in active use. Move completed projects here.
+
 * 🔖 BOOKMARKS BAR
   :PROPERTIES:
   :VISIBILITY: folded
   :END:
 Synced to your browser bookmarks bar contents
-
-* 🗄 Archive
-Stuff no longer in active use. Move completed projects here.
 
 * 📝 SCRATCH
 Pages that you save without a Topic will be filed under SCRATCH
