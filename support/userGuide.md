@@ -10,7 +10,7 @@ audience: user
 ## Introduction
 BrainTool is a "Topic" Manager for your tabs and bookmarks. Topics are the basic unit of organization. A topic can be any category, or grouping or tag that you might apply to a set of web pages. Examples might include: "Vacation Research", "Ireland hotel options", "XYZ Project", "Party Playlist" etc.
 
-The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of.
+The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of. There's a 45 second intro video [here](https://youtu.be/4lhHBbBRyEU).
 <div class="row">
 <div class="cell left" style="width:50%">
 <img src="/site/TopicManager.png" alt="side-panel" style="width:80%">
@@ -119,7 +119,7 @@ There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Contr
 ## Drag and Drop Organization
 Items in the tree can be dragged to new positions just by selecting the item and moving it. An indicator bar will show the drop location. Dragging past the top or bottom of the tree will scroll. Hovering over a collapsed topic for a couple of seconds will expand that topic to allow you to drop your item inside. You can further expand sub-topics to drop an item anywhere in your tree. Dropping below an expanded topic will make the item a child of that topic. Dropping below a collapsed topic will make the item a sibling of that topic, ie they will have the same parent topic. 
 
-You can also drag a link from the address bar or from within the contents of a web page and drop it under a topic in the tree, in the same manner as described above. If a single link with associated text is dropped then the text is added as the notes for the new item. If multiple links are dropped each is created as a new item in the tree.
+You can also drag a link from the address bar or from within the contents of a web page and drop it under a topic in the tree, in the same manner as described above. If a single link with associated text is dropped then the text is added as the notes for the new item. If multiple links are dropped each is created as a new item in the tree. There's a brief demo [here](https://youtu.be/vdf5vR9ejzw)
 
 ## Settings and Actions
 Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.

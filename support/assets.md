@@ -18,7 +18,7 @@ Feel free to re-use, re-purpose or modify any of the following resources to crea
     BrainTool 40 Second Overview.
   </div>
   <div style="flex: 1; margin-left: 10px; border: solid; border-width: thin; text-align: center;"> <!-- Right item -->
-    <a href="https://youtu.be/1iTQNN0bhwg" target="_blank" rel="noopener noreferrer">
+    <a href="https://youtu.be/HlQjku3RXSE" target="_blank" rel="noopener noreferrer">
       <img src="../site/CollatoralMaterial/brianVideoThumbnail.png" alt="BrainTool Two Minute Intro" loading="lazy">
     </a>
     BrainTool Two Minute Ad.
@@ -28,17 +28,17 @@ Feel free to re-use, re-purpose or modify any of the following resources to crea
 
 ## Feature/Demo Videos
 <div style="display: flex; justify-content: space-between; align-items: stretch; padding-left:12rem; padding-right: 12rem;">
-  <div style="flex: 1; margin-right: 10px; border: solid; border-width: thin; text-align: center;">
-    <a href="https://www.youtube.com/watch?v=FPmdF7auT1g" target="_blank" rel="noopener noreferrer">
-      <img src="../site/CollatoralMaterial/DnDThumbnail.png" alt="BrainTool 40 Second Overview" loading="lazy">
-    </a>
-    BrainTool Drag and Drop.
-  </div>
-  <div style="flex: 1; margin-left: 10px; border: solid; border-width: thin; text-align: center; height: 100%;">
-    <a href="https://youtu.be/VehLpvTi5m8" target="_blank" rel="noopener noreferrer">
+  <div style="flex: 1; margin-right: 10px; border: solid; border-width: thin; text-align: center; height: 100%;">
+    <a href="https://youtu.be/4lhHBbBRyEU" target="_blank" rel="noopener noreferrer">
       <img src="../site/CollatoralMaterial/TopicsWithBuddy.png" alt="BrainTool Tabs and Topics" loading="lazy">
     </a>
     BrainTool Tabs and Topics.
+  </div>
+  <div style="flex: 1; margin-left: 10px; border: solid; border-width: thin; text-align: center;">
+    <a href="https://youtu.be/vdf5vR9ejzw" target="_blank" rel="noopener noreferrer">
+      <img src="../site/CollatoralMaterial/DnDThumbnail.png" alt="BrainTool drag and drop Overview" loading="lazy">
+    </a>
+    BrainTool Drag and Drop.
   </div>
 </div>
 
