@@ -120,17 +120,34 @@ function getBookmarksBar() {
     chrome.bookmarks.getTree(async function(itemTree){
         // Find the bookmark bar by its type
         const root = itemTree[0];
-        let bookmarksBarFolder = null;
+        let bookmarksBarFolders = [];
         
         // Look for the bookmark bar in the children
         if (root.children) {
-            // Find the child with the "bookmark-bar" type
-            bookmarksBarFolder = root.children.find(child => child.folderType === 'bookmarks-bar');
+            // Find the children with the "bookmark-bar" type
+            bookmarksBarFolders = root.children.filter(child => child.folderType === 'bookmarks-bar');
         }
         
-        if (bookmarksBarFolder) {
+        if (bookmarksBarFolders.length > 0) {
+            let bookmarksBarFolder;
+            
+            if (bookmarksBarFolders.length > 1) {
+                // Look for one with synced: true
+                const syncedFolder = bookmarksBarFolders.find(folder => folder.synced === true);
+                if (syncedFolder) {
+                    bookmarksBarFolder = syncedFolder;
+                    console.log("Found multiple bookmarks bar folders, using the synced one");
+                } else {
+                    bookmarksBarFolder = bookmarksBarFolders[0];
+                    console.log("Found multiple bookmarks bar folders, none synced, using the first one");
+                }
+            } else {
+                // Just one folder found
+                bookmarksBarFolder = bookmarksBarFolders[0];
+            }
+            
             bookmarksBarFolder.title = "Bookmarks Bar";
-            btSendMessage({'function': 'bookmarksBar', 'result': 'success', 'source': 'bookmarkBar',
+            btSendMessage({'function': 'bookmarksBar', 'result': 'success',
                             'data': {'bookmarksBar': bookmarksBarFolder}});
         }
     });
@@ -149,7 +166,7 @@ function syncBookmarksBar() {
             return;
         }
 
-        const bookmarkBarId = "1";          // Standard ID for Chrome's bookmark bar
+        const bookmarksBarId = data.bookmarksBarId || "1";          // Standard ID for Chrome's bookmark bar
         const processedIds = new Set();     // Track which bookmark IDs we've processed
         const btNodeToBookmarkMap = {};     // Map BrainTool node IDs to bookmark IDs
         syncInProgress = true;              // Set flag to prevent event handling during sync
@@ -209,12 +226,12 @@ function syncBookmarksBar() {
             try {
                 // Process each child of the bookmarks bar with its desired index
                 for (let i = 0; i < data.bookmarksBarChildren.length; i++) {
-                    await processNode(data.bookmarksBarChildren[i], bookmarkBarId, i);
+                    await processNode(data.bookmarksBarChildren[i], bookmarksBarId, i);
                 }
                 
                 // Remove any bookmarks that weren't in our data
-                await removeUnprocessedNodes(bookmarkBarId);
-                
+                await removeUnprocessedNodes(bookmarksBarId);
+
                 btSendMessage({'function': 'bookmarksBarIds', 'result': 'success',
                                 'data': {'idMapping': btNodeToBookmarkMap}});
             } catch (error) {

@@ -388,8 +388,31 @@ async function saveCB(close) {
         // We don't handle pinned tabs, so alert and return
         alert('BrainTool does not handle pinned tabs. Unpin the tab and try again.');
     } else {
+        if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close)) {
+            // ungroup the tab to avoid confusion with the group name, but also need to wait for that to complete
+            await chrome.tabs.ungroup(CurrentTab.id);
+            
+            // Wait for the ungroup operation to be fully processed
+            await new Promise(resolve => {
+                const tabUpdateListener = (tabId, changeInfo, tab) => {
+                    if (tabId === CurrentTab.id && 'groupId' in changeInfo && changeInfo.groupId === chrome.tabGroups.TAB_GROUP_ID_NONE) {
+                        chrome.tabs.onUpdated.removeListener(tabUpdateListener);
+                        resolve();
+                    }
+                };
+                
+                // Add listener for tab update events
+                chrome.tabs.onUpdated.addListener(tabUpdateListener);
+                
+                // Add timeout to prevent hanging if event doesn't fire
+                setTimeout(() => {
+                    chrome.tabs.onUpdated.removeListener(tabUpdateListener);
+                    resolve();
+                }, 500);
+            });
+        }  
         await chrome.runtime.sendMessage({'from': 'popup', 'function': 'saveTabs', 'type': saveType, 'currentWindowId': CurrentTab.windowId,
-                                        'close': close, 'topic': newTopic, 'note': note, 'title': title});
+            'close': close, 'topic': newTopic, 'note': note, 'title': title});
         if (!close)              // if tab isn't closing animate the brain
             await chrome.runtime.sendMessage({'from': 'popup', 'function': 'brainZoom', 'tabId': CurrentTab.id});
         await chrome.storage.local.set({'saveAndClose': close});
