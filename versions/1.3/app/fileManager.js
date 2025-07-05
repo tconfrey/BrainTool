@@ -45,7 +45,50 @@ async function handleStartupFileConnection() {
     gtag('event', launchType, {'event_category': 'General'});
 }
 
-async function saveBT(localOnly = false, newContent = true) {
+let lastSaveBTTime = 0;
+let saveBTTimer = null;
+let pendingLocalOnly = true;
+let pendingNewContent = false;
+const saveBTDelay = 5000; // 5 seconds debounce delay
+
+// Debounced version of saveBT
+function saveBT(localOnly = false, newContent = true) {
+    const now = Date.now();
+    const timeSinceLastSave = now - lastSaveBTTime;
+    
+    // Update pending parameters - ensure if any save has newContent=true or localOnly=false, those take precedence
+    pendingLocalOnly = pendingLocalOnly && localOnly;
+    pendingNewContent = pendingNewContent || newContent;
+    
+    // Clear any pending timer
+    if (saveBTTimer) {
+        clearTimeout(saveBTTimer);
+        saveBTTimer = null;
+    }
+    
+    // If it's been less than 5 seconds since last save, schedule a future save
+    if (timeSinceLastSave < saveBTDelay) {
+        console.log("Debouncing save, will execute in", Math.max(0, 5000 - timeSinceLastSave), "ms");
+        saveBTTimer = setTimeout(() => {
+            lastSaveBTTime = Date.now();
+            _saveBT(pendingLocalOnly, pendingNewContent).then(() => {
+                // Reset pending flags after save completes
+                pendingLocalOnly = true;
+                pendingNewContent = false;
+            });
+        }, Math.max(0, saveBTDelay - timeSinceLastSave));
+        return;
+    }
+
+    // If it's been more than BTDelay, save immediately
+    lastSaveBTTime = now;
+    _saveBT(localOnly, newContent).then(() => {
+        pendingLocalOnly = true;
+        pendingNewContent = false;
+    });
+}
+
+async function _saveBT(localOnly = false, newContent = true) {
     // Save org version of BT Tree to local storage and potentially gdrive.
     // localOnly => don't save to GDrive/Local backing and don't send gtag stat. Used when folding/unfolding
     // newContent => true if we're saving new content, false if just saving folded state

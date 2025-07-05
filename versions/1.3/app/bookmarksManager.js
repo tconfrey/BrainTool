@@ -12,7 +12,7 @@
 /*** 
  * 
  * Handles bookmark stuff - import/export and bookmarks bar syncing
- * Extension send bookmarksBar data at startup and on changes. syncBookmarksBar() creates or updates the associated BTAppNodes
+ * Extension sends bookmarksBar data at startup and on changes. syncBookmarksBar() creates or updates the associated BTAppNodes
  * App send exportBookmarks on local changes which get synced to bar by Extension
  * exportBookmarks results in a bookmarksBarIds message which updates the bookmarkId of each BTAppNode
  * We don't bother trying to manage individual changes, we just resync the whole thing every time.
@@ -281,7 +281,7 @@ function exportBookmarksBar() {
     // Send to background for syncing with Chrome's bookmarks bar
     sendMessage({
         'function': 'localStore',
-        'data': {'bookmarksBarChildren': bookmarksBarChildren}
+        'data': {'bookmarksBarChildren': bookmarksBarChildren, 'bookmarksBarId': bookmarksBarNode.bookmarkId}
     });
     
     // Wait briefly to allow local storage to be written before background tries to access

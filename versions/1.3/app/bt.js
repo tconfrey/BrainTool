@@ -181,10 +181,7 @@ function updateStats() {
 
 function handleFocus(e) {
     // BTTab comes to top
-    
     document.activeElement.blur();                      // Links w focus interfere w BTs selection so remove
-    const deletions = handlePendingDeletions();         // handle any pending deletions
-    if (!deletions) warnBTFileVersion(e);               // check file version, warn if stale, NB if deletions then save will overwrite
 }
 
 async function checkFileFreshness() {
@@ -214,16 +211,6 @@ async function warnBTFileVersion(e) {
         const cb = async () => { refreshTable(true); messageManager.removeWarning(); };
         messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.", cb);
     }
-}
-
-function handlePendingDeletions() {
-    // handle any pending deletions from tab drag oparations (eg tabLeftTG without associated tabJoinedTG)
-
-    const pending = AllNodes.filter(n => n.pendingDeletion);
-    pending.forEach(n => {
-        deleteNode(n.id);
-    });
-    return pending.length;
 }
 
 async function handleInitialTabs(tabs, tgs) {
@@ -1109,6 +1096,8 @@ function saveTabs(data) {
         if (tab.groupId > 0) {                                  // groupid = -1 if not set
             node.tabGroupId = tab.groupId;
             topicNode.tabGroupId = tab.groupId;
+        } else {
+            node.tabGroupId = topicNode.tabGroupId;
         }
         node.faviconUrl = tab.favIconUrl; node.tabIndex = tab.tabIndex;
         if (keyword) node.keyword = keyword;
@@ -1159,17 +1148,22 @@ function tabPositioned(data, highlight = false) {
     const tabIndex = data.tabIndex;
     const windowId = data.windowId;
     const parentId = AllNodes[nodeId]?.parentId || nodeId;
+    const parent = AllNodes[parentId];
     
     if (!node) return;
     node.tabId = tabId;         
     node.windowId = windowId;
     node.tabIndex = tabIndex;
     node.opening = false;
-    AllNodes[parentId].windowId = windowId;
+    parent.windowId = windowId;
     if (tabGroupId) {
-        AllNodes[parentId].tabGroupId = tabGroupId;
+        parent.tabGroupId = tabGroupId;
         node.tabGroupId = tabGroupId;
     }
+    // Update UI to reflect the node's new status
+    setNodeOpen(node);
+    node.setTGColor(parent.tgColor);
+    updateStatsRow();
 }
 
 function tabNavigated(data) {
@@ -1184,6 +1178,8 @@ function tabNavigated(data) {
         if (!transitionData) return true;                           // single page app or nav within page
         if (transitionQualifiers.includes('from_address_bar')) 
             return false;                                           // implies explicit user nav, nb order of tests important
+        if (transitionTypes.includes('auto_bookmark')) 
+            return false;                                           // implies explicit user nav from bookmarks
         if (transitionTypes.some(type => ['link', 'reload', 'form_submit'].includes(type))) return true;
         if (transitionQualifiers.includes('server_redirect')) return true; 
         return false;
@@ -1293,7 +1289,9 @@ function tabGroupCreated(data) {
     const color = data.tabGroupColor;
     const topicId = data.topicId;
     const node = BTAppNode.findFromGroup(tgId) || AllNodes[topicId];
-    node?.setTGColor(color);
+    if (!node) return;                             // no node, no TG
+    node.tabGroupId = tgId;
+    node.setTGColor(color);
 }
 
 function tabGroupUpdated(data){
@@ -1337,13 +1335,13 @@ function tabJoinedTG(data) {
     let tabNode = BTAppNode.findFromTab(tabId);
     const topicNode = BTAppNode.findFromGroup(tgId);
     if (!topicNode && !tabNode) return;                             // don't care
+    const tabGroupColor = data.tabGroupColor || topicNode?.tgColor;
 
     if (tabNode && !topicNode) {
         // settings toggle => update parent w tg info
         const tgParent = AllNodes[tabNode.parentId];
         tabNode.windowId = winId;
         tabNode.tabGroupId = tgId;
-        tabNode.pendingDeletion = false;
         tgParent.tabGroupId = tgId;
         tgParent.windowId = winId;
         return;
@@ -1368,24 +1366,25 @@ function tabJoinedTG(data) {
     }
 
     // remaining option - tab moved within or between TGs
-    tabNode.pendingDeletion = false;                                // no longer pending deletion
     tabNode.tabGroupId = tgId;
-    // if topicNode has multiple open children then redo positioning
-    if (topicNode.hasOpenChildren() > 1)
-        positionInTopic(topicNode, tabNode, index, indices, winId);
+    if (tabNode.trashed && !topicNode.trashed && !topicNode.isTrash()) {
+        // Moved into a non-trashed topic => untrash it
+        tabNode.untrash();
+    }
+    // Might need to update positioning
+    positionInTopic(topicNode, tabNode, index, indices, winId);
+    topicNode.setTGColor(tabGroupColor);        // update topic color to match TG
 }
 
 function tabLeftTG(data) {
-    // user moved tab out of TG => no longer managed => mark for deletion
-    // NB don't delete cos might be moving to another TG or its TG might be moving between windows
-    // Also NB this may arrive after tab has already been moved to another TG, in which case don't mark for deletion
+    // user moved tab out of TG => no longer managed => move to Trash
     
     if (GroupingMode != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
     const groupId = data.groupId;
-    if (!tabNode || (tabNode.groupId && (tabNode.groupId != groupId))) return;
-    tabNode.pendingDeletion = true;
+    if (!tabNode) return;
+    deleteNode(tabNode.id, true);
 }
 
 function tabMoved(data) {
@@ -1845,9 +1844,10 @@ function deleteRow(e) {
     }
 }
 
-function deleteNode(id) {
+function deleteNode(id, browserAction = false) {
     // delete node and clean up
     // firstDelete moves the item into Trash, subsequent deletes it
+    // if delete was a result of browserAction, eg tabLeftTG, don't screw with tgs etc
     id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
@@ -1861,7 +1861,6 @@ function deleteNode(id) {
         const openKids = parent.hasOpenChildren();
         const openDescendants = parent.hasOpenDescendants();
         if (!openKids) {
-            parent.tabGroupId = 0;
             parent.windowId = 0;
             parent.setTGColor(null)
         }
@@ -1877,17 +1876,20 @@ function deleteNode(id) {
     
     // Highlight the tab if it's open and the Topic Manager is not TAB (jarring to swap active tabs)
     // (good user experience and side effect is to update the tabs badge info
-    const BTHome = configManager.getProp('BTManagerHome');
-    if (node.tabId && (BTHome !== 'TAB'))
-        node.showNode();
-    // Ungroup if topic w open tabs
-    if (openTabs.length) {
-        const tabIds = openTabs.map(t => t.tabId);
-        callBackground({'function': 'ungroup', 'tabIds': tabIds});
+    if (!browserAction) {
+        const BTHome = configManager.getProp('BTManagerHome');
+        if (node.tabId && (BTHome !== 'TAB'))
+            node.showNode();
+        // Ungroup if topic w open tabs
+        if (openTabs.length) {
+            const tabIds = openTabs.map(t => t.tabId);
+            callBackground({'function': 'ungroup', 'tabIds': tabIds});
+        }
     }
 
     if (!node.trashed) {
-        // Move to trash
+        // Move to trash    
+        propogateClosed(node.parentId);                     // Update parent display
         const treeTable = $("#content");
         const trashNode = BTAppNode.findOrCreateTrashNode();
         node.handleNodeMove(trashNode.id);
@@ -1908,9 +1910,6 @@ function deleteNode(id) {
         node.bookmarkId = 0;
         exportBookmarksBar();        // update bookmarks bar
     }
-    
-    // Update parent display
-    propogateClosed(node.parentId);
     
     // if wasTopic remove from Topics and update extension
     if (wasTopic) {
@@ -2073,7 +2072,7 @@ async function processImport(nodeId) {
     await saveBT();                                           // save w imported data
     refreshTable();                                           // re-gen treetable display
     animateNewImport(nodeId);                                 // indicate success
-    sendMessage({'function': 'getBookmarksBar'});             // bookmarks bar is not saved but synced on startup, re need to reload here.
+    sendMessage({'function': 'getBookmarksBar'});             // bookmarks bar is not saved but synced on startup, need to reload here.
 }
 
 function groupingUpdate(from, to) {

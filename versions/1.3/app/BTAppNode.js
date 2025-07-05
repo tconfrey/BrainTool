@@ -129,18 +129,7 @@ class BTAppNode extends BTNode {
     }
     get folded() {
         return this._folded;
-    }
-    
-    set pendingDeletion(f) {
-        // indicate pending deletion on open tab
-        this._pendingDeletion = f;
-        const displayNode = this.getDisplayNode();
-        f ? $(displayNode).addClass('trashed') : $(displayNode).removeClass('trashed');
-    }
-    get pendingDeletion() {
-        return this._pendingDeletion;
-    }
-    
+    }    
 
     hasOpenChildren() {
         return this.childIds.filter(id => AllNodes[id].tabId).length;
@@ -643,7 +632,7 @@ class BTAppNode extends BTNode {
         configManager.incrementStat('BTNumTabOperations');
 
         // if we don't care about grouping just open each tab
-        if (GroupingMode == 'NONE') {
+        if (GroupingMode == 'NONE' || this.isTrash()) {
             const tabsToOpen = this.listOpenableTabs();              // [{nodeId, url}..}
             sendMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
         }
@@ -654,34 +643,47 @@ class BTAppNode extends BTNode {
         }
     }
 
-    groupAndPosition() {
+    async groupAndPosition(left = 0) {
         // Topic node fn to (re)group open tabs and put them in correct order
+        // If caller has required info it can tell us the index of leftmost tab.
 
-        if (!this.isTopic() || (GroupingMode != 'TABGROUP')) return;
+        if (!this.isTopic() || (GroupingMode != 'TABGROUP') || this.trashed) return;
         let tabInfo = [];
         const myWin = this.windowId;
         const myTG = this.tabGroupId;
+        let newLeft = Number.MAX_SAFE_INTEGER;
         this.childIds.forEach(id => {
             const node = AllNodes[id];
             if (!node.tabId) return;
             this.tabGroupId = myTG || node.tabGroupId;          // tab might be moved to new TG/win
             this.windowId = myWin || node.windowId;
+            newLeft = Math.min(node?.expectedTabIndex(), newLeft);
             const index = node?.expectedTabIndex() || 0;
             tabInfo.push({'nodeId': id, 'tabId': node.tabId, 'tabIndex': index});
         });
-        sendMessage({'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
-                            'windowId': this.windowId, 'tabInfo': tabInfo,
-                            'groupName': this.topicName(), 'topicId': this.id,
-                        });
+        const result = await callBackground(
+            {'function': 'groupAndPositionTabs', 'tabGroupId': this.tabGroupId,
+            'windowId': this.windowId, 'tabInfo': tabInfo,
+            'groupName': this.topicName(), 'topicId': this.id,
+            'leftmostTabIndex': left || newLeft } );
+        console.log(`groupAndPositionTabs for ${this.topicName()} returned ${JSON.stringify(result.message)}`);
+
+        // Update the tab indices in AllNodes based on the returned array of tabIds and their window indices
+        if (Array.isArray(result.message)) {
+            result.message.forEach(entry => {
+                const node = BTAppNode.findFromTab(entry.id);
+                node && (node.tabIndex = entry.tabIndex);
+            });
+        }
     }
     
     putInGroup() {
         // wrap this one nodes tab in a group
-        if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP')) return;
+        if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP') || this.trashed) return;
         const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
         const groupId = this.isTopic() ? this.id : AllNodes[this.parentId]?.id;
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
-        sendMessage({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
+        callBackground({'function': 'groupAndPositionTabs', 'tabGroupId': tgId,
                             'windowId': this.windowId, 'tabInfo': [{'nodeId': this.id, 'tabId': this.tabId, 'tabIndex': this.tabIndex}],
                             'groupName': groupName, 'topicId': groupId,});
     }
@@ -696,12 +698,13 @@ class BTAppNode extends BTNode {
         });
     }
 
-    updateTabGroup() {
+    async updateTabGroup() {
         // set TG in browser to appropriate name/folded state
         let rsp;
         if (this.tabGroupId && this.isTopic())
-            rsp = callBackground({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
+            rsp = await callBackground({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
                                   'collapsed': this.folded, 'title': this.topicName()});
+        if (rsp?.status == 'error') this.tabGroupId = 0; // if error, reset tabGroupId
         return rsp;
     }
         
@@ -933,10 +936,20 @@ class BTAppNode extends BTNode {
     handleNodeMove(newP, index = -1, browserAction = false) {
         // move node to parent at index. Parent might be existing just at new index.
         // Could be called from drag/drop/keyboard move or from tabs in tabGroups in browser
+        // Important: syncs browser tabs is DnD was on topic manager (ie browserAction)
+
+        if (!newP || !AllNodes[newP]) {
+            console.error(`BTNode.handleNodeMove: Invalid parent ${newP} for node ${this}`);
+            return;
+        }
         const oldP = this.parentId;
+        const oldParent = AllNodes[oldP];
+        const newParent = AllNodes[newP];
+        const newPleftmost = newParent.leftmostOpenTabIndex();
+        const origIndex = this.tabIndex || Number.MAX_SAFE_INTEGER;
 
         // update display class if needed, old Parent might now be empty, new parent is not
-        if (AllNodes[oldP]?.childIds?.length == 1)
+        if (oldParent?.childIds?.length == 1)
             $(`tr[data-tt-id='${oldP}']`).addClass('emptyTopic');
         $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
 
@@ -944,20 +957,24 @@ class BTAppNode extends BTNode {
         this.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
-        const newLevel = newP ? AllNodes[newP].level + 1 : 1;
+        const newLevel = newParent.level + 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
 
         // if node has open tab we might need to update its tab group/position
+        // NB Can't left align w dragged tab, need to left align w its new tg, *but* if its left whole tg will slide left by one
         if (this.tabId) {
-            if (newP != oldP) this.tabGroupId = AllNodes[newP].tabGroupId;
-            if (!browserAction) 
-                AllNodes[newP].tabGroupId ? AllNodes[newP].groupAndPosition() : this.putInGroup();
+            const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
+            if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
+            if (!browserAction && !newParent.isTrash()) {
+                newParent.tabGroupId ? newParent.groupAndPosition(newLeft) : this.putInGroup();
+                newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
+            }
             // update old P's display node to remove open tg styling
-            if (!AllNodes[oldP]?.hasOpenChildren()) {
+            if (!oldParent?.hasOpenChildren()) {
                 $("tr[data-tt-id='"+oldP+"']").removeClass("opened");
-                AllNodes[oldP].setTGColor(null);
-                AllNodes[oldP].tabGroupId = null;
+                oldParent.setTGColor(null);
+                // oldParent.tabGroupId = null;     // breaks when tg dragged out of window
             }
         }
     }
@@ -1210,11 +1227,11 @@ const Handlers = {
 
 // Set handler for extension messaging
 window.addEventListener('message', event => {
-    console.log("BTAppNode received: ", event);
     if (event.source != window && event.source != window.parent) return;            // not our business
     if (event?.data?.type == 'AWAIT') return;                                       // outbound msg from callBackground
     if (event?.data?.type == 'AWAIT_RESPONSE') return;                              // sync rsp handled below
 
+    console.log(`BTAppNode received (${event?.data?.function}):`, event);
     //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
     if (Handlers[event.data.function]) {
         console.log("BTAppNode dispatching to ", Handlers[event.data.function].name);

@@ -303,6 +303,7 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
     }
     if (changeInfo.groupId && (tab.status == 'complete') && tab.url) {
         // tab moved to/from TG, wait til loaded so url etc is filled in
+        const tg = (tab.groupId > 0) ? await chrome.tabGroups.get(tab.groupId) : null;
         const message = {
             'function': (tab.groupId > 0) ? 'tabJoinedTG' : 'tabLeftTG',
             'tabId': tabId,
@@ -310,15 +311,12 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
             'tabIndex': tab.index,
             'windowId': tab.windowId,
             'indices': indices,
-            'tab': tab
+            'tab': tab, 
+            'tabGroupColor': tg?.color
         };
     
-        // Adding a delay on Left to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
-        if (tab.groupId > 0)
-            btSendMessage(message);
-        else
-            setTimeout(async () => { btSendMessage(message); }, 250);
-
+        // Adding a delay to allow potential tab closed event to be processed first, otherwise tabLeftTG deletes BT Node
+        setTimeout(async () => { btSendMessage(message); }, 250);
         setTimeout(function() {setBadge(tabId);}, 200);
     }
 }));
@@ -671,6 +669,7 @@ async function groupAndPositionTabs(msg, sender) {
     const tabInfo = msg.tabInfo;
     const topicId = msg.topicId;
     const groupName = msg.groupName;
+    const leftmostTabIndex = msg.leftmostTabIndex || 0; // where to start placing tabs, default to 0
 
     // Sort left to right before moving
     tabInfo.sort((a,b) => a.tabindex < b.tabindex);
@@ -679,34 +678,72 @@ async function groupAndPositionTabs(msg, sender) {
           {'tabIds': tabIds, 'groupId': tabGroupId} : windowId ?
             {'tabIds': tabIds, 'createProperties': {'windowId': windowId}} : {'tabIds': tabIds};
     console.log(`groupAndposition.groupArgs: ${JSON.stringify(groupArgs)}`);
-    if (!tabIds.length) return;                                       // shouldn't happen, but safe
+    if (!tabIds.length) return [];                                   // shouldn't happen, but safe
 
-    const firstTab = await chrome.tabs.get(tabIds[0]); check();
-    const tabIndex = tabInfo[0].tabIndex || firstTab?.index || 0;
-    chrome.tabs.move(tabIds, {'index': tabIndex}, tabs => {
-        // first move tabs into place
-        check('groupAndPositionTabs-move');
-        if (!tabs) return;                      // error, eg tg still being moved by user
-        chrome.tabs.group(groupArgs, async (groupId) => {
-            // then group appropriately. NB this order cos move drops the tabgroup
-            check('groupAndPositionTabs-group');
-            if (!groupId) console.log('Error: groupId not returned from tabs.group call.');
-            else await chrome.tabGroups.update(groupId, {'title' : groupName});
-            if (!tabGroupId) {
-                // new group => send tabGroupCreated msg to link to topic
-                const tg = await chrome.tabGroups.get(groupId);
-                btSendMessage({'function': 'tabGroupCreated', 'tabGroupId': groupId, 'topicId': topicId, 'tabGroupColor': tg.color});
+    // First, check if any tabs are in different groups and ungroup them
+    // Nb called w await, so changes won't generrate events back to app
+    try {
+        for (const tabId of tabIds) {
+            const tab = await chrome.tabs.get(tabId);
+            check();
+            if (!tab) continue;
+            
+            // If tab is already in a different group, ungroup it and regroup in the new group
+            if (tab.groupId > 0 && tab.groupId !== tabGroupId) {
+                console.log(`Tab ${tabId} is in group ${tab.groupId}, removing before adding to ${tabGroupId || 'new group'}`);
+                await chrome.tabs.ungroup(tabId);
+                check(`Ungrouping tab ${tabId} from group ${tab.groupId}`);
+                const grpArgs = tabGroupId ?
+                      {'tabIds': [tabId], 'groupId': tabGroupId} :
+                      {'tabIds': [tabId], 'createProperties': {'windowId': windowId}};
+                await chrome.tabs.group(grpArgs);
+                check(`Grouping tab ${tabId} into group ${tabGroupId}`);
             }
-            const theTabs = Array.isArray(tabs) ? tabs : [tabs];      // single tab?
-            theTabs.forEach(t => {
-                const nodeInfo = tabInfo.find(ti => ti.tabId == t.id);
-                btSendMessage({ 'function': 'tabPositioned', 'tabId': t.id,
-                                'nodeId': nodeInfo.nodeId, 'tabGroupId': groupId,
-                                'windowId': t.windowId, 'tabIndex': t.index});
+        }
+        
+        // Move tabs one by one to their desired positions
+        for (let i = 0; i < tabIds.length; i++) {
+            await chrome.tabs.move(tabIds[i], {'index': leftmostTabIndex + i});
+            check(`Moving tab ${tabIds[i]} to index ${leftmostTabIndex + i}`);
+        }
+        
+        // After all tabs are moved, group them
+        const groupId = await chrome.tabs.group(groupArgs);
+        check('groupAndPositionTabs-group');
+        
+        // Update group title
+        await chrome.tabGroups.update(groupId, {'title': groupName});
+        
+        // Handle group sync to TM
+        const tg = await chrome.tabGroups.get(groupId);
+        if (!tabGroupId) {
+            // new group => send tabGroupCreated msg to link to topic
+            btSendMessage({
+                'function': 'tabGroupCreated', 
+                'tabGroupId': groupId, 
+                'topicId': topicId, 
+                'tabGroupColor': tg.color
             });
-        });
-    });
+        } else {
+            btSendMessage({
+                'function': 'tabGroupUpdated',
+                'tabGroupId': groupId,
+                'tabGroupColor': tg.color,
+                'tabGroupName': groupName,
+                'tabGroupCollapsed': tg.collapsed,
+                'tabGroupWindowId': tg.windowId
+            });
+        }
+        
+        // Get updated tab information to return
+        const updatedTabInfo = await getOpenTabs();
+        return updatedTabInfo;
+    } catch (error) {
+        console.error('Error in groupAndPositionTabs:', error);
+        return [];
+    }
 }
+
 
 async function ungroup(msg, sender) {
     // node deleted, navigated or we're not using tabgroups any more, so ungroup
@@ -720,8 +757,10 @@ function moveOpenTabsToTG(msg, sender) {
 
     chrome.tabs.group({'createProperties': {'windowId': msg.windowId}, 'tabIds': msg.tabIds}, async (tgId) => {
         check(); if (!tgId) return;
+        let tgcolor;
         chrome.tabGroups.update(tgId, {'title' : msg.groupName}, tg => {
             console.log('tabgroup updated:', tg);
+            tgcolor = tg.color;
         });
         const indices = await tabIndices();
         msg.tabIds.forEach(tid => {
@@ -730,7 +769,7 @@ function moveOpenTabsToTG(msg, sender) {
                 btSendMessage(
                     {'function': 'tabJoinedTG', 'tabId': tid, 'groupId': tgId,
                      'tabIndex': tab.index, 'windowId': tab.windowId, 'indices': indices,
-                     'tab': tab});
+                     'tab': tab, 'tabGroupColor': tgcolor});
                 // was  {'function': 'tabGrouped', 'tgId': tgId, 'tabId': tid, 'tabIndex': tab.index});
             });
         });
@@ -947,7 +986,6 @@ async function saveTabs(msg, sender) {
 
     // Loop thru tabs, decide based on msg.type if it should be saved and if so add to array to send to BTTab
     const tabsToSave = [];
-    const sessionName = createSessionName();
     allTabs.forEach(t => {
         if (t.id == BTTab || t.pinned) return;
         const tab = {'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url,
@@ -961,7 +999,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'TG' && t.groupId == currentTab.groupId) {
-            tab['topic'] = (topic||"📝 SCRATCH")+':'+tgName+(todo ? ':'+todo : '');
+            tab['topic'] = (topic ? topic+':' : '') + tgName + (todo ? ':' + todo : '');
             tabsToSave.push(tab);
         }
         if (saveType == 'Window' && t.windowId == currentTab.windowId) {
@@ -969,6 +1007,7 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
         if (saveType == 'Session') {
+            const sessionName = createSessionName();
             tab['topic'] = (topic ? topic+":" : "📝 SCRATCH:") + sessionName + (tgName ? tgName : winName) + (todo ? ':'+todo : '');
             tabsToSave.push(tab);
         }
@@ -979,8 +1018,8 @@ async function saveTabs(msg, sender) {
             tabsToSave.push(tab);
         }
     });
-    // Send save msg to BT.
-    if (tabsToSave.length) btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
+    // Send save msg
+    if (tabsToSave.length) 
+        btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
     currentTab && btSendMessage({'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
-
 }
