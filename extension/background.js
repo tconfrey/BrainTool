@@ -20,19 +20,7 @@
 'use strict';
 import {getBookmarks, getBookmarksBar, syncBookmarksBar,
         exportBookmarks, createSessionName, generateBTNodesFromBookmarks } from './bookmarkHandler.js';
-
-// Default empty keys with Dynamic import to load config if available
-let Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
-async function loadConfig() {
-  try {
-    const config = await import('./config.js');
-    Keys = config.Keys;
-    console.log("Config loaded successfully");
-  } catch (e) {
-    console.log("No config.js found, using empty keys");
-  }
-}
-loadConfig();
+import { Keys } from './config.js';
 
 let LocalTest = false;                            // control code path during unit testing
 let InitialInstall = false;                       // should we serve up the welcome page
