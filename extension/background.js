@@ -18,15 +18,21 @@
 ***/
 
 'use strict';
-importScripts('bookmarkHandler.js');
+import {getBookmarks, getBookmarksBar, syncBookmarksBar,
+        exportBookmarks, createSessionName, generateBTNodesFromBookmarks } from './bookmarkHandler.js';
 
-let Keys;
-try {
-    importScripts('config.js');
-} catch (e) {
-    console.log(e);
-    Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
+// Default empty keys with Dynamic import to load config if available
+let Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
+async function loadConfig() {
+  try {
+    const config = await import('./config.js');
+    Keys = config.Keys;
+    console.log("Config loaded successfully");
+  } catch (e) {
+    console.log("No config.js found, using empty keys");
+  }
 }
+loadConfig();
 
 let LocalTest = false;                            // control code path during unit testing
 let InitialInstall = false;                       // should we serve up the welcome page
@@ -392,7 +398,8 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     });
 }));
 
-chrome.windows.onBoundsChanged.addListener(async (window) => {
+// onBoundsChanged not supported in FF
+chrome.windows.onBoundsChanged && chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
     if (BTManagerHome === 'SIDEPANEL') return;          // doesn't apply
     const [BTTab, BTWin] = await getBTTabWin();
@@ -505,7 +512,7 @@ async function initializeExtension(msg, sender) {
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
 
-    debouncedExportBookmarks();             // initialize bookmark bar
+    getBookmarksBar();             // initialize bookmark bar
 }
 
 async function suspendExtension() {
@@ -931,10 +938,7 @@ async function saveDroppedURLs(msg, sender) {
             if (match && match.length) bookmarks.push(match[0]);
         }    
         if (bookmarks.length) {
-            const allBookmarks = await chrome.bookmarks.getTree();
-            const flattenedBookmarks = flattenBookmarkTree(allBookmarks);
-            const commonAncestor = findMostSpecificCommonAncestor(bookmarks, flattenedBookmarks);
-            const nodeObjects = generateNodeObjects(bookmarks, flattenedBookmarks, commonAncestor);
+            const nodeObjects = await generateBTNodesFromBookmarks(bookmarks);
             nodeObjects.forEach((node) => {
                 const bookmark = {
                     url: node.url,
@@ -1023,3 +1027,6 @@ async function saveTabs(msg, sender) {
         btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
     currentTab && btSendMessage({'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
 }
+
+// Export functions for use by other modules
+export { btSendMessage };

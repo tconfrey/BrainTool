@@ -4,15 +4,16 @@
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "version": "1.3.1",
-    "permissions": ["tabs", "storage", "tabGroups", "webNavigation", "bookmarks", "sidePanel"],
-    
+    "permissions": ["tabs", "storage", "tabGroups", "webNavigation", "bookmarks"],
+
     "background": {
-        "service_worker": "background.js",
+        "scripts": ["background.js"],
         "type": "module"
     },
     "content_scripts": [
         {
-            "matches": ["http://localhost:8000/app/*"],
+            "non_matches": ["https://BrainTool.org/versions/*", "https://braintool.org/versions/*"],
+            "matches": ["http://localhost:8000/app/*", "http://localhost/*"],
             "run_at" : "document_idle",
             "js": ["btContentScript.js"]
         }
@@ -39,8 +40,11 @@
                 "default": "Alt+B"
             }
         }
-    }, 
-    "side_panel": {
-        "default_path": "sidePanel.html"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "braintool@yourdomain.com",
+            "strict_min_version": "139.0"
+        }
     }
 }
