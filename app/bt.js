@@ -2682,10 +2682,9 @@ function keyUpHandler(e) {
     // space = open tab, w/alt-space => open in new window
     if (code === "Space" || code === "KeyW") {
         const newWin = alt || code === "KeyW";
-        node.openPage(newWin);
+        (node.childIds.length) ? node.openAll(newWin) : node.openPage(newWin);
         e.preventDefault();
     }
-
 };
 
 function handleEditCardKeyup(e) {
