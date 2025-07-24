@@ -18,8 +18,7 @@
 
 'use strict'
 
-const OptionKey = (navigator.userAgentData.platform == "macOS") ? "Option" : "Alt";
-
+const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var InitialInstall = false;
 var UpgradeInstall = false;
 var GroupingMode = 'TABGROUP';                            // or 'NONE'
