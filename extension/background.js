@@ -191,6 +191,7 @@ const Handlers = {
     "exportBookmarks": exportBookmarks,
     "syncBookmarksBar": syncBookmarksBar,
     "saveDroppedURLs": saveDroppedURLs,
+    "setBrowserTheme": setBrowserTheme,
 };
 
 var Awaiting = false;
@@ -1014,6 +1015,19 @@ async function saveTabs(msg, sender) {
     if (tabsToSave.length) 
         btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
     currentTab && btSendMessage({'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
+}
+
+function setBrowserTheme(msg, sender) {
+    // Set the browser extension icon based on the theme preference
+    // Called from bt.js when the topic manager window gains focus
+    
+    const isDarkTheme = msg.theme === 'DARK';
+    const iconPath = isDarkTheme ? 'images/BrainToolIconLight128.png' : 'images/BrainTool128.png';
+    
+    chrome.action.setIcon({'path': iconPath}, () => {
+        check('setBrowserTheme');
+        console.log(`Icon set to ${iconPath} for ${isDarkTheme ? 'dark' : 'light'} theme`);
+    });
 }
 
 // Export functions for use by other modules

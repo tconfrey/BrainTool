@@ -22,7 +22,7 @@
             "16": "images/BrainTool16.png",
             "32": "images/BrainTool32.png",
             "48": "images/BrainTool48.png",
-            "128": "images/BrainTool128.png"
+            "128": "images/BrainToolIcon128.png"
         },
         "default_title" : "BrainTool!",
         "default_popup" : "popup.html"
@@ -31,7 +31,7 @@
       "16": "images/BrainTool16.png",
       "32": "images/BrainTool32.png",
       "48": "images/BrainTool48.png",
-      "128": "images/BrainTool128.png"
+      "128": "images/BrainToolIcon128.png"
     },
     "commands": {
         "_execute_action": {

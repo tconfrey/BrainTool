@@ -73,6 +73,13 @@ async function launchApp(msg) {
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
 
+    // Udate the icon color theme
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    sendMessage({
+        'function': 'setBrowserTheme', 
+        'theme': isDark ? 'DARK' : 'LIGHT'
+    });
+
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
     initializeNotesColumn();                              // set up notes column width based on slider saved position
     checkCompactMode();                                   // tweak display if window is narrow
@@ -181,6 +188,12 @@ function updateStats() {
 function handleFocus(e) {
     // BTTab comes to top
     document.activeElement.blur();                      // Links w focus interfere w BTs selection so remove
+    // Take this opportunity to update the icon color theme
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    sendMessage({
+        'function': 'setBrowserTheme', 
+        'theme': isDark ? 'DARK' : 'LIGHT'
+    });
 }
 
 async function checkFileFreshness() {
