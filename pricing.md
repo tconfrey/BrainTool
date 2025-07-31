@@ -7,16 +7,16 @@ audience: nonuser
 ---
 
 # Special One-Time Offer!
-In celebration of the 1.0 BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
+In celebration of the initial BrainTool release a free permanent license is being offered to any existing user who contributes to it's success by performing any of the following<sup>*</sup>:
 <!-- - Filling out this survey:[link] -->
-- Posting an honest, positive review or mention on a social network feed<sup>**</sup>, newsletter, app store review, etc.
+- Posting an honest, positive review or mention on a social network feed, newsletter, app store, etc.
 - Posting actionable feedback on the [BrainTool Discussion Group.](https://groups.google.com/u/0/g/braintool-discussion)
-- Creating a blog post, video or other content. See [this page](support/assets) for some reusable images, text content and LLM prompts to get you started.
+- Creating a blog post, video or other content. See [the press kit](support/assets) for some reusable images, text content and LLM prompts to get you started.
 
-If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the BTEarlyFinancer coupon code to receive 50% off.
+If you'd prefer to just pay and/or want to show support, please do go ahead and purchase a license. In return you can make use of the BTEarlyFinancer coupon code to receive 50% off. 
+
+Please do us a favor by following on your subset of the socials (<a href="https://bsky.app/profile/braintool.org">Bluesky</a>, <a href="https://www.linkedin.com/company/braintool-org/">LinkedIn</a>, <a href="https://twitter.com/ABraintool">Twitter</a>, <a href="https://www.instagram.com/abraintool/">Instagram</a>, <a href="https://facebook.com/ABrainTool">FaceBook</a>) and by liking, commenting and reposting liberally.
 <p style="font-size:0.8rem; font-style: italic; margin-top:0px;">*&nbsp;&nbsp; Send a link showing the post to braintool.extension@gmail.com</p>
-<p style="font-size:0.8rem; font-style: italic; margin-top:-10px;">** See @ABrainTool on 
-<a href="https://twitter.com/ABraintool">Twitter</a>, <a href="https://www.instagram.com/abraintool/">Instagram</a> and <a href="https://facebook.com/ABrainTool">FaceBook</a></p>
 # BrainTool Pricing and Data Philosophy
 There's been a trend for the last while to give software away for free and make money off of the data you can collect and sell. BrainTool strives to take a completely hands off approach to your data. Your data is yours, BrainTool uses it with your permission to provide you tools to manage, organize and access it. With a subscription or purchase you are paying for those tools and their continued improvement, and keeping your data to yourself.
 

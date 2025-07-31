@@ -45,12 +45,12 @@ audience: landingpage
   <div class="cell image">
     <img src="/media/ZDNet.png" class="landing-image" id="ZDNet" >
   </div>
-  <div class="cell text right">
+  <div class="cell text right" style="padding-top: 40px;">
     <h1 class="landing-header" style="color: white !important; margin-top: 0px;">What the Press says:</h1>
-    <h3 style="color: #D0FF4B; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
+    <h3 style="color: #DDDDDD; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
   </div>
 </div>
-<div class="row feature-grid" style="background:#b2b2b2; margin-top: -8px">
+<div class="row feature-grid" style="background:#999; margin-top: -8px">
   <div class="feature">
     <img src="/site/pageAssets/bookmark.svg" alt="Organize into topics">
     <p>Organize your tabs and bookmarks into a common set of Topics.</p>

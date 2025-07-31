@@ -12,7 +12,7 @@ Keeping good tab hygiene can reduce the cognitive load of having so many distrac
 
 This was also a good opportunity to show the new Bookmarker widget in action. The 0.9.8 release separates out the note card from the topic selection, turning saving a tab into a simplified two step process. There are more details below but check out the video and LMK what you think (sound required for narration).
 
-<video width="95%" controls style="border:solid; border-width:1px">
+<video width="80%" controls style="border:solid; border-width:1px; margin-left:10%">
   <source src="../../../media/Tab-Cleaning.mp4" type="video/mp4">
 </video>
 

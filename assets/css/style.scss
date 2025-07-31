@@ -167,7 +167,6 @@ small {
   display: block;
 }
 .cell > img.landing-image {
-  height: 350px;
   border: none;
 }
 #ZDNet {
@@ -175,6 +174,7 @@ small {
   border: none;
   bottom: 8px;
   padding-top: 30px;
+  height: 350px;
 }
 .cell.left {
   width: 50%;
@@ -257,6 +257,7 @@ small {
   #ZDNet {
     max-width: 100%;
     position: relative;
+    height: auto; /* Override the fixed 350px height */
   }
 }
 
@@ -320,10 +321,11 @@ small {
 
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columns */
-  grid-template-rows: repeat(3, 1fr);    /* 3 rows */
-  gap: 20px;
-  padding: 50px 100px;
+  grid-template-columns: repeat(3, 1fr); /* 4 columns */
+  grid-template-rows: repeat(4, 1fr);    /* 3 rows */
+  row-gap: 20px;
+  column-gap: 40px;
+  padding: 50px 150px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -338,7 +340,7 @@ small {
   box-sizing: border-box;
   margin-top: -8px;
   align-items: start;
-  background-color: #0EBE00;
+  background-color: #0eaa00;
 }
 .feature {
   padding: 10px;
@@ -352,17 +354,17 @@ small {
 .feature:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  background: #9c9c9c;
+  background: #888;
   border-radius: 10px;
 }
 
 .feature-grid2 .feature:hover {
-  background: #0eaa00;
+  background: #0EBE00;
 }
 
 .feature img {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
   margin-bottom: 5px;
 }
@@ -379,6 +381,11 @@ small {
 .posts {
   padding-left: 6rem !important;
   padding-right: 2rem !important;
+}
+.posts td:first-child {
+  padding-right: 5rem;
+  padding-left: 2rem;
+  text-align: justify;
 }
 
 /* Responsive adjustments */
