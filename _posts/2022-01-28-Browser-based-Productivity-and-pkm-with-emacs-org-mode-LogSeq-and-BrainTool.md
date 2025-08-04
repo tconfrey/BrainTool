@@ -16,7 +16,7 @@ It achieves this interoperability by saving your data into an accessible plain t
 
 Most org mode users interact with it via the emacs text editor but it can be used in any text editor and is increasingly used as a format by other tools such as the [LogSeq](https://logseq.com)<super>*</super> personal knowledge manager, the [Flat Habits](https://flathabits.com/) iOS ToDo manager and [Plain Org](https://plainorg.com/), an iOS org-mode editor.
 
-<iframe width="560" height="315" style="border: 1px solid grey" src="https://www.youtube.com/embed/U9kg9yVMMAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" style="border: 1px solid grey; margin-left: 20%" src="https://www.youtube.com/embed/U9kg9yVMMAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 The embedded video shows how the notes, links and todo items captured by BrainTool in your browser can be accessed and edited in org mode and then used to drive a task manager. The same plain text file is also shown synced to LogSeq and being navigated in the LogSeq user interface. 
 
