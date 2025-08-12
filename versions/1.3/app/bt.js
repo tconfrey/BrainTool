@@ -181,6 +181,7 @@ function updateStats() {
 function handleFocus(e) {
     // BTTab comes to top
     document.activeElement.blur();                      // Links w focus interfere w BTs selection so remove
+    warnBTFileVersion(e);                               // check file version, warn if stale,
 }
 
 async function checkFileFreshness() {

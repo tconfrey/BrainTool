@@ -181,8 +181,16 @@ async function checkBTFileVersion() {
     // pass to correct file manager, true if sync file is newer than local
     if (GDriveConnected)
         return await gDriveFileManager.checkBTFileVersion();
+    
     if (LocalFileConnected)
-        return await localFileManager.checkBTFileVersion();
+        try {
+            return await localFileManager.checkBTFileVersion();
+        } catch (err) {
+            console.warn('warnBTFileVersion: error checking BT file version:', err);
+            const cb = async () => { messageManager.removeWarning(); };
+            const msg = `Error accessing the synced BrainTool file${err?.message ? `:<br/><small>"${err.message}"</small>` : '.'}`;
+            messageManager.showWarning(msg, cb);
+        }
     return false;
 }
 
