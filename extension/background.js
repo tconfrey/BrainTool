@@ -500,8 +500,6 @@ async function initializeExtension(msg, sender) {
     }
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
-
-    getBookmarksBar();             // initialize bookmark bar
 }
 
 async function suspendExtension() {

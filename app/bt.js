@@ -81,6 +81,7 @@ async function launchApp(msg) {
     });
 
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
+    setTimeout(() => sendMessage({'function': 'getBookmarksBar'}), 1);         // bookmarks bar is not saved, sync on startup, giving time for allNodes to be populated.
     initializeNotesColumn();                              // set up notes column width based on slider saved position
     checkCompactMode();                                   // tweak display if window is narrow
     updateStats();                                        // record numlaunches etc
