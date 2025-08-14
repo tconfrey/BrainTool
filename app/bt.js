@@ -408,16 +408,22 @@ function processBTFile(fileText = BTFileText) {
  **/
 
 function initializeNotesColumn() {
-    // set position of the column resizer, read from BTNotes peoperty.
-    // Above 95% snaps to 100% right aligned offset by 26px width, but when window is narrow thats >5% so 13px
-    // Called from initial settings and checkCompact after window resize
-    // Calls out to handleResizer,
+    // Initialize column widths from saved BTNotes (percent). If not numeric, use a sensible default.
+    // Then align the resizer to the actual left column width to match draggable stop behavior.
     const notesPref = configManager.getProp('BTNotes');
-    const percent = parseInt(notesPref);
-    const left = (percent >= 95) ? 100 : percent;
-    const offset = ($(window).width() > 260) ? 26 : 13;  // adjust for narrow windows
-    $("#resizer").css('left', `calc(${left}% - ${offset}px`);
-    handleResizer();
+    let percent = parseInt(notesPref);
+    if (!Number.isFinite(percent)) percent = 50;
+
+    if (percent < 95) {
+        $("#content").addClass('showNotes').removeClass('hideNotes');
+        $("td.left").css("width", percent + "%");
+        $("td.right").css("width", (100 - percent) + "%");
+    } else {
+        $("#content").addClass('hideNotes').removeClass('showNotes');
+    }
+
+    // Finally, align the resizer knob with the rendered left column width
+    updateResizerPositionFromColumns();
 }
 let Resizing = false;                                   // set while resizing in progress to avoid processing other events
 function handleResizer() {
@@ -434,6 +440,14 @@ function handleResizer() {
         $("#content").addClass('hideNotes').removeClass('showNotes');
     }
 }
+function updateResizerPositionFromColumns() {
+    // Align #resizer to the actual width of the left column (same approach as in draggable stop)
+    const leftCell = $("td.left")[0];
+    if (!leftCell) return;
+    const leftWidth = $(leftCell).width();
+    if (leftWidth == null) return;
+    $("#resizer").css('left', parseInt(leftWidth - 9.5) + "px");
+}
 $("#resizer").draggable({
     containment: "#newTopLevelTopic",                   // Restrict dragging within the parent div
     axis: "x",
@@ -449,8 +463,7 @@ $("#resizer").draggable({
         handleResizer();
         Resizing = false;
         // Update the resizer position to match the new left column width
-        const newLeft = $($("td.left")[0]).width();
-        $("#resizer").css('left', parseInt(newLeft - 9.5) + "px");
+        updateResizerPositionFromColumns();
     }, 250),                                            // give time for resize to be processed
 });
 // add on entry and on exit actions to highlight the resizer
