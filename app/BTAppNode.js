@@ -939,31 +939,30 @@ class BTAppNode extends BTNode {
         // Important: syncs browser tabs is DnD was on topic manager (ie browserAction)
 
         if (!newP || !AllNodes[newP]) {
-            console.error(`BTNode.handleNodeMove: Invalid parent ${newP} for node ${this}`);
-            return;
+            console.log(`BTNode.handleNodeMove: No parent ${newP} for node ${this}. Top level node?`);
         }
         const oldP = this.parentId;
         const oldParent = AllNodes[oldP];
-        const newParent = AllNodes[newP];
-        const newPleftmost = newParent.leftmostOpenTabIndex();
+        const newParent = newP ? AllNodes[newP] : null;
         const origIndex = this.tabIndex || Number.MAX_SAFE_INTEGER;
 
         // update display class if needed, old Parent might now be empty, new parent is not
         if (oldParent?.childIds?.length == 1)
             $(`tr[data-tt-id='${oldP}']`).addClass('emptyTopic');
-        $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
+        newP && $(`tr[data-tt-id='${newP}']`).removeClass('emptyTopic');
 
         // move the node in parental child arrays
         this.reparentNode(newP, index);
         
         // Update nesting level as needed (== org *** nesting)
-        const newLevel = newParent.level + 1;
+        const newLevel = newParent ? newParent.level + 1 : 1;
         if (this.level != newLevel)
             this.resetLevel(newLevel);
 
         // if node has open tab we might need to update its tab group/position
         // NB Can't left align w dragged tab, need to left align w its new tg, *but* if its left whole tg will slide left by one
         if (this.tabId) {
+            const newPleftmost = newParent.leftmostOpenTabIndex();
             const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
             if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
             if (!browserAction && !newParent.isTrash()) {

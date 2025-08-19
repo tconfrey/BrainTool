@@ -294,12 +294,13 @@ function bookmarksBarIds(msg) {
         console.warn("Failed to receive bookmark ID mappings");
         return;
     }
-    
-    // Simple loop to update bookmark IDs
-    for (const [btNodeId, bookmarkId] of Object.entries(msg.data.idMapping)) {
-        const node = AllNodes[btNodeId];
-        if (node) {
-            node.bookmarkId = bookmarkId;
-        }
+
+    const idMapping = msg.data.idMapping;
+    // Set bookmarkId on all nodes: mapped value if present, else null
+    for (let i = 0; i < AllNodes.length; i++) {
+        const node = AllNodes[i];
+        if (!node) continue;
+        const mapped = idMapping[node.id] ?? idMapping[String(node.id)] ?? null;
+        node.bookmarkId = mapped;
     }
 }
