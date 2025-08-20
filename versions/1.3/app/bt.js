@@ -430,7 +430,7 @@ function handleResizer() {
 }
 function updateResizerPositionFromColumns() {
     // Align #resizer to the actual width of the left column (same approach as in draggable stop)
-    const leftCell = $("#content table td.left:visible")[0];       // NB need a visible cell
+    const leftCell = $("#content td.left:visible")[0];       // NB need a visible cell
     if (!leftCell) return;
     const leftWidth = $(leftCell).width();
     if (leftWidth == null) return;
