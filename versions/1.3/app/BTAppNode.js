@@ -37,6 +37,7 @@ class BTAppNode extends BTNode {
         this._tabGroupId = 0;
         this._windowId = 0;
         this._opening = false;
+    this.aliases = new Set();                 // Set of alias URLs that map to this node's URL
 
         // Three attributes of org ndes to track
         this.drawers = {};
@@ -342,13 +343,68 @@ class BTAppNode extends BTNode {
 
     static getFaviconDB;
     static getAliasDB;
+    static _aliasesLoaded = false;                // one-time hydration flag
+    static _aliasesLoadPromise = null;            // in-flight loader promise (dedupe concurrent calls)
     static {
         BTAppNode.getFaviconDB = localStorageManager.getDB('faviconDB');
         BTAppNode.getAliasDB = localStorageManager.getDB('aliasDB');
     }
+    static async _loadAliasesOnce() {
+        // First-time read of the alias DB: populate each node's aliases Set with all alias URLs
+        if (BTAppNode._aliasesLoaded) return;
+        if (BTAppNode._aliasesLoadPromise) return BTAppNode._aliasesLoadPromise;
+
+        // Build a map from canonical node URL -> array of nodes for quick lookup
+        const urlToNodes = new Map();
+        AllNodes.forEach(n => {
+            if (!n || !n.URL) return;
+            const arr = urlToNodes.get(n.URL) || [];
+            arr.push(n);
+            urlToNodes.set(n.URL, arr);
+        });
+
+        BTAppNode._aliasesLoadPromise = new Promise((resolve) => {
+            try {
+                // Use a read-only transaction and iterate the entire store via a cursor
+                BTAppNode.getAliasDB('readonly', (store) => {
+                    const request = store.openCursor();
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            const aliasURL = cursor.key;
+                            const nodeURL = cursor.value;
+                            const nodes = urlToNodes.get(nodeURL);
+                            if (nodes && nodes.length) {
+                                nodes.forEach(node => node.aliases.add(aliasURL));
+                            }
+                            cursor.continue();
+                        } else {
+                            // finished
+                            BTAppNode._aliasesLoaded = true;
+                            resolve();
+                        }
+                    };
+                    request.onerror = () => {
+                        console.warn('Error iterating aliasDB');
+                        BTAppNode._aliasesLoaded = true;   // avoid retry storms; can be reset if needed
+                        resolve();
+                    };
+                });
+            } catch (e) {
+                console.warn(`Error loading alias DB: ${e}`);
+                BTAppNode._aliasesLoaded = true;
+                resolve();
+            }
+        });
+
+        return BTAppNode._aliasesLoadPromise;
+    }
     storeAlias(aliasURL) {
         // store an alias to this nodes actual saved url. Used with sticky navigation
         try {
+            // Update in-memory set first
+            this.aliases.add(aliasURL);
+            // Persist mapping aliasURL -> node URL in alias DB
             localStorageManager.set(aliasURL, this.URL, BTAppNode.getAliasDB);
         }
         catch (e) {
@@ -358,8 +414,10 @@ class BTAppNode extends BTNode {
     static async findFromAlias(url) {
         // find the node, if any, for which this url is an alias for the actual url
         try {
-            let nodeURL =  await localStorageManager.get(url, BTAppNode.getAliasDB);
-            return nodeURL && AllNodes.find(n => n?.URL == nodeURL);
+            // On first use, hydrate alias Sets for all nodes from the DB
+            await BTAppNode._loadAliasesOnce();
+            // Fast in-memory lookup thereafter
+            return AllNodes.find(n => n && n.aliases && n.aliases.has(url));
         }
         catch (e) {
             console.warn(`Error finding alias: ${e}`);

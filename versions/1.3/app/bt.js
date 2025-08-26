@@ -217,6 +217,7 @@ async function warnBTFileVersion(e) {
 async function handleInitialTabs(tabs, tgs) {
     // array of {url, id, groupid, windId} passed from ext. mark any we care about as open
 
+    const topicsToGroup = new Set();
     const tabPromises = tabs.map(async (tab) => {
 	    const node = BTNode.findFromURL(tab.url) || await BTAppNode.findFromAlias(tab.url);
 	    if (!node) return;
@@ -230,11 +231,9 @@ async function handleInitialTabs(tabs, tgs) {
             node.tabGroupId = tab.groupId;
             const tg = tgs.find(tg => tg.id == tab.groupId);
             if (tg) node.setTGColor(tg.color);
-        } else {
-            node.putInGroup();                              // not grouped currently, handle creating/assigning as needed on startup
-            node.groupAndPosition();
         }
         if (node.parentId && AllNodes[node.parentId]) {
+            (tab.groupId <= 0) && topicsToGroup.add(AllNodes[node.parentId]); // not grouped currently, handle creating/assigning as needed on startup
             AllNodes[node.parentId].windowId = node.windowId;
             AllNodes[node.parentId].tabGroupId = node.tabGroupId;
         }
@@ -246,8 +245,14 @@ async function handleInitialTabs(tabs, tgs) {
             tabGroupUpdated({'tabGroupId': tg.id, 'tabGroupColor': tg.color, 'tabGroupName': tg.title,
                             'tabGroupCollapsed': tg.collapsed, 'tabGroupWindowId': tg.windowId});
             const node = BTAppNode.findFromGroup(tg.id);
-            if (node) node.groupAndPosition();
+            if (node) topicsToGroup.add(node);
         });
+
+    // now group any topics that need it
+    topicsToGroup.forEach((node) => {
+        node.groupAndPosition();
+    });
+
     // remember topic per window for suggestions in popup
     sendMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
     updateStatsRow();
