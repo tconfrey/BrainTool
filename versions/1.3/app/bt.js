@@ -2583,6 +2583,8 @@ function keyUpHandler(e) {
                 tt.treetable("collapseNode", node.id);
             if (node?.level > lvl)
                 $(node.getDisplayNode()).hide();
+            else
+                $(node.getDisplayNode()).show();
         });
         rememberFold();                                       // save to storage
     }
