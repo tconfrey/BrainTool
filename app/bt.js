@@ -2327,7 +2327,7 @@ function search(keyevent) {
 	    $(displayNode).addClass('selected');
 	    node.showForSearch();                                 // unfold tree etc as needed
 
-        scrollIntoViewIfNeeded(node.getDisplayNode());
+        const scrolling = scrollIntoViewIfNeeded(node.getDisplayNode());
 	    let highlight = $(displayNode).find("span.highlight")[0];
 	    if (highlight) {
             // make sure hit is visible horizontally. NB scrollIntoView also scrolls vertically, need to reset that
@@ -2340,7 +2340,8 @@ function search(keyevent) {
 	    $("#search_entry").removeClass('failed');
 	    $("td").removeClass('searchLite');
         resetFilterSearch();                                // reset search filter button 
-	    ExtendedSearchCB = setTimeout(() => extendedSearch(sstr, node), 200);
+        const waitTime = scrolling ? 1000 : 200;            // wait til scroll completes to see visible rows for extendedSearch
+	    ExtendedSearchCB = setTimeout(() => extendedSearch(sstr, node), waitTime);
     } else {
 	    $("#search_entry").addClass('failed');
 	    $("tr.selected").removeClass('selected');
@@ -2355,9 +2356,7 @@ function rowsInViewport() {
         const rect = element.getBoundingClientRect();
         return (
             rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
         );
     }
     
@@ -2368,8 +2367,9 @@ function rowsInViewport() {
     .get().map((e) => AllNodes[parseInt(e)]);
 }
 
+
 function scrollIntoViewIfNeeded(element) {
-    // Helper function to make sure search or nav to item has its row visible but only scroll if needed
+    // Helper function to make sure search or nav to item has its row visible but only scroll if needed. return whether will scroll
     // NB needed the timeout for block:center to work
     const height = $(window).height();
     const topOfRow = $(element).position().top;
@@ -2379,7 +2379,9 @@ function scrollIntoViewIfNeeded(element) {
         setTimeout(() => {
             element.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }, 0);
+        return true;
     }
+    return false;
 }
 
 function extendedSearch(sstr, currentMatch) {
