@@ -2329,8 +2329,9 @@ function search(keyevent) {
 
         const scrolling = scrollIntoViewIfNeeded(node.getDisplayNode());
 	    let highlight = $(displayNode).find("span.highlight")[0];
-	    if (highlight) {
+	    if (highlight && $(document).width() == $(displayNode).width()) {
             // make sure hit is visible horizontally. NB scrollIntoView also scrolls vertically, need to reset that
+            // NB NB sometimes after eg font size change the window is wider until the next click, in which case don't scroll
             const v = $(document).scrollTop();
             highlight.scrollIntoView({'inline' : 'center'});
             $(document).scrollTop(v);
