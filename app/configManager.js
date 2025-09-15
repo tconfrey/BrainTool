@@ -326,7 +326,7 @@ const configManager = (() => {
         if ($('#settings').is(':visible')) {            
             $('#settings').slideUp({duration: 250, 'easing': 'easeInCirc'});
             $("#content").fadeIn(250);
-            $("body").css("overflow", "auto");
+            $("body").css("overflow-y", "auto").css("overflow-x", "clip");
             setTimeout(() => {
                 $('#settingsButton').removeClass('open');
                 $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
@@ -365,7 +365,7 @@ const configManager = (() => {
         if ($('#actions').is(':visible')) {            
             $('#actions').slideUp({duration: 250, 'easing': 'easeInCirc'});
             $("#content").fadeIn(250);
-            $("body").css("overflow", "auto");
+            $("body").css("overflow-y", "auto").css("overflow-x", "clip");
             setTimeout(() => {
                 $('#actionsButton').removeClass('open');
                 $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
@@ -387,7 +387,7 @@ const configManager = (() => {
             // now visible => action is close
             $('#help').slideUp({duration: 250, 'easing': 'easeInCirc'});
             $("#content").fadeIn(250);
-            $("body").css("overflow", "auto");
+            $("body").css("overflow-y", "auto").css("overflow-x", "clip");
             setTimeout(() => {
                 $('#footerHelp').removeClass('open');
                 $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(iconColor);
