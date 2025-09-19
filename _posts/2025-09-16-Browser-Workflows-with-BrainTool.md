@@ -45,6 +45,6 @@ As well as those basic workflows there are any number of other ways BrainTool's 
 
   - It's common to have a set of dashboards or project pages or some other set of websites that you need to review or update on a periodic basis. This is the 'Checklist Workflow'. Here's how BrainTool can help make sure you get to those tasks on time and make it more efficient to check them off: [Checklist Workflow.](https://youtube.com/shorts/PFUvFTSIruM){:target="_blank" rel="noopener "}
 
-  - Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/9LhVCQk0tZQ){:target="_blank" rel="noopener "}
+  - Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/_wDJTPJxiUU){:target="_blank" rel="noopener "}
 
 Are there other productivity improving techniques or workflows that BrainTool enables for you?
