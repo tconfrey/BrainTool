@@ -470,6 +470,9 @@
       Tree.prototype.insertAtTop = function(node, beforeNode) {
           // insert node after beforeNode in tree at top level. Needed to insert at top level
 
+          // Clean up parent
+          var nodeParent = node.parentNode();
+          nodeParent.removeChild(node);
           node.parentId = null;
           node.row.removeData(node.settings.parentIdAttr);
           // TODO figure out why above line doesn't work so I don't need this one

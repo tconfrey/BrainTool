@@ -1274,6 +1274,7 @@ const Handlers = {
     "tabMoved" : tabMoved,                  // user moved a tab
     "tabPositioned": tabPositioned,         // tab moved by extension
     "tabClosed" : tabClosed,                // tab closed
+    "tabReplaced" : tabReplaced,            // tab replaced, generally due to it being suspended and then reopened
     "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
     "tabGroupCreated": tabGroupCreated,
     "tabGroupUpdated": tabGroupUpdated,

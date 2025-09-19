@@ -155,7 +155,7 @@ function openTopicManager(home = 'WINDOW', location) {
     // version is x.y.z or x.y, need to strip off the .z if present
     const parts = version.split('.');
     if (parts.length > 2) version = parts.slice(0, 2).join('.');
-    
+
     const url = match.replace(/\*+$/, '') + (localhost ? '' : (version + '/app'));
 
     console.log('loading from ', url);
@@ -292,9 +292,16 @@ function updateForSelection() {
 /* for use escaping unicode in for topic name below */
 const _textAreaForConversion = document.createElement('textarea');
 function _decodeHtmlEntities(str) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(str, "text/html");
+    return doc.documentElement.textContent;
+}
+/* old version, FF linter complained
+function _decodeHtmlEntities(str) {
     _textAreaForConversion.innerHTML = str;
     return _textAreaForConversion.value;
 }
+*/
 async function openBookmarker(tab) {
     // Get data from storage and launch popup w card editor, either existing node or new, or existing but navigated
     CurrentTab = tab;
@@ -388,7 +395,7 @@ async function saveCB(close) {
         // We don't handle pinned tabs, so alert and return
         alert('BrainTool does not handle pinned tabs. Unpin the tab and try again.');
     } else {
-        if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close)) {
+        if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close) && (newTopic != OldTopic)) {
             // ungroup the tab to avoid confusion with the group name, but also need to wait for that to complete
             await chrome.tabs.ungroup(CurrentTab.id);
             

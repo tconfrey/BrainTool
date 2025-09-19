@@ -18,15 +18,9 @@
 ***/
 
 'use strict';
-importScripts('bookmarkHandler.js');
-
-let Keys;
-try {
-    importScripts('config.js');
-} catch (e) {
-    console.log(e);
-    Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
-}
+import {getBookmarks, getBookmarksBar, syncBookmarksBar,
+        exportBookmarks, createSessionName, generateBTNodesFromBookmarks } from './bookmarkHandler.js';
+import { Keys } from './config.js';
 
 let LocalTest = false;                            // control code path during unit testing
 let InitialInstall = false;                       // should we serve up the welcome page
@@ -197,6 +191,7 @@ const Handlers = {
     "exportBookmarks": exportBookmarks,
     "syncBookmarksBar": syncBookmarksBar,
     "saveDroppedURLs": saveDroppedURLs,
+    "setBrowserTheme": setBrowserTheme,
 };
 
 var Awaiting = false;
@@ -332,6 +327,15 @@ chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (i
     });
 }));
 
+chrome.tabs.onReplaced.addListener(logEventWrapper("tabs.onReplaced", async (addedTabId, removedTabId) => {
+    // A tab has been replaced (eg prerendered or discarded/optimized). Inform BT with old/new mapping.
+    if (Awaiting) return;                                           // ignore while executing our own commands
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (!addedTabId || (!BTTab && !BTPort)) return;                 // not initialized
+    if (addedTabId == BTTab || removedTabId == BTTab) return;       // ignore replacement involving BT itself
+    btSendMessage({ 'function': 'tabReplaced', 'addedTabId': addedTabId, 'removedTabId': removedTabId});
+}));
+
 // Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
 // Seems like some sites (g Reddit) trigger the history instead of Committed event. Don't know why
 
@@ -392,7 +396,8 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     });
 }));
 
-chrome.windows.onBoundsChanged.addListener(async (window) => {
+// onBoundsChanged not supported in FF
+chrome.windows.onBoundsChanged && chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
     if (BTManagerHome === 'SIDEPANEL') return;          // doesn't apply
     const [BTTab, BTWin] = await getBTTabWin();
@@ -504,8 +509,6 @@ async function initializeExtension(msg, sender) {
     }
     updateBTIcon('', 'BrainTool', '#59718C');      // was #5E954E
     chrome.action.setIcon({'path': 'images/BrainTool128.png'});
-
-    debouncedExportBookmarks();             // initialize bookmark bar
 }
 
 async function suspendExtension() {
@@ -931,10 +934,7 @@ async function saveDroppedURLs(msg, sender) {
             if (match && match.length) bookmarks.push(match[0]);
         }    
         if (bookmarks.length) {
-            const allBookmarks = await chrome.bookmarks.getTree();
-            const flattenedBookmarks = flattenBookmarkTree(allBookmarks);
-            const commonAncestor = findMostSpecificCommonAncestor(bookmarks, flattenedBookmarks);
-            const nodeObjects = generateNodeObjects(bookmarks, flattenedBookmarks, commonAncestor);
+            const nodeObjects = await generateBTNodesFromBookmarks(bookmarks);
             nodeObjects.forEach((node) => {
                 const bookmark = {
                     url: node.url,
@@ -1023,3 +1023,19 @@ async function saveTabs(msg, sender) {
         btSendMessage({'function': 'saveTabs', 'saveType':saveType, 'tabs': tabsToSave, 'note': msg.note, 'close': msg.close});
     currentTab && btSendMessage({'function': 'tabActivated', 'tabId': currentTab.id });        // ensure BT selects the current tab, if there is one
 }
+
+function setBrowserTheme(msg, sender) {
+    // Set the browser extension icon based on the theme preference
+    // Called from bt.js when the topic manager window gains focus
+    
+    const isDarkTheme = msg.theme === 'DARK';
+    const iconPath = isDarkTheme ? 'images/BrainToolIconLight128.png' : 'images/BrainTool128.png';
+    
+    chrome.action.setIcon({'path': iconPath}, () => {
+        check('setBrowserTheme');
+        console.log(`Icon set to ${iconPath} for ${isDarkTheme ? 'dark' : 'light'} theme`);
+    });
+}
+
+// Export functions for use by other modules
+export { btSendMessage };

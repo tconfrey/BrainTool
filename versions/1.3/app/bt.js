@@ -73,6 +73,13 @@ async function launchApp(msg) {
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
 
+    // Udate the icon color theme
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    sendMessage({
+        'function': 'setBrowserTheme', 
+        'theme': isDark ? 'DARK' : 'LIGHT'
+    });
+
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
     setTimeout(() => sendMessage({'function': 'getBookmarksBar'}), 1);         // bookmarks bar is not saved, sync on startup, giving time for allNodes to be populated.
     initializeNotesColumn();                              // set up notes column width based on slider saved position
@@ -183,6 +190,12 @@ function handleFocus(e) {
     // BTTab comes to top
     document.activeElement.blur();                      // Links w focus interfere w BTs selection so remove
     warnBTFileVersion(e);                               // check file version, warn if stale,
+    // Take this opportunity to update the icon color theme
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    sendMessage({
+        'function': 'setBrowserTheme', 
+        'theme': isDark ? 'DARK' : 'LIGHT'
+    });
 }
 
 async function checkFileFreshness() {
@@ -1300,6 +1313,15 @@ function tabActivated(data) {
     }
 }
 
+function tabReplaced(data) {
+    // Handle tab id changes (due to tab suspension or prerendering)
+    const oldId = data.removedTabId;
+    const newId = data.addedTabId;
+    const node = BTAppNode.findFromTab(oldId);
+    if (node) {
+        node.tabId = newId;
+    }
+}
 
 function tabGroupCreated(data) {
     // TG created update associated topic color as appropriate
@@ -2353,6 +2375,7 @@ function rowsInViewport() {
     .map(function() { return $(this).attr("data-tt-id")})
     .get().map((e) => AllNodes[parseInt(e)]);
 }
+
 
 function scrollIntoViewIfNeeded(element) {
     // Helper function to make sure search or nav to item has its row visible but only scroll if needed. return whether will scroll

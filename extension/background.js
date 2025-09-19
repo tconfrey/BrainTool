@@ -327,6 +327,15 @@ chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (i
     });
 }));
 
+chrome.tabs.onReplaced.addListener(logEventWrapper("tabs.onReplaced", async (addedTabId, removedTabId) => {
+    // A tab has been replaced (eg prerendered or discarded/optimized). Inform BT with old/new mapping.
+    if (Awaiting) return;                                           // ignore while executing our own commands
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (!addedTabId || (!BTTab && !BTPort)) return;                 // not initialized
+    if (addedTabId == BTTab || removedTabId == BTTab) return;       // ignore replacement involving BT itself
+    btSendMessage({ 'function': 'tabReplaced', 'addedTabId': addedTabId, 'removedTabId': removedTabId});
+}));
+
 // Listen for webNav events to know if the user was clicking a link or typing in the URL bar etc. 
 // Seems like some sites (g Reddit) trigger the history instead of Committed event. Don't know why
 

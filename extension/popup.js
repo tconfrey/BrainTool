@@ -395,7 +395,7 @@ async function saveCB(close) {
         // We don't handle pinned tabs, so alert and return
         alert('BrainTool does not handle pinned tabs. Unpin the tab and try again.');
     } else {
-        if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close)) {
+        if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close) && (newTopic != OldTopic)) {
             // ungroup the tab to avoid confusion with the group name, but also need to wait for that to complete
             await chrome.tabs.ungroup(CurrentTab.id);
             

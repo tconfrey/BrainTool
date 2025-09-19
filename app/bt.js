@@ -1313,6 +1313,15 @@ function tabActivated(data) {
     }
 }
 
+function tabReplaced(data) {
+    // Handle tab id changes (due to tab suspension or prerendering)
+    const oldId = data.removedTabId;
+    const newId = data.addedTabId;
+    const node = BTAppNode.findFromTab(oldId);
+    if (node) {
+        node.tabId = newId;
+    }
+}
 
 function tabGroupCreated(data) {
     // TG created update associated topic color as appropriate
