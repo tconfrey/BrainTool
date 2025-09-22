@@ -17,6 +17,8 @@
 
 'use strict';
 
+import { btSendMessage } from './background.js';
+
 // Utility function to flatten the bookmark tree
 function flattenBookmarkTree(tree) {
     const result = [];
@@ -90,6 +92,15 @@ function generateNodeObjects(nodes, bookmarks, commonAncestor) {
     });
 }
 
+async function generateBTNodesFromBookmarks(bookmarks) {
+    // DnD of bookmarked url(s), generate bt node with appropriate topic path etc
+    
+    const allBookmarks = await chrome.bookmarks.getTree();
+    const flattenedBookmarks = flattenBookmarkTree(allBookmarks);
+    const commonAncestor = findMostSpecificCommonAncestor(bookmarks, flattenedBookmarks);
+    const nodeObjects = generateNodeObjects(bookmarks, flattenedBookmarks, commonAncestor);
+    return nodeObjects;
+}
 
 function getBookmarks() {
     // User has requested bookmark import from browser, get 'other bookmarks' cos the bookmarks bar is synced
@@ -344,6 +355,15 @@ chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
     debouncedExportBookmarks();
 });
 
-chrome.bookmarks.onChildrenReordered.addListener((id, reorderInfo) => {
+chrome.bookmarks.onChildrenReordered && chrome.bookmarks.onChildrenReordered.addListener((id, reorderInfo) => {
     debouncedExportBookmarks();
 });
+
+export {
+  generateBTNodesFromBookmarks,
+  getBookmarks,
+  getBookmarksBar,
+  syncBookmarksBar,
+  exportBookmarks,
+  createSessionName
+};
