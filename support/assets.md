@@ -24,7 +24,6 @@ Feel free to re-use, re-purpose or modify any of the following resources to crea
     BrainTool Two Minute Ad.
   </div>
 </div>
-[An older version general overview](https://www.youtube.com/watch?v=afZg6nuH7Ck)
 
 ## Feature/Demo Videos
 <div style="display: flex; justify-content: space-between; align-items: stretch; padding-left:12rem; padding-right: 12rem;">
@@ -41,9 +40,12 @@ Feel free to re-use, re-purpose or modify any of the following resources to crea
     BrainTool Drag and Drop.
   </div>
 </div>
+[Playlist of short demos](https://www.youtube.com/playlist?list=PLhaw8BE1kin3QoDaTxVXhO406kswXYlLF&si=Qw1xJlh4oEdMQisi)
 
 ## Older Video Material
-Other videos were recorded over the last four years as BT evolved and may not accurately reflect the current UI:
+Other videos were recorded over the last four years as BT evolved and may not accurately reflect the current UI:<br/>
+[An older version general overview](https://www.youtube.com/watch?v=afZg6nuH7Ck)
+
 <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-left:12rem; padding-right: 12rem;">
   <div style="flex: 1; margin-right: 10px; border: solid; border-width: thin; text-align: center;"> <!-- Left item -->
     <a href="https://www.youtube.com/watch?v=U9kg9yVMMAM" target="_blank" rel="noopener noreferrer">
@@ -54,7 +56,7 @@ Other videos were recorded over the last four years as BT evolved and may not ac
   <div style="flex: 1; margin-left: 10px; border: solid; border-width: thin; text-align: center;"> <!-- Right item -->
     <a href="https://youtu.be/TVaIQHoxxZU" target="_blank" rel="noopener noreferrer">
       <img src="../app/resources/slide1.png" alt="BrainTool Tabs and Topics" loading="lazy">
-    </a>
+    </a><br/>
     Search and Key Commands.
   </div>
 </div>
