@@ -137,7 +137,7 @@ const localFileManager = (() => {
     async function authorizeLocalFile() {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
-            alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags)");
+            alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags and toggle 'File System Access API')");
             return null;
         }
         if (SidePanel) {
