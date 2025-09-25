@@ -47,4 +47,4 @@ As well as those basic workflows there are any number of other ways BrainTool's 
 
   - Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/L4CmBWqg3pU){:target="_blank" rel="noopener "}
 
-Are there other productivity improving techniques or workflows that BrainTool enables for you?
+Are there other productivity improving techniques or workflows that BrainTool enables for you? [LMK in the comment here.](https://www.linkedin.com/pulse/browser-workflows-braintool-braintool-org-yd7qe)
