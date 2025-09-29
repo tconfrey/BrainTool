@@ -2537,6 +2537,57 @@ window.addEventListener("keydown", function(e) {
     }
 }, false);
 
+// Copy handler: when the user triggers Copy, copy the selected node (and its children) as org text
+$(document).on('copy', function(e) {
+    try {
+        // Mirror keyUpHandler conditions: ignore while editing or when typing in search
+        const editing = ($($("#dialog")[0]).is(':visible'));
+        if (editing || $("#search_entry").is(":focus")) return; // allow default copy
+
+        const currentSelection = $("tr.selected")[0];
+        if (!currentSelection) return; // nothing selected; let default run
+        const nodeId = $(currentSelection).attr('data-tt-id');
+        const node = AllNodes[nodeId];
+        if (!node || !node.orgTextwChildren) return;
+
+        const orgText = node.orgTextwChildren();
+
+        // Prefer the clipboardData from the copy event
+        if (e.originalEvent && e.originalEvent.clipboardData) {
+            e.originalEvent.clipboardData.setData('text/plain', orgText);
+            e.preventDefault();
+            return;
+        }
+        if (e.clipboardData) {
+            e.clipboardData.setData('text/plain', orgText);
+            e.preventDefault();
+            return;
+        }
+
+        // Fallback to async Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(orgText).catch(() => {/* ignore */});
+            // Can't prevent default reliably here without event clipboardData; best effort
+            return;
+        }
+
+        // Last-resort fallback using a temporary textarea and execCommand
+        const ta = document.createElement('textarea');
+        ta.value = orgText;
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '0';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch (_) { /* ignore */ }
+        document.body.removeChild(ta);
+    } catch (_) {
+        // Fail silently; allow default copy behavior
+    }
+});
+
 $(document).on("keyup", keyUpHandler);
 function keyUpHandler(e) {
     // dispatch to appropriate command. NB key up event
