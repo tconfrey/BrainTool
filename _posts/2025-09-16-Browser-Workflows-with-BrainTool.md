@@ -45,6 +45,8 @@ As well as those basic workflows there are any number of other ways BrainTool's 
 
   - It's common to have a set of dashboards or project pages or some other set of websites that you need to review or update on a periodic basis. This is the 'Checklist Workflow'. Here's how BrainTool can help make sure you get to those tasks on time and make it more efficient to check them off: [Checklist Workflow.](https://youtube.com/shorts/PFUvFTSIruM){:target="_blank" rel="noopener "}
 
+  - Another way BrainTool can be useful is to [Populate an LLM's context window](https://youtu.be/C6z_4ZjSrbs?si=kCOK14rlYW0xB4Om){:target="_blank" rel="noopener "} with information from your saved links, topics and notes. Since the data is in readable org-mode text format it's ideal for consumption by an LLM. Cmd/Ctrl-c will copy the data for the selected topic and its children onto your clipboard and from there you can paste it into an LLM prompt. To see an example of this in use go to the 10:30 timestamp in this great BrainTool review from productivity guru Santi Younger.
+
   - Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/L4CmBWqg3pU){:target="_blank" rel="noopener "}
 
 Are there other productivity improving techniques or workflows that BrainTool enables for you? [LMK in the comment here.](https://www.linkedin.com/pulse/browser-workflows-braintool-braintool-org-yd7qe)
