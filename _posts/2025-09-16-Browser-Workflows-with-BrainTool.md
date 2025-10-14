@@ -10,6 +10,7 @@ image: "../../../site/CollatoralMaterial/brianVideoThumbnail.png"
 # Browser Workflows with BrainTool
 This post describes ways BrainTool can improve your browser workflows. It's illustrated with a set of short videos and video shorts.
 
+## Intro
 BrainTool is a browser extension that allows you to save, annotate, categorize and re-find web pages; as well as open, close and organize browser windows and tabs. And since an open tab is basically a task, BrainTool is also a basic task manager! This 40 second video gives the motivation and an animated overview: 
 <!--more-->
 [BrainTool Intro.](https://youtu.be/hufoGvkrM18){:target="_blank" rel="noopener "}
@@ -21,10 +22,13 @@ The BrainTool 'Topic Manager' holds your topic organization and saved pages per 
     <img src="/site/CollatoralMaterial/TopicsWithBuddy.png" alt="BrainTool manages your tabs"></a>
 </td></tr></table>
 
+## Topic Hierarchy
 BrainTool's hierarchical topics are a great organizational tool. This 38 second video illustrates drag and drop topic organization, as well as dragging external links into the topic tree: [BT Drag and Drop.](https://youtu.be/vdf5vR9ejzw){:target="_blank" rel="noopener "}
 
+## Search/Filter/Find
 BrainTool also has powerful searching and filtering functions to help you find what you're looking for. Another video short shows how that works: [Search, Filter, Find.](https://youtube.com/shorts/C0lncIPZRfU?si=bJcGMO_yczV5vbOs){:target="_blank" rel="noopener "}
 
+## Task Management
 Topics and tabs can be tracked as tasks in BrainTool's basic task manager. Here's a one minute demo of it in action, as well as a brief flash of its ability to use plain text org-mode files to integrate into a larger productivity and PKM system: [BrainTool TODO Manager.](https://youtube.com/shorts/eQwf_43akr8){:target="_blank" rel="noopener "}
 <br/>
 <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10%; align-items:start; padding-left:20%; padding-right:20%; padding-top:3rem">
@@ -41,12 +45,16 @@ Topics and tabs can be tracked as tasks in BrainTool's basic task manager. Here'
 
 As well as those basic workflows there are any number of other ways BrainTool's capabilities can improve your browser productivity. Here's a few, demonstrated in short videos. No doubt there are many more.
 
-  - BrainTool's bookmarks bar integration provides a handy way to pre-load every browser window with a set of links organized and ready to go during a meeting, class, presentation or offsite: [Bookmarks Bar Workflow.](https://youtube.com/shorts/5vtiHYbduxU){:target="_blank" rel="noopener "}
+## Bookmark Bar Workflow
+BrainTool's bookmarks bar integration provides a handy way to pre-load every browser window with a set of links organized and ready to go during a meeting, class, presentation or offsite: [Bookmarks Bar Workflow.](https://youtube.com/shorts/5vtiHYbduxU){:target="_blank" rel="noopener "}
 
-  - It's common to have a set of dashboards or project pages or some other set of websites that you need to review or update on a periodic basis. This is the 'Checklist Workflow'. Here's how BrainTool can help make sure you get to those tasks on time and make it more efficient to check them off: [Checklist Workflow.](https://youtube.com/shorts/PFUvFTSIruM){:target="_blank" rel="noopener "}
+## CheckList Workflow
+It's common to have a set of dashboards or project pages or some other set of websites that you need to review or update on a periodic basis. This is the 'Checklist Workflow'. Here's how BrainTool can help make sure you get to those tasks on time and make it more efficient to check them off: [Checklist Workflow.](https://youtube.com/shorts/PFUvFTSIruM){:target="_blank" rel="noopener "}
 
-  - Another way BrainTool can be useful is to [Populate an LLM's context window](https://youtu.be/C6z_4ZjSrbs?si=kCOK14rlYW0xB4Om){:target="_blank" rel="noopener "} with information from your saved links, topics and notes. Since the data is in readable org-mode text format it's ideal for consumption by an LLM. Cmd/Ctrl-c will copy the data for the selected topic and its children onto your clipboard and from there you can paste it into an LLM prompt. To see an example of this in use go to the 10:30 timestamp in this great BrainTool review from productivity guru Santi Younger.
+## LLM Context Population
+Another way BrainTool can be useful is to [Populate an LLM's context window](https://youtu.be/C6z_4ZjSrbs?si=kCOK14rlYW0xB4Om){:target="_blank" rel="noopener "} with information from your saved links, topics and notes. Since the data is in readable org-mode text format it's ideal for consumption by an LLM. Cmd/Ctrl-c will copy the data for the selected topic and its children onto your clipboard and from there you can paste it into an LLM prompt. To see an example of this in use go to the 10:30 timestamp in this great BrainTool review from productivity guru Santi Younger.
 
-  - Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/L4CmBWqg3pU){:target="_blank" rel="noopener "}
+## Shopping Workflow
+Finally for this post, the 'Shopping Workflow' shows how you can keep your options organized when you're shopping online: [Shopping Workflow](https://youtu.be/L4CmBWqg3pU){:target="_blank" rel="noopener "}
 
 Are there other productivity improving techniques or workflows that BrainTool enables for you? [LMK in the comment here.](https://www.linkedin.com/pulse/browser-workflows-braintool-braintool-org-yd7qe)
