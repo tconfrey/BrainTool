@@ -579,6 +579,8 @@ function makeRowsDraggable(recalc = false) {
         cursor: "move",
         opacity: .75,
         refreshPositions: recalc,                               // needed when topics are unfolded during DnD, set in unfold timeout
+        distance: 5,                                            // pixels mouse must move before drag starts
+        delay: 100,                                             // ms to wait before initiating drag (helps single/double-clicks)
         stop: function( event, ui ) {
             // turn hover bahavior back on and remove classes iused to track drag
             $("table.treetable tr").on('mouseenter', null, buttonShow);
