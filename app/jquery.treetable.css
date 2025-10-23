@@ -189,10 +189,10 @@ table.treetable span.btTitle img.faviconOn {
 
 /* When title is for a topic, or just text leave some room, but undo that if we're showing the favicon */
 table.treetable span.btTitle {
-  margin-left: 15px;
+  margin-left: 10px;
 }
 table.treetable span.btTitle img {
-  margin-left: -15px;
+  margin-left: -10px;
 }
 
 /* Original image for fold/unfold
