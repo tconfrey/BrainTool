@@ -207,13 +207,13 @@ a:hover.wenk--bottom {
 
 html {
     background: var(--btEmptyBackground);
+    overflow-x: clip;
 }
 body {
-    overflow-x: clip;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin: 0;          /* eliminate default 8px top/bottom margin */
+    overflow-x: hidden; /* fallback */
+    overflow-x: clip;   /* modern browsers */
 }
-
 /*
  * Header Bar 
  */
@@ -396,6 +396,8 @@ body {
     left: calc(50% - 13px);  /* Center accounting for font width*/
     font-size: 11px;
     opacity: 50%;
+    height: 14px;
+    overflow: auto;
 }
 
 /* style when input is active */

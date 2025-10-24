@@ -1,0 +1,64 @@
+#+title: Brain Tool Design
+* Introduction
+This file gives an overview of the major components of the BrainTool browser extension. From a users perspective BrainTool (or BT) has a number of components. The Topic Manager runs in a tab, panel window or the browser sidepanel. It shows a hierarchy of 'topics' and contained links to web pages, plus notes and to-do annotation. The Bookmarker is invoked when the extension icon is clicked. It allows the current tab, tabgroup or page to be saved into the Topic Manager. The Sidepanel is just a shell which runs the topic manager in an iframe in the browsers sidepanel. Behind the scenes the service worker code deals with browser interaction, forwards events to the topic manager, and performs actions on the topic managers behalf.
+The Topic Manager code is served from the braintool.org site hosted on github. It saves user data in org-mode format to browser local storage with optional file backup.
+
+* General
+The BT codebase is plain vanilla javascript, html and CSS. The Topic Manager makes heavy use of JQuery and the jquery treetable widget. It also uses a forked version of orga.js to parse org-mode and a css library called wenk.css for mouse over messages. The extension code does not use jquery or any libraries other than the awesomeplete autocompletion code.
+
+* Components
+BrainTool is composed of extension code that runs inside the browser, app code that is served from the github repository and a set of markdown files and resources which compose the braintool.org web site.
+
+** Extension
+Extension code is all contained in the /extension directory. This directory is compressed and uploaded to the browser app store. The extension code is modularized with import/export annotations.
+*** Service worker
+The service worker code is mainly contained in background.js. This code registers for events and forwards them to the application. It also listens for messages from the app and sends back required information.
+*** Bookmarker popup
+The popup.* files and the topic*.js files handles the Bookmarker interaction.
+*** Content Script
+The content script code is injected into the tab running the Topic Manager (served from braintool.org). It relays messages between the extension and the application.
+*** SidePanel
+The sidepanel.* js html code provides a slim wrapper that runs the topic manager in an iframe and mediates communication.
+
+** App
+The application code is all contained in the /app directory. It is broken down into a set of components but a lot of the code is in one big bt.js file. All the app code runs in the same namespace and is not yet modularized. Ideally bt.js would be broken up and it and all the other code would be modularized with explicit import/export.
+*** bt.js
+This file performs a number of major functions
+**** Launch activities
+**** Table creation and general UI setup
+**** Drag and Drop functions
+**** Browser Event handling and Bookmarker operations
+**** Table row actions
+**** Search and Filter operations
+**** Keyboard event handling
+*** BTNode, BTAppNode
+The BT Topic Manager table shows a hierarchy of 'nodes' where each node corresponds to a heading in the underlying org-mode data structure and to a row in the treetable in the UI. Each node models either a bookmark or saved web page (aka 'items'), or a topic which contains a set of saved items. Node items may also have an associated open tab in the browser. Topics are shown in the browser as tab groups and so topic nodes may also have an associated open tab group. A global AllNodes array holds the nodes. It is created on startup from the org data loaded in from local storage (or backup file) and may be sparse (due to item deletion).
+
+The BTNode.js defines the base class of BTNode which handles containment and basic node operations.
+
+The BTAppNode.js file handles the BTAppNode subclass of BTNode which handles all the operations of the nodes in terms of their being org-mode items in a file and being saved and potentially open tabs and tab groups, as well as being rows in the topic table.
+
+There is also a BTLink subclass which represents a url embedded in the org data but not structured as an org header. This is a side effect of trying to support the import of any org-structured file and subsequently showing a clickable link in the tree. IT does not arise in normal BT usage and can generally be ignored.
+*** parser.js orga-bundlev2.js
+The orgabundlev2.js file contains the org-mode parsing code. The parser.js file is a wrapper which uses the orga code to read org text and create BTNodes and to write org to save BTNode data.
+*** jquery.treetable
+This is a forked version of the jquery treetable widget which handles the basic operations of creating and displaying the topic tree.
+*** fileManager.js, localFileManager.js, gDriveFileManager.js
+These files handle reading and writing the BT saved data, in org format, to a local or GDrive file. As well as providing notifications when the files may be out of date.
+*** configManager.js
+Handles preference/settings and config operations
+*** bookmarksManager.js
+Handles the import and export of browser bookmarks and the interaction with the browser bookmarks bar.
+*** messageManager.js
+Handles the display of intro slides that are shown on first install and banner messages that are shown on startup and when a new version is served.
+*** subscriptionManager.js
+Handles the interaction with a backend Firestore server which integrates with Stripe to allow permanent license purchase and monthly or annual subscriptions.
+*** index.html
+Contains all the markup for the application and is the central point from which the code files are loaded from cdn (in the case of jquery etc) and the braintool.org server.
+*** bt.css, jquery.treetable.css, wenk.css
+Between them these files contain all the application css. wenk.css is a standalone library for toolips.
+
+* Build Process
+The extension is manually bundled into a tar file and submitted to the store. To be able to handle different versions of the extension codebase simultaneously across users the extension specifies a version and the /app code specific to that version is loaded into the Topic Manager tab when its launched. While /app and /extension have the latest code the /versions hierarchy has the supported production versions. For the purposes of new development and examining the codebase LLM's should ignore the /versions hierarchy in order to avoid expired conventions or old message APIs etc.
+
+At runtime when the Bookmarker popup is initially clicked the index.html file is loaded and orchestrates the loading of the rest of the app via <script> statements
