@@ -62,3 +62,10 @@ Between them these files contain all the application css. wenk.css is a standalo
 The extension is manually bundled into a tar file and submitted to the store. To be able to handle different versions of the extension codebase simultaneously across users the extension specifies a version and the /app code specific to that version is loaded into the Topic Manager tab when its launched. While /app and /extension have the latest code the /versions hierarchy has the supported production versions. For the purposes of new development and examining the codebase LLM's should ignore the /versions hierarchy in order to avoid expired conventions or old message APIs etc.
 
 At runtime when the Bookmarker popup is initially clicked the index.html file is loaded and orchestrates the loading of the rest of the app via <script> statements
+
+
+* Refactor
+The Refactor project will mograte BrainTool to import/export modules, add a bundler and ideally actually modularize and reduce dependancies to make the code easier to maintain and enhance. We'll take a big-bang approach to add imports from everything to the top of every file in app/*.js and export * at the bottom; need to take care of cycles; don't redefine globals like AllNodes -> wrapper setter/getter? We'll then break bt.js into its component parts. We'll then examine the opportunity to cut some dependencies by inverting them via event registration or other such methods and overall compose independent subsystems.
+
+* Bookmarker summaries
+The Summaries project will make use of the browsers ai summarizer to optionally populate the notes field in the BT Bookmarker window with a summary of selected text or the whole page. The page text will be extracted using a version of the readability.js library.

@@ -55,7 +55,7 @@ const TopicCard = (() => {
         TitleElt.value = title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");      // value, cos its a text input
         SaveCB = saveCB;
         NoteHint.addEventListener('click', (e) => NoteElt.focus());
-        SaveAs.style.display = "none";
+        SaveAs && (SaveAs.style.display = "none");
     }
 
     NoteElt.onkeydown = function(e) {
