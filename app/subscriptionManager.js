@@ -19,7 +19,8 @@
  * 
  ***/
 
-var BTId;
+import { configManager } from './configManager.js';
+
 const FBENV = "prod"; // "local" or "test" or "prod"
 const LocalFB = (FBENV == "local");
 const TestFB = (FBENV == "test");
@@ -71,13 +72,14 @@ async function handlePurchase(product) {
 
     // Create user id, store in localStore and in BTFile text
     try {
-        BTId = await signIn();
-        if (!BTId) {
+        const btId = await signIn();
+        if (!btId) {
             $('body').removeClass('waiting');
             console.error("Error signing in to FB");
             alert("Sorry Firebase user creation failed.");
             return;
         }
+        configManager.setBTId(btId);
     } catch(error) {
         $('body').removeClass('waiting');
         console.error("Error signing in FB user:", error);
@@ -85,7 +87,6 @@ async function handlePurchase(product) {
         return;
     }
     // Save sub id as BTId in local storage and org file property
-    configManager.setProp('BTId', BTId);
     $('body').removeClass('waiting');
     await saveBT();
 
@@ -116,7 +117,7 @@ async function handlePurchase(product) {
 
 async function openStripePortal() {
     // open page to manage subscription
-    if (!BTId) {
+    if (!configManager.getBTId()) {
 	    alert('BrainTool Id not set!');
 	    return;
     }
@@ -266,12 +267,12 @@ async function signIn() {
 async function checkLicense() {
     // Startup checks for license exists, expired etc
 
-    if(!BTId) {
+    if(!configManager.getBTId()) {
         console.log("No BTId => no license");
         return false;
     }
     const licenseExpiry = configManager.getProp('BTExpiry');
-    if (BTId && licenseExpiry && (Date.now() < licenseExpiry)) {
+    if (configManager.getBTId() && licenseExpiry && (Date.now() < licenseExpiry)) {
         console.log("Active license");
         return true;
     }
@@ -282,7 +283,7 @@ async function checkLicense() {
     if (purchase == 'cancelled') {
         // need to reset BTId cos a user account was created prior to purchase
         alert('Your purchase was cancelled. No changes were made.');
-        BTId = null; configManager.setProp('BTId', null);
+        configManager.setBTId(null);
         saveBT();
         return false;
     }
@@ -331,7 +332,7 @@ async function getPurchase(collection = 'subscriptions') {
     return new Promise((resolve, reject) => {
         try {
             FBDB.collection('customers')
-            .doc(BTId)
+            .doc(configManager.getBTId())
             .collection(collection)
             .where('status', 'in', ['trialing', 'active', 'succeeded'])
             .onSnapshot((snapshot) => {
@@ -370,12 +371,12 @@ async function subscribe(productPrice) {
 	    line_items: [selectedPrice],
 	    success_url: baseURL + '?purchase=' + encodeURIComponent('subscription'),
 	    cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
-        description: "BrainTool Supporter Subscription ID: " + BTId,
+        description: "BrainTool Supporter Subscription ID: " + configManager.getBTId(),
     };
     try {
         const docRef = await FBDB
 	          .collection('customers')
-	          .doc(BTId)
+	          .doc(configManager.getBTId())
 	          .collection('checkout_sessions')
 	          .add(checkoutSession);
         
@@ -410,10 +411,10 @@ async function purchase(productPrice) {
 	    allow_promotion_codes: true,
         success_url: baseURL+ '?purchase=' + encodeURIComponent('product'),
         cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
-        description: "BrainTool Supporter License ID: " + BTId,
+        description: "BrainTool Supporter License ID: " + configManager.getBTId(),
     };
     try {
-        const docRef = await FBDB.collection("customers").doc(BTId).collection("checkout_sessions").add(checkoutSession);
+        const docRef = await FBDB.collection("customers").doc(configManager.getBTId()).collection("checkout_sessions").add(checkoutSession);
         // Wait for the CheckoutSession to get attached by the fb extension
         docRef.onSnapshot((snap) => {
 	        const { error, sessionId } = snap.data();
@@ -497,3 +498,4 @@ async function importKey() {
     }
 }
 
+export { handlePurchase, openStripePortal, initializeFirebase, checkLicense, importKey};

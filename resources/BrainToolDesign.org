@@ -65,7 +65,22 @@ At runtime when the Bookmarker popup is initially clicked the index.html file is
 
 
 * Refactor
-The Refactor project will mograte BrainTool to import/export modules, add a bundler and ideally actually modularize and reduce dependancies to make the code easier to maintain and enhance. We'll take a big-bang approach to add imports from everything to the top of every file in app/*.js and export * at the bottom; need to take care of cycles; don't redefine globals like AllNodes -> wrapper setter/getter? We'll then break bt.js into its component parts. We'll then examine the opportunity to cut some dependencies by inverting them via event registration or other such methods and overall compose independent subsystems.
+The Refactor project will migrate BrainTool to import/export modules, add a bundler and ideally actually modularize and reduce dependancies to make the code easier to maintain and enhance. 
+
+** impot/export
+We'll take a big-bang approach to add imports from everything to the top of every file in app/*.js and export * at the bottom; need to take care of cycles; don't redefine globals like AllNodes -> wrapper setter/getter? 
+
+** Break bt.js and index.html
+We'll then break bt.js into its component parts and parcel out ui creation. Specifically we'll create an applicationUI component that will generate the html for the #controlsHeader and .settingsActions and the #footer elements, move the messageContainer ui creation into the messageManager, and move the table content code out of bt.js into its own module. We'll update the imports/exports and dependencies as we go, examining any opportunity to cut some dependencies by inverting them via event registration or other such methods and overall compose independent subsystems.
+
+** Pull out special node handling
+special nodes like bookmarks bar, session nodes (see below) etc should register for node changes rather than every mutation having to call out to them from bt.js 
+
+** revisit dependencies
+The initial big bang left a bunch of circular dependencies that need to be resolved. We'll need to carefully analyze the imports/exports and refactor the code to eliminate those that remain after the other steps are completed. 
 
 * Bookmarker summaries
 The Summaries project will make use of the browsers ai summarizer to optionally populate the notes field in the BT Bookmarker window with a summary of selected text or the whole page. The page text will be extracted using a version of the readability.js library.
+
+* The SessionManager project 
+The SessionManager project will create a new type of special topic which shows the current live session. Maybe use a subclass to override when needed?

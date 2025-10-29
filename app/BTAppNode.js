@@ -18,6 +18,12 @@
 
 'use strict'
 
+import { BTNode, AllNodes } from './BTNode.js';
+import { configManager } from './configManager.js';
+import { sendMessage } from './extensionMessaging.js';
+import { localStorageManager } from './localFileManager.js';
+
+var Topics = [];                                                                                // track topics for future tab assignment
 const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐🗂️ SESSION'];
 class BTAppNode extends BTNode {
 
@@ -309,9 +315,11 @@ class BTAppNode extends BTNode {
 	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
         $(dn).find(".left").scrollLeft(0);                // might have scrolled right for search
         $(dn).find(".left").css("text-overflow", "ellipsis");    // reset text overflow default
+        /* !!!!! Refactor issue, but don't think it's needed on redisplay.
 	    $(dn).find("a").each(function() {				  // reset link click intercept
-	        this.onclick = handleLinkClick;
+	        //this.onclick = handleLinkClick;
 	    });
+        */
         if (this.isTopic() && this.childIds.length) $(dn).removeClass('emptyTopic');
         if (this.isTopic() && !this.childIds.length) $(dn).addClass('emptyTopic');
 	    show && this.showForSearch();					  // reclose if needed
@@ -504,10 +512,14 @@ class BTAppNode extends BTNode {
 	    }
     }
     
+    static escapeRegExp(string) {
+        // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
     search(sstr, filteringOn = false) {
 	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
-	    
-	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
+
+	    const reg = new RegExp(BTAppNode.escapeRegExp(sstr), 'ig');
 	    let match = false;
 	    let titleStr;
 	    const node = this.getDisplayNode();
@@ -540,7 +552,7 @@ class BTAppNode extends BTNode {
 	        textStr = (start > 0 ? "..." : "") + textStr + (end < len ? "..." : "");
 	        textStr = textStr.replaceAll(reg, `<span class='highlight tabgroup'>${sstr}</span>`);
 	        $(node).find("span.btText").html(textStr);
-            displayNotesForSearch();                                 // match might be hidden if single column
+            BTAppNode.displayNotesForSearch();                                 // match might be hidden if single column
 	        match = true;
 	    }
 	    if (match)
@@ -552,8 +564,8 @@ class BTAppNode extends BTNode {
     static searchNodesToRedisplay = new Set();
     extendedSearch(sstr, forceVisible = false) {
 	    // search node for regex of /sstr/ig. update its display to show a hit (title or text)
-	    
-	    const reg = new RegExp(escapeRegExp(sstr), 'ig');
+
+	    const reg = new RegExp(BTAppNode.escapeRegExp(sstr), 'ig');
 	    let lmatch, rmatch;
 	    const node = this.getDisplayNode();
         if (!forceVisible && !$(node).is(":visible")) return;                 // return if not displayed
@@ -671,7 +683,7 @@ class BTAppNode extends BTNode {
         this.opening = true;      // avoid opening twice w double clicks. unset in tabNavigated
 
         const parent = this.parentId ? AllNodes[this.parentId] : null;
-        if (parent?.hasOpenChildren() && (GroupingMode == 'TABGROUP')) newWin = false;       // only allow opening in new window if not already in an open TG, or not using TGs
+        if (parent?.hasOpenChildren() && (configManager.getGroupingMode() == 'TABGROUP')) newWin = false;       // only allow opening in new window if not already in an open TG, or not using TGs
     
         const oldWinId = parent ? parent.windowId : 0;
         // tell extension to open, then take care of grouping etc
@@ -690,7 +702,7 @@ class BTAppNode extends BTNode {
         configManager.incrementStat('BTNumTabOperations');
 
         // if we don't care about grouping just open each tab
-        if (GroupingMode == 'NONE' || this.isTrash()) {
+        if (configManager.getGroupingMode() == 'NONE' || this.isTrash()) {
             const tabsToOpen = this.listOpenableTabs();              // [{nodeId, url}..}
             sendMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
         }
@@ -705,7 +717,7 @@ class BTAppNode extends BTNode {
         // Topic node fn to (re)group open tabs and put them in correct order
         // If caller has required info it can tell us the index of leftmost tab.
 
-        if (!this.isTopic() || (GroupingMode != 'TABGROUP') || this.trashed) return;
+        if (!this.isTopic() || (configManager.getGroupingMode() != 'TABGROUP') || this.trashed) return;
         let tabInfo = [];
         const myWin = this.windowId;
         const myTG = this.tabGroupId;
@@ -737,7 +749,7 @@ class BTAppNode extends BTNode {
     
     putInGroup() {
         // wrap this one nodes tab in a group
-        if (!this.tabId || !this.windowId || (GroupingMode != 'TABGROUP') || this.trashed) return;
+        if (!this.tabId || !this.windowId || (configManager.getGroupingMode() != 'TABGROUP') || this.trashed) return;
         const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
         const groupId = this.isTopic() ? this.id : AllNodes[this.parentId]?.id;
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
@@ -916,7 +928,15 @@ class BTAppNode extends BTNode {
         }
         return outputStr;
     }
-
+    
+    static displayNotesForSearch() {
+        // when searching the hit might be in the hidden notes column. check for td.right and show if needed
+        if ($("td.right").css("display") == "none") {
+            $("td.right").css("display", "table-cell");
+            $("td.left").css("width", "50%");
+            $("td.right").css("width", "50%");
+        }
+    }
     countOpenableTabs() {
         // used to warn of opening too many tabs and show appropriate row action buttons
         let childCounts = this.childIds.map(x => AllNodes[x].countOpenableTabs());
@@ -1081,7 +1101,7 @@ class BTAppNode extends BTNode {
         
         // first make sure each node has a unique topicPath
         BTNode.generateUniqueTopicPaths();
-        Topics = new Array();
+        Topics.length = 0;                                               // clear array
         $("#content tr").each(function() {
             const id = $(this).attr('data-tt-id');
             if (AllNodes[id]?.parentId == null)
@@ -1253,49 +1273,7 @@ class BTLinkNode extends BTAppNode {
         // Link nodes are never topics
         return false;
     }
-}   
-
-/***
- *
- *  Centralized Mappings from MessageType to handler. Array of handler functions
- *
- ***/
-
-const Handlers = {
-    "launchApp": launchApp,                 // Kick the whole thing off
-    "bookmarks": loadBookmarks,
-    "bookmarksBar": syncBookmarksBar,
-    "bookmarksBarIds": bookmarksBarIds,     // node ids mapped to bookmarks bar node ids
-    "tabActivated": tabActivated,           // User nav to Existing tab
-    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
-    "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
-    "tabNavigated": tabNavigated,           // User navigated a tab to a new url
-    "tabOpened" : tabOpened,                // New tab opened by bg on our behalf
-    "tabMoved" : tabMoved,                  // user moved a tab
-    "tabPositioned": tabPositioned,         // tab moved by extension
-    "tabClosed" : tabClosed,                // tab closed
-    "tabReplaced" : tabReplaced,            // tab replaced, generally due to it being suspended and then reopened
-    "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
-    "tabGroupCreated": tabGroupCreated,
-    "tabGroupUpdated": tabGroupUpdated,
-    "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
-    "mouseOut": sidePanelMouseOut,          // sidepanel tells us mouse is out, undo hover states etc
-    "checkFileFreshness": checkFileFreshness, // bg is asking if we need to reload the org file
-};
-
-// Set handler for extension messaging
-window.addEventListener('message', event => {
-    if (event.source != window && event.source != window.parent) return;            // not our business
-    if (event?.data?.type == 'AWAIT') return;                                       // outbound msg from callBackground
-    if (event?.data?.type == 'AWAIT_RESPONSE') return;                              // sync rsp handled below
-
-    console.log(`BTAppNode received (${event?.data?.function}):`, event);
-    //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
-    if (Handlers[event.data.function]) {
-        console.log("BTAppNode dispatching to ", Handlers[event.data.function].name);
-        Handlers[event.data.function](event.data);
-    }
-});
+}
 
 // Function to send a message to the content script or side panel and await a response
 function callBackground(message) {
@@ -1314,8 +1292,7 @@ function callBackground(message) {
     });
 }
 
-function sendMessage(message) {
-    // Send message to extension via contained content script or side panel container
-    const dest = SidePanel ? window.parent : window;
-    dest.postMessage(message, '*');
-}
+// Note: sendMessage() is now defined in extensionMessaging.js
+// This avoids circular dependencies across multiple files
+
+export { BTAppNode, BTLinkNode, Topics };

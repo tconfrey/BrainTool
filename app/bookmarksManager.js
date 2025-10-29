@@ -18,6 +18,10 @@
  * We don't bother trying to manage individual changes, we just resync the whole thing every time.
  ***/
 
+import { sendMessage } from './extensionMessaging.js';
+import { BTAppNode } from './BTAppNode.js';
+import { AllNodes } from './BTNode.js';
+
 function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
@@ -102,10 +106,10 @@ function syncBookmarksBar(msg) {
     
     // Remove bookmarks that no longer exist and save/update
     removeUnprocessedBookmarks(bookmarksBarNode, processedIds);
-    initializeUI();
+    //!!!!!!!!!!!!!! initializeUI();
     bbFolded && $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);        // Restore folded state if it was folded
 
-    saveBT();
+    //!!!!!!!!!!!!! saveBT();
     
     // Helper function to process a folder's contents
     function processFolderContents(bookmarks, parentNode) {
@@ -304,3 +308,5 @@ function bookmarksBarIds(msg) {
         node.bookmarkId = mapped;
     }
 }
+
+export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks };

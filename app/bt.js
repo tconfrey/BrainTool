@@ -18,14 +18,22 @@
 
 'use strict'
 
+// Import all dependencies
+import { sendMessage } from './extensionMessaging.js';
+import { BTNode, AllNodes } from './BTNode.js';
+import { configManager } from './configManager.js';
+import { messageManager } from './messageManager.js';
+import { parseBTFile } from './parser.js';
+import { BTAppNode, Topics } from './BTAppNode.js';
+import { saveBT, getBTFile, syncEnabled, handleStartupFileConnection, updateSyncSettings, GDriveConnected, updateStatsRow, savePendingP, checkBTFileVersion, getBTFileText, setBTFileText } from './fileManager.js';
+import { loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds } from './bookmarksManager.js';
+import { checkLicense } from './subscriptionManager.js';
+
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
-var InitialInstall = false;
 var UpgradeInstall = false;
-var GroupingMode = 'TABGROUP';                            // or 'NONE'
 var MRUTopicPerWindow = {};                               // map winId to mru topic
 var BTTabId = null;                                       // tabId of BT
 var BTWinId = null;                                       // winId of BT
-var SidePanel = false;                                    // true if running in side panel => dictates how to send msgs
 
 /***
  *
@@ -37,38 +45,38 @@ async function launchApp(msg) {
     // Launch app w data passed from extension local storage
     
     configManager.setConfigAndKeys(msg);
-    InitialInstall = msg.initial_install;
+    configManager.setProp('InitialInstall', msg.initial_install);
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
     BTWinId = msg.BTWin;                                    // got mad knowledge of self
-    SidePanel = msg.SidePanel;
+    configManager.setSidePanel(msg.SidePanel);              // track if running in side panel
 
-    BTFileText = msg.BTFileText;
+    setBTFileText(msg.BTFileText);
     processBTFile();                                          // create table etc
     
     // scroll to top
     $('html, body').animate({scrollTop: '0px'}, 300);
 
     // If a backing store file was previously established, re-set it up on this startup
-    handleStartupFileConnection();
+    handleStartupFileConnection(refreshTable);
 
     // Get BT sub id => premium 
     // BTId in local store and from org data should be the same. local store is primary
     if (msg?.Config?.BTId) {
-	    BTId = msg.Config.BTId;
-        if (configManager.getProp('BTId') && (BTId != configManager.getProp('BTId')))
-	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${BTId}\nOrg file value:${configManager.getProp('BTId')}`);
-        configManager.setProp('BTId', BTId);
+	    const msgBTId = msg.Config.BTId;
+        if (configManager.getProp('BTId') && (msgBTId != configManager.getProp('BTId')))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${msgBTId}\nOrg file value:${configManager.getProp('BTId')}`);
+        configManager.setBTId(msgBTId);
     } else {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
 	    if (configManager.getProp('BTId')) {
-	        BTId = configManager.getProp('BTId');
+	        configManager.setBTId(configManager.getProp('BTId'));
 	    }
     }
     
     // check for license, and if sub that its still valid else check to see if we shoudl nag
-    if (BTId && await checkLicense()) updateLicenseSettings();
-    if (!BTId) configManager.potentiallyNag();
+    if (configManager.getBTId() && await checkLicense()) updateLicenseSettings();
+    if (!configManager.getBTId()) configManager.potentiallyNag();
 
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
@@ -118,7 +126,7 @@ function updateLicenseSettings() {
         $('#sub').show();
         $('#renewDate').text(new Date(configManager.getProp('BTExpiry')).toLocaleDateString());
     }
-    $('.subId').text(BTId);
+    $('.subId').text(configManager.getBTId());
 }
 
 function updateStats() {
@@ -131,8 +139,8 @@ function updateStats() {
 
     gtag('event', 'launch_'+BTAppVersion, {'event_category': 'General', 'event_label': BTAppVersion,
                              'value': 1});    
-    if (InitialInstall) {
-        gtag('event', 'install', {'event_category': 'General', 'event_label': InitialInstall,
+    if (configManager.getProp('InitialInstall')) {
+        gtag('event', 'install', {'event_category': 'General', 'event_label': configManager.getProp('InitialInstall'),
                                   'value': 1});
         configManager.setStat('BTInstallDate', Date.now());
     }
@@ -157,7 +165,7 @@ function updateStats() {
     const lastSessionSaves = currentSaves - (stats['BTSessionStartSaves'] || 0);
 
     // Record general usage summary stats, they don't apply on first install
-    if (!InitialInstall) {
+    if (!configManager.getProp('InitialInstall')) {
         gtag('event', 'total_launches', {'event_category': 'Usage', 'event_label': 'NumLaunches',
                                      'value': stats['BTNumLaunches']});
         gtag('event', 'total_saves', {'event_category': 'Usage', 'event_label': 'NumSaves',
@@ -182,7 +190,7 @@ function updateStats() {
     configManager.setStat('BTSessionStartOps', currentOps);
 
     // show message or tip. Reset counter on upgrade => new messages
-    if (InitialInstall || UpgradeInstall) configManager.setProp('BTLastShownMessageIndex', 0);
+    if (configManager.getProp('InitialInstall') || UpgradeInstall) configManager.setProp('BTLastShownMessageIndex', 0);
     messageManager.setupMessages();
 }
 
@@ -272,22 +280,6 @@ async function handleInitialTabs(tabs, tgs) {
 }
 
 
-function brainZoom(iteration = 0) {
-    // iterate thru icons to swell the brain
-
-    const iterationArray = ['01','02', '03','04','05','06','07','08','09','10','05','04', '03','02','01'];
-    const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
-    
-    if (iteration == iterationArray.length) {
-        $("#brain").attr("src", "../extension/images/BrainTool128.png");
-        return;
-    }
-    $("#brain").attr("src", path);
-    const interval = (iteration <= 4 ? 150 : 50);
-    setTimeout(function() {brainZoom(++iteration);}, interval);
-
-}
-
 /***
  *
  * Table handling
@@ -295,8 +287,6 @@ function brainZoom(iteration = 0) {
  ***/
 
 var ButtonRowHTML; 
-var Topics = new Array();      // track topics for future tab assignment
-var BTFileText = "";           // Global container for file text
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 
@@ -315,13 +305,14 @@ async function refreshTable(fromStore = false) {
     OpenedNodes = AllNodes.filter(n => (n.tabId || n.tabGroupId));
     
     BTNode.topIndex = 1;
-    AllNodes = [];
+    AllNodes.length = 0;  // Clear the array without reassigning
 
     // Either get BTFileText from file or use local copy. If file then await its return
     try {
         if (fromStore)
             await getBTFile();
         processBTFile();
+        messageManager.removeWarning(); // warning may have been set, safe to remove
     }
     catch (e) {
         console.warn('error in refreshTable: ', e.toString());
@@ -341,12 +332,12 @@ function generateTable() {
     return outputHTML;
 }
 
-function processBTFile(fileText = BTFileText) {
+function processBTFile(fileText = getBTFileText()) {
     // turn the org-mode text into an html table, extract Topics
 
     // First clean up from any previous state
     BTNode.topIndex = 1;
-    AllNodes = [];
+    AllNodes.length = 0;  // Clear the array without reassigning
     
     try {
         parseBTFile(fileText);
@@ -373,7 +364,7 @@ function processBTFile(fileText = BTFileText) {
 
     // Let extension know about model
     sendMessage({'function': 'localStore', 'data': {'topics': Topics}});
-    sendMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
+    sendMessage({'function': 'localStore', 'data': {'BTFileText': getBTFileText()}});
     
     // initialize ui from any pre-refresh opened state
     OpenedNodes.forEach(oldNode => {
@@ -475,16 +466,6 @@ $("#resizer").draggable({
 // add on entry and on exit actions to highlight the resizer
 $("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
 $("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
-
-
-function displayNotesForSearch() {
-    // when searching the hit might be in the hidden notes column. check for td.right and show if needed
-    if ($("td.right").css("display") == "none") {
-        $("td.right").css("display", "table-cell");
-        $("td.left").css("width", "50%");
-        $("td.right").css("width", "50%");
-    }
-}
 
 /**
  *      General UI Setup
@@ -1017,7 +998,7 @@ function tabOpened(data, highlight = false) {
     }
 
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
-    if (GroupingMode == 'NONE') return;
+    if (configManager.getGroupingMode() == 'NONE') return;
     if (windowId == currentParentWin)
         // we never automatically move tabs between windows
         AllNodes[parentId].groupAndPosition();
@@ -1309,7 +1290,7 @@ function tabActivated(data) {
     }
     sendMessage({'function': 'localStore', 'data': {...m1, ...m2}});
 
-    if (SidePanel && (winId == BTWinId)) {
+    if (configManager.isSidePanel() && (winId == BTWinId)) {
         handleFocus({'reason': 'BTTab activated'});       // window w BT Sidepanel got focus
         return;
     }
@@ -1367,7 +1348,7 @@ function tabJoinedTG(data) {
     // NB Get here when an existing page is opened in its TG as well as page moving between TGs and tabgrouping being turned on from settings.
     // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
 
-    if (GroupingMode != 'TABGROUP') return;                              // don't care
+    if (configManager.getGroupingMode() != 'TABGROUP') return;                              // don't care
     const tabId = data.tabId;
     const tgId = data.groupId;
     const winId = data.windowId;
@@ -1422,7 +1403,7 @@ function tabJoinedTG(data) {
 function tabLeftTG(data) {
     // user moved tab out of TG => no longer managed => move to Trash
     
-    if (GroupingMode != 'TABGROUP') return;
+    if (configManager.getGroupingMode() != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
     const groupId = data.groupId;
@@ -1623,7 +1604,7 @@ function buttonShow(e) {
     $("#closeRow").hide();
     if (node.countOpenableTabs()){
         $("#openTab").show();
-        if (!topic?.hasOpenChildren() || (GroupingMode != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
+        if (!topic?.hasOpenChildren() || (configManager.getGroupingMode() != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
     if (node.countClosableTabs()) {
         $("#closeRow").show();
@@ -1856,11 +1837,6 @@ function closeRow(e) {
     
     gtag('event', 'close_row', {'event_category': 'TabOperation'});
     configManager.incrementStat('BTNumTabOperations');
-}
-
-function escapeRegExp(string) {
-    // stolen from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
 function deleteRow(e) {
@@ -2854,7 +2830,7 @@ function undo() {
     node.tgColor && node.setTGColor(node.tgColor);
     // find nodes topic, either itself or its parent. if tabgrouping is on call topicnode.groupOpenChildren
     const topicNode = node.isTopic() ? node : AllNodes[node.parentId];
-    if (topicNode && (GroupingMode == 'TABGROUP')) {
+    if (topicNode && (configManager.getGroupingMode() == 'TABGROUP')) {
         topicNode.groupOpenChildren();
     }
 
@@ -2864,3 +2840,62 @@ function undo() {
     sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
 
 }
+
+/***
+ *
+ *  Centralized Mappings from MessageType to handler. Array of handler functions
+ *
+ ***/
+
+const Handlers = {
+    "launchApp": launchApp,                 // Kick the whole thing off
+    "bookmarks": loadBookmarks,
+    "bookmarksBar": syncBookmarksBar,
+    "bookmarksBarIds": bookmarksBarIds,     // node ids mapped to bookmarks bar node ids
+    "tabActivated": tabActivated,           // User nav to Existing tab
+    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
+    "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
+    "tabNavigated": tabNavigated,           // User navigated a tab to a new url
+    "tabOpened" : tabOpened,                // New tab opened by bg on our behalf
+    "tabMoved" : tabMoved,                  // user moved a tab
+    "tabPositioned": tabPositioned,         // tab moved by extension
+    "tabClosed" : tabClosed,                // tab closed
+    "tabReplaced" : tabReplaced,            // tab replaced, generally due to it being suspended and then reopened
+    "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
+    "tabGroupCreated": tabGroupCreated,
+    "tabGroupUpdated": tabGroupUpdated,
+    "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
+    "mouseOut": sidePanelMouseOut,          // sidepanel tells us mouse is out, undo hover states etc
+    "checkFileFreshness": checkFileFreshness, // bg is asking if we need to reload the org file
+};
+
+// Set handler for extension messaging
+window.addEventListener('message', event => {
+    if (event.source != window && event.source != window.parent) return;            // not our business
+    if (event?.data?.type == 'AWAIT') return;                                       // outbound msg from callBackground
+    if (event?.data?.type == 'AWAIT_RESPONSE') return;                              // sync rsp handled below
+
+    console.log(`BTAppNode received (${event?.data?.function}):`, event);
+    //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
+    if (Handlers[event.data.function]) {
+        console.log("BTAppNode dispatching to ", Handlers[event.data.function].name);
+        Handlers[event.data.function](event.data);
+    }
+});
+
+// Register UI callbacks with configManager to avoid circular dependencies
+if (typeof configManager !== 'undefined' && configManager.registerUI) {
+    configManager.registerUI({
+        toggleMoreButtons: toggleMoreButtons,
+        groupingUpdate: groupingUpdate
+    });
+}
+
+// Export functions that are called from inline HTML event handlers
+export { 
+    filterToDos, addNewTopLevelTopic, 
+    refreshTable, closeDialog, cancelEdit, updateRow,
+    toggleMoreButtons,
+    deleteRow, editRow, openRow, closeRow, toDo, promote, addChild
+};
+

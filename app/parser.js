@@ -16,7 +16,9 @@
  ***/
 'use strict'
 
-var AllNodes = [];
+import { configManager } from './configManager.js';
+import { BTAppNode, BTLinkNode } from './BTAppNode.js';
+
 var Lines= [];
 
 function parseBTFile(fileText) {
@@ -189,3 +191,5 @@ function generateLinesAndColumns(filetext) {
     return lines;
     
 }
+
+export { parseBTFile, insertOrgFile };

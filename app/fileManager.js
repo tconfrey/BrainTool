@@ -15,16 +15,58 @@
  * localFileManager and gDriveFileManager
  * 
  ***/
+'use strict';
+
+import { configManager } from './configManager.js';
+import { sendMessage } from './extensionMessaging.js';
+import { AllNodes } from './BTNode.js';
+import { BTAppNode } from './BTAppNode.js';
+import { localFileManager } from './localFileManager.js';
+import { gDriveFileManager } from './gDriveFileManager.js';
+import { messageManager } from './messageManager.js';
+import { insertOrgFile } from './parser.js';
+
 var GDriveConnected = false;
 var LocalFileConnected = false;
+var BTFileText = "";           // Global container for file text
+
+// Callback for UI functions - registered when handleStartupFileConnection is called
+let refreshTableCallback = null;
+
+function setGDriveConnected(value) {
+    GDriveConnected = value;
+}
+
+function setLocalFileConnected(value) {
+    LocalFileConnected = value;
+}
+
+function getBTFileText() {
+    return BTFileText;
+}
+
+function setBTFileText(value) {
+    BTFileText = value;
+}
 
 function syncEnabled() {
     // Is there a backing store file, local or gdrive
     return GDriveConnected || LocalFileConnected;
 }
 
-async function handleStartupFileConnection() {
+async function handleStartupFileConnection(refreshTable) {
     // If there's a backing store file, local or GDrive, handle reconnection etc
+    // refreshTable callback is passed in to break circular dependency with bt.js
+    
+    refreshTableCallback = refreshTable;
+    
+    // Register refreshTable with the file managers now that we have it
+    if (typeof localFileManager !== 'undefined' && localFileManager.registerUI) {
+        localFileManager.registerUI({ refreshTable: refreshTable });
+    }
+    if (typeof gDriveFileManager !== 'undefined' && gDriveFileManager.registerUI) {
+        gDriveFileManager.registerUI({ refreshTable: refreshTable });
+    }
 
     let launchType = 'unsynced_launch';
 
@@ -112,9 +154,9 @@ async function _saveBT(localOnly = false, newContent = true) {
 
     setTimeout(brainZoom, 1000);                 // swell the brain
     console.log("Recording save event and writing to any backing store");
-    if (InitialInstall) {
+    if (configManager.getProp('InitialInstall')) {
         gtag('event', 'first_save', {'event_category': 'General'});
-        InitialInstall = false;
+        configManager.setProp('InitialInstall', false);
     }
     let eventType = "local_storage_save";
 
@@ -122,7 +164,7 @@ async function _saveBT(localOnly = false, newContent = true) {
     const warnNewer = await checkBTFileVersion();
     if ((warnNewer) && 
         (confirm("The synced version of your BrainTool file has newer data. \n\nClick OK the refresh from it, or Cancel to overwrite with this change."))) {
-            refreshTable(true);
+            if (refreshTableCallback) refreshTableCallback(true);
             return;
     }
 
@@ -141,7 +183,8 @@ async function _saveBT(localOnly = false, newContent = true) {
 
 async function authorizeLocalFile() {
     // Called from user action button to allow filesystem access and choose BT folder
-    const success = await localFileManager.authorizeLocalFile();
+    const content = BTAppNode.generateOrgFile();
+    const success = await localFileManager.authorizeLocalFile(content);
     if (!success) return false;
 
     configManager.setProp('BTGDriveConnected', false);
@@ -308,6 +351,22 @@ async function deleteBackup(deets) {
  ***/
 
 
+function brainZoom(iteration = 0) {
+    // iterate thru icons to swell the brain
+
+    const iterationArray = ['01','02', '03','04','05','06','07','08','09','10','05','04', '03','02','01'];
+    const path = '../extension/images/BrainZoom'+iterationArray[iteration]+'.png';
+    
+    if (iteration == iterationArray.length) {
+        $("#brain").attr("src", "../extension/images/BrainTool128.png");
+        return;
+    }
+    $("#brain").attr("src", path);
+    const interval = (iteration <= 4 ? 150 : 50);
+    setTimeout(function() {brainZoom(++iteration);}, interval);
+
+}
+
 function updateStatsRow(modifiedTime = null) {
     // update #topics, urls, saves
     const numTopics = AllNodes.filter(n => n?.isTopic()).length;
@@ -443,3 +502,37 @@ function exportOrgFile(event) {
     $("#org_export").attr('href', filetext);
     gtag('event', 'OrgExport', {'event_category': 'Export'});
 }
+
+// Register our callback with configManager as soon as this file loads
+// This breaks the circular dependency while maintaining functionality
+if (typeof configManager !== 'undefined' && configManager.registerFileManager) {
+    configManager.registerFileManager({
+        initiateBackups: initiateBackups,
+        authorizeGAPI: authorizeGAPI,
+        authorizeLocalFile: authorizeLocalFile
+    });
+}
+
+// Register state setters with localFileManager
+if (typeof localFileManager !== 'undefined' && localFileManager.registerFileManager) {
+    localFileManager.registerFileManager({
+        setLocalFileConnected: setLocalFileConnected,
+        setBTFileText: setBTFileText
+    });
+}
+
+// Register state setters with gDriveFileManager
+if (typeof gDriveFileManager !== 'undefined' && gDriveFileManager.registerFileManager) {
+    gDriveFileManager.registerFileManager({
+        setGDriveConnected: setGDriveConnected,
+        setBTFileText: setBTFileText,
+        getBTFileText: getBTFileText
+    });
+}
+
+export { 
+    saveBT, getBTFile, initiateBackups, syncEnabled, handleStartupFileConnection,
+    updateSyncSettings, GDriveConnected, LocalFileConnected, savePendingP,
+    importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
+    setGDriveConnected, setLocalFileConnected, getBTFileText, setBTFileText, checkBTFileVersion
+};

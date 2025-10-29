@@ -20,6 +20,10 @@
 
 const ReservedWords = {'TODO': 'Todo', 'DONE': 'Done'};             // can't name topics these org-mode reserved words
 
+// Global AllNodes array - defined here to avoid circular dependencies
+// This is the single source of truth for all nodes in the application
+var AllNodes = [];
+
 class BTNode {
     constructor(title, parentId = null, firstChild = false) {
 
@@ -386,3 +390,5 @@ class BTNode {
     }
     
 }
+
+export { BTNode, AllNodes };

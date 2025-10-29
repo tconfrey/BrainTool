@@ -625,17 +625,47 @@
     </div>
     
     <script src="orga-bundlev2.js"></script>
-    <script src="BTNode.js"></script>
-    <script src="fileManager.js"></script>
-    <script src="configManager.js"></script>
-    <script src="gDriveFileManager.js"></script>
-    <script src="localFileManager.js"></script>
-    <script src="subscriptionManager.js"></script>
-    <script src="bookmarksManager.js"></script>
-    <script src="bt.js"></script>
-    <script src="messageManager.js"></script>
-    <script src="BTAppNode.js"></script>
-    <script src="parser.js"></script>
     <script src="../utilities/converters.js"></script>
+    <script type="module" src="bt.js"></script>
+    
+    <!-- Window shim for inline event handlers -->
+    <script type="module">
+        // Import all functions that are called from inline HTML onclick handlers
+        // and attach them to window so they can be accessed by inline event handlers
+        import { configManager } from './configManager.js';
+        import { messageManager } from './messageManager.js';
+        import { filterToDos, addNewTopLevelTopic, refreshTable, closeDialog, cancelEdit, updateRow, toggleMoreButtons, deleteRow, editRow, openRow, closeRow, toDo, promote, addChild } from './bt.js';
+        import { importBookmarks, exportBookmarks } from './bookmarksManager.js';
+        import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
+        import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing } from './fileManager.js';
+        
+        // Expose to global window object for inline handlers
+        window.configManager = configManager;
+        window.messageManager = messageManager;
+        window.filterToDos = filterToDos;
+        window.addNewTopLevelTopic = addNewTopLevelTopic;
+        window.refreshTable = refreshTable;
+        window.closeDialog = closeDialog;
+        window.cancelEdit = cancelEdit;
+        window.updateRow = updateRow;
+        window.toggleMoreButtons = toggleMoreButtons;
+        window.deleteRow = deleteRow;
+        window.editRow = editRow;
+        window.openRow = openRow;
+        window.closeRow = closeRow;
+        window.toDo = toDo;
+        window.promote = promote;
+        window.addChild = addChild;
+        window.importBookmarks = importBookmarks;
+        window.exportBookmarks = exportBookmarks;
+        window.handlePurchase = handlePurchase;
+        window.openStripePortal = openStripePortal;
+        window.importKey = importKey;
+        window.importOrgFile = importOrgFile;
+        window.importTabsOutliner = importTabsOutliner;
+        window.exportOrgFile = exportOrgFile;
+        window.stopSyncing = stopSyncing;
+    </script>
   </body>
 </html>
+

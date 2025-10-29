@@ -16,18 +16,37 @@
  ***/
 'use strict';
 
-const localStorageManager = (() => {
+import { configManager } from './configManager.js';
 
-    // The following is pulled from https://github.com/jakearchibald/idb-keyval
-    // Seems its the only way to persist the filehandle across sessions (needs deep clone)
-    // See https://stackoverflow.com/questions/65928613
-    // ------------------------------------------------
+// Callback for fileManager state setters - registered after fileManager loads
+let setLocalFileConnectedCallback = null;
+let setBTFileTextCallback = null;
 
-    function promisifyRequest(request) {
-        return new Promise((resolve, reject) => {
-            // @ts-ignore - file size hacks
-            request.oncomplete = request.onsuccess = () => resolve(request.result);
-            // @ts-ignore - file size hacks
+// Callback for UI functions - registered after UI loads
+let refreshTableCallback = null;
+
+function registerFileManager(callbacks) {
+    // Called by fileManager to register state setter functions
+    setLocalFileConnectedCallback = callbacks.setLocalFileConnected;
+    setBTFileTextCallback = callbacks.setBTFileText;
+}
+
+function registerUI(callbacks) {
+    // Called by fileManager to register UI functions
+    refreshTableCallback = callbacks.refreshTable;
+}
+
+// localStorageManager - helper for IndexedDB
+// The following is pulled from https://github.com/jakearchibald/idb-keyval
+// Seems its the only way to persist the filehandle across sessions (needs deep clone)
+// See https://stackoverflow.com/questions/65928613
+// ------------------------------------------------
+
+function promisifyRequest(request) {
+    return new Promise((resolve, reject) => {
+        // @ts-ignore - file size hacks
+        request.oncomplete = request.onsuccess = () => resolve(request.result);
+        // @ts-ignore - file size hacks
             request.onabort = request.onerror = () => reject(request.error);
         });
     }
@@ -87,41 +106,40 @@ const localStorageManager = (() => {
      */
     function del(key, customStore = defaultGetStore()) {
         return customStore('readwrite', (store) => {
-            store.delete(key);
-            return promisifyRequest(store.transaction);
-        });
-    }
-    function clear(customStore = defaultGetStore()) {
-        return customStore('readwrite', (store) => {
-            store.clear();
-            return promisifyRequest(store.transaction);
-        });
-    }
+        store.delete(key);
+        return promisifyRequest(store.transaction);
+    });
+}
+function clearStorage(customStore = defaultGetStore()) {
+    return customStore('readwrite', (store) => {
+        store.clear();
+        return promisifyRequest(store.transaction);
+    });
+}
 
-    return {
-        set: set,
-        get: get,
-        clear: clear,
-        getDB: getDB
-    };
-})();
+// localStorageManager public API
+const localStorageManager = {
+    set: set,
+    get: get,
+    clear: clearStorage,
+    getDB: getDB
+};
 
 // ------------------------------------------------
 
 
-const localFileManager = (() => {
-
-    let LocalDirectoryHandle, LocalFileHandle, BackupDirectoryHandle;
-    let savePending = false;
-    async function saveBT(BTFileText) {
-        // Save BT file to local file for which permission was granted
-        console.log('writing to local file');
-        savePending = true;
-        if (!LocalFileHandle)
-            LocalFileHandle = await authorizeLocalFile();
-        
-        // Create a FileSystemWritableFileStream to write to.
-        const writable = await LocalFileHandle.createWritable();
+// localFileManager module
+let LocalDirectoryHandle, LocalFileHandle, BackupDirectoryHandle;
+let savePending = false;
+async function saveBT(BTFileText) {
+    // Save BT file to local file for which permission was granted
+    console.log('writing to local file');
+    savePending = true;
+    if (!LocalFileHandle)
+        LocalFileHandle = await authorizeLocalFile();
+    
+    // Create a FileSystemWritableFileStream to write to.
+    const writable = await LocalFileHandle.createWritable();
         // Write the contents of the file to the stream.
         await writable.write(BTFileText);
         // Close the file and write the contents to disk.
@@ -134,13 +152,13 @@ const localFileManager = (() => {
         return savePending;
     }
 
-    async function authorizeLocalFile() {
+    async function authorizeLocalFile(content) {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
             alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags and toggle 'File System Access API')");
             return null;
         }
-        if (SidePanel) {
+        if (configManager.isSidePanel()) {
             alert("Local file saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
             return null;
         }
@@ -171,11 +189,10 @@ const localFileManager = (() => {
             alert('Error accessing local file, cancelling sync');
             return null;
         }
-        LocalFileConnected = true;                             // used in fileManager facade
+        setLocalFileConnectedCallback && setLocalFileConnectedCallback(true);  // used in fileManager facade
         if (fileExists && confirm("BrainTool.org file already exists. Click OK to use its contents"))
-		    await refreshTable(true);
+		    if (refreshTableCallback) await refreshTableCallback(true);
 	    
-        const content = BTAppNode.generateOrgFile();
 	    saveBT(content);                                        // Either way do a save to sync everything up
         
         localStorageManager.set('localFileHandle', LocalFileHandle);               // store for subsequent sessions
@@ -222,11 +239,11 @@ const localFileManager = (() => {
         }
 
         // check if newer version on disk
-        LocalFileConnected = true;
+        setLocalFileConnectedCallback && setLocalFileConnectedCallback(true);
         const newerOnDisk = await checkBTFileVersion();
         if (newerOnDisk && confirm("Synced BrainTool.org file on disk is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?")) {
             try {
-		        await refreshTable(true);
+		        if (refreshTableCallback) await refreshTableCallback(true);
             }
             catch (err) {
                 alert("Error parsing BrainTool.org file from local file:\n" + JSON.stringify(err));
@@ -242,7 +259,9 @@ const localFileManager = (() => {
         const contents = await file.text();
         
 		configManager.setProp('BTTimestamp', file.lastModified);
-        BTFileText = contents;
+        if (setBTFileTextCallback) {
+            setBTFileTextCallback(contents);
+        }
     }
 
     async function getFileLastModifiedTime() {            
@@ -311,25 +330,27 @@ const localFileManager = (() => {
 
     async function deleteBackup(name) {
         // find the named file in the backups directory and delete it
-        BackupDirectoryHandle = BackupDirectoryHandle || await getBackupDirectoryHandle();
-        await BackupDirectoryHandle.removeEntry(name);
-    }
+    BackupDirectoryHandle = BackupDirectoryHandle || await getBackupDirectoryHandle();
+    await BackupDirectoryHandle.removeEntry(name);
+}
 
-    return {
-        saveBT: saveBT,
-        authorizeLocalFile: authorizeLocalFile,
-        checkBTFileVersion: checkBTFileVersion,
-        reestablishLocalFilePermissions: reestablishLocalFilePermissions,
-        savePendingP: savePendingP,
-        getBTFile: getBTFile,
-        getLocalFileHandle: getLocalFileHandle,
-        getLocalDirectoryHandle: getLocalDirectoryHandle,
-        getFileLastModifiedTime: getFileLastModifiedTime,
-        reset: reset,
-        initiateBackups: initiateBackups,
-        createBackup: createBackup,
-        deleteBackup: deleteBackup
-    };
-})();
+// Export local file manager API
+const localFileManager = {
+    saveBT,
+    authorizeLocalFile,
+    checkBTFileVersion,
+    reestablishLocalFilePermissions,
+    savePendingP,
+    getBTFile,
+    getLocalFileHandle,
+    getLocalDirectoryHandle,
+    getFileLastModifiedTime,
+    reset,
+    initiateBackups,
+    createBackup,
+    deleteBackup,
+    registerFileManager,
+    registerUI
+};
 
-        
+export { localFileManager, localStorageManager };

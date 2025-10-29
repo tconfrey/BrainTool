@@ -18,16 +18,19 @@
  ***/
 'use strict';
 
-const messageManager = (() => {
-    const tipsArray = [
-        "Add ':' at the end of a topic in the Bookmarker to create a new subtopic.",
-        "Double click on a table row to go to it's tab or tabgroup, if it's open.",
-        "Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.",
-        "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
-        "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
-        `${OptionKey}-b is the BrainTool accelerator key. You can change that in the browsers extension settings`,
-        "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
-        "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
+import { configManager } from './configManager.js';
+
+// Module-level constants and state (was inside IIFE)
+const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
+const tipsArray = [
+    "Add ':' at the end of a topic in the Bookmarker to create a new subtopic.",
+    "Double click on a table row to go to it's tab or tabgroup, if it's open.",
+    "Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.",
+    "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
+    "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
+    `${OptionKey}-b is the BrainTool accelerator key. You can change that in the browsers extension settings`,
+    "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
+    "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
         "See BrainTool.org for the BrainTool blog and other info.",
         "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on X and other socials!",
         "Check out the Bookmark import/export functions under Actions",
@@ -168,7 +171,7 @@ const messageManager = (() => {
         } else {
             $("#introNext").show();
             // Show 'don't show again' footer after 2nd slide or after initial install
-            if (!InitialInstall || (lastShownSlideIndex >= 2)) $("#slideFooter").show();
+            if (!configManager.getProp('InitialInstall') || (lastShownSlideIndex >= 2)) $("#slideFooter").show();
             $("#introButtons").css("display", "none");
         }
         $("#slideNum").text(lastShownSlideIndex+1);
@@ -201,20 +204,20 @@ const messageManager = (() => {
         importSession();
     }
 
-    return {
-        setupMessages: setupMessages,
-        showMessage: showMessage,
-        hideMessage: hideMessage,
-        showWarning: showWarning,
-        removeWarning: removeWarning,
-        showIntro: showIntro,
-        hideIntro: hideIntro,
-        nextSlide: nextSlide,
-        prevSlide: prevSlide,
-        dontShowIntro: dontShowIntro,
-        bookmarksIntro: bookmarksIntro,
-        sessionIntro: sessionIntro
-    };
-})();
+// Export public API (was previously returned from IIFE)
+const messageManager = {
+    setupMessages,
+    showMessage,
+    hideMessage,
+    showWarning,
+    removeWarning,
+    showIntro,
+    hideIntro,
+    nextSlide,
+    prevSlide,
+    dontShowIntro,
+    bookmarksIntro,
+    sessionIntro
+};
 
-    
+export { messageManager };
