@@ -220,4 +220,44 @@ const messageManager = {
     sessionIntro
 };
 
-export { messageManager };
+/**
+ * Generate the Message Container HTML (without inline event handlers)
+ */
+function generateMessageContainerHTML() {
+    const html = `
+    <div id="messageContainer">
+        <img id="messageClose" src="resources/closeTip.png" height="14" width="14" />
+        <div id="messageTitle"><b>Tip of the day:</b></div>
+        <div id="message"></div>
+        <img id="messageNext" src="resources/nextTip.png" height="18" width="18" />
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+/**
+ * Attach event listeners to Message Container elements
+ */
+function attachMessageContainerListeners() {
+    // Close button
+    document.getElementById('messageClose')?.addEventListener('click', () => {
+        messageManager.hideMessage();
+    });
+    
+    // Next tip button
+    document.getElementById('messageNext')?.addEventListener('click', () => {
+        messageManager.showMessage();
+    });
+}
+
+/**
+ * Initialize Message Container by generating HTML and attaching event listeners
+ */
+function initializeMessageContainer() {
+    generateMessageContainerHTML();
+    attachMessageContainerListeners();
+    console.log('Message container initialized with event listeners');
+}
+
+export { messageManager, initializeMessageContainer };
