@@ -17,7 +17,8 @@ import { BTAppNode, Topics } from './BTAppNode.js';
 import { parseBTFile } from './parser.js';
 import { sendMessage } from './extensionMessaging.js';
 import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
-import { buttonShow, buttonHide, deleteNode, exportBookmarksBar } from './bt.js';
+import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
+import { exportBookmarksBar } from './bookmarksManager.js';
 
 /***
  *
@@ -25,7 +26,6 @@ import { buttonShow, buttonHide, deleteNode, exportBookmarksBar } from './bt.js'
  *
  ***/
 
-var ButtonRowHTML; 
 var OpenedNodes = [];          // attempt to preserve opened state across refresh
 
 
@@ -253,19 +253,8 @@ function initializeUI() {
     $("#loading").hide();
     updateSyncSettings(syncEnabled());
 
-    // Copy buttonRow's html for potential later recreation (see below)
-    if ($("#buttonRow")[0])
-        ButtonRowHTML = $("#buttonRow")[0].outerHTML;
-
     updateStatsRow(configManager.getProp('BTTimestamp'));   // show updated stats w last save time
 }
-function reCreateButtonRow() {
-    // For some unknown reason very occasionally the buttonRow div gets lost/deleted
-    console.log("RECREATING BUTTONROW!!");
-    const $ButtonRowHTML = $(ButtonRowHTML);
-    $ButtonRowHTML.appendTo($("#dialog"))
-}
-
 /**
  * 
  * Drag and Drop Support
@@ -697,7 +686,6 @@ export {
     processBTFile, 
     initializeNotesColumn, 
     initializeUI, 
-    reCreateButtonRow,
     moveNode, 
     Resizing 
 };

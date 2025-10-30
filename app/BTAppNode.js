@@ -20,7 +20,7 @@
 
 import { BTNode, AllNodes } from './BTNode.js';
 import { configManager } from './configManager.js';
-import { sendMessage } from './extensionMessaging.js';
+import { sendMessage, callBackground } from './extensionMessaging.js';
 import { localStorageManager } from './localFileManager.js';
 
 var Topics = [];                                                                                // track topics for future tab assignment
@@ -1273,23 +1273,6 @@ class BTLinkNode extends BTAppNode {
         // Link nodes are never topics
         return false;
     }
-}
-
-// Function to send a message to the content script or side panel and await a response
-function callBackground(message) {
-    return new Promise((resolve) => {
-        // Send the message to the content script
-        message.type = "AWAIT";
-        sendMessage(message);
-
-        // Listen for the response from the content script
-        window.addEventListener("message", function handler(event) {
-            if (event?.data?.type !== 'AWAIT_RESPONSE')   return;                          // async handled above
-            if (event.source != window && event.source != window.parent)  return;           // not our business            
-            window.removeEventListener("message", handler);
-            resolve(event.data.response);
-        });
-    });
 }
 
 // Note: sendMessage() is now defined in extensionMessaging.js

@@ -19,15 +19,16 @@
 'use strict'
 
 // Import all dependencies
-import { sendMessage } from './extensionMessaging.js';
+import { sendMessage, callBackground } from './extensionMessaging.js';
 import { BTNode, AllNodes } from './BTNode.js';
 import { configManager } from './configManager.js';
 import { messageManager } from './messageManager.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, GDriveConnected, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
-import { loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds } from './bookmarksManager.js';
+import { loadBookmarks, syncBookmarksBar, bookmarksBarIds } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
-import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, reCreateButtonRow, moveNode, Resizing } from './tableManager.js';
+import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
+import { sidePanelMouseOut, deleteNode } from './rowManager.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -91,7 +92,7 @@ async function launchApp(msg) {
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
     setTimeout(() => sendMessage({'function': 'getBookmarksBar'}), 1);         // bookmarks bar is not saved, sync on startup, giving time for allNodes to be populated.
     initializeNotesColumn();                              // set up notes column width based on slider saved position
-    checkCompactMode();                                   // tweak display if window is narrow
+    adjustForNarrowWindow();                              // tweak display if window is narrow
     updateStats();                                        // record numlaunches etc
     UpgradeInstall && runUpgrade(msg.BTVersion);          // run any upgrade specific code
 
@@ -205,6 +206,22 @@ function handleFocus(e) {
         'theme': isDark ? 'DARK' : 'LIGHT'
     });
 }
+
+function adjustForNarrowWindow() {
+    // Display changes when window is narrow
+    if ($(window).width() < 400) {
+        $("#content").addClass('compactMode');
+        $("#search").css('left', 'calc((100% - 175px) / 2)');
+        $("#searchHint .hintText").css('display', 'none');
+    } else {
+        $("#content").removeClass('compactMode');
+        $("#search").css('left', 'calc((100% - 300px) / 2)');
+        $("#searchHint .hintText").css('display', 'inline');    
+    }
+    updateStatsRow();
+    initializeNotesColumn();
+}
+$(window).resize(() => adjustForNarrowWindow());
 
 async function checkFileFreshness() {
     // POpup has opened, shoudl we warn the file is stale?
@@ -878,528 +895,6 @@ function updateTabIndices(indices) {
     }
 }
 
-/*** 
- * 
- * Row Operations
- * buttonShow/Hide, Edit Dialog control, Open Tab/Topic, Close, Delete, ToDo
- * NB same fns for key and mouse events. 
- * getActiveNode finds the correct node in either case from event
- * 
- ***/
-
-function buttonShow(e) {
-    // Show buttons to perform row operations, triggered on hover
-    $(this).addClass("hovered");
-    sidePanelMouseIn();     // undo mouse out from containing sidepanel, see below
-    const td = $(this).find(".left");
-
-    if ($("#buttonRow").index() < 0) {
-        // Can't figure out how but sometimes after a Drag/drop the buttonRow is deleted
-        reCreateButtonRow();
-    }
-    
-    // detach and center vertically on new td
-    $("#buttonRow").detach().appendTo($(td));
-    const offset = $(this).offset().top;
-    const rowtop = offset + 2;
-
-    // figure out if tooltips are on and would go off bottom
-    const tooltips = configManager.getProp('BTTooltips') == 'ON';
-    const scrollTop = $(document).scrollTop();
-    const top = rowtop - scrollTop;
-    const windowHeight = $(window).height();
-    const bottomGap = windowHeight - top;
-    if (tooltips && bottomGap < 130)
-        $("#buttonRow span").removeClass("wenk--left").addClass("wenk--right");
-    else if (tooltips)
-        $("#buttonRow span").removeClass("wenk--right").addClass("wenk--left");
-
-    const node = getActiveNode(e);
-    if (!node || node.trashed) return;          // don't allow operations on deleted nodes
-    if (node.isTrash())
-        $('#deleteRow').parent().attr('data-wenk', 'Empty Trash');
-    else
-        $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
-
-    // Open/close buttons 
-    const topic = node.isTopic() ? node : AllNodes[node.parentId];
-    $("#openTab").hide();
-    $("#openWindow").hide();
-    $("#closeRow").hide();
-    if (node.countOpenableTabs()){
-        $("#openTab").show();
-        if (!topic?.hasOpenChildren() || (configManager.getGroupingMode() != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
-    }
-    if (node.countClosableTabs()) {
-        $("#closeRow").show();
-    }
-
-    // show expand/collapse if some kids of branch are not open/closed
-    if ($(this).hasClass("branch")) {
-        const id = this.getAttribute("data-tt-id");
-        const notOpenKids = $("tr[data-tt-parent-id='"+id+"']").not(".opened");
-        if (notOpenKids?.length)
-            $("#expand").show();
-        const openKids = $("tr[data-tt-parent-id='"+id+"']").hasClass("opened");
-        if (openKids)
-            $("#closeRow").show();
-    }
-
-    // allow adding children on branches or unpopulated branches (ie no links)
-    if (($(this).hasClass("branch") || !$(this).find('a').length) && !node.isTrash())
-        $("#addChild").show();
-    else
-        $("#addChild").hide();
-
-    // only show outdent on non-top level items. don't show it on links (!isTopic) where promoting would put to top level
-    if ((this.getAttribute("data-tt-parent-id")) && !((node.level == 2) && !node.isTopic()))
-        $("#outdent").show();
-    else
-        $("#outdent").hide();
-    
-    $("#buttonRow").offset({top: rowtop});
-    $("#buttonRow").css("z-index", "0");
-    $("#buttonRow").show();        
-}
-
-function buttonHide() {
-    // hide button to perform row operations, triggered on exit    
-    $(this).removeClass("hovered");
-    $("#buttonRow").hide();
-    $("#buttonRow").detach().appendTo($("#dialog"));
-}
-
-function sidePanelMouseOut() {
-    // Message from containing sidepanel, remove tooltips, hovers etc
-    $("#buttonRow").hide();
-    if (window.mouseOutStyle) return;           // already set
-    const newStyle = '[data-wenk]:hover:after {visibility: hidden;}'
-    const style = document.createElement('style');
-    style.textContent = newStyle;
-    document.head.appendChild(style);
-    window.mouseOutStyle = style;
-}
-function sidePanelMouseIn() {
-    // undo mouse out from above
-    if (window.mouseOutStyle) {
-        document.head.removeChild(window.mouseOutStyle);
-        window.mouseOutStyle = null;
-    }
-}
-
-function toggleMoreButtons(e) {
-    // show/hide non essential buttons
-    $("#otherButtons").toggle(100, 'easeInCirc', () => {
-        $("#tools").toggleClass('moreToolsOn');
-        let moreToolsOn = $("#tools").hasClass('moreToolsOn');
-        let hint = moreToolsOn ? "Fewer Tools" : "More Tools";
-        $("#moreToolsSpan").attr('data-wenk', hint);
-        configManager.setProp('BTMoreToolsOn', moreToolsOn ? 'ON' : 'OFF');
-    });
-    if (e) {
-        e.preventDefault();		// prevent default browser behavior
-        e.stopPropagation();	// stop event from bubbling up
-    }
-    return false;
-}
-
-function editRow(e) {
-    // position and populate the dialog and open it
-    const node = getActiveNode(e);
-    if (!node) return;
-    const duration = e.duration || 400;
-    const row = $(`tr[data-tt-id='${node.id}']`)[0];
-    const top = $(row).position().top - $(document).scrollTop();
-    const bottom = top + $(row).height();
-    const dialog = $("#dialog")[0];
-    
-    // populate dialog
-    const dn = node.fullTopicPath();
-    if (dn == node.displayTopic)
-        $("#distinguishedName").hide();    
-    else {
-        $("#distinguishedName").show();
-        const upto = dn.lastIndexOf(':');
-        const displayStr = dn.substr(0, upto);
-        $("#distinguishedName").text(displayStr);
-        // if too long scroll to right side
-        setTimeout(() => {
-            const overflow = $("#distinguishedName")[0].scrollWidth - $("#distinguishedName")[0].offsetWidth;
-            if (overflow > 0) $("#distinguishedName").animate({ scrollLeft: '+='+overflow}, 500);
-        }, 500);
-    }
-    if (node.isTopic()) {
-        $("#titleUrl").hide();
-        $("#titleText").hide();
-        $("#topic").show();        
-        $("#topicName").val($("<div>").html(node.displayTopic).text());
-        node.displayTopic && $("#newTopicNameHint").hide();
-        node.isTrash() && $("#topicName").hide();
-    } else {
-        $("#titleUrl").show();
-        $("#titleText").show();
-        $("#titleText").val(BTAppNode.editableTopicFromTitle(node.title));
-        $("#topic").hide();
-        $("#titleUrl").val(node.URL);
-    }
-    $("#textText").val(node.text);
-    $("#update").prop("disabled", true);
-
-    // overlay grays everything out, dialog animates open on top.
-    $("#editOverlay").css("display", "block");
-    const fullWidth = $($("#editOverlay")[0]).width();
-    const dialogWidth = Math.min(fullWidth - 66, 600);    // 63 = padding + 2xborder == visible width
-    const height = dialogWidth / 1.618;                   // golden!
-    /*
-    const otherRows = node.isTopic() ? 100 : 120;           // non-text area room needed
-    $("#textText").height(height - otherRows);           // notes field fits but as big as possible
-*/
-    if ((top + height + 140) < $(window).height())
-        $(dialog).css("top", bottom+80);
-    else
-        // position above row to avoid going off bottom of screen (or the top)
-        $(dialog).css("top", Math.max(10, top - height + 30));
-
-    // Animate opening w calculated size
-    $(dialog).css({display: 'flex', opacity: 0.0, height: 0, width:0})
-        .animate({width: dialogWidth, height: height, opacity: 1.0},
-                 duration, 'easeInCirc',
-                 function () {
-                     $("#textText")[0].setSelectionRange(node.text.length, node.text.length);
-                     e.newTopic ? $("#topicName").focus() : $("#textText").focus();
-                 });
-}
-
-$(".editNode").on('input', function() {
-    // enable update button if one of the texts is edited. Avoid creating new nodes with empty titles
-    if ($("#topicName").is(":visible") && (!$("#topicName").val())) return;
-    $("#update").prop('disabled', false);
-});
-
-$("#editOverlay").on('mousedown', function(e) {
-    // click on the backdrop closes the dialog
-    if (e.target.id == 'editOverlay')
-    {
-        closeDialog(cancelEdit); 
-        $("#buttonRow").show(100);
-    }
-});
-
-function checkCompactMode() {
-    // Display changes when window is narrow
-    if ($(window).width() < 400) {
-        $("#content").addClass('compactMode');
-        $("#search").css('left', 'calc((100% - 175px) / 2)');
-        $("#searchHint .hintText").css('display', 'none');
-    } else {
-        $("#content").removeClass('compactMode');
-        $("#search").css('left', 'calc((100% - 300px) / 2)');
-        $("#searchHint .hintText").css('display', 'inline');    }
-    updateStatsRow();
-    initializeNotesColumn();
-}
-
-
-$(window).resize(() => checkCompactMode());
-
-function closeDialog(cb = null, duration = 250) {
-    // animate dialog close and potentially callback when done
-    const dialog = $("#dialog")[0];
-    const height = $(dialog).height();
-    $(dialog).css({'margin-left':'auto'});                  // see above, resetting to collapse back to center
-    $(dialog).animate({width: 0, height: 0}, duration, function () {
-        $("#editOverlay").css("display", "none");
-        $(dialog).css({width: '88%', height: height});      // reset for next open
-        dialog.close();
-        if (cb) cb();
-    });
-}
-
-function getActiveNode(e) {
-    // Return the active node for the event, either hovered (button click) or selected (keyboard)
-    const tr = (['click', 'mouseenter'].includes(e.type)) ?
-          $(e.target).closest('tr')[0] : $("tr.selected")[0];
-    if (!tr) return null;
-    const nodeId = $(tr).attr('data-tt-id') || 0;
-    return AllNodes[nodeId];
-}
-
-function openRow(e, newWin = false) {
-    // Open all links under this row in windows per topic
-
-    // First find all AppNodes involved - selected plus children
-    const appNode = getActiveNode(e);
-    if (!appNode) return;
-
-    // Warn if opening lots of stuff
-    const numTabs = appNode.countOpenableTabs();
-    if (numTabs > 10)
-        if (!confirm(`Open ${numTabs} tabs?`))
-            return;
-
-    if (appNode.isTopic()) {
-        $("table.treetable").treetable("expandNode", appNode.id);         // unfold
-	    AllNodes[appNode.id].folded = false;
-        setTimeout(() => appNode.openAll(newWin), 50);
-    } else
-        appNode.openPage(newWin);
-    
-    $("#openWindow").hide();
-    $("#openTab").hide();
-    $("#closeRow").show();
-}
-
-function closeRow(e) {
-    // close this node's tab or window
-    const appNode = getActiveNode(e);  
-    if (!appNode) return;
-    
-    $("#openWindow").show();
-    $("#openTab").show();
-    $("#closeRow").hide();
-    appNode.closeTab();
-    
-    gtag('event', 'close_row', {'event_category': 'TabOperation'});
-    configManager.incrementStat('BTNumTabOperations');
-}
-
-function deleteRow(e) {
-    // Delete selected node/row.
-    const appNode = getActiveNode(e);
-    if (!appNode) return false;
-    const kids = appNode.childIds.length && appNode.isTopic();         // Topic determines non link kids
-    buttonHide();
-
-    // Special handling for Trash node
-    if (appNode.isTrash()) {
-        // Create a copy of the childIds array before iterating
-        const childIdsToDelete = [...appNode.childIds];
-        childIdsToDelete.forEach((id) => {
-            deleteNode(id);
-        });
-        return;
-    }
-
-    // If children nodes ask for confirmation
-    if (!kids || confirm('Delete whole subtree?')) {
-        // Remove from UI and treetable
-        deleteNode(appNode.id);
-    }
-}
-
-function deleteNode(id, browserAction = false) {
-    // delete node and clean up
-    // firstDelete moves the item into Trash, subsequent deletes it
-    // if delete was a result of browserAction, eg tabLeftTG, don't screw with tgs etc
-    id = parseInt(id);                 // could be string value
-    const node = AllNodes[id];
-    if (!node) return;
-    const wasTopic = node.isTopic();
-    const openTabs = node.listOpenTabs();
-
-    function propogateClosed(parentId) {
-        // update display of all ancestor nodes as needed
-        if (!parentId) return;
-        const parent = AllNodes[parentId];
-        const openKids = parent.hasOpenChildren();
-        const openDescendants = parent.hasOpenDescendants();
-        if (!openKids) {
-            parent.windowId = 0;
-            parent.setTGColor(null)
-        }
-        if (!openDescendants) $("tr[data-tt-id='"+parent.id+"']").removeClass("opened");
-        // update tree row if now is childless
-        if (parent.childIds.length == 0) {
-            const ttNode = $("#content").treetable("node", parent.id);
-            $("#content").treetable("unloadBranch", ttNode);
-            $(parent.getDisplayNode()).addClass("emptyTopic");
-        }
-        propogateClosed(parent.parentId);                       // recurse
-    }
-    
-    // Highlight the tab if it's open and the Topic Manager is not TAB (jarring to swap active tabs)
-    // (good user experience and side effect is to update the tabs badge info
-    if (!browserAction) {
-        const BTHome = configManager.getProp('BTManagerHome');
-        if (node.tabId && (BTHome !== 'TAB'))
-            node.showNode();
-        // Ungroup if topic w open tabs
-        if (openTabs.length) {
-            const tabIds = openTabs.map(t => t.tabId);
-            callBackground({'function': 'ungroup', 'tabIds': tabIds});
-        }
-    }
-
-    if (!node.trashed) {
-        // Move to trash    
-        propogateClosed(node.parentId);                     // Update parent display
-        const treeTable = $("#content");
-        const trashNode = BTAppNode.findOrCreateTrashNode();
-        node.handleNodeMove(trashNode.id);
-        treeTable.treetable("move", node.id, trashNode.id);
-        const treeNode = $(`tr[data-tt-id='${node.id}']`)[0];
-        $(treeNode).attr('data-tt-parent-id', trashNode.id);
-        $(treeNode).addClass('trashed');
-        node.trash();
-        initializeUI();
-    } else {
-        // Delete from trash
-        $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
-        BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
-    }
-
-    if (node.bookmarkId) {
-        // update bookmarks
-        node.bookmarkId = 0;
-        exportBookmarksBar();        // update bookmarks bar
-    }
-    
-    // if wasTopic remove from Topics and update extension
-    if (wasTopic) {
-        BTAppNode.generateTopics();
-        sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
-    }
-    
-    // Update File 
-    saveBT();
-}
-
-function updateRow() {
-    // Update this node/row after edit.
-    const tr = $("tr.selected")[0] || $("tr.hovered")[0];
-    if (!tr) return null;
-    const nodeId = $(tr).attr('data-tt-id');
-    if (!nodeId) return null;
-    const node = AllNodes[nodeId];
-
-    // Update Model
-    const url = $("#titleUrl").val();
-    const title = $("#titleText").val();
-    const topic = $("#topicName").val();
-    if (node.isTopic()) {
-        const changed = (node.title != topic);
-        node.title = topic;
-        if (changed) node.updateTabGroup();               // update browser (if needed)
-    } else
-        node.replaceURLandTitle(url, title);
-    node.text = $("#textText").val();
-
-    // Update ui
-    $(tr).find("span.btTitle").html(node.displayTitle());
-    $(tr).find("span.btText").html(node.displayText());
-    if (node.tgColor) node.setTGColor(node.tgColor);
-    node.populateFavicon();                     // async, will just do its thing
-
-    // Update File 
-    saveBT();
-
-    // Update extension
-    BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
-    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
-
-    // reset ui
-    closeDialog();
-    initializeUI();
-}
-function toDo(e) {
-    // iterate todo state of selected node/row (TODO -> DONE -> '').
-    const appNode = getActiveNode(e);
-    if (!appNode) return false;
-
-    appNode.iterateKeyword();                // ask node to update internals
-
-    // Update ui and file
-    const tr = $(`tr[data-tt-id='${appNode.id}']`);
-    $(tr).find("span.btTitle").html(appNode.displayTitle());
-    if (appNode.tgColor) appNode.setTGColor(appNode.tgColor);
-    appNode.populateFavicon();                     // async, will just do its thing
-    
-    // Stop the event from selecting the row and line up a save
-    e.stopPropagation();
-    initializeUI();
-    saveBT();
-}
-
-function promote(e) {
-    // move node up a level in tree hierarchy
-    
-    const node = getActiveNode(e);
-    if (!node || !node.parentId) return;                  // can't promote
-    
-    // collapse open subtree if any
-    if (node.childIds.length)
-        $("#content").treetable("collapseNode", node.id);
-
-    // Do the move
-    const newParentId = AllNodes[node.parentId].parentId;
-    node.handleNodeMove(newParentId);
-    $("table.treetable").treetable("promote", node.id);
-
-    // save to file, update Topics etc
-    saveBT();
-    BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
-    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
-}
-
-function _displayForEdit(newNode) {
-    // common from addNew and addChild below
-
-    newNode.createDisplayNode();
-    // highlight for editing
-    const tr = $(`tr[data-tt-id='${newNode.id}']`);
-    $("tr.selected").removeClass('selected');
-    $(tr).addClass("selected");
-
-    // scrolled into view
-    const displayNode = tr[0];
-	displayNode.scrollIntoView({block: 'center'});
-
-    // position & open card editor. Set hint text appropriately
-    const clientY = displayNode.getBoundingClientRect().top + 25;
-    const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
-    $("#newTopicNameHint").show();
-    $("#topicName").off('keyup');
-    $("#topicName").on('keyup', () => $("#newTopicNameHint").hide());
-    editRow(dummyEvent);
-}
-
-function addNewTopLevelTopic() {
-    // create new top level item and open edit card
-    if (Resizing) return;                   // ignore during column resize
-    const newNode = new BTAppNode('', null, "", 1);
-    _displayForEdit(newNode);
-}
-
-function addChild(e) {
-    // add new child to selected node
-
-    // create child element
-    const node = getActiveNode(e);
-    if (!node) return;
-    const newNode = new BTAppNode('', node.id, "", node.level + 1, true);       // true => add to front of parent's children
-    _displayForEdit(newNode);
-
-    $(node.getDisplayNode()).removeClass("emptyTopic");
-    node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
-
-    // Stop the event from selecting the row
-    e.stopPropagation();
-    initializeUI();
-}
-
-function cancelEdit() {
-    // delete node if edit cancelled w empty name
-    
-    const tr = $("tr.selected")[0];
-    if (!tr) return null;
-    const nodeId = $(tr).attr('data-tt-id') || 0;
-    const name = AllNodes[nodeId]?.title;
-    if (!nodeId || name != '') return;
-
-    deleteNode(nodeId);
-}
 
 /***
  * 
@@ -1425,11 +920,6 @@ function groupingUpdate(from, to) {
         BTAppNode.ungroupAll();
     if ((from == 'NONE') && (to == 'TABGROUP'))
         BTAppNode.groupAll();
-}
-
-function importSession() {
-    // Send msg to result in subsequent session save
-    sendMessage({'function': 'saveTabs', 'type': 'Session', 'topic': '', 'from':'btwindow'});
 }
 
 /***
@@ -2210,20 +1700,14 @@ window.addEventListener('message', event => {
 // Register UI callbacks with configManager to avoid circular dependencies
 if (typeof configManager !== 'undefined' && configManager.registerUI) {
     configManager.registerUI({
-        toggleMoreButtons: toggleMoreButtons,
         groupingUpdate: groupingUpdate
     });
 }
 
-// Export functions that are called from inline HTML event handlers or by applicationUI
+// Export functions that are called from inline HTML event handlers or by applicationUI or tableManager
 export { 
-    searchButton, filterSearch, filterToDos, addNewTopLevelTopic, 
-    closeDialog, cancelEdit, updateRow,
-    toggleMoreButtons,
-    deleteRow, editRow, openRow, closeRow, toDo, promote, addChild,
-    buttonShow, buttonHide,
-    saveBT,
-    deleteNode, syncEnabled, updateStatsRow,
-    exportBookmarksBar
+    searchButton, filterSearch, filterToDos,
+    processImport,
+    syncEnabled, updateStatsRow
 };
 

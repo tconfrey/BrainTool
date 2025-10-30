@@ -11,7 +11,8 @@
 'use strict';
 
 import { configManager } from './configManager.js';
-import { searchButton, filterToDos, filterSearch, addNewTopLevelTopic } from './bt.js';
+import { searchButton, filterToDos, filterSearch } from './bt.js';
+import { addNewTopLevelTopic } from './rowManager.js';
 import { refreshTable } from './tableManager.js';
 import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
 import { importBookmarks, exportBookmarks } from './bookmarksManager.js';

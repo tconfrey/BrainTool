@@ -24,4 +24,21 @@ function sendMessage(message) {
     dest.postMessage(message, '*');
 }
 
-export { sendMessage };
+// Function to send a message to the content script or side panel and await a response
+function callBackground(message) {
+    return new Promise((resolve) => {
+        // Send the message to the content script
+        message.type = "AWAIT";
+        sendMessage(message);
+
+        // Listen for the response from the content script
+        window.addEventListener("message", function handler(event) {
+            if (event?.data?.type !== 'AWAIT_RESPONSE')   return;                          // async handled above
+            if (event.source != window && event.source != window.parent)  return;           // not our business            
+            window.removeEventListener("message", handler);
+            resolve(event.data.response);
+        });
+    });
+}
+
+export { sendMessage, callBackground };
