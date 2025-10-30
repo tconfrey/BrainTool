@@ -27,7 +27,7 @@ import { messageManager } from './messageManager.js';
 import { insertOrgFile } from './parser.js';
 
 var GDriveConnected = false;
-var LocalFileConnected = false;
+let LocalFileConnected = false;
 var BTFileText = "";           // Global container for file text
 
 // Callback for UI functions - registered when handleStartupFileConnection is called
@@ -222,6 +222,15 @@ function savePendingP() {
 
 async function checkBTFileVersion() {
     // pass to correct file manager, true if sync file is newer than local
+
+    if (GDriveConnected) {
+        const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
+        if (!lastModifiedTime) {
+            const cb = async () => { gDriveFileManager.renewToken(); messageManager.removeWarning(); };
+            messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
+            return;
+        }
+    }
     if (GDriveConnected)
         return await gDriveFileManager.checkBTFileVersion();
     
@@ -532,7 +541,7 @@ if (typeof gDriveFileManager !== 'undefined' && gDriveFileManager.registerFileMa
 
 export { 
     saveBT, getBTFile, initiateBackups, syncEnabled, handleStartupFileConnection,
-    updateSyncSettings, GDriveConnected, LocalFileConnected, savePendingP,
+    updateSyncSettings, savePendingP,
     importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
-    setGDriveConnected, setLocalFileConnected, getBTFileText, setBTFileText, checkBTFileVersion
+    getBTFileText, setBTFileText, checkBTFileVersion
 };

@@ -21,6 +21,14 @@ import { BTAppNode, BTLinkNode } from './BTAppNode.js';
 
 var Lines= [];
 
+// Callback for processing imports - registered by bt.js
+let processImportCallback = null;
+
+function registerProcessImport(callback) {
+    // Called by bt.js to register the processImport function
+    processImportCallback = callback;
+}
+
 function parseBTFile(fileText) {
     // create and recursively walk orga parse tree to create bt model
 
@@ -76,7 +84,7 @@ function insertOrgFile(fileName, fileText) {
         if (orgaNode.type == "section")
             orgaSection(orgaNode, parentNode);
     }
-    processImport(parentNode.id);                           // bt.js fn to write and refresh 
+    processImportCallback && processImportCallback(parentNode.id);  // call registered callback to process import
 }
 
 function orgaSection(section, parentAppNode) {
@@ -192,4 +200,4 @@ function generateLinesAndColumns(filetext) {
     
 }
 
-export { parseBTFile, insertOrgFile };
+export { parseBTFile, insertOrgFile, registerProcessImport };

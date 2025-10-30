@@ -22,13 +22,17 @@ import { configManager } from './configManager.js';
 let setGDriveConnectedCallback = null;
 let setBTFileTextCallback = null;
 let getBTFileTextCallback = null;
+let GDriveConnected = false;
 
 // Callback for UI functions - registered after UI loads
 let refreshTableCallback = null;
 
 function registerFileManager(callbacks) {
     // Called by fileManager to register state getter/setter functions
-    setGDriveConnectedCallback = callbacks.setGDriveConnected;
+    setGDriveConnectedCallback = (value) => {
+        GDriveConnected = value;
+        callbacks.setGDriveConnected(value);
+    };
     setBTFileTextCallback = callbacks.setBTFileText;
     getBTFileTextCallback = callbacks.getBTFileText;
 }

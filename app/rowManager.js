@@ -30,7 +30,13 @@ import { initializeUI, Resizing } from './tableManager.js';
 function buttonShow(e) {
     // Show buttons to perform row operations, triggered on hover
     $(this).addClass("hovered");
-    sidePanelMouseIn();     // undo mouse out from containing sidepanel, see below
+
+    // undo mouse out style that was maybe set on sidePanelMouseOut
+    if (window.mouseOutStyle) {
+        document.head.removeChild(window.mouseOutStyle);
+        window.mouseOutStyle = null;
+    }
+
     const td = $(this).find(".left");
 
     if ($("#buttonRow").index() < 0) {
@@ -107,24 +113,6 @@ function buttonHide() {
     $(this).removeClass("hovered");
     $("#buttonRow").hide();
     $("#buttonRow").detach().appendTo($("#dialog"));
-}
-
-function sidePanelMouseOut() {
-    // Message from containing sidepanel, remove tooltips, hovers etc
-    $("#buttonRow").hide();
-    if (window.mouseOutStyle) return;           // already set
-    const newStyle = '[data-wenk]:hover:after {visibility: hidden;}'
-    const style = document.createElement('style');
-    style.textContent = newStyle;
-    document.head.appendChild(style);
-    window.mouseOutStyle = style;
-}
-function sidePanelMouseIn() {
-    // undo mouse out from above
-    if (window.mouseOutStyle) {
-        document.head.removeChild(window.mouseOutStyle);
-        window.mouseOutStyle = null;
-    }
 }
 
 function toggleMoreButtons(e) {
@@ -669,11 +657,8 @@ if (typeof configManager !== 'undefined' && configManager.registerUI) {
 export { 
     buttonShow, 
     buttonHide, 
-    sidePanelMouseOut, 
-    sidePanelMouseIn,
     editRow, 
     closeDialog, 
-    getActiveNode,
     openRow, 
     closeRow, 
     deleteRow, 

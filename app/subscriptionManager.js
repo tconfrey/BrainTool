@@ -498,4 +498,4 @@ async function importKey() {
     }
 }
 
-export { handlePurchase, openStripePortal, initializeFirebase, checkLicense, importKey};
+export { handlePurchase, openStripePortal, checkLicense, importKey};

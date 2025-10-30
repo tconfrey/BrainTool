@@ -24,11 +24,12 @@ import { BTNode, AllNodes } from './BTNode.js';
 import { configManager } from './configManager.js';
 import { messageManager } from './messageManager.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
-import { saveBT, syncEnabled, handleStartupFileConnection, GDriveConnected, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
-import { loadBookmarks, syncBookmarksBar, bookmarksBarIds } from './bookmarksManager.js';
+import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
+import { loadBookmarks, syncBookmarksBar, bookmarksBarIds, registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
 import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
-import { sidePanelMouseOut, deleteNode } from './rowManager.js';
+import { deleteNode, openRow, closeRow, toDo, editRow, addChild, promote } from './rowManager.js';
+import { registerProcessImport as registerProcessImportParser } from './parser.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -44,6 +45,10 @@ var BTWinId = null;                                       // winId of BT
 
 async function launchApp(msg) {
     // Launch app w data passed from extension local storage
+    
+    // Register callbacks with dependent modules
+    registerProcessImportParser(processImport);
+    registerProcessImportBM(processImport);
     
     configManager.setConfigAndKeys(msg);
     configManager.setProp('InitialInstall', msg.initial_install);
@@ -235,15 +240,6 @@ async function warnBTFileVersion(e) {
     // warn in ui if there's a backing file and its newer than local data or if GDrive auth has expired
 
     if (!syncEnabled()) return;
-
-    if (GDriveConnected) {
-        const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
-        if (!lastModifiedTime) {
-            const cb = async () => { gDriveFileManager.renewToken(); messageManager.removeWarning(); };
-            messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
-            return;
-        }
-    }
 
     const warnNewer = await checkBTFileVersion();
     if (warnNewer) {
@@ -781,6 +777,17 @@ function tabMoved(data) {
 
     // Now position the node within its topic.
     if (topicNode) positionInTopic(topicNode, tabNode, index, indices, winId);
+}
+
+function sidePanelMouseOut() {
+    // Message from containing sidepanel, remove tooltips, hovers etc
+    $("#buttonRow").hide();
+    if (window.mouseOutStyle) return;           // already set
+    const newStyle = '[data-wenk]:hover:after {visibility: hidden;}'
+    const style = document.createElement('style');
+    style.textContent = newStyle;
+    document.head.appendChild(style);
+    window.mouseOutStyle = style;
 }
 
 function noSuchNode(data) {
@@ -1707,7 +1714,6 @@ if (typeof configManager !== 'undefined' && configManager.registerUI) {
 // Export functions that are called from inline HTML event handlers or by applicationUI or tableManager
 export { 
     searchButton, filterSearch, filterToDos,
-    processImport,
     syncEnabled, updateStatsRow
 };
 

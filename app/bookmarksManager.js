@@ -22,6 +22,14 @@ import { sendMessage } from './extensionMessaging.js';
 import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
 
+// Callback for processing imports - registered by bt.js
+let processImportCallback = null;
+
+function registerProcessImport(callback) {
+    // Called by bt.js to register the processImport function
+    processImportCallback = callback;
+}
+
 function importBookmarks() {
     // Send msg to result in subsequent loadBookmarks, set waiting status and close options pane
     $('body').addClass('waiting');
@@ -47,7 +55,7 @@ function loadBookmarks(msg) {
     });
     gtag('event', 'BookmarkImport', {'event_category': 'Import'});
 
-    processImport(importNode.id);                             // saveBT etc, see background.js
+    processImportCallback && processImportCallback(importNode.id);  // call registered callback to process import
 }
 
 function loadBookmarkNode(bkNode, parent) {
@@ -309,4 +317,4 @@ function bookmarksBarIds(msg) {
     }
 }
 
-export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks };
+export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport };
