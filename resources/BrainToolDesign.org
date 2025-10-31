@@ -84,3 +84,141 @@ The Summaries project will make use of the browsers ai summarizer to optionally 
 
 * The SessionManager project 
 The SessionManager project will create a new type of special topic which shows the current live session. Maybe use a subclass to override when needed?
+
+
+* Application components and modules dependency map
+perl -0777 -ne 'while (/^(import|export)\s*\{[^}]*\}.*?;/gsm) { print "$ARGV: $&\n" }' *.js
+** EstensionMessaging - abstracted out app to extension messaging that everyone depends on
+extensionMessaging.js: export { sendMessage, callBackground };
+** BTNode - Base node management, holder of AllNodes
+BTNode.js: export { BTNode, AllNodes };
+** configManager.js - store and manage configurations and stats. should migrate localStorage to here from localFileManager?
+configManager.js: import { sendMessage } from './extensionMessaging.js';
+configManager.js: export {
+    setConfigAndKeys,
+    setProp,
+    getProp,
+    metaPropertiesToString,
+    setStat,
+    incrementStat,
+    initializeInstallDate
+};
+** BTAppNode - Generates ui elements, org, Search support at row level, tab operations via background, utilities across application items (eg ListOpenTabs) that are mostly used by rowManager, handling special topics, BTLink class which manaegs links contained in org data.
+BTAppNode.js: import { BTNode, AllNodes } from './BTNode.js';
+BTAppNode.js: import { getProp, incrementStat, metaPropertiesToString } from './configManager.js';
+BTAppNode.js: import { sendMessage, callBackground } from './extensionMessaging.js';
+BTAppNode.js: import { localStorageManager } from './localFileManager.js';                      // Local storage used for favicons. break out from localFileStorage?
+BTAppNode.js: export { BTAppNode, BTLinkNode, Topics };                 // pretty much exports the kitchen sink.
+** rowManager - companion to AppNode, handles application logic for rows (eg node deletion => update browser tab, update parent and ancestor open state in table). Maybe should be shuffled into place with AppNode to localize behavior updates
+rowManager.js: import { AllNodes, BTNode } from './BTNode.js';
+rowManager.js: import { BTAppNode, Topics } from './BTAppNode.js';
+rowManager.js: import { getProp, setProp, incrementStat } from './configManager.js';
+rowManager.js: import { callBackground } from './extensionMessaging.js';
+rowManager.js: import { saveBT } from './fileManager.js';
+rowManager.js: import { exportBookmarksBar } from './bookmarksManager.js';
+rowManager.js: import { initializeUI, Resizing } from './tableManager.js';
+rowManager.js: export {
+    buttonShow,
+    buttonHide,
+    editRow,
+    closeDialog,
+    openRow,
+    closeRow,
+    deleteRow,
+    deleteNode,
+    updateRow,
+    toDo,
+    promote,
+    addNewTopLevelTopic,
+    addChild,
+    cancelEdit,
+    initializeButtonRow,
+    toggleMoreButtons
+};
+** tableManager - works w rowManager, btAppNode, and bt.js to run the show
+tableManager.js: import { getProp, setProp } from './configManager.js';
+tableManager.js: import { closeConfigDisplays, updatePrefs } from './applicationUI.js';
+tableManager.js: import { messageManager } from './messageManager.js';
+tableManager.js: import { AllNodes, BTNode } from './BTNode.js';
+tableManager.js: import { BTAppNode, Topics } from './BTAppNode.js';
+tableManager.js: import { parseBTFile } from './parser.js';
+tableManager.js: import { sendMessage } from './extensionMessaging.js';
+tableManager.js: import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
+tableManager.js: import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
+tableManager.js: import { exportBookmarksBar } from './bookmarksManager.js';
+tableManager.js: export {
+    refreshTable,
+    processBTFile,
+    initializeNotesColumn,
+    initializeUI,
+    moveNode,
+    Resizing
+};
+** applicationUI - generates all the markup for the header, footer and settings/actions/help panels. Handles open/close and associated ui updates to change settings etc
+applicationUI.js: import { sendMessage } from './extensionMessaging.js';
+applicationUI.js: import { getProp, setProp } from './configManager.js';
+applicationUI.js: import { searchButton, filterToDos, filterSearch, groupingUpdate } from './bt.js';
+applicationUI.js: import { addNewTopLevelTopic, toggleMoreButtons } from './rowManager.js';
+applicationUI.js: import { refreshTable } from './tableManager.js';
+applicationUI.js: import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
+applicationUI.js: import { importBookmarks, exportBookmarks } from './bookmarksManager.js';
+applicationUI.js: import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, initiateBackups, authorizeGAPI, authorizeLocalFile } from './fileManager.js';
+applicationUI.js: export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs };
+** Mains app logic. handles startup, browser events, search, key commands
+bt.js: import { sendMessage, callBackground } from './extensionMessaging.js';
+bt.js: import { BTNode, AllNodes } from './BTNode.js';
+bt.js: import { setConfigAndKeys, getProp, setProp, setStat, incrementStat, initializeInstallDate } from './configManager.js';
+bt.js: import { messageManager } from './messageManager.js';
+bt.js: import { BTAppNode, Topics } from './BTAppNode.js';
+bt.js: import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
+bt.js: import { loadBookmarks, syncBookmarksBar, bookmarksBarIds, registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
+bt.js: import { checkLicense } from './subscriptionManager.js';
+bt.js: import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
+bt.js: import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
+bt.js: import { registerProcessImport as registerProcessImportParser } from './parser.js';
+bt.js: import { closeConfigDisplays } from './applicationUI.js'
+bt.js: export {
+    searchButton, filterSearch, filterToDos,
+    syncEnabled, updateStatsRow, groupingUpdate
+};
+** fileManager - common backing store management and facade for local/gdrive file operations. also imports/exports of org and tabsOutliner data
+fileManager.js: import { getProp, setProp, incrementStat } from './configManager.js';
+fileManager.js: import { sendMessage } from './extensionMessaging.js';
+fileManager.js: import { AllNodes } from './BTNode.js';
+fileManager.js: import { BTAppNode } from './BTAppNode.js';
+fileManager.js: import { localFileManager } from './localFileManager.js';
+fileManager.js: import { gDriveFileManager } from './gDriveFileManager.js';
+fileManager.js: import { messageManager } from './messageManager.js';
+fileManager.js: import { insertOrgFile } from './parser.js';
+fileManager.js: export {
+    saveBT, getBTFile, initiateBackups, syncEnabled, handleStartupFileConnection,
+    updateSyncSettings, savePendingP,
+    importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
+    getBTFileText, setBTFileText, checkBTFileVersion,
+    authorizeGAPI, authorizeLocalFile
+};
+
+gDriveFileManager.js: import { getProp, setProp } from './configManager.js';
+gDriveFileManager.js: export { gDriveFileManager };
+
+localFileManager.js: import { setProp, getProp } from './configManager.js';
+localFileManager.js: export { localFileManager, localStorageManager };
+** bootmarksManager - bookmarks import/export and bookmarksBar syncing
+bookmarksManager.js: import { sendMessage } from './extensionMessaging.js';
+bookmarksManager.js: import { BTAppNode } from './BTAppNode.js';
+bookmarksManager.js: import { AllNodes } from './BTNode.js';
+bookmarksManager.js: export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport };
+** messageManager - handles intro slides on first install and message banner. Need to change set config vars that say how to start vs current buttons w dependencies
+messageManager.js: import { getProp, setProp } from './configManager.js';
+messageManager.js: import { sendMessage } from './extensionMessaging.js';           // remove when bookmarks/session sync is set as an option
+messageManager.js: import { importBookmarks } from './bookmarksManager.js';
+messageManager.js: export { messageManager, initializeMessageContainer, initializeIntro };
+** parser - wrapper for orga org parser code.
+parser.js: import { setProp } from './configManager.js';
+parser.js: import { BTAppNode, BTLinkNode } from './BTAppNode.js';
+parser.js: export { parseBTFile, insertOrgFile, registerProcessImport };
+** subscriptionManager - shoudl be called purchaseManager? handles stripe/firebase interaction to get license
+subscriptionManager.js: import { getProp, setProp } from './configManager.js';
+subscriptionManager.js: export { handlePurchase, openStripePortal, checkLicense, importKey};
+** index = main entry point. imports shold go away when edit overlay is abstracted out
+index.html: import { closeDialog, cancelEdit, updateRow } from './rowManager.js';

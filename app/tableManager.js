@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -10,7 +10,8 @@
 
 'use strict';
 
-import { configManager } from './configManager.js';
+import { getProp, setProp } from './configManager.js';
+import { closeConfigDisplays, updatePrefs } from './applicationUI.js';
 import { messageManager } from './messageManager.js';
 import { AllNodes, BTNode } from './BTNode.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
@@ -102,7 +103,6 @@ function processBTFile(fileText = getBTFileText()) {
     BTAppNode.generateTopics();
 
     // Let extension know about model
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics}});
     sendMessage({'function': 'localStore', 'data': {'BTFileText': getBTFileText()}});
     
     // initialize ui from any pre-refresh opened state
@@ -134,7 +134,7 @@ function processBTFile(fileText = getBTFileText()) {
     }, 400);
 
     BTAppNode.populateFavicons();                         // filled in async
-    configManager.updatePrefs();
+    updatePrefs();
     $('body').removeClass('waiting');
 }
 
@@ -146,7 +146,7 @@ function processBTFile(fileText = getBTFileText()) {
 function initializeNotesColumn() {
     // Initialize column widths from saved BTNotes (percent). If not numeric, use a sensible default.
     // Then align the resizer to the actual left column width to match draggable stop behavior.
-    const notesPref = configManager.getProp('BTNotes');
+    const notesPref = getProp('BTNotes');
     let percent = parseInt(notesPref);
     if (!Number.isFinite(percent)) percent = 50;
 
@@ -158,6 +158,9 @@ function initializeNotesColumn() {
         $("#content").addClass('hideNotes').removeClass('showNotes');
     }
 
+    // Initialize the draggable resizer
+    initializeResizer();
+    
     // Finally, align the resizer knob with the rendered left column width
     updateResizerPositionFromColumns();
 }
@@ -184,27 +187,31 @@ function updateResizerPositionFromColumns() {
     if (leftWidth == null) return;
     $("#resizer").css('left', parseInt(leftWidth - 9.5) + "px");
 }
-$("#resizer").draggable({
-    containment: "#newTopLevelTopic",                   // Restrict dragging within the parent div
-    axis: "x",
-    drag: function(e, ui) {
-        Resizing = true;
-        handleResizer();
-    },
-    stop: () => setTimeout(() => {
-        const left = $("#resizer").position().left + 13;
-        const fullWidth = $(window).width();
-        const percent = parseInt(left / fullWidth * 100);
-        configManager.setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
-        handleResizer();
-        Resizing = false;
-        // Update the resizer position to match the new left column width
-        updateResizerPositionFromColumns();
-    }, 250),                                            // give time for resize to be processed
-});
-// add on entry and on exit actions to highlight the resizer
-$("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
-$("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
+
+function initializeResizer() {
+    // Initialize the draggable resizer - must be called after DOM is ready
+    $("#resizer").draggable({
+        containment: "#newTopLevelTopic",                   // Restrict dragging within the parent div
+        axis: "x",
+        drag: function(e, ui) {
+            Resizing = true;
+            handleResizer();
+        },
+        stop: () => setTimeout(() => {
+            const left = $("#resizer").position().left + 13;
+            const fullWidth = $(window).width();
+            const percent = parseInt(left / fullWidth * 100);
+            setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
+            handleResizer();
+            Resizing = false;
+            // Update the resizer position to match the new left column width
+            updateResizerPositionFromColumns();
+        }, 250),                                            // give time for resize to be processed
+    });
+    // add on entry and on exit actions to highlight the resizer
+    $("#newTopLevelTopic").on('mouseenter', () => $("#resizer").css("opacity", 1));
+    $("#newTopLevelTopic").on('mouseleave', () => $("#resizer").css("opacity", 0.5));
+}
 
 /**
  *      General UI Setup
@@ -239,11 +246,11 @@ function initializeUI() {
         // select the new row
         $("tr.selected").removeClass('selected');
         $(this).addClass("selected");
-        configManager.closeConfigDisplays();                    // clicking also closes any open panel
+        closeConfigDisplays();                    // clicking also closes any open panel
     });
     $(document).click(function(event) {
         if (event.target.nodeName === 'HTML') {
-            configManager.closeConfigDisplays();                // clicking background also closes any open panel
+            closeConfigDisplays();                // clicking background also closes any open panel
         }
     });
     
@@ -253,7 +260,7 @@ function initializeUI() {
     $("#loading").hide();
     updateSyncSettings(syncEnabled());
 
-    updateStatsRow(configManager.getProp('BTTimestamp'));   // show updated stats w last save time
+    updateStatsRow(getProp('BTTimestamp'));   // show updated stats w last save time
 }
 /**
  * 
@@ -585,7 +592,6 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     // update the rest of the app, backing store
     saveBT();
     BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {

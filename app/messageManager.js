@@ -1,6 +1,6 @@
 /***
 *
-* Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+* Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
 *
 * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
 * See the LICENSE file contained with this project.
@@ -18,7 +18,7 @@
 ***/
 'use strict';
 
-import { configManager } from './configManager.js';
+import { getProp, setProp } from './configManager.js';
 import { sendMessage } from './extensionMessaging.js';
 import { importBookmarks } from './bookmarksManager.js';
 
@@ -127,7 +127,7 @@ function showMessage() {
     $("#message").html(message);
     $("#messageContainer").addClass('message');
     $("#messageContainer").show();
-    configManager.setProp('BTLastShownMessageIndex', ++lastShownMessageIndex);
+    setProp('BTLastShownMessageIndex', ++lastShownMessageIndex);
     Message = true;
 }
 function removeMessage() {
@@ -140,7 +140,7 @@ function removeMessage() {
 
 // show message/tip on startup
 function setupMessages() {
-    lastShownMessageIndex = configManager.getProp('BTLastShownMessageIndex') || 0;
+    lastShownMessageIndex = getProp('BTLastShownMessageIndex') || 0;
     if (lastShownMessageIndex < messageArray.length) {
         showMessage();
     } else
@@ -173,7 +173,7 @@ function showSlide() {
     } else {
         $("#introNext").show();
         // Show 'don't show again' footer after 2nd slide or after initial install
-        if (!configManager.getProp('InitialInstall') || (lastShownSlideIndex >= 2)) $("#slideFooter").show();
+        if (!getProp('InitialInstall') || (lastShownSlideIndex >= 2)) $("#slideFooter").show();
         $("#introButtons").css("display", "none");
     }
     $("#slideNum").text(lastShownSlideIndex+1);
@@ -191,7 +191,7 @@ function prevSlide() {
 
 function dontShowIntro() {
     // Set a flag to not show intro again, indicate checked
-    configManager.setProp('BTDontShowIntro', true);
+    setProp('BTDontShowIntro', true);
     $("#dontShow").show();
     $("#slideFooter").css("color", "lightgrey");
 }

@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -16,7 +16,7 @@
  ***/
 'use strict';
 
-import { configManager } from './configManager.js';
+import { getProp, setProp } from './configManager.js';
 
 // Callback for fileManager state getters/setters - registered after fileManager loads
 let setGDriveConnectedCallback = null;
@@ -75,7 +75,7 @@ async function initClient(userInitiated = false) {
             gapi.load('client', {callback: resolve, onerror: reject});
         });
         await gapi.client.init({
-            apiKey: configManager.getProp('API_KEY'),
+            apiKey: getProp('API_KEY'),
             discoveryDocs: DiscoveryDocs
         }); 
         await gapi.client.load(DiscoveryDocs[0]);  // Load the Drive API
@@ -85,7 +85,7 @@ async function initClient(userInitiated = false) {
         await new Promise((resolve, reject) => {
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: configManager.getProp('CLIENT_ID'), 
+                    client_id: getProp('CLIENT_ID'), 
                     scope: Scopes,
                     prompt: 'consent',          // Need to ask on initial connection cos token expires
                     callback:  '',              // defined at request time in await/promise scope.
@@ -235,7 +235,7 @@ async function authorizeGapi(userInitiated = false) {
     // called from initial launch or Connect button (=> userInitiated)
     // gapi needed to access gdrive not yet loaded => this script needs to wait
 
-    if (configManager.isSidePanel()) {
+    if (getProp('BTManagerHome') == 'SIDEPANEL') {
         alert("GDrive saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
         return null;
     }
@@ -272,11 +272,11 @@ async function findOrCreateBTFile(userInitiated) {
     }
 
     // One or more BrainTool.org files found, get the one that matches our BTFileID, or just the first
-    const savedFileId = configManager.getProp('BTFileID');
+    const savedFileId = getProp('BTFileID');
     const file = files.find((f) => f.id == (savedFileId || 0)) || files[0];
     BTFileID = file.id;
     const driveTimestamp = Date.parse(file.modifiedTime);
-    const newer = driveTimestamp > (configManager.getProp('BTTimestamp') || 0);
+    const newer = driveTimestamp > (getProp('BTTimestamp') || 0);
     if (userInitiated || newer) {
         // if user just initiated connection but file exists ask to import
         // or if we have a recorded version thats older than disk, ask to import
@@ -287,7 +287,7 @@ async function findOrCreateBTFile(userInitiated) {
         if (confirm(msg)) {
             try {
                 if (refreshTableCallback) await refreshTableCallback(true);
-                configManager.setProp('BTTimestamp', driveTimestamp);
+                setProp('BTTimestamp', driveTimestamp);
                 
                 // later in flow property save was overwriting w old data on upgrade,
                 // so resave here to get disk version written to memory etc.
@@ -303,8 +303,8 @@ async function findOrCreateBTFile(userInitiated) {
     // Update and Save FileID and save timestamp
     updateSigninStatus(true);
     updateStatsRow(driveTimestamp);
-    configManager.setProp('BTFileID', BTFileID);
-    configManager.getProp('BTTimestamp') || configManager.setProp('BTTimestamp', driveTimestamp);
+    setProp('BTFileID', BTFileID);
+    getProp('BTTimestamp') || setProp('BTTimestamp', driveTimestamp);
 } 
 
 async function connectAndFindFiles() {
@@ -368,9 +368,9 @@ async function createStartingBT() {
 
         console.log("Created ", responseValue);
         BTFileID = responseValue.id;
-        configManager.setProp('BTFileID', BTFileID);
+        setProp('BTFileID', BTFileID);
         const timestamp = Date.parse(responseValue.modifiedTime);
-        configManager.setProp('BTTimestamp', timestamp);
+        setProp('BTTimestamp', timestamp);
         updateStatsRow(timestamp);
         updateSigninStatus(true);
     }
@@ -401,7 +401,7 @@ async function getBTFile() {
             setBTFileTextCallback(fileText);
         }
         const remoteVersion = await getBTModifiedTime();
-        configManager.setProp('BTTimestamp', remoteVersion);
+        setProp('BTTimestamp', remoteVersion);
     }
     catch(error) {
         console.error(`Could not read BT file. Google says: [${JSON.stringify(error, undefined, 2)}].`);
@@ -426,7 +426,7 @@ async function writeBTFile() {
         console.log("writeBTFile: change already outstanding, just exiting");
         return;
     }
-    if (!SaveUnderway && new Date().getTime() > (15000 + (configManager.getProp('BTTimestamp') || 0))) {
+    if (!SaveUnderway && new Date().getTime() > (15000 + (getProp('BTTimestamp') || 0))) {
         try {
             return await _writeBTFile();
         }
@@ -449,7 +449,7 @@ async function _writeBTFile() {
     console.log("Writing BT file to gdrive");
     UnwrittenChangesTimer = null;
     
-    BTFileID = BTFileID || configManager.getProp('BTFileID');
+    BTFileID = BTFileID || getProp('BTFileID');
     if (!BTFileID) {
         alert("BTFileID not set, not saving to GDrive");
         return;
@@ -495,7 +495,7 @@ async function _writeBTFile() {
             if (!val) 
                 throw new Error('access token exists, but upload failed. Probably need to renew token and retry');
             const mt = Date.parse(val.modifiedTime);
-            configManager.setProp('BTTimestamp', mt);
+            setProp('BTTimestamp', mt);
             updateStatsRow(mt);	     // update stats when we know successful save
         }).catch(function(err) {
             SaveUnderway = false;
@@ -543,7 +543,7 @@ async function getBTModifiedTime() {
 async function checkBTFileVersion() {
     // is there a newer version of the btfile on Drive?
 
-    const localVersion = configManager.getProp('BTTimestamp');
+    const localVersion = getProp('BTTimestamp');
     const remoteVersion = await getBTModifiedTime();
     console.log(`Checking timestamps. local: ${localVersion}, remote: ${remoteVersion}`);
     return (remoteVersion > localVersion);
@@ -572,7 +572,7 @@ async function updateSigninStatus(signedIn, error=false, userInitiated = false) 
 
     updateSyncSettings(signedIn);            // common fileManager fn to show connectivity info
     setGDriveConnectedCallback && setGDriveConnectedCallback(signedIn);
-    configManager.setProp('BTGDriveConnected', signedIn);
+    setProp('BTGDriveConnected', signedIn);
 }
 
 function haveAuth() {

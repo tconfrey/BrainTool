@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -16,7 +16,7 @@
  ***/
 'use strict';
 
-import { configManager } from './configManager.js';
+import { setProp, getProp } from './configManager.js';
 
 // Callback for fileManager state setters - registered after fileManager loads
 let setLocalFileConnectedCallback = null;
@@ -145,7 +145,7 @@ async function saveBT(BTFileText) {
         // Close the file and write the contents to disk.
         await writable.close();
         savePending = false;
-        configManager.setProp('BTTimestamp', Date.now());
+        setProp('BTTimestamp', Date.now());
     }
 
     function savePendingP() {
@@ -158,7 +158,7 @@ async function saveBT(BTFileText) {
             alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags and toggle 'File System Access API')");
             return null;
         }
-        if (configManager.isSidePanel()) {
+        if (getProp('BTManagerHome') == 'SIDEPANEL') {
             alert("Local file saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
             return null;
         }
@@ -258,7 +258,7 @@ async function saveBT(BTFileText) {
         const file = await LocalFileHandle.getFile();
         const contents = await file.text();
         
-		configManager.setProp('BTTimestamp', file.lastModified);
+		setProp('BTTimestamp', file.lastModified);
         if (setBTFileTextCallback) {
             setBTFileTextCallback(contents);
         }
@@ -276,7 +276,7 @@ async function saveBT(BTFileText) {
         // is there a newer version of the btfile on Drive?
 
         const remoteVersion = await getFileLastModifiedTime() || 0;
-        const localVersion = configManager.getProp('BTTimestamp') || 0;
+        const localVersion = getProp('BTTimestamp') || 0;
         console.log(`Checking timestamps. local: ${localVersion}, remote: ${remoteVersion}`);
         return (remoteVersion > localVersion);
     }

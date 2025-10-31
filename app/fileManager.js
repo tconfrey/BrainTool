@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -17,7 +17,7 @@
  ***/
 'use strict';
 
-import { configManager } from './configManager.js';
+import { getProp, setProp, incrementStat } from './configManager.js';
 import { sendMessage } from './extensionMessaging.js';
 import { AllNodes } from './BTNode.js';
 import { BTAppNode } from './BTAppNode.js';
@@ -71,7 +71,7 @@ async function handleStartupFileConnection(refreshTable) {
     let launchType = 'unsynced_launch';
 
     // Handle GDrive connection
-    if (configManager.getProp('BTGDriveConnected')) {
+    if (getProp('BTGDriveConnected')) {
         await authorizeGAPI(false);
         launchType = 'gdrive_launch';
     }
@@ -139,10 +139,10 @@ async function _saveBT(localOnly = false, newContent = true) {
     console.log(`Writing BT to ${localOnly ? 'local only' : 'local + any remote'} Storage`);
 
     // BTVersion is incremented on each content change, optionally backups are made
-    let currentBTVersion = parseInt(configManager.getProp('BTVersion')) || 1;
-    const backsOn = configManager.getProp('BTBackupsOn');
+    let currentBTVersion = parseInt(getProp('BTVersion')) || 1;
+    const backsOn = getProp('BTBackupsOn');
     if (newContent) {
-        configManager.setProp('BTVersion', currentBTVersion + 1);
+        setProp('BTVersion', currentBTVersion + 1);
         if (backsOn) await performBackups(currentBTVersion);
     }
 
@@ -154,9 +154,9 @@ async function _saveBT(localOnly = false, newContent = true) {
 
     setTimeout(brainZoom, 1000);                 // swell the brain
     console.log("Recording save event and writing to any backing store");
-    if (configManager.getProp('InitialInstall')) {
+    if (getProp('InitialInstall')) {
         gtag('event', 'first_save', {'event_category': 'General'});
-        configManager.setProp('InitialInstall', false);
+        setProp('InitialInstall', false);
     }
     let eventType = "local_storage_save";
 
@@ -178,7 +178,7 @@ async function _saveBT(localOnly = false, newContent = true) {
     updateStatsRow();                            // update num cards etc
     messageManager.removeWarning();              // remove stale warning if any
     gtag('event', eventType, {'event_category': 'Save', 'event_label': 'NumNodes', 'value': AllNodes.length});
-    configManager.incrementStat('BTNumSaves');
+    incrementStat('BTNumSaves');
 }
 
 async function authorizeLocalFile() {
@@ -187,8 +187,8 @@ async function authorizeLocalFile() {
     const success = await localFileManager.authorizeLocalFile(content);
     if (!success) return false;
 
-    configManager.setProp('BTGDriveConnected', false);
-    configManager.setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
+    setProp('BTGDriveConnected', false);
+    setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
     alert('Local file sync established. See Actions to disable.');
     return true;
@@ -260,8 +260,8 @@ function stopSyncing() {
     // BTN CB, stop syncing wherever.
     LocalFileConnected = false;
     GDriveConnected = false;
-    configManager.setProp('BTGDriveConnected', false);
-    configManager.setProp('BTBackupsOn', false);
+    setProp('BTGDriveConnected', false);
+    setProp('BTBackupsOn', false);
     localFileManager.reset();
     updateSyncSettings();
     alert('Sync has been disabled. See Settings to re-enable.');
@@ -296,7 +296,7 @@ async function performBackups(BtFileVersion) {
     // Call out to local or gdrive managers to create new named files as appropriate
     // Call out to delete older backups if needed
 
-    const backups = configManager.getProp('BTBackupsList');
+    const backups = getProp('BTBackupsList');
     const mostRecentSaveTime = backups.mostRecentSaveTime || 0;
     const mrs = new Date(mostRecentSaveTime);
     const previousDaily = backups.daily[0]?.timestamp || 0;
@@ -335,7 +335,7 @@ async function performBackups(BtFileVersion) {
 
     // update config
     backups.mostRecentSaveTime = new Date().getTime();
-    configManager.setProp('BTBackupsList', backups);
+    setProp('BTBackupsList', backups);
 }
 
 async function createBackup(name) {
@@ -382,7 +382,7 @@ function updateStatsRow(modifiedTime = null) {
     const numLinks = AllNodes.filter(n => n?.URL).length;
     const numOpenLinks = AllNodes.filter(n => n?.URL && n?.tabId).length;
 
-    modifiedTime = modifiedTime || configManager.getProp('BTTimestamp');
+    modifiedTime = modifiedTime || getProp('BTTimestamp');
     const saveTime = getDateString(modifiedTime);
 
     // update Footer. take account of single column mode
@@ -410,8 +410,8 @@ async function updateSyncSettings(connected = false, time = null) {
         const filetype = GDriveConnected ? 'GDrive' : 'Local File';
         $("#autoSaveLabel").text(`${filetype} sync is on.`);
         if (GDriveConnected) {
-            $("#fileLocation").html(`File: ${"https://drive.google.com/file/d/" + configManager.getProp('BTFileID')}`);
-            configManager.getProp('BTFileID') && $("#fileLocation").show();
+            $("#fileLocation").html(`File: ${"https://drive.google.com/file/d/" + getProp('BTFileID')}`);
+            getProp('BTFileID') && $("#fileLocation").show();
         } else {
             let handle = await localFileManager.getLocalDirectoryHandle();
             $("#fileLocation").html(`Folder: ${handle.name}`);
@@ -426,7 +426,7 @@ async function updateSyncSettings(connected = false, time = null) {
         $("#actionsSyncStatus").hide();
         $("#settingsSyncNone").prop('checked', true);
         // Needed? Screws up launchApp flow when connection has not been established: 
-        // configManager.setProp('BTTimestamp', null);
+        // setProp('BTTimestamp', null);
     }
 }
 
@@ -512,16 +512,6 @@ function exportOrgFile(event) {
     gtag('event', 'OrgExport', {'event_category': 'Export'});
 }
 
-// Register our callback with configManager as soon as this file loads
-// This breaks the circular dependency while maintaining functionality
-if (typeof configManager !== 'undefined' && configManager.registerFileManager) {
-    configManager.registerFileManager({
-        initiateBackups: initiateBackups,
-        authorizeGAPI: authorizeGAPI,
-        authorizeLocalFile: authorizeLocalFile
-    });
-}
-
 // Register state setters with localFileManager
 if (typeof localFileManager !== 'undefined' && localFileManager.registerFileManager) {
     localFileManager.registerFileManager({
@@ -543,5 +533,6 @@ export {
     saveBT, getBTFile, initiateBackups, syncEnabled, handleStartupFileConnection,
     updateSyncSettings, savePendingP,
     importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
-    getBTFileText, setBTFileText, checkBTFileVersion
+    getBTFileText, setBTFileText, checkBTFileVersion,
+    authorizeGAPI, authorizeLocalFile
 };

@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -19,7 +19,7 @@
  * 
  ***/
 
-import { configManager } from './configManager.js';
+import { getProp, setProp } from './configManager.js';
 
 const FBENV = "prod"; // "local" or "test" or "prod"
 const LocalFB = (FBENV == "local");
@@ -28,7 +28,7 @@ const TestFB = (FBENV == "test");
 async function handlePurchase(product) {
     // handle monthly or annual subscribe. Load Stripe code, load and init FB, check for existing sub or purchase, then pass to Stripe to complete txn
     
-    if (configManager.getProp('BTManagerHome') == "SIDEPANEL") {
+    if (getProp('BTManagerHome') == "SIDEPANEL") {
         alert("Unfortunately purchasing is not currently supported in the side panel. \n\nPlease set the Topic Manager Location to Window or Tab to make a purchase.");
         return;
     }
@@ -79,7 +79,7 @@ async function handlePurchase(product) {
             alert("Sorry Firebase user creation failed.");
             return;
         }
-        configManager.setBTId(btId);
+        setProp('BTId', btId);
     } catch(error) {
         $('body').removeClass('waiting');
         console.error("Error signing in FB user:", error);
@@ -117,7 +117,7 @@ async function handlePurchase(product) {
 
 async function openStripePortal() {
     // open page to manage subscription
-    if (!configManager.getBTId()) {
+    if (!getProp('BTId')) {
 	    alert('BrainTool Id not set!');
 	    return;
     }
@@ -204,7 +204,7 @@ async function initializeFirebase() {
     }
 
     // set API key passed in from config
-    const fbKey = configManager.getProp('FB_KEY');
+    const fbKey = getProp('FB_KEY');
     if (!fbKey) {
         console.error("Firebase api key not set!");
         return;
@@ -267,12 +267,12 @@ async function signIn() {
 async function checkLicense() {
     // Startup checks for license exists, expired etc
 
-    if(!configManager.getBTId()) {
+    if(!getProp('BTId')) {
         console.log("No BTId => no license");
         return false;
     }
-    const licenseExpiry = configManager.getProp('BTExpiry');
-    if (configManager.getBTId() && licenseExpiry && (Date.now() < licenseExpiry)) {
+    const licenseExpiry = getProp('BTExpiry');
+    if (getProp('BTId') && licenseExpiry && (Date.now() < licenseExpiry)) {
         console.log("Active license");
         return true;
     }
@@ -283,7 +283,7 @@ async function checkLicense() {
     if (purchase == 'cancelled') {
         // need to reset BTId cos a user account was created prior to purchase
         alert('Your purchase was cancelled. No changes were made.');
-        configManager.setBTId(null);
+        setProp('BTId', null);
         saveBT();
         return false;
     }
@@ -293,13 +293,13 @@ async function checkLicense() {
     const product = await getPurchase('payments');
     if (product) {
         if (purchase == 'product') alert('You now have a permanent license. Thank you for supporting BrainTool!');
-        configManager.setProp('BTExpiry', 8640000000000000);      // max date
+        setProp('BTExpiry', 8640000000000000);      // max date
         return true;
     }
     const subscription = await getPurchase('subscriptions');
     if (subscription && purchase == 'subscription') {
         alert('Your subscription is now active. Thank you for supporting BrainTool!');
-        configManager.setProp('BTExpiry', subscription.current_period_end.seconds * 1000);                // convert to ms for Date
+        setProp('BTExpiry', subscription.current_period_end.seconds * 1000);                // convert to ms for Date
         return true;
     }
 
@@ -308,8 +308,8 @@ async function checkLicense() {
         return false;
     }
 
-    configManager.setProp('BTExpiry', ((subscription?.current_period_end.seconds * 1000) || licenseExpiry));  // Sub exists but maybe expired
-    if (Date.now() < configManager.getProp('BTExpiry')) {
+    setProp('BTExpiry', ((subscription?.current_period_end.seconds * 1000) || licenseExpiry));  // Sub exists but maybe expired
+    if (Date.now() < getProp('BTExpiry')) {
         console.log("License renewed");
         return true;
     }
@@ -332,7 +332,7 @@ async function getPurchase(collection = 'subscriptions') {
     return new Promise((resolve, reject) => {
         try {
             FBDB.collection('customers')
-            .doc(configManager.getBTId())
+            .doc(getProp('BTId'))
             .collection(collection)
             .where('status', 'in', ['trialing', 'active', 'succeeded'])
             .onSnapshot((snapshot) => {
@@ -371,12 +371,12 @@ async function subscribe(productPrice) {
 	    line_items: [selectedPrice],
 	    success_url: baseURL + '?purchase=' + encodeURIComponent('subscription'),
 	    cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
-        description: "BrainTool Supporter Subscription ID: " + configManager.getBTId(),
+        description: "BrainTool Supporter Subscription ID: " + getProp('BTId'),
     };
     try {
         const docRef = await FBDB
 	          .collection('customers')
-	          .doc(configManager.getBTId())
+	          .doc(getProp('BTId'))
 	          .collection('checkout_sessions')
 	          .add(checkoutSession);
         
@@ -390,7 +390,7 @@ async function subscribe(productPrice) {
 	        if (sessionId) {
 	            // We have a session, let's redirect to Checkout
 	            // Init Stripe
-                const stripeKey = configManager.getProp('STRIPE_KEY');
+                const stripeKey = getProp('STRIPE_KEY');
 	            const stripe = Stripe(stripeKey);
 	            stripe.redirectToCheckout({ sessionId });
 	        }
@@ -411,10 +411,10 @@ async function purchase(productPrice) {
 	    allow_promotion_codes: true,
         success_url: baseURL+ '?purchase=' + encodeURIComponent('product'),
         cancel_url: baseURL + '?purchase=' + encodeURIComponent('cancelled'),
-        description: "BrainTool Supporter License ID: " + configManager.getBTId(),
+        description: "BrainTool Supporter License ID: " + getProp('BTId'),
     };
     try {
-        const docRef = await FBDB.collection("customers").doc(configManager.getBTId()).collection("checkout_sessions").add(checkoutSession);
+        const docRef = await FBDB.collection("customers").doc(getProp('BTId')).collection("checkout_sessions").add(checkoutSession);
         // Wait for the CheckoutSession to get attached by the fb extension
         docRef.onSnapshot((snap) => {
 	        const { error, sessionId } = snap.data();
@@ -425,7 +425,7 @@ async function purchase(productPrice) {
 	        if (sessionId) {
 	            // We have a session, let's redirect to Checkout
 	            // Init Stripe
-                const stripeKey = configManager.getProp('STRIPE_KEY');
+                const stripeKey = getProp('STRIPE_KEY');
 	            const stripe = Stripe(stripeKey);
 	            stripe.redirectToCheckout({ sessionId });
 	        }
@@ -459,7 +459,7 @@ async function RCPurchase(sessionId) {
         }
         $('body').removeClass('waiting');
         alert("Your (free) purchase was successful. You now have a permanent license. Thank you for supporting BrainTool!");
-        configManager.setProp('BTExpiry', 8640000000000000);      // max date
+        setProp('BTExpiry', 8640000000000000);      // max date
         updateLicenseSettings();
     });
 }
@@ -490,7 +490,7 @@ async function importKey() {
     if (key) {
         BTId = key;
         if (await checkLicense()) {
-            configManager.setProp('BTId', key);
+            setProp('BTId', key);
             saveBT();
             alert('License key accepted. Thank you for supporting BrainTool!');
             updateLicenseSettings();

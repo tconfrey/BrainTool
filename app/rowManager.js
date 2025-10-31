@@ -21,8 +21,8 @@
 // Import dependencies
 import { AllNodes, BTNode } from './BTNode.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
-import { configManager } from './configManager.js';
-import { sendMessage, callBackground } from './extensionMessaging.js';
+import { getProp, setProp, incrementStat } from './configManager.js';
+import { callBackground } from './extensionMessaging.js';
 import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
 import { initializeUI, Resizing } from './tableManager.js';
@@ -50,7 +50,7 @@ function buttonShow(e) {
     const rowtop = offset + 2;
 
     // figure out if tooltips are on and would go off bottom
-    const tooltips = configManager.getProp('BTTooltips') == 'ON';
+    const tooltips = getProp('BTTooltips') == 'ON';
     const scrollTop = $(document).scrollTop();
     const top = rowtop - scrollTop;
     const windowHeight = $(window).height();
@@ -74,7 +74,7 @@ function buttonShow(e) {
     $("#closeRow").hide();
     if (node.countOpenableTabs()){
         $("#openTab").show();
-        if (!topic?.hasOpenChildren() || (configManager.getGroupingMode() != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
+        if (!topic?.hasOpenChildren() || ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
     if (node.countClosableTabs()) {
         $("#closeRow").show();
@@ -122,7 +122,7 @@ function toggleMoreButtons(e) {
         let moreToolsOn = $("#tools").hasClass('moreToolsOn');
         let hint = moreToolsOn ? "Fewer Tools" : "More Tools";
         $("#moreToolsSpan").attr('data-wenk', hint);
-        configManager.setProp('BTMoreToolsOn', moreToolsOn ? 'ON' : 'OFF');
+        setProp('BTMoreToolsOn', moreToolsOn ? 'ON' : 'OFF');
     });
     if (e) {
         e.preventDefault();		// prevent default browser behavior
@@ -272,7 +272,7 @@ function closeRow(e) {
     appNode.closeTab();
     
     gtag('event', 'close_row', {'event_category': 'TabOperation'});
-    configManager.incrementStat('BTNumTabOperations');
+    incrementStat('BTNumTabOperations');
 }
 
 function deleteRow(e) {
@@ -332,7 +332,7 @@ function deleteNode(id, browserAction = false) {
     // Highlight the tab if it's open and the Topic Manager is not TAB (jarring to swap active tabs)
     // (good user experience and side effect is to update the tabs badge info
     if (!browserAction) {
-        const BTHome = configManager.getProp('BTManagerHome');
+        const BTHome = getProp('BTManagerHome');
         if (node.tabId && (BTHome !== 'TAB'))
             node.showNode();
         // Ungroup if topic w open tabs
@@ -369,7 +369,6 @@ function deleteNode(id, browserAction = false) {
     // if wasTopic remove from Topics and update extension
     if (wasTopic) {
         BTAppNode.generateTopics();
-        sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     }
     
     // Update File 
@@ -407,7 +406,6 @@ function updateRow() {
 
     // Update extension
     BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 
     // reset ui
@@ -451,7 +449,6 @@ function promote(e) {
     // save to file, update Topics etc
     saveBT();
     BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 }
 
@@ -646,13 +643,6 @@ function initializeButtonRow() {
     console.log('Button row initialized with event listeners');
 }
 
-// Register callback with configManager to avoid circular dependencies
-if (typeof configManager !== 'undefined' && configManager.registerUI) {
-    configManager.registerUI({
-        toggleMoreButtons: toggleMoreButtons
-    });
-}
-
 // Export public API
 export { 
     buttonShow, 
@@ -669,5 +659,6 @@ export {
     addNewTopLevelTopic,
     addChild, 
     cancelEdit,
-    initializeButtonRow 
+    initializeButtonRow,
+    toggleMoreButtons
 };

@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -21,15 +21,16 @@
 // Import all dependencies
 import { sendMessage, callBackground } from './extensionMessaging.js';
 import { BTNode, AllNodes } from './BTNode.js';
-import { configManager } from './configManager.js';
+import { setConfigAndKeys, getProp, setProp, setStat, incrementStat, initializeInstallDate } from './configManager.js';
 import { messageManager } from './messageManager.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
 import { loadBookmarks, syncBookmarksBar, bookmarksBarIds, registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
 import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
-import { deleteNode, openRow, closeRow, toDo, editRow, addChild, promote } from './rowManager.js';
+import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
+import { closeConfigDisplays } from './applicationUI.js'
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -50,12 +51,12 @@ async function launchApp(msg) {
     registerProcessImportParser(processImport);
     registerProcessImportBM(processImport);
     
-    configManager.setConfigAndKeys(msg);
-    configManager.setProp('InitialInstall', msg.initial_install);
+    setConfigAndKeys(msg);
+    setProp('InitialInstall', msg.initial_install);
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
     BTWinId = msg.BTWin;                                    // got mad knowledge of self
-    configManager.setSidePanel(msg.SidePanel);              // track if running in side panel
+    if (msg.SidePanel) setProp('BTManagerHome', 'SIDEPANEL');              // track if running in side panel
 
     setBTFileText(msg.BTFileText);
     processBTFile();                                          // create table etc
@@ -70,19 +71,19 @@ async function launchApp(msg) {
     // BTId in local store and from org data should be the same. local store is primary
     if (msg?.Config?.BTId) {
 	    const msgBTId = msg.Config.BTId;
-        if (configManager.getProp('BTId') && (msgBTId != configManager.getProp('BTId')))
-	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${msgBTId}\nOrg file value:${configManager.getProp('BTId')}`);
-        configManager.setBTId(msgBTId);
+        if (getProp('BTId') && (msgBTId != getProp('BTId')))
+	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${msgBTId}\nOrg file value:${getProp('BTId')}`);
+        setProp('BTId', msgBTId);
     } else {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
-	    if (configManager.getProp('BTId')) {
-	        configManager.setBTId(configManager.getProp('BTId'));
+	    if (getProp('BTId')) {
+	        setProp('BTId', getProp('BTId'));
 	    }
     }
     
     // check for license, and if sub that its still valid else check to see if we shoudl nag
-    if (configManager.getBTId() && await checkLicense()) updateLicenseSettings();
-    if (!configManager.getBTId()) configManager.potentiallyNag();
+    if (getProp('BTId') && await checkLicense()) updateLicenseSettings();
+    if (!getProp('BTId')) potentiallyNag();
 
     // show Alt or Option appropriately in visible text (Mac v PC)
     $(".alt_opt").text(OptionKey);
@@ -96,12 +97,13 @@ async function launchApp(msg) {
 
     handleInitialTabs(msg.all_tabs, msg.all_tgs);         // handle currently open tabs
     setTimeout(() => sendMessage({'function': 'getBookmarksBar'}), 1);         // bookmarks bar is not saved, sync on startup, giving time for allNodes to be populated.
+    initializeSearch();                                   // set up search box event handlers
     initializeNotesColumn();                              // set up notes column width based on slider saved position
     adjustForNarrowWindow();                              // tweak display if window is narrow
     updateStats();                                        // record numlaunches etc
     UpgradeInstall && runUpgrade(msg.BTVersion);          // run any upgrade specific code
 
-    if (!configManager.getProp('BTDontShowIntro'))
+    if (!getProp('BTDontShowIntro'))
         messageManager.showIntro();
 }
 function runUpgrade(version) {
@@ -121,7 +123,7 @@ function updateLicenseSettings() {
     $('#settingsSubscriptionAdd').hide();
     $('#settingsSubscriptionStatus').show();
     $('#youShallNotPass').hide();
-    if (configManager.getProp('BTExpiry') == 8640000000000000) {
+    if (getProp('BTExpiry') == 8640000000000000) {
         // permanant license
         $('#otp').show();
         $('#sub').hide();
@@ -130,9 +132,9 @@ function updateLicenseSettings() {
         // time limited sub
         $('#otp').hide();
         $('#sub').show();
-        $('#renewDate').text(new Date(configManager.getProp('BTExpiry')).toLocaleDateString());
+        $('#renewDate').text(new Date(getProp('BTExpiry')).toLocaleDateString());
     }
-    $('.subId').text(configManager.getBTId());
+    $('.subId').text(getProp('BTId'));
 }
 
 function updateStats() {
@@ -140,26 +142,26 @@ function updateStats() {
     // NB before gtag calls some stats as for the previous session (eg BTSessionStartTime)
     
     // Record this launch and software version. also update version shown in ui help.
-    const BTAppVersion = configManager.getProp('BTAppVersion');
+    const BTAppVersion = getProp('BTAppVersion');
     $("#BTVersion").html(`<i>(Version: ${BTAppVersion})</i>`);
 
     gtag('event', 'launch_'+BTAppVersion, {'event_category': 'General', 'event_label': BTAppVersion,
                              'value': 1});    
-    if (configManager.getProp('InitialInstall')) {
-        gtag('event', 'install', {'event_category': 'General', 'event_label': configManager.getProp('InitialInstall'),
+    if (getProp('InitialInstall')) {
+        gtag('event', 'install', {'event_category': 'General', 'event_label': getProp('InitialInstall'),
                                   'value': 1});
-        configManager.setStat('BTInstallDate', Date.now());
+        setStat('BTInstallDate', Date.now());
     }
     if (UpgradeInstall)
         gtag('event', 'upgrade', {'event_category': 'General', 'event_label': UpgradeInstall,
                                   'value': 1});
 
     // Calculate some other stat info (and do some one-time setup of installDate and numSaves)
-    let stats = configManager.getProp('BTStats');
-    if (!stats['BTNumSaves']) configManager.setStat('BTNumSaves', 0);
-    if (!stats['BTInstallDate']) configManager.initializeInstallDate();
-    configManager.incrementStat('BTNumLaunches');         // this launch counts
-    stats = configManager.getProp('BTStats');
+    let stats = getProp('BTStats');
+    if (!stats['BTNumSaves']) setStat('BTNumSaves', 0);
+    if (!stats['BTInstallDate']) initializeInstallDate();
+    incrementStat('BTNumLaunches');         // this launch counts
+    stats = getProp('BTStats');
     
     const lastSessionMinutes =
           parseInt((stats['BTLastActivityTime'] - stats['BTSessionStartTime']) / 60000);
@@ -171,7 +173,7 @@ function updateStats() {
     const lastSessionSaves = currentSaves - (stats['BTSessionStartSaves'] || 0);
 
     // Record general usage summary stats, they don't apply on first install
-    if (!configManager.getProp('InitialInstall')) {
+    if (!getProp('InitialInstall')) {
         gtag('event', 'total_launches', {'event_category': 'Usage', 'event_label': 'NumLaunches',
                                      'value': stats['BTNumLaunches']});
         gtag('event', 'total_saves', {'event_category': 'Usage', 'event_label': 'NumSaves',
@@ -191,13 +193,32 @@ function updateStats() {
     }
 
     // Overwrite data from previous session now that its recorded
-    configManager.setStat('BTSessionStartTime', Date.now());
-    configManager.setStat('BTSessionStartSaves', currentSaves);
-    configManager.setStat('BTSessionStartOps', currentOps);
+    setStat('BTSessionStartTime', Date.now());
+    setStat('BTSessionStartSaves', currentSaves);
+    setStat('BTSessionStartOps', currentOps);
 
     // show message or tip. Reset counter on upgrade => new messages
-    if (configManager.getProp('InitialInstall') || UpgradeInstall) configManager.setProp('BTLastShownMessageIndex', 0);
+    if (getProp('InitialInstall') || UpgradeInstall) setProp('BTLastShownMessageIndex', 0);
     messageManager.setupMessages();
+}
+
+function potentiallyNag() {
+    // Nagging check, called on startup
+    if (getProp('BTId')) return;
+    const installDate = new Date(getProp('BTInstallDate'));
+    const today = new Date();
+    const daysSinceInstall = Math.floor((today - installDate) / (24 * 60 * 60 * 1000));
+    if (daysSinceInstall > 30) {
+        openTrialExpiredWarning();
+        $('#settingsBackups :checkbox').prop('checked', false);
+        setProp('BTBackupsOn', false);
+    }
+}
+
+function openTrialExpiredWarning() {
+    // show trial expired warning section and call to arms, slide tree down to accomodate
+    $("#trialExpiredWarning").show();
+    $("#content").css("margin-top", "220px");
 }
 
 function handleFocus(e) {
@@ -335,7 +356,7 @@ function tabOpened(data, highlight = false) {
     }
 
     // Cos of async nature can't guarantee correct position on creation, reorder if we care
-    if (configManager.getGroupingMode() == 'NONE') return;
+    if ((getProp('BTGroupingMode') || 'TABGROUP') == 'NONE') return;
     if (windowId == currentParentWin)
         // we never automatically move tabs between windows
         AllNodes[parentId].groupAndPosition();
@@ -526,7 +547,7 @@ function tabNavigated(data) {
 
     function stickyTab() {
         // Should the tab stay associated with the BT node
-        if (configManager.getProp('BTStickyTabs') == 'NOTSTICKY') return false;
+        if (getProp('BTStickyTabs') == 'NOTSTICKY') return false;
         if (!transitionData) return true;                           // single page app or nav within page
         if (transitionQualifiers.includes('from_address_bar')) 
             return false;                                           // implies explicit user nav, nb order of tests important
@@ -627,7 +648,7 @@ function tabActivated(data) {
     }
     sendMessage({'function': 'localStore', 'data': {...m1, ...m2}});
 
-    if (configManager.isSidePanel() && (winId == BTWinId)) {
+    if ((getProp('BTManagerHome') == 'SIDEPANEL') && (winId == BTWinId)) {
         handleFocus({'reason': 'BTTab activated'});       // window w BT Sidepanel got focus
         return;
     }
@@ -685,7 +706,7 @@ function tabJoinedTG(data) {
     // NB Get here when an existing page is opened in its TG as well as page moving between TGs and tabgrouping being turned on from settings.
     // known TG but unknown node => unmanaged tab dropped into managed TG => save it to the topic
 
-    if (configManager.getGroupingMode() != 'TABGROUP') return;                              // don't care
+    if ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP') return;                              // don't care
     const tabId = data.tabId;
     const tgId = data.groupId;
     const winId = data.windowId;
@@ -740,7 +761,7 @@ function tabJoinedTG(data) {
 function tabLeftTG(data) {
     // user moved tab out of TG => no longer managed => move to Trash
     
-    if (configManager.getGroupingMode() != 'TABGROUP') return;
+    if ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP') return;
     const tabId = data.tabId;
     const tabNode = BTAppNode.findFromTab(tabId);
     const groupId = data.groupId;
@@ -913,7 +934,7 @@ function updateTabIndices(indices) {
 async function processImport(nodeId) {
     // an import (bkmark, org, tabsOutliner) has happened => save and refresh
 
-    configManager.closeConfigDisplays();                      // close panel
+    closeConfigDisplays();                      // close panel
     await saveBT();                                           // save w imported data
     refreshTable();                                           // re-gen treetable display
     animateNewImport(nodeId);                                 // indicate success
@@ -936,11 +957,16 @@ function groupingUpdate(from, to) {
  ***/
 let ReverseSearch = false;
 let SearchOriginId = 0;
-$("#search_entry").on("keyup", search);
-$("#search_entry").on("keydown", searchOptionKey);
-$("#search_entry").on("focus", enableSearch);
-$("#search_entry").on("focusout", disableSearch);
-$("#searchHint").on("click", enableSearch);
+
+function initializeSearch() {
+    // Initialize search box event handlers - must be called after DOM is ready
+    $("#search_entry").on("keyup", search);
+    $("#search_entry").on("keydown", searchOptionKey);
+    $("#search_entry").on("focus", enableSearch);
+    $("#search_entry").on("focusout", disableSearch);
+    $("#searchHint").on("click", enableSearch);
+}
+
 function enableSearch(e) {
     // activate search mode
     // ignore if tabbed into search box from card editor
@@ -1412,7 +1438,7 @@ function keyUpHandler(e) {
     }
 
     // escape closes any open config/help/setting panel
-    if (code === "Escape") configManager.closeConfigDisplays();
+    if (code === "Escape") closeConfigDisplays();
 
     let next, currentSelection = $("tr.selected")[0];
     // Pageup/down move selection to top visible row, nb slight delay for scroll to finish
@@ -1434,10 +1460,10 @@ function keyUpHandler(e) {
     // h, ? = help
     if (code == "KeyH" || key == "?") {
         if ($('#help').is(':visible') && !$('#keyCommands').is(':visible')) {
-            configManager.toggleKeyCommands();
+            toggleKeyCommands();
         } else {
             $('#keyCommands').show();
-            configManager.toggleHelpDisplay();
+            toggleHelpDisplay();
         }
         e.preventDefault();
     }
@@ -1651,15 +1677,13 @@ function undo() {
     node.tgColor && node.setTGColor(node.tgColor);
     // find nodes topic, either itself or its parent. if tabgrouping is on call topicnode.groupOpenChildren
     const topicNode = node.isTopic() ? node : AllNodes[node.parentId];
-    if (topicNode && (configManager.getGroupingMode() == 'TABGROUP')) {
+    if (topicNode && ((getProp('BTGroupingMode') || 'TABGROUP') == 'TABGROUP')) {
         topicNode.groupOpenChildren();
     }
 
     initializeUI();
     saveBT();
     BTAppNode.generateTopics();
-    sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
-
 }
 
 /***
@@ -1704,16 +1728,9 @@ window.addEventListener('message', event => {
     }
 });
 
-// Register UI callbacks with configManager to avoid circular dependencies
-if (typeof configManager !== 'undefined' && configManager.registerUI) {
-    configManager.registerUI({
-        groupingUpdate: groupingUpdate
-    });
-}
-
 // Export functions that are called from inline HTML event handlers or by applicationUI or tableManager
 export { 
     searchButton, filterSearch, filterToDos,
-    syncEnabled, updateStatsRow
+    syncEnabled, updateStatsRow, groupingUpdate
 };
 

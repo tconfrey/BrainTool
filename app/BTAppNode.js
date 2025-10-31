@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -19,7 +19,7 @@
 'use strict'
 
 import { BTNode, AllNodes } from './BTNode.js';
-import { configManager } from './configManager.js';
+import { getProp, incrementStat, metaPropertiesToString } from './configManager.js';
 import { sendMessage, callBackground } from './extensionMessaging.js';
 import { localStorageManager } from './localFileManager.js';
 
@@ -446,7 +446,7 @@ class BTAppNode extends BTNode {
         // add favicon icon either from local storage or goog
         if (this.isTopic() || !this.URL) return;
         const host = this.URL.split(/[?#]/)[0];
-        const favClass = (configManager.getProp('BTFavicons') == 'OFF') ? 'faviconOff' : 'faviconOn';
+        const favClass = (getProp('BTFavicons') == 'OFF') ? 'faviconOff' : 'faviconOn';
         const favUrl =
               this.faviconUrl ||
               await localStorageManager.get(host, BTAppNode.getFaviconDB) ||
@@ -666,7 +666,7 @@ class BTAppNode extends BTNode {
 
         // record stats
         gtag('event', 'openRow', {'event_category': 'TabOperation'});
-        configManager.incrementStat('BTNumTabOperations');
+        incrementStat('BTNumTabOperations');
 
         // if this node is a link to a topic tree load it up
         if (this.isTopicTree()) {
@@ -683,7 +683,7 @@ class BTAppNode extends BTNode {
         this.opening = true;      // avoid opening twice w double clicks. unset in tabNavigated
 
         const parent = this.parentId ? AllNodes[this.parentId] : null;
-        if (parent?.hasOpenChildren() && (configManager.getGroupingMode() == 'TABGROUP')) newWin = false;       // only allow opening in new window if not already in an open TG, or not using TGs
+        if (parent?.hasOpenChildren() && ((getProp('BTGroupingMode') || 'TABGROUP') == 'TABGROUP')) newWin = false;       // only allow opening in new window if not already in an open TG, or not using TGs
     
         const oldWinId = parent ? parent.windowId : 0;
         // tell extension to open, then take care of grouping etc
@@ -699,10 +699,10 @@ class BTAppNode extends BTNode {
 
         // record stats
         gtag('event', 'openAll', {'event_category': 'TabOperation'});
-        configManager.incrementStat('BTNumTabOperations');
+        incrementStat('BTNumTabOperations');
 
         // if we don't care about grouping just open each tab
-        if (configManager.getGroupingMode() == 'NONE' || this.isTrash()) {
+        if ((getProp('BTGroupingMode') || 'TABGROUP') == 'NONE' || this.isTrash()) {
             const tabsToOpen = this.listOpenableTabs();              // [{nodeId, url}..}
             sendMessage({'function': 'openTabs', 'tabs': tabsToOpen, 'newWin': newWin});
         }
@@ -717,7 +717,7 @@ class BTAppNode extends BTNode {
         // Topic node fn to (re)group open tabs and put them in correct order
         // If caller has required info it can tell us the index of leftmost tab.
 
-        if (!this.isTopic() || (configManager.getGroupingMode() != 'TABGROUP') || this.trashed) return;
+        if (!this.isTopic() || ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP') || this.trashed) return;
         let tabInfo = [];
         const myWin = this.windowId;
         const myTG = this.tabGroupId;
@@ -749,7 +749,7 @@ class BTAppNode extends BTNode {
     
     putInGroup() {
         // wrap this one nodes tab in a group
-        if (!this.tabId || !this.windowId || (configManager.getGroupingMode() != 'TABGROUP') || this.trashed) return;
+        if (!this.tabId || !this.windowId || ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP') || this.trashed) return;
         const groupName = this.isTopic() ? this.topicName() : AllNodes[this.parentId]?.topicName();
         const groupId = this.isTopic() ? this.id : AllNodes[this.parentId]?.id;
         const tgId = this.tabGroupId || AllNodes[this.parentId]?.tabGroupId;
@@ -880,7 +880,7 @@ class BTAppNode extends BTNode {
 
     static generateOrgFile() {
         // iterate thru nodes to do the work
-        let orgText = configManager.metaPropertiesToString();
+        let orgText = metaPropertiesToString();
         
         // find and order the top level nodes according to table position
         const topNodes = AllNodes.filter(node => node && !node.parentId);
@@ -1107,6 +1107,9 @@ class BTAppNode extends BTNode {
             if (AllNodes[id]?.parentId == null)
                 topicsForNode(id);
         });
+        
+        // Update extension with new topics
+        sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     }
     
     static findFromTab(tabId) {

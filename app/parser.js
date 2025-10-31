@@ -1,6 +1,6 @@
 /***
  *
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -16,7 +16,7 @@
  ***/
 'use strict'
 
-import { configManager } from './configManager.js';
+import { setProp } from './configManager.js';
 import { BTAppNode, BTLinkNode } from './BTAppNode.js';
 
 var Lines= [];
@@ -54,7 +54,7 @@ function parseBTFile(fileText) {
     const propValRegex = /PROPERTY: (.*?) (.*)/g;
     let m;
     while ((m = propValRegex.exec(match[0])) !== null) {
-        configManager.setProp(m[1], m[2]);
+        setProp(m[1], m[2]);
     }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019-2024 Tony Confrey, DataFoundries LLC
+ * Copyright (c) 2019-2025 Tony Confrey, DataFoundries LLC
  *
  * This file is part of the BrainTool browser manager extension, open source licensed under the GNU AGPL license.
  * See the LICENSE file contained with this project.
@@ -10,13 +10,14 @@
 
 'use strict';
 
-import { configManager } from './configManager.js';
-import { searchButton, filterToDos, filterSearch } from './bt.js';
-import { addNewTopLevelTopic } from './rowManager.js';
+import { sendMessage } from './extensionMessaging.js';
+import { getProp, setProp } from './configManager.js';
+import { searchButton, filterToDos, filterSearch, groupingUpdate } from './bt.js';
+import { addNewTopLevelTopic, toggleMoreButtons } from './rowManager.js';
 import { refreshTable } from './tableManager.js';
 import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
 import { importBookmarks, exportBookmarks } from './bookmarksManager.js';
-import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing } from './fileManager.js';
+import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, initiateBackups, authorizeGAPI, authorizeLocalFile } from './fileManager.js';
 
 /**
  * Generate the Controls Header HTML (without inline event handlers)
@@ -83,6 +84,113 @@ function generateControlsHeaderHTML() {
     body.insertAdjacentHTML('afterbegin', html);
 }
 
+
+function toggleSettingsDisplay() {
+    // open/close settings panel
+    
+    const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+    const installDate = new Date(getProp('BTInstallDate'));
+    const today = new Date();
+    const daysSinceInstall = Math.floor((today - installDate) / (24 * 60 * 60 * 1000));
+    
+    if ($('#actions').is(':visible'))
+        toggleActionsDisplay();                       // can't have both open
+    
+    if ($('#settings').is(':visible')) {            
+        $('#settings').slideUp({duration: 250, 'easing': 'easeInCirc'});
+        $("#content").fadeIn(250);
+        $("body").css("overflow-y", "auto").css("overflow-x", "clip");
+        setTimeout(() => {
+            $('#settingsButton').removeClass('open');
+            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
+        }, 250);
+    } else {
+        $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
+        $('#settingsButton').addClass('open');
+        $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
+        $("#content").fadeOut(250);
+        $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        
+        // fade in and maybe out the overlay to shut off non-supporter features if not supporter
+        if (getProp('BTId')) return;
+        // No BTId but might be still in trial period. Fade in overlay
+        setTimeout(() => {
+            $("#youShallNotPass").fadeIn();
+        }, 1000);
+        // fade out overlay if trial still on ie < 30 days since install
+        if (daysSinceInstall <= 30)
+            setTimeout(() => {$("#youShallNotPass").fadeOut(); scrollToPurchaseButtons()}, 10000);
+    }
+}
+
+function toggleActionsDisplay() {
+    // open/close actions panel
+    
+    const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+    
+    if ($('#actions').is(':visible')) {            
+        $('#actions').slideUp({duration: 250, 'easing': 'easeInCirc'});
+        $("#content").fadeIn(250);
+        $("body").css("overflow-y", "auto").css("overflow-x", "clip");
+        setTimeout(() => {
+            $('#actionsButton').removeClass('open');
+            $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
+        }, 250);
+    } else {
+        $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
+        $('#actionsButton').addClass('open');
+        $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
+        $("#content").fadeOut(250);
+        $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+    }
+}
+
+function toggleHelpDisplay(panel) {
+    // open/close help panel
+    
+    const iconColor = (getProp('BTTheme') == 'LIGHT') ? 'LIGHT' : 'DARK';
+    if ($('#help').is(':visible')) {
+        // now visible => action is close
+        $('#help').slideUp({duration: 250, 'easing': 'easeInCirc'});
+        $("#content").fadeIn(250);
+        $("body").css("overflow-y", "auto").css("overflow-x", "clip");
+        setTimeout(() => {
+            $('#footerHelp').removeClass('open');
+            $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(iconColor);
+        }, 250);
+    } else {
+        // now visible => action is open
+        $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
+        $('#footerHelp').addClass('open');
+        $('#footer img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
+        $("#content").fadeOut(250);
+        $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+    }
+}
+
+function toggleKeyCommands() {
+    // open/close key command table inside help
+    if ($('#keyCommands').is(':visible'))
+        setTimeout(()=>$('#keyCommands').slideUp({duration: 250, 'easing': 'easeInCirc'}),10);
+    else
+        setTimeout(()=>$('#keyCommands').slideDown({duration: 250, 'easing': 'easeInCirc'}), 10);
+}
+
+function closeTrialExpiredWarning() {
+    // user closed warning - close it, reposition tree, open settings and scroll to subscribe section
+    $("#trialExpiredWarning").hide();
+    $("#content").css("margin-top", "79px");
+    toggleSettingsDisplay();
+    scrollToPurchaseButtons();
+}
+
+function scrollToPurchaseButtons() {
+    // scroll to the purchase buttons in the settings panel
+    // Delay to allow any previous animation to complete
+    const settingsDiv = $('#settings');
+    setTimeout(()=>settingsDiv.animate({ scrollTop: settingsDiv.prop('scrollHeight') }, 800, 'swing'), 800);
+}
+
 /**
  * Attach event listeners to Controls Header elements
  */
@@ -114,12 +222,12 @@ function attachControlsHeaderListeners() {
     
     // Settings button
     document.getElementById('settingsButton')?.addEventListener('click', () => {
-        configManager.toggleSettingsDisplay();
+        toggleSettingsDisplay();
     });
     
     // Actions button
     document.getElementById('actionsButton')?.addEventListener('click', () => {
-        configManager.toggleActionsDisplay();
+        toggleActionsDisplay();
     });
     
     // New top level topic button
@@ -129,15 +237,104 @@ function attachControlsHeaderListeners() {
     
     // Trial expired warning close button
     document.getElementById('trialWarningClose')?.addEventListener('click', () => {
-        configManager.closeTrialExpiredWarning();
+        closeTrialExpiredWarning();
     });
     
     // Trial expired warning link
     document.getElementById('trialWarningLink')?.addEventListener('click', (e) => {
         e.preventDefault();
-        configManager.closeTrialExpiredWarning();
+        closeTrialExpiredWarning();
         return false;
     });
+}
+
+function updatePrefs() {
+    // update preferences based on configuration
+    
+    // NB settings change is not visible any more but leaving ability to turn on via console for now
+    let groupMode = getProp('BTGroupingMode');
+    if (groupMode) {
+        const $radio = $('#tabGroupToggle :radio[name=grouping]');
+        $radio.filter(`[value=${groupMode}]`).prop('checked', true);
+        setProp('BTGroupingMode', groupMode);
+    }
+    
+    let $radio;
+    // does the topic manager live in a tab or a window?
+    const managerHome = getProp('BTManagerHome') || 'WINDOW';
+    $radio = $('#panelToggle :radio[name=location]');
+    $radio.filter(`[value=${managerHome}]`).prop('checked', true);
+    sendMessage({'function': 'localStore', 'data': {'BTManagerHome': managerHome}});
+    
+    // Fill in initial value for SettingsBackups checkbox
+    const backupsOn = getProp('BTBackupsOn');
+    $('#backups').prop('checked', backupsOn);
+    
+    // do we load Favicons? Read value, set ui and re-save in case defaulted
+    const favSet = getProp('BTFavicons');
+    const favicons = favSet || 'ON';
+    $radio = $('#faviconToggle :radio[name=favicon]');
+    $radio.filter(`[value=${favicons}]`).prop('checked', true);
+    if (!favSet) setProp('BTFavicons', favicons);
+    
+    /*
+    // Sticky Tabs?
+    const sticky = getProp('BTStickyTabs') || 'STICKY';
+    $radio = $('#stickyToggle :radio[name=sticky]');
+    $radio.filter(`[value=${sticky}]`).prop('checked', true);
+    setProp('BTStickyTabs', sticky);
+    */
+    
+    // Dense?
+    const dense = getProp('BTDense') || 'NOTDENSE';
+    $radio = $('#denseToggle :radio[name=dense]');
+    $radio.filter(`[value=${dense}]`).prop('checked', true);
+    document.documentElement.setAttribute('data-dense', dense);
+    
+    // Large?
+    const large = getProp('BTSize') || 'NOTLARGE';
+    $radio = $('#largeToggle :radio[name=large]');
+    $radio.filter(`[value=${large}]`).prop('checked', true);
+    document.documentElement.setAttribute('data-size', large);
+    
+    // Tooltips?
+    const tooltips = getProp('BTTooltips') || 'ON';
+    $radio = $('#tooltipsToggle :radio[name=tooltips]');
+    $radio.filter(`[value=${tooltips}]`).prop('checked', true);
+    // do it
+    if (tooltips == 'ON') {
+        $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
+        $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+        $("#topBar .filter-button").removeClass("wenk--off");
+    } else {
+        $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
+        $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+        $("#topBar .filter-button").addClass("wenk--off");
+    }
+    
+    // More Tools?
+    if (getProp('BTMoreToolsOn') == 'ON') {
+        toggleMoreButtons();
+    }
+    
+    // Theme saved or set from OS
+    const themeSet = getProp('BTTheme');
+    const theme = themeSet ||
+    (window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT');
+    $radio = $('#themeToggle :radio[name=theme]');
+    $radio.filter(`[value=${theme}]`).prop('checked', true);
+    if (!themeSet) setProp('BTTheme', theme);
+    // Change theme by setting attr on document which overides a set of vars. see top of bt.css
+    document.documentElement.setAttribute('data-theme', theme);
+    $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass(theme);  // swap some icons
+    $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(theme);
+}
+
+function closeConfigDisplays() {
+    // close if open
+    if ($('#actions').is(':visible')) toggleActionsDisplay();
+    if ($('#settings').is(':visible')) toggleSettingsDisplay();
+    if ($('#help').is(':visible')) toggleHelpDisplay();
 }
 
 /**
@@ -338,7 +535,7 @@ function attachSettingsListeners() {
     // Close button
     const closeButton = document.querySelector('#settings .panelClose');
     closeButton?.addEventListener('click', () => {
-        configManager.toggleSettingsDisplay();
+        toggleSettingsDisplay();
     });
     
     // Subscription buttons (Monthly, Annual, Lifetime)
@@ -359,6 +556,113 @@ function attachSettingsListeners() {
     document.getElementById('portalLink')?.addEventListener('click', (e) => {
         openStripePortal();
         return false;
+    });
+    
+    // Panel location toggle (Window/Side Panel)
+    $('#panelToggle :radio').change(function () {
+        const newHome = $(this).val();
+        setProp('BTManagerHome', newHome);
+        // Let extension know
+        sendMessage({'function': 'localStore', 'data': {'BTManagerHome': newHome}});
+    });
+    
+    // Tab grouping mode toggle
+    $('#tabGroupToggle :radio').change(function () {
+        const oldVal = getProp('BTGroupingMode') || 'TABGROUP';
+        const newVal = $(this).val();
+        setProp('BTGroupingMode', newVal);
+        setProp('BTGroupingMode', newVal);
+        groupingUpdate(oldVal, newVal);
+    });
+    
+    // Sync setting (None/GDrive/Local)
+    $('#syncSetting :radio').change(async function () {
+        try {
+            const newVal = $(this).val();
+            let success = false;
+            if (newVal == 'gdrive')
+                success = await authorizeGAPI(true);
+            else if (newVal == 'local')
+                success = await authorizeLocalFile();
+            if (success) {
+                $("#settingsSync").hide();
+                $("#settingsSyncStatus").show();
+                $("#syncType").text((newVal == 'gdrive') ? "GDrive" : "Local File");
+                $("#actionsSyncStatus").show();
+            } else {
+                $("#settingsSyncNone").prop("checked", true);
+            }
+            return success;
+        } catch (err) {
+            console.warn(err);
+            $("#settingsSyncNone").prop("checked", true);
+            return false;
+        }
+    });
+    
+    // Backups checkbox
+    $('#settingsBackups :checkbox').change(async function () {
+        const newVal = $(this).prop('checked');
+        setProp('BTBackupsOn', newVal);
+        setProp('BTBackupsList', {recent: [], daily: [], monthly: []});
+        
+        let success = await initiateBackups(newVal);
+        if (!success) {
+            $(this).prop('checked', false);
+            setProp('BTBackupsOn', false);
+        }
+    });
+    
+    // Theme toggle (Light/Dark)
+    $('#themeToggle :radio').change(function () {
+        const newTheme = $(this).val();
+        setProp('BTTheme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
+        $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
+        // Let extension know
+        sendMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
+    });
+    
+    // Favicon toggle
+    $('#faviconToggle :radio').change(function () {
+        const favicons = $(this).val();
+        const favClass = (favicons == 'ON') ? 'faviconOn' : 'faviconOff';
+        setProp('BTFavicons', favicons);
+        // Turn on or off
+        $('#content img').removeClass('faviconOff faviconOn').addClass(favClass);
+    });
+    
+    // Dense mode toggle
+    $('#denseToggle :radio').change(function () {
+        const newD = $(this).val();
+        setProp('BTDense', newD);
+        // do it
+        document.documentElement.setAttribute('data-dense', newD);
+    });
+    
+    // Large text toggle
+    $('#largeToggle :radio').change(function () {
+        const newL = $(this).val();
+        setProp('BTSize', newL);
+        // do it
+        document.documentElement.setAttribute('data-size', newL);
+    });
+    
+    // Tooltips toggle
+    $('#tooltipsToggle :radio').change(function () {
+        const newT = $(this).val();
+        setProp('BTTooltips', newT);
+        // do it
+        if (newT == 'ON') {
+            $("#buttonRow span").removeClass("wenk--off").addClass("wenk--left");
+            $(".indenter a").removeClass("wenk--off").addClass("wenk--bottom");
+            $("#topBar .filter-button").removeClass("wenk--off");
+        } else {
+            $("#buttonRow span").removeClass("wenk--left").removeClass("wenk--right").addClass("wenk--off");
+            $(".indenter a").removeClass("wenk--bottom").addClass("wenk--off");
+            $("#topBar .filter-button").addClass("wenk--off");
+        }
     });
 }
 
@@ -465,7 +769,7 @@ function attachActionsListeners() {
     // Close button
     const closeButton = document.querySelector('#actions .panelClose');
     closeButton?.addEventListener('click', () => {
-        configManager.toggleActionsDisplay();
+        toggleActionsDisplay();
     });
     
     // Import bookmarks
@@ -641,7 +945,7 @@ function attachHelpListeners() {
     // Close button
     const closeButton = document.querySelector('#help .panelClose');
     closeButton?.addEventListener('click', () => {
-        configManager.toggleHelpDisplay();
+        toggleHelpDisplay();
     });
     
     // User Guide
@@ -651,7 +955,7 @@ function attachHelpListeners() {
     
     // Keyboard commands toggle
     document.getElementById('helpKeys')?.addEventListener('click', () => {
-        configManager.toggleKeyCommands();
+        toggleKeyCommands();
     });
     
     // FAQs
@@ -711,7 +1015,7 @@ function generateFooterHTML() {
 function attachFooterListeners() {
     // Help button in footer
     document.getElementById('footerHelp')?.addEventListener('click', () => {
-        configManager.toggleHelpDisplay();
+        toggleHelpDisplay();
     });
 }
 
@@ -724,4 +1028,4 @@ function initializeFooter() {
     console.log('Footer initialized with event listeners');
 }
 
-export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter };
+export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs };
