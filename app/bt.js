@@ -309,7 +309,7 @@ async function handleInitialTabs(tabs, tgs) {
     });
 
     // remember topic per window for suggestions in popup
-    sendMessage({'function': 'localStore', 'data': {'mruTopics': MRUTopicPerWindow}});
+    setProp('mruTopics', MRUTopicPerWindow);
     updateStatsRow();
 }
 

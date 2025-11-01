@@ -18,7 +18,6 @@
 'use strict';
 
 import { getProp, setProp, incrementStat } from './configManager.js';
-import { sendMessage } from './extensionMessaging.js';
 import { AllNodes } from './BTNode.js';
 import { BTAppNode } from './BTAppNode.js';
 import { localFileManager } from './localFileManager.js';
@@ -149,7 +148,7 @@ async function _saveBT(localOnly = false, newContent = true) {
     BTFileText = BTAppNode.generateOrgFile();
     if (window.LOCALTEST) return;
 
-    sendMessage({'function': 'localStore', 'data': {'BTFileText': BTFileText}});
+    setProp('BTFileText', BTFileText);
     if (localOnly) return;                       // return if we're just remember folded state
 
     setTimeout(brainZoom, 1000);                 // swell the brain

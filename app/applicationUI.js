@@ -10,7 +10,6 @@
 
 'use strict';
 
-import { sendMessage } from './extensionMessaging.js';
 import { getProp, setProp } from './configManager.js';
 import { searchButton, filterToDos, filterSearch, groupingUpdate } from './bt.js';
 import { addNewTopLevelTopic, toggleMoreButtons } from './rowManager.js';
@@ -264,7 +263,7 @@ function updatePrefs() {
     const managerHome = getProp('BTManagerHome') || 'WINDOW';
     $radio = $('#panelToggle :radio[name=location]');
     $radio.filter(`[value=${managerHome}]`).prop('checked', true);
-    sendMessage({'function': 'localStore', 'data': {'BTManagerHome': managerHome}});
+    setProp('BTManagerHome', managerHome);
     
     // Fill in initial value for SettingsBackups checkbox
     const backupsOn = getProp('BTBackupsOn');
@@ -562,8 +561,6 @@ function attachSettingsListeners() {
     $('#panelToggle :radio').change(function () {
         const newHome = $(this).val();
         setProp('BTManagerHome', newHome);
-        // Let extension know
-        sendMessage({'function': 'localStore', 'data': {'BTManagerHome': newHome}});
     });
     
     // Tab grouping mode toggle
@@ -620,8 +617,6 @@ function attachSettingsListeners() {
         document.documentElement.setAttribute('data-theme', newTheme);
         $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
         $('#footer img').removeClass(['DARK', 'LIGHT']).addClass(newTheme);
-        // Let extension know
-        sendMessage({'function': 'localStore', 'data': {'Theme': newTheme}});
     });
     
     // Favicon toggle

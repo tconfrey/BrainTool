@@ -103,7 +103,7 @@ function processBTFile(fileText = getBTFileText()) {
     BTAppNode.generateTopics();
 
     // Let extension know about model
-    sendMessage({'function': 'localStore', 'data': {'BTFileText': getBTFileText()}});
+    setProp('BTFileText', getBTFileText());
     
     // initialize ui from any pre-refresh opened state
     OpenedNodes.forEach(oldNode => {

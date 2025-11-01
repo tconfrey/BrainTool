@@ -41,7 +41,7 @@ function hideElements(elementIds) {
 //    b. new tab => show topic selector and note entry
 //    c. tab in tg => select to greate new topic or use tg name
 
-const contextVariables = ['newInstall', 'newVersion', 'Theme', 'BTTab', 'BTManagerHome', 'BTManagerLocation'];
+const contextVariables = ['newInstall', 'newVersion', 'BTTheme', 'BTTab', 'BTManagerHome', 'BTManagerLocation'];
 chrome.storage.local.get(contextVariables, async val => {
     console.log(`local storage: ${JSON.stringify(val)}`);
 
@@ -70,9 +70,9 @@ chrome.storage.local.get(contextVariables, async val => {
     }
 
     const introTitle = document.getElementById('introTitle');
-    if (val['Theme']) {        
+    if (val['BTTheme']) {        
         // Change theme by setting attr on document which overide a set of vars. see top of .css
-        document.documentElement.setAttribute('data-theme', val['Theme']);
+        document.documentElement.setAttribute('data-theme', val['BTTheme']);
     }
 
     if (val['newInstall']) {
