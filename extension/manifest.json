@@ -25,7 +25,7 @@
             "128": "images/BrainTool128.png"
         },
         "default_title" : "BrainTool!",
-        "default_popup" : "summarizerPopup.html"
+        "default_popup" : "popup.html"
     },
     "icons": {
       "16": "images/BrainTool16.png",

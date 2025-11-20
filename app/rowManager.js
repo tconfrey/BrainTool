@@ -20,12 +20,21 @@
 
 // Import dependencies
 import { AllNodes, BTNode } from './BTNode.js';
-import { BTAppNode, Topics } from './BTAppNode.js';
+import { BTAppNode } from './BTAppNode.js';
 import { getProp, setProp, incrementStat } from './configManager.js';
 import { callBackground } from './extensionMessaging.js';
 import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
-import { initializeUI, Resizing } from './tableManager.js';
+import { initializeUI } from './tableManager.js';
+
+function getAllowedActions(node) {
+    if (!node || typeof node.allowedRowActions !== 'function') return {};
+    return node.allowedRowActions() || {};
+}
+
+function isActionAllowed(actions, action) {
+    return (actions[action] === undefined) ? true : actions[action] !== false;
+}
 
 function buttonShow(e) {
     // Show buttons to perform row operations, triggered on hover
@@ -62,21 +71,29 @@ function buttonShow(e) {
 
     const node = getActiveNode(e);
     if (!node || node.trashed) return;          // don't allow operations on deleted nodes
+    const actions = getAllowedActions(node);
     if (node.isTrash())
         $('#deleteRow').parent().attr('data-wenk', 'Empty Trash');
     else
         $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
+
+    $('#deleteRow').parent().toggle(isActionAllowed(actions, 'delete'));
+    $('#star').parent().toggle(isActionAllowed(actions, 'todo'));
+    $('#move').parent().toggle(isActionAllowed(actions, 'drag')).toggle(!node.isTrash());
+    $('#editRow').parent().toggle(isActionAllowed(actions, 'edit')).toggle(!node.isTrash());
+    $('#tools').parent().toggle(!node.isTrash());
 
     // Open/close buttons 
     const topic = node.isTopic() ? node : AllNodes[node.parentId];
     $("#openTab").hide();
     $("#openWindow").hide();
     $("#closeRow").hide();
-    if (node.countOpenableTabs()){
+    const canOpen = isActionAllowed(actions, 'open');
+    if (canOpen && node.countOpenableTabs()){
         $("#openTab").show();
-        if (!topic?.hasOpenChildren() || ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP')) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
+        if (isActionAllowed(actions, 'openInNewWindow') && (!topic?.hasOpenChildren() || ((getProp('BTGroupingMode') || 'TABGROUP') != 'TABGROUP'))) $("#openWindow").show();       // only allow opening in new window if not already in a TG, or not using TGs
     }
-    if (node.countClosableTabs()) {
+    if (isActionAllowed(actions, 'close') && node.countClosableTabs()) {
         $("#closeRow").show();
     }
 
@@ -92,13 +109,13 @@ function buttonShow(e) {
     }
 
     // allow adding children on branches or unpopulated branches (ie no links)
-    if (($(this).hasClass("branch") || !$(this).find('a').length) && !node.isTrash())
+    if (isActionAllowed(actions, 'addChild') && (($(this).hasClass("branch") || !$(this).find('a').length) && !node.isTrash()))
         $("#addChild").show();
     else
         $("#addChild").hide();
 
     // only show outdent on non-top level items. don't show it on links (!isTopic) where promoting would put to top level
-    if ((this.getAttribute("data-tt-parent-id")) && !((node.level == 2) && !node.isTopic()))
+    if (isActionAllowed(actions, 'promote') && (this.getAttribute("data-tt-parent-id")) && !((node.level == 2) && !node.isTopic()))
         $("#outdent").show();
     else
         $("#outdent").hide();
@@ -135,6 +152,8 @@ function editRow(e) {
     // position and populate the dialog and open it
     const node = getActiveNode(e);
     if (!node) return;
+    const actions = getAllowedActions(node);
+    if (!isActionAllowed(actions, 'edit')) return;
     const duration = e.duration || 400;
     const row = $(`tr[data-tt-id='${node.id}']`)[0];
     const top = $(row).position().top - $(document).scrollTop();
@@ -242,6 +261,9 @@ function openRow(e, newWin = false) {
     // First find all AppNodes involved - selected plus children
     const appNode = getActiveNode(e);
     if (!appNode) return;
+    const actions = getAllowedActions(appNode);
+    if (!isActionAllowed(actions, 'open')) return;
+    if (newWin && !isActionAllowed(actions, 'openInNewWindow')) return;
 
     // Warn if opening lots of stuff
     const numTabs = appNode.countOpenableTabs();
@@ -265,6 +287,8 @@ function closeRow(e) {
     // close this node's tab or window
     const appNode = getActiveNode(e);  
     if (!appNode) return;
+    const actions = getAllowedActions(appNode);
+    if (!isActionAllowed(actions, 'close')) return;
     
     $("#openWindow").show();
     $("#openTab").show();
@@ -279,6 +303,8 @@ function deleteRow(e) {
     // Delete selected node/row.
     const appNode = getActiveNode(e);
     if (!appNode) return false;
+    const actions = getAllowedActions(appNode);
+    if (!isActionAllowed(actions, 'delete')) return false;
     const kids = appNode.childIds.length && appNode.isTopic();         // Topic determines non link kids
     buttonHide();
 
@@ -289,6 +315,8 @@ function deleteRow(e) {
         childIdsToDelete.forEach((id) => {
             deleteNode(id);
         });
+        // Hide trash row
+        $(`tr[data-tt-id='${appNode.id}']`).hide();
         return;
     }
 
@@ -347,6 +375,7 @@ function deleteNode(id, browserAction = false) {
         propogateClosed(node.parentId);                     // Update parent display
         const treeTable = $("#content");
         const trashNode = BTAppNode.findOrCreateTrashNode();
+        $(`tr[data-tt-id='${trashNode.id}']`).show();
         node.handleNodeMove(trashNode.id);
         treeTable.treetable("move", node.id, trashNode.id);
         const treeNode = $(`tr[data-tt-id='${node.id}']`)[0];
@@ -382,6 +411,8 @@ function updateRow() {
     const nodeId = $(tr).attr('data-tt-id');
     if (!nodeId) return null;
     const node = AllNodes[nodeId];
+    const actions = getAllowedActions(node);
+    if (!isActionAllowed(actions, 'edit')) return null;
 
     // Update Model
     const url = $("#titleUrl").val();
@@ -393,7 +424,23 @@ function updateRow() {
         if (changed) node.updateTabGroup();               // update browser (if needed)
     } else
         node.replaceURLandTitle(url, title);
-    node.text = $("#textText").val();
+    
+    const newText = $("#textText").val();
+    node.text = newText;
+    
+    // Sync text to sister nodes (app/session nodes with matching tabId/tabGroupId)
+    const sisterNodes = node.sisterNodes();
+    sisterNodes.forEach(sisterNode => {
+        // For tab nodes, verify URL matches before syncing
+        if (!node.isTopic() && !BTNode.compareURLs(sisterNode.URL, node.URL)) {
+            return;
+        }
+        sisterNode.text = newText;
+        const sisterDisplayNode = sisterNode.getDisplayNode();
+        if (sisterDisplayNode) {
+            $(sisterDisplayNode).find('span.btText').html(sisterNode.displayText());
+        }
+    });
 
     // Update ui
     $(tr).find("span.btTitle").html(node.displayTitle());
@@ -412,18 +459,33 @@ function updateRow() {
     closeDialog();
     initializeUI();
 }
+
+function updateToDoUI(node) {
+    // Update UI for a node after todo state change
+    const tr = $(`tr[data-tt-id='${node.id}']`);
+    $(tr).find("span.btTitle").html(node.displayTitle());
+    if (node.tgColor) node.setTGColor(node.tgColor);
+    node.populateFavicon();                     // async, will just do its thing
+}
+
 function toDo(e) {
     // iterate todo state of selected node/row (TODO -> DONE -> '').
     const appNode = getActiveNode(e);
     if (!appNode) return false;
+    const actions = getAllowedActions(appNode);
+    if (!isActionAllowed(actions, 'todo')) return false;
 
     appNode.iterateKeyword();                // ask node to update internals
-
-    // Update ui and file
-    const tr = $(`tr[data-tt-id='${appNode.id}']`);
-    $(tr).find("span.btTitle").html(appNode.displayTitle());
-    if (appNode.tgColor) appNode.setTGColor(appNode.tgColor);
-    appNode.populateFavicon();                     // async, will just do its thing
+    
+    // Update ui for this node
+    updateToDoUI(appNode);
+    
+    // Update ui for any sister nodes (e.g., corresponding session node)
+    const sisterNodes = appNode.sisterNodes();
+    sisterNodes.forEach(sisterNode => {
+        sisterNode.iterateKeyword();         // keep sister node in sync
+        updateToDoUI(sisterNode);
+    });
     
     // Stop the event from selecting the row and line up a save
     e.stopPropagation();
@@ -436,6 +498,8 @@ function promote(e) {
     
     const node = getActiveNode(e);
     if (!node || !node.parentId) return;                  // can't promote
+    const actions = getAllowedActions(node);
+    if (!isActionAllowed(actions, 'promote')) return;
     
     // collapse open subtree if any
     if (node.childIds.length)
@@ -476,7 +540,7 @@ function _displayForEdit(newNode) {
 
 function addNewTopLevelTopic() {
     // create new top level item and open edit card
-    if (Resizing) return;                   // ignore during column resize
+    if (Window.BrainTool && Window.BrainTool.resizing) return;  // ignore during column resize
     const newNode = new BTAppNode('', null, "", 1);
     _displayForEdit(newNode);
 }
@@ -487,6 +551,8 @@ function addChild(e) {
     // create child element
     const node = getActiveNode(e);
     if (!node) return;
+    const actions = getAllowedActions(node);
+    if (!isActionAllowed(actions, 'addChild')) return;
     const newNode = new BTAppNode('', node.id, "", node.level + 1, true);       // true => add to front of parent's children
     _displayForEdit(newNode);
 
@@ -515,7 +581,8 @@ function reCreateButtonRow() {
     // For some unknown reason very occasionally the buttonRow div gets lost/deleted
     console.log("RECREATING BUTTONROW!!");
     const $ButtonRowHTML = $(ButtonRowHTML);
-    $ButtonRowHTML.appendTo($("#dialog"))
+    $ButtonRowHTML.appendTo($("#dialog"));
+    attachButtonRowListeners();
 }
 
 

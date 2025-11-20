@@ -121,7 +121,6 @@ function check(msg='') {
 
 /* Document data kept in storage.local */
 const storageKeys = ["BTFileText",                  // golden source of BT .org text data
-                     "TabAction",                   // remember popup default action
                      "currentTabId",
                      "currentTopic",                // for setting badge text
                      "currentText",
@@ -183,6 +182,8 @@ const Handlers = {
     "brainZoom": brainZoom,
     "closeTab": closeTab,
     "moveTab": moveTab,
+    "moveTabGroup": moveTabGroup,
+    "moveTabsToNewWindow": moveTabsToNewWindow,
     "ungroup": ungroup,
     "moveOpenTabsToTG": moveOpenTabsToTG,
     "updateGroup": updateGroup,
@@ -193,6 +194,7 @@ const Handlers = {
     "syncBookmarksBar": syncBookmarksBar,
     "saveDroppedURLs": saveDroppedURLs,
     "setBrowserTheme": setBrowserTheme,
+    "syncBrowserSnapshot": syncBrowserSnapshot,
 };
 
 var Awaiting = false;
@@ -294,6 +296,39 @@ chrome.tabs.onMoved.addListener(logEventWrapper("tabs.onMoved", async (tabId, ot
     setTimeout(function() {setBadge(tabId);}, 200);
 }));
 
+chrome.tabs.onAttached.addListener(logEventWrapper("tabs.onAttached", async (tabId, attachInfo) => {
+    // User dragged a tab to a different window (often creating a new one)
+    if (Awaiting) return;
+    try {
+        const tab = await chrome.tabs.get(tabId); check();
+        if (!tab) return;
+        const indices = await tabIndices();
+        let tabGroupColor = null;
+        if (tab.groupId > 0) {
+            try {
+                const tg = await chrome.tabGroups.get(tab.groupId);
+                tabGroupColor = tg?.color || null;
+            } catch (err) {
+                console.warn('tabs.onAttached unable to get tab group', err);
+            }
+        }
+        const message = {
+            'function': 'tabMoved',
+            'tabId': tabId,
+            'groupId': tab.groupId,
+            'tabIndex': attachInfo?.newPosition ?? tab.index,
+            'windowId': attachInfo?.newWindowId ?? tab.windowId,
+            'indices': indices,
+            'tab': tab,
+        };
+        if (tabGroupColor) message.tabGroupColor = tabGroupColor;
+        btSendMessage(message);
+        setTimeout(function() {setBadge(tabId);}, 200);
+    } catch (error) {
+        console.error('Error handling tabs.onAttached', error);
+    }
+}));
+
 chrome.tabs.onRemoved.addListener(logEventWrapper("tabs.onRemoved", async (tabId, otherInfo) => {
     // listen for tabs being closed and let BT know
     if (!tabId) return;
@@ -321,7 +356,7 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
         const transitionData = tabTransitionData[tabId] || null;          // set in webNavigation.onCommitted event above
         setTimeout (() => delete tabTransitionData[tabId], 1000);                                // clear out for next event
         btSendMessage({ 'function': 'tabNavigated', 'tabId': tabId, 'groupId': tab.groupId, 'tabIndex': tab.index,
-                        'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices, 'transitionData': transitionData,});
+                        'tabURL': tab.url, 'windowId': tab.windowId, 'indices': indices, 'transitionData': transitionData, 'tab': tab});
         setTimeout(function() {setBadge(tabId);}, 200);
         return;
     }
@@ -425,6 +460,14 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     });
 }));
 
+chrome.windows.onCreated.addListener(logEventWrapper("windows.onCreated", async (window) => {
+    if (!window || window.type !== 'normal') return;
+    if (Awaiting) return;
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (window.id === BTWin) return;
+    btSendMessage({'function': 'windowCreated', 'windowId': window.id});
+}));
+
 // onBoundsChanged not supported in FF
 chrome.windows.onBoundsChanged && chrome.windows.onBoundsChanged.addListener(async (window) => {
     // remember position of topic manager window
@@ -502,6 +545,12 @@ function getOpenTabGroups() {
             resolve(tgs);
         });
     });
+}
+
+async function syncBrowserSnapshot(msg, sender) {
+    // Gather a complete browser snapshot and forward it to the app for reconciliation.
+    const [allTabs, allTGs] = await Promise.all([getOpenTabs(), getOpenTabGroups()]);
+    btSendMessage({ 'function': 'syncToBrowser', 'tabs': allTabs, 'tabGroups': allTGs });
 }
 
 async function initializeExtension(msg, sender) {
@@ -593,12 +642,20 @@ function updateBTIcon(text, title, color) {
 }
 
 function openTabs(msg, sender) {
-    // open list of {nodeId, url} pairs, potentially in new window
+    // open list of {nodeId, url} pairs, potentially in new window or specific tab group
 
-    function openTabsInWin(tabInfo, winId = null) {
+    function openTabsInWin(tabInfo, winId = null, startIndex = null) {
         // open [{url, nodeId}]s in tab in given window
+        // startIndex: optional position for the first tab (subsequent tabs follow)
+        let currentIndex = startIndex;
+        
         tabInfo.forEach((tabData) => {
             const args = winId ? {'windowId': winId, 'url': tabData.url} : {'url': tabData.url};
+            if (currentIndex !== null) {
+                args.index = currentIndex;
+                currentIndex++;  // Increment for next tab
+            }
+            
             chrome.tabs.create(args, tab => {
                 chrome.windows.update(tab.windowId, {'focused' : true});
                 chrome.tabs.highlight({'windowId': tab.windowId, 'tabs': tab.index});
@@ -607,9 +664,32 @@ function openTabs(msg, sender) {
         });
     }
 
+    function openTabsInTg(winId, tgid, tabInfo) {
+        // open [{url, nodeId}, ..] in window and specific group
+        tabInfo.forEach(info => {
+            chrome.tabs.create({'url': info.url, 'windowId': winId}, tab => {
+                check(); if (!tab) return;
+                chrome.tabs.group({'tabIds': tab.id, 'groupId': tgid}, tgid => {
+                    chrome.windows.update(tab.windowId, {'focused' : true});
+                    chrome.tabs.highlight({'windowId': tab.windowId, 'tabs': tab.index});
+                    tabOpened(winId, tab.id, info.nodeId, tab.index, tgid);
+                });
+            });
+        });
+    }
+
     const newWin = msg.newWin;
     const defaultWinId = msg.defaultWinId;                                 // 0 or winId of siblings
+    const tabGroupId = msg.tabGroupId;                                     // specific group to open into
+    const windowId = msg.windowId;                                         // specific window when using tabGroupId
+    const index = msg.index;                                               // optional position for tab(s)
     const [first, ...rest] = msg.tabs;
+
+    // If tabGroupId is specified, open into that specific group
+    if (tabGroupId && windowId) {
+        openTabsInTg(windowId, tabGroupId, msg.tabs);
+        return;
+    }
 
     if (newWin)
         // Create new win w first url, then iterate on rest
@@ -617,31 +697,42 @@ function openTabs(msg, sender) {
             tabOpened(win.id, win.tabs[0].id, first.nodeId, win.tabs[0].index);
             openTabsInWin(rest, win.id);
         });
-    else if (!defaultWinId) openTabsInWin(msg.tabs);                      // open in current win
+    else if (!defaultWinId) openTabsInWin(msg.tabs, null, index);         // open in current win with index
     else
         // else check window exists & iterate on all adding to current window
         chrome.windows.get(defaultWinId, (w) => {
             if (!w) {
                 // in rare error case win may no longer exist => set to null
                 console.warn(`Error in openTabs. ${chrome.runtime.lastError?.message}`);
-                openTabsInWin(msg.tabs);
+                openTabsInWin(msg.tabs, null, index);
             } else {
-                openTabsInWin(msg.tabs, defaultWinId);
+                openTabsInWin(msg.tabs, defaultWinId, index);
             }
         });
 }
 
 function openTabGroups(msg, sender) {
-    // open tabs in specified or new tab group, potentially in new window
+    // open tabs in specified or new tab group, potentially in new window or specific window
 
     const tabGroups = msg.tabGroups;                                    // [{tg, win, tgname[{id, url}]},..]
     const newWinNeeded = msg.newWin;
+    const targetWindowId = msg.windowId;                                // specific window to use
+    const index = msg.index;                                            // optional position for first tab
 
-    function openTabsInTg(winId, tgid, tabInfo) {
+    function openTabsInTg(winId, tgid, tabInfo, startIndex = null) {
         // open [{url, nodeId}, ..] in window and group
+        // startIndex: optional position for the first tab in the group
         // NB since a TG can't be set on creation need to iterate on creating tabs and then grouping
+        let currentIndex = startIndex;
+        
         tabInfo.forEach(info => {
-            chrome.tabs.create({'url': info.url, 'windowId': winId}, tab => {
+            const args = {'url': info.url, 'windowId': winId};
+            if (currentIndex !== null) {
+                args.index = currentIndex;
+                currentIndex++;  // Increment for next tab
+            }
+            
+            chrome.tabs.create(args, tab => {
                 check(); if (!tab) return;
                 chrome.tabs.group({'tabIds': tab.id, 'groupId': tgid}, tgid => {
                     chrome.windows.update(tab.windowId, {'focused' : true});
@@ -660,7 +751,7 @@ function openTabGroups(msg, sender) {
         // create in existing win/tg if tg is open (even if newWin sent)
         if (tg.tabGroupId)
         {
-            openTabsInTg(tg.windowId, tg.tabGroupId, tg.tabGroupTabs);
+            openTabsInTg(tg.windowId, tg.tabGroupId, tg.tabGroupTabs, index);
             return;
         }
         if (newWinNeeded)
@@ -676,9 +767,23 @@ function openTabGroups(msg, sender) {
                                       openTabsInTg(win.id, tgid, rest);
                                   });
             });
+        else if (targetWindowId)
+            // create tg in specific window
+            chrome.tabs.create({'url': first.url, 'windowId': targetWindowId, 'index': index}, tab => {
+                check(); if (!tab) return;
+                chrome.tabs.group({'tabIds': tab.id,
+                                   'createProperties': {'windowId': targetWindowId}},
+                                  tgid => {
+                                      check(); if (!tgid) return;
+                                      tabOpened(tab.windowId, tab.id, first.nodeId,
+                                                tab.index, tgid);
+                                      chrome.tabGroups.update(tgid, {'title' : groupName});
+                                      openTabsInTg(targetWindowId, tgid, rest);
+                                  });
+            });
         else 
             // create tg in current window
-            chrome.tabs.create({'url': first.url}, tab => {
+            chrome.tabs.create({'url': first.url, 'index': index}, tab => {
                 check(); if (!tab) return;
                 chrome.tabs.group({'tabIds': tab.id,
                                    'createProperties': {'windowId': tab.windowId}},
@@ -874,6 +979,78 @@ async function moveTab(msg, sender) {
         } else {
             console.error(error);
         }
+    }
+}
+
+async function moveTabGroup(msg, sender) {
+    // move tab group to window.index
+    try {
+        const options = { index: msg.index };
+        if (msg.windowId != null) options.windowId = msg.windowId;
+        await chrome.tabGroups.move(msg.tabGroupId, options);
+        console.log('Success moving tab group.');
+    } catch (error) {
+        if (error == 'Error: Tabs cannot be edited right now (user may be dragging a tab).') {
+            setTimeout(() => moveTabGroup(msg, sender), 50);
+        } else {
+            console.error(error);
+        }
+    }
+}
+
+async function moveTabsToNewWindow(msg, sender) {
+    // Move existing tabs to a new window, optionally preserving/recreating tab group
+    try {
+        const tabIds = msg.tabIds || [];
+        const preserveGroup = msg.preserveGroup || false;
+        const groupTitle = msg.groupTitle || '';
+        const groupColor = msg.groupColor || 'grey';
+        const groupCollapsed = msg.groupCollapsed || false;
+        
+        if (!tabIds.length) {
+            console.warn('No tabs to move');
+            return { windowId: null };
+        }
+        
+        // Create new window with first tab
+        const firstTab = await chrome.tabs.get(tabIds[0]);
+        const newWindow = await chrome.windows.create({ tabId: tabIds[0] });
+        const newWindowId = newWindow.id;
+        
+        // Move remaining tabs to the new window
+        if (tabIds.length > 1) {
+            await chrome.tabs.move(tabIds.slice(1), { 
+                windowId: newWindowId, 
+                index: -1  // append to end
+            });
+        }
+        
+        let groupId = null;
+        
+        // If preserving/recreating a tab group
+        if (preserveGroup && tabIds.length > 0) {
+            // Group all the tabs
+            groupId = await chrome.tabs.group({
+                tabIds: tabIds,
+                createProperties: { windowId: newWindowId }
+            });
+            
+            // Update group properties
+            await chrome.tabGroups.update(groupId, {
+                title: groupTitle,
+                color: groupColor,
+                collapsed: groupCollapsed
+            });
+        }
+        
+        console.log(`Success moving ${tabIds.length} tabs to new window ${newWindowId}`, 
+                    groupId ? `with group ${groupId}` : '');
+        
+        return { windowId: newWindowId, tabGroupId: groupId };
+        
+    } catch (error) {
+        console.error('Error moving tabs to new window:', error);
+        throw error;
     }
 }
 

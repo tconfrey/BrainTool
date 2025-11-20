@@ -82,16 +82,16 @@ table.treetable span.keyword.DONE {
 }
 
 table.treetable span.specialTopic {
-  opacity: 75%;
+  font-size: calc(var(--btTopicFontSize) + 2px);
   font-style: italic;
 }
 
 table.treetable tr.hovered {
-  background-color: var(--btRowHovered);
+  background-color: var(--btRowHovered) !important;
 }
 
 table.treetable tr.selected {
-  background-color: var(--btButtonBackground);
+  background-color: var(--btButtonBackground) !important;
 }
 
 table.treetable tr.attention {

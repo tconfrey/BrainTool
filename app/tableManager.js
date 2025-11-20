@@ -15,8 +15,9 @@ import { closeConfigDisplays, updatePrefs } from './applicationUI.js';
 import { messageManager } from './messageManager.js';
 import { AllNodes, BTNode } from './BTNode.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
+import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
 import { parseBTFile } from './parser.js';
-import { sendMessage } from './extensionMessaging.js';
+import { sendMessage, callBackground, registerMessageHandler } from './extensionMessaging.js';
 import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
 import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
@@ -164,7 +165,7 @@ function initializeNotesColumn() {
     // Finally, align the resizer knob with the rendered left column width
     updateResizerPositionFromColumns();
 }
-let Resizing = false;                                   // set while resizing in progress to avoid processing other events
+
 function handleResizer() {
     // Resizer has been dragged, or during set up
     const left = $("#resizer").position().left + 13;
@@ -194,7 +195,7 @@ function initializeResizer() {
         containment: "#newTopLevelTopic",                   // Restrict dragging within the parent div
         axis: "x",
         drag: function(e, ui) {
-            Resizing = true;
+            Window.BrainTool.resizing = true;
             handleResizer();
         },
         stop: () => setTimeout(() => {
@@ -203,7 +204,7 @@ function initializeResizer() {
             const percent = parseInt(left / fullWidth * 100);
             setProp('BTNotes', percent);      // save the new width, BTNotes = NOTES, NONOTES or % width
             handleResizer();
-            Resizing = false;
+            delete Window.BrainTool.resizing;
             // Update the resizer position to match the new left column width
             updateResizerPositionFromColumns();
         }, 250),                                            // give time for resize to be processed
@@ -220,6 +221,7 @@ function initializeResizer() {
 function initializeUI() {
     //DRY'ing up common event stuff needed whenever the tree is modified
     console.log('Initializing UI');
+    if (Window.BrainTool && Window.BrainTool.dragging) return;   // skip if drag in progress
     
     $("table.treetable tr").off('mouseenter');            // remove any previous handlers
     $("table.treetable tr").off('mouseleave');
@@ -261,6 +263,7 @@ function initializeUI() {
     updateSyncSettings(syncEnabled());
 
     updateStatsRow(getProp('BTTimestamp'));   // show updated stats w last save time
+    Window.BrainTool = {};                    // currently used to track dragging only
 }
 /**
  * 
@@ -301,12 +304,18 @@ function makeRowsDraggable(recalc = false) {
             // turn hover bahavior back on and remove classes iused to track drag
             $("table.treetable tr").on('mouseenter', null, buttonShow);
             $("table.treetable tr").on('mouseleave', null, buttonHide);
-            $("table.treetable tr").droppable("enable");
+            // Only enable droppable on rows that have been initialized as droppable
+            $("table.treetable tr").each(function() {
+                if ($(this).data('ui-droppable')) {
+                    $(this).droppable("enable");
+                }
+            });
             $("tr").removeClass("hovered");
             $("td").removeClass("dropOver");
             $("td").removeClass("dropOver-pulse");
             $("tr").removeClass("dragTarget");
             $("tr").removeClass("ui-droppable-disabled");
+            Window.BrainTool.dragging = false;
         },
         revert: "invalid"                                       // revert when drag ends but not over droppable
     });
@@ -315,11 +324,17 @@ function makeRowsDraggable(recalc = false) {
 function dragStart(event, ui) {
     // Called when drag operation is initiated. Set dragged row to be full sized
     console.log("dragStart");
+    Window.BrainTool.dragging = true;
     const w = $(this).css('width');
     const h = $(this).css('height');
     ui.helper.css('width', w).css('height', h);
     const nodeId = $(this).attr('data-tt-id');
     const node = AllNodes[nodeId];
+
+    if (node?.allowedRowActions && node.allowedRowActions().drag === false) {
+        event.preventDefault();
+        return false;
+    }
 
     $(this).addClass("dragTarget");
     makeRowsDroppable(node);
@@ -381,7 +396,19 @@ function makeRowsDroppable(node) {
 
     // Handle row dragging inside table
     $("table.treetable tr").droppable({
-        accept: "*",                    // Accept any draggable, so above works
+        accept: function(draggable) {
+            // Check if the drop target can accept the dragged node
+            const dropNodeId = $(this).attr('data-tt-id');
+            const dropNode = AllNodes[dropNodeId];
+            
+            const dragNodeId = $(draggable).attr('data-tt-id');
+            const dragNode = AllNodes[dragNodeId];
+            
+            if (!dropNode || !dragNode) return true;  // Let other validation handle it
+            
+            // Use canAcceptDrop for validation
+            return dropNode.canAcceptDrop(dragNode);
+        },
         drop: function(event, ui) {
             // Remove unfold timeout and drop
             const timeout = $(this).data('unfoldTimeout');
@@ -392,7 +419,7 @@ function makeRowsDroppable(node) {
             dropNode(event, ui);
         },
         over: function(event, ui) {
-            // highlight node a drop would drop into and underline the potential position, could be at top
+            // highlight node a drop would drop below and underline the potential position, could be at top
             $(this).children('td').first().addClass("dropOver");
 
             // Add timeout to unfold node if hovered for 1 second
@@ -455,6 +482,11 @@ function handleExternalDropEvent(event) {
             parentNode = dropNode.parentId ? AllNodes[dropNode.parentId] : dropNode;
         }
         if (!parentNode) return;                            // no parent, no drop
+        if (parentNode.isSessionNode) {
+            $("table.treetable td").removeClass(["dropOver", "dropOver-pulse"]);
+            $("#content").on("dragover", contentDragoverHandler);
+            return;
+        }
 
         // Handle drag of web page contents, we get html
         let links = [];
@@ -508,6 +540,162 @@ function handleExternalDropEvent(event) {
     }
 }
 
+// ====================================
+// Helper functions for opening app nodes in browser
+// ====================================
+
+function openAppNodeInWindow(appNode, windowId, index = null) {
+    // Open an app node (topic or link) in a specific browser window
+    // Optional index parameter specifies the tab position (leftmost tab if opening multiple)
+    if (appNode.isTopic()) {
+        // Open all children as tab group(s) in this window
+        const tabGroupsToOpen = appNode.listOpenableTabGroups();
+        if (tabGroupsToOpen.length > 0) {
+            sendMessage({
+                'function': 'openTabGroups',
+                'tabGroups': tabGroupsToOpen,
+                'windowId': windowId,
+                'newWin': false,
+                'index': index  // Position of first tab in first group
+            });
+        }
+    } else {
+        // Open single tab in this window (will create/use appropriate tab group)
+        callBackground({
+            'function': 'openTabs',
+            'tabs': [{'nodeId': appNode.id, 'url': appNode.URL}],
+            'defaultWinId': windowId,
+            'newWin': false,
+            'index': index  // Position for this tab
+        });
+    }
+}
+
+function openAppNodeInTabGroup(appNode, tabGroupId, windowId) {
+    // Open an app node (link only) in a specific tab group
+    // Topics are not allowed in tab groups (validation should prevent this)
+    if (appNode.isTopic()) {
+        console.warn('Cannot drop topic into tab group');
+        return;
+    }
+    
+    callBackground({
+        'function': 'openTabs',
+        'tabs': [{'nodeId': appNode.id, 'url': appNode.URL}],
+        'tabGroupId': tabGroupId,
+        'windowId': windowId,
+        'newWin': false
+    });
+}
+
+function openAppNodeInBrowser(appNode, sessionNode) {
+    // Open an unopened app node in the browser based on where it's dropped in the session tree
+    // This is called when dragging an app node (without tabId) into the session tree
+    
+    const sessionType = sessionNode.sessionType;
+    
+    if (sessionType === SessionNodeType.ROOT) {
+        // Drop into root → open in new window
+        if (appNode.isTopic()) {
+            appNode.openAll(true);  // true = new window
+        } else {
+            appNode.openPage(true);  // true = new window
+        }
+        return;
+    }
+    
+    if (sessionType === SessionNodeType.WINDOW) {
+        // Drop into window → open in that window
+        const windowId = sessionNode.windowId;
+        if (!windowId) {
+            console.warn('Session window has no windowId');
+            return;
+        }
+        
+        openAppNodeInWindow(appNode, windowId);
+        return;
+    }
+    
+    if (sessionType === SessionNodeType.GROUP) {
+        // Check if group is collapsed (drop as sibling) or expanded (drop into group)
+        if (sessionNode.folded) {
+            // Collapsed group - treat as drop below it (sibling under parent window)
+            const parentNode = sessionNode.parentId ? AllNodes[sessionNode.parentId] : null;
+            if (!parentNode || !parentNode.isSessionNode) {
+                console.warn('Group has no valid parent');
+                return;
+            }
+            
+            if (parentNode.sessionType === SessionNodeType.WINDOW) {
+                const windowId = parentNode.windowId;
+                if (!windowId) {
+                    console.warn('Parent window has no windowId');
+                    return;
+                }
+                
+                openAppNodeInWindow(appNode, windowId);
+            }
+            return;
+        }
+        
+        // Expanded group - drop into tab group → open tab in that specific group
+        const tabGroupId = sessionNode.tabGroupId;
+        const windowId = sessionNode.windowId;
+        
+        if (!tabGroupId || !windowId) {
+            console.warn('Session group missing IDs');
+            return;
+        }
+        
+        openAppNodeInTabGroup(appNode, tabGroupId, windowId);
+        return;
+    }
+    
+    if (sessionType === SessionNodeType.TAB) {
+        // Tab node - check immediate parent to determine behavior
+        const parentNode = sessionNode.parentId ? AllNodes[sessionNode.parentId] : null;
+        if (!parentNode || !parentNode.isSessionNode) {
+            console.warn('Tab node has no valid parent');
+            return;
+        }
+        
+        if (parentNode.sessionType === SessionNodeType.WINDOW) {
+            // Parent is Window - open in that window
+            const windowId = parentNode.windowId;
+            if (!windowId) {
+                console.warn('Parent window has no windowId');
+                return;
+            }
+            
+            openAppNodeInWindow(appNode, windowId);
+        } else if (parentNode.sessionType === SessionNodeType.GROUP) {
+            // Check if this is the bottom tab in the group
+            if (sessionNode.isBottomTabInGroup()) {
+                // Open as sibling to the group in the window (positioned after this tab)
+                const windowId = parentNode.windowId;
+                if (!windowId) {
+                    console.warn('Parent window has no windowId');
+                    return;
+                }
+                const targetIndex = sessionNode.tabIndex + 1;  // Position after this tab
+                openAppNodeInWindow(appNode, windowId, targetIndex);
+            } else {
+                // Normal case: open into the group
+                const tabGroupId = parentNode.tabGroupId;
+                const windowId = parentNode.windowId;
+                
+                if (!tabGroupId || !windowId) {
+                    console.warn('Parent group missing IDs');
+                    return;
+                }
+                
+                openAppNodeInTabGroup(appNode, tabGroupId, windowId);
+            }
+        }
+        return;
+    }
+}
+
 function dropNode(event, ui) {
     // Drop existing node w class=dragTarget below node w class=dropOver
     // NB if dropOver is expanded target becomes first child, if collapsed next sibling
@@ -520,6 +708,12 @@ function dropNode(event, ui) {
     const dropNodeId = $(dropDisplayNode).attr('data-tt-id');
     const dropBTNode = AllNodes[dropNodeId];
     const oldParentId = dragNode.parentId;
+
+    // Handle drop of unopened appNode into session tree
+    if (!dragNode.isSessionNode && dropBTNode.isSessionNode && !dragNode.tabId) {
+        openAppNodeInBrowser(dragNode, dropBTNode);
+        return;
+    }
 
     if (dropBTNode.isTrash() || dropBTNode.trashed) {
         // Drop into trash => delete node
@@ -543,55 +737,345 @@ function dropNode(event, ui) {
         dragNode.bookmarkId = null;
 }
 
+// ====================================
+// MOVE NODE - Refactored into specialized handlers
+// ====================================
+
 function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
-    // perform move for DnD and keyboard move - drop Drag over Drop
-    // browserAction => user dragged tab in browser window, not in topic tree
+    // Dispatch to appropriate handler based on node types
+    const dragIsSession = dragNode.isSessionNode;
+    const dropIsSession = dropNode.isSessionNode;
+    
+    if (dragIsSession && dropIsSession) {
+        moveSessionToSession(dragNode, dropNode, oldParentId, browserAction);
+    } else if (dragIsSession && !dropIsSession) {
+        moveSessionToApp(dragNode, dropNode, oldParentId, browserAction);
+    } else if (!dragIsSession && dropIsSession) {
+        console.warn("Should not get here - moving app to session should be handled elsewhere");
+        return;
+    } else {
+        moveAppToApp(dragNode, dropNode, oldParentId, browserAction);
+    }
+    
+    // Common post-move cleanup
+    cleanupAfterMove(oldParentId);
+    saveBT();
+    BTAppNode.generateTopics();
+}
+
+// ====================================
+// Common helper functions
+// ====================================
+
+function determineDropBehavior(dropNode) {
+    // Returns { isDropInto, newParent }
+    const isDropInto = dropNode.isTopic() && !dropNode.folded;
+    const newParent = isDropInto ? dropNode : (dropNode.parentId ? AllNodes[dropNode.parentId] : null);
+    return { isDropInto, newParent };
+}
+
+function calculateNewIndex(dragNode, dropNode, parent, oldParentId) {
+    // Calculate the index where dragNode should be inserted under parent
+    const dropNodeIndex = parent ? parent.childIds.indexOf(parseInt(dropNode.id)) : -1;
+    
+    if (oldParentId !== parent?.id) {
+        // Different parent: insert after dropNode
+        return dropNodeIndex + 1;
+    } else {
+        // Same parent: account for removal shifting indices
+        const dragNodeIndex = parent ? parent.childIds.indexOf(parseInt(dragNode.id)) : -1;
+        return (dragNodeIndex > dropNodeIndex) ? dropNodeIndex + 1 : dropNodeIndex;
+    }
+}
+
+function performTreeMove(dragNode, dropNode, parentId, newIndex, browserAction) {
+    // Execute the tree table move and positioning
+    const treeTable = $("#content");
+    const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
+    const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
+    
+    dragNode.handleNodeMove(parentId, newIndex, browserAction);
+    
+    if (parentId) {
+        treeTable.treetable("move", dragNode.id, parentId);
+        if (dragTr && dropTr) {
+            positionNode(dragTr, parentId, dropTr);
+        }
+    } else {
+        treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
+    }
+    
+    if (dragTr) {
+        $(dragTr).attr('data-tt-parent-id', parentId);
+    }
+}
+
+function cleanupAfterMove(oldParentId) {
+    // Clean up empty parent nodes after a move
+    if (!oldParentId) return;
     
     const treeTable = $("#content");
-    if (dropNode.isTopic() && !dropNode.folded ) {
-        // drop into dropNode as first child
+    const oldParentNode = AllNodes[oldParentId];
+    
+    if (!oldParentNode || oldParentNode.childIds.length > 0) {
+        // Parent still has children or doesn't exist
+        if (oldParentNode && oldParentNode.childIds.length === 0 && !oldParentNode.isSessionNode) {
+            const ttNode = treeTable.treetable("node", oldParentId);
+            if (ttNode) treeTable.treetable("unloadBranch", ttNode);
+        }
+        return;
+    }
+    
+    // Empty session GROUP nodes should be removed (mirrors Chrome behavior)
+    if (oldParentNode.isSessionNode && oldParentNode.sessionType === SessionNodeType.GROUP) {
+        const grandParentId = oldParentNode.parentId;
+        const grandParent = grandParentId != null ? AllNodes[grandParentId] : null;
+        const parentTreeNode = treeTable.treetable("node", oldParentNode.id);
+        
+        if (parentTreeNode) treeTable.treetable("removeNode", oldParentNode.id);
+        if (grandParent) grandParent.removeChild(oldParentNode.id);
+        delete AllNodes[oldParentNode.id];
+    }
+}
+
+// ====================================
+// Session-to-Session moves
+// ====================================
+
+function moveSessionToSession(dragNode, dropNode, oldParentId, browserAction) {
+    const treeTable = $("#content");
+    const { isDropInto, newParent } = determineDropBehavior(dropNode);
+    
+    // Special case: bottom TAB in GROUP - adjust parent to WINDOW instead of GROUP
+    let adjustedParent = newParent;
+    if (dropNode.sessionType === SessionNodeType.TAB && dropNode.isBottomTabInGroup()) {
+        // Get the grandparent (WINDOW) instead of parent (GROUP)
+        const groupParent = newParent;  // This is the GROUP
+        adjustedParent = groupParent?.parentId ? AllNodes[groupParent.parentId] : null;
+    }
+    
+    // Check canMoveTo with the adjusted parent
+    if (!dragNode.canMoveTo(adjustedParent)) return;
+    
+    // Special case: SESSION ROOT should never be treated as drop-into, always as parent
+    const isSessionRoot = dropNode.sessionType === SessionNodeType.ROOT;
+    
+    if (isDropInto && !isSessionRoot) {
+        // Drop into expanded topic as first child (but not ROOT)
         dragNode.handleNodeMove(dropNode.id, 0, browserAction);
         treeTable.treetable("move", dragNode.id, dropNode.id);
         const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
-        $(dragTr).attr('data-tt-parent-id', dropNode.id);
-    } else {
-        // drop below dropNode w same parent
-        const parentId = dropNode.parentId;
-        if (dragNode.id == parentId) {
-            console.log ("trying to drop onto self"); 
-            return;
-        }
-        const parent = parentId ? AllNodes[parentId] : null;
-        const dropNodeIndex = parent ? parent.childIds.indexOf(parseInt(dropNode.id)) : -1;
-        let newIndex;
-        if (oldParentId != parentId) {
-            newIndex = dropNodeIndex + 1;
-        } else {
-            // same parent, a bit tricky. Index dropNode +1 if dragging up, but if dragging down index will shift anyway when we remove it from its current position.
-            const dragNodeIndex = parent ? parent.childIds.indexOf(parseInt(dragNode.id)) : -1;
-            newIndex = (dragNodeIndex > dropNodeIndex) ? dropNodeIndex + 1 : dropNodeIndex;
-        }
-
-        dragNode.handleNodeMove(parentId, parent ? newIndex : -1, browserAction);
-        if (parentId) {
-            const dragTr = $(`tr[data-tt-id='${dragNode.id}']`)[0];
-            const dropTr = $(`tr[data-tt-id='${dropNode.id}']`)[0];
-            treeTable.treetable("move", dragNode.id, parentId);
-            positionNode(dragTr, parentId, dropTr);          // sort into position
-        } else {
-            treeTable.treetable("insertAtTop", dragNode.id, dropNode.id);
-        }
+        if (dragTr) $(dragTr).attr('data-tt-parent-id', dropNode.id);
+        return;
     }
     
-    // update tree row if oldParent is now childless
-    if (oldParentId && (AllNodes[oldParentId].childIds.length == 0)) {
-        const ttNode = $("#content").treetable("node", oldParentId);
-        $("#content").treetable("unloadBranch", ttNode);
+    // Drop below node as sibling (or into ROOT as child)
+    let parentId = dropNode.parentId;
+    let parent = parentId ? AllNodes[parentId] : null;
+    let dropReference = dropNode;  // Node to use for index calculation
+    
+    // Special case: dropping into/below ROOT means into ROOT
+    if (isSessionRoot) {
+        parentId = dropNode.id;
+        parent = dropNode;
     }
+    
+    // Apply the adjusted parent if dropping below bottom TAB in GROUP
+    if (adjustedParent && adjustedParent !== newParent) {
+        parentId = adjustedParent.id;
+        parent = adjustedParent;
+        // Use the GROUP (original parent) as reference since it's a child of adjusted WINDOW
+        dropReference = newParent;  // newParent is the GROUP
+    }
+    
+    if (dragNode.id === parentId) {
+        console.log("trying to drop onto self");
+        return;
+    }
+    
+    const sessionRoot = parent?.sessionType === SessionNodeType.ROOT ? parent : null;
+    const newIndex = calculateNewIndex(dragNode, dropReference, parent, oldParentId);
+    
+    // Check if we need to create a new window (TAB/GROUP dropped into ROOT)
+    const needsNewWindow = !browserAction && 
+                          dragNode.isSessionNode && 
+                          sessionRoot && 
+                          dragNode.sessionType !== SessionNodeType.WINDOW;
+    
+    if (needsNewWindow) {
+        createSessionNode(dragNode, dropNode, sessionRoot, newIndex, browserAction);
+    } else {
+        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
+    }
+}
 
-    // update the rest of the app, backing store
-    saveBT();
-    BTAppNode.generateTopics();
+function createSessionNode(dragNode, dropNode, sessionRoot, newIndex, browserAction) {
+    // Create and position sessionNode in the tree at appropriate index. then create window in browser
+    const treeTable = $("#content");
+    const windowTitle = BTSessionNode.generateWindowTitle();
+    const createdWindowNode = new BTSessionNode(windowTitle, sessionRoot.id, '', sessionRoot.level + 1, {
+        sessionType: SessionNodeType.WINDOW,
+    });
+    createdWindowNode.windowId = 0;
+    createdWindowNode.tabGroupId = 0;
+    createdWindowNode.createDisplayNode();
+    
+    // Position the window node
+    const currentIndex = sessionRoot.childIds.indexOf(createdWindowNode.id);
+    if (currentIndex > -1 && currentIndex !== newIndex) {
+        sessionRoot.childIds.splice(currentIndex, 1);
+        const insertIndex = Math.min(newIndex, sessionRoot.childIds.length);
+        sessionRoot.childIds.splice(insertIndex, 0, createdWindowNode.id);
+    }
+    
+    treeTable.treetable("move", createdWindowNode.id, sessionRoot.id);
+    const windowTr = $(`tr[data-tt-id='${createdWindowNode.id}']`)[0];
+    const dropTrRef = $(`tr[data-tt-id='${dropNode.id}']`)[0];
+    if (windowTr && dropTrRef) positionNode(windowTr, sessionRoot.id, dropTrRef);
+    
+    // Move dragNode into the new window
+    const effectiveBrowserAction = true;  // browserAction || createdWindow
+    performTreeMove(dragNode, dropNode, createdWindowNode.id, 0, effectiveBrowserAction);
+    
+    // Handle browser window creation
+    createBrowserWindow(dragNode, createdWindowNode);
+}
+
+function createBrowserWindow(dragNode, windowNode) {
+    // Create actual browser window with tabs from the session node
+    // Uses background.js to move existing tabs to a new window
+    
+    const originalGroupId = (dragNode.sessionType === SessionNodeType.GROUP) ? dragNode.tabGroupId : 0;
+    const originalGroupColor = dragNode.tgColor;
+    const originalGroupCollapsed = dragNode.folded;
+    
+    const tabNodes = (dragNode.sessionType === SessionNodeType.GROUP)
+        ? dragNode.childIds.map(id => AllNodes[id]).filter(node => node?.sessionType === SessionNodeType.TAB)
+        : [dragNode];
+    
+    const tabIds = tabNodes.map(node => node?.tabId).filter(id => Number.isInteger(id));
+    
+    if (!tabIds.length) return;
+    
+    // Reset window/tab info - will be updated by browser events after move
+    tabNodes.forEach((tabNode, idx) => {
+        if (!tabNode) return;
+        tabNode.windowId = 0;
+        tabNode.tabIndex = idx;
+        if (dragNode.sessionType !== SessionNodeType.GROUP) tabNode.tabGroupId = 0;
+    });
+    dragNode.windowId = 0;
+    if (dragNode.sessionType !== SessionNodeType.GROUP) {
+        dragNode.tabGroupId = 0;
+        dragNode.setTGColor(null);
+    }
+    
+    // Call background script to move tabs to new window
+    callBackground({
+        'function': 'moveTabsToNewWindow',
+        'tabIds': tabIds,
+        'preserveGroup': dragNode.sessionType === SessionNodeType.GROUP,
+        'groupTitle': dragNode.sessionType === SessionNodeType.GROUP ? dragNode.title : null,
+        'groupColor': originalGroupColor,
+        'groupCollapsed': originalGroupCollapsed
+    }).then(response => {
+        if (!response || response.status !== 'success') {
+            console.warn('moveTabsToNewWindow failed', response?.message);
+            return;
+        }
+        
+        const result = response.message || {};
+        if (result.windowId) {
+            windowNode.windowId = result.windowId;
+            dragNode.windowId = result.windowId;
+            tabNodes.forEach((tabNode, idx) => {
+                if (!tabNode) return;
+                tabNode.windowId = result.windowId;
+                tabNode.tabIndex = idx;
+            });
+        }
+        
+        if (dragNode.sessionType === SessionNodeType.GROUP && result.tabGroupId) {
+            dragNode.tabGroupId = result.tabGroupId;
+            tabNodes.forEach(tabNode => { 
+                if (tabNode) tabNode.tabGroupId = result.tabGroupId; 
+            });
+            if (originalGroupColor) dragNode.setTGColor(originalGroupColor);
+        }
+        
+        // Browser events will trigger snapshot which updates the UI
+        setTimeout(() => {
+            sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
+        }, 100);
+    }).catch(err => {
+        console.error('moveTabsToNewWindow error:', err);
+    });
+}
+
+// ====================================
+// Session-to-App moves
+// ====================================
+
+function moveSessionToApp(dragNode, dropNode, oldParentId, browserAction) {
+    // Moving a session node into the app tree (ungroups/closes tabs)
+    const { isDropInto, newParent } = determineDropBehavior(dropNode);
+    
+    if (!dragNode.canMoveTo(newParent)) return;
+    
+    if (isDropInto) {
+        // Drop into expanded topic as first child
+        performTreeMove(dragNode, dropNode, dropNode.id, 0, browserAction);
+    } else {
+        // Drop below node as sibling
+        const parentId = dropNode.parentId;
+        const parent = parentId ? AllNodes[parentId] : null;
+        const newIndex = calculateNewIndex(dragNode, dropNode, parent, oldParentId);
+        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
+    }
+}
+
+// ====================================
+// App-to-Session moves
+// ====================================
+
+function moveAppToSession(dragNode, dropNode, oldParentId, browserAction) {
+    // Moving an app node into session tree (groups/opens tabs)
+    const { isDropInto, newParent } = determineDropBehavior(dropNode);
+    
+    if (!dragNode.canMoveTo(newParent)) return;
+    
+    if (isDropInto) {
+        // Drop into expanded topic as first child
+        performTreeMove(dragNode, dropNode, dropNode.id, 0, browserAction);
+    } else {
+        // Drop below node as sibling
+        const parentId = dropNode.parentId;
+        const parent = parentId ? AllNodes[parentId] : null;
+        const newIndex = calculateNewIndex(dragNode, dropNode, parent, oldParentId);
+        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
+    }
+}
+
+// ====================================
+// App-to-App moves
+// ====================================
+
+function moveAppToApp(dragNode, dropNode, oldParentId, browserAction) {
+    // Standard app tree movement
+    const { isDropInto, newParent } = determineDropBehavior(dropNode);
+    
+    if (!dragNode.canMoveTo(newParent)) return;
+    
+    if (isDropInto) {
+        // Drop into expanded topic as first child
+        performTreeMove(dragNode, dropNode, dropNode.id, 0, browserAction);
+    } else {
+        // Drop below node as sibling
+        const parentId = dropNode.parentId;
+        const parent = parentId ? AllNodes[parentId] : null;
+        const newIndex = calculateNewIndex(dragNode, dropNode, parent, oldParentId);
+        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
+    }
 }
 
 function positionNode(dragNode, dropParentId, dropBelow) {
@@ -692,6 +1176,5 @@ export {
     processBTFile, 
     initializeNotesColumn, 
     initializeUI, 
-    moveNode, 
-    Resizing 
+    moveNode,
 };

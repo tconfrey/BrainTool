@@ -18,9 +18,12 @@
  * We don't bother trying to manage individual changes, we just resync the whole thing every time.
  ***/
 
-import { sendMessage } from './extensionMessaging.js';
+import { sendMessage, registerMessageHandler } from './extensionMessaging.js';
 import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
+import { saveBT } from './fileManager.js';
+import { initializeUI } from './tableManager.js';
+import { deleteNode } from './rowManager.js';
 
 // Callback for processing imports - registered by bt.js
 let processImportCallback = null;
@@ -73,6 +76,10 @@ function loadBookmarkNode(bkNode, parent) {
         btNode.folded = true;
     if (!bkNode.children || bkNode.children.length == 0) return newNodes;
 
+    // remove emptyTopic class from bookmarks bar display node
+    const bbar = BTAppNode.findOrCreateBookmarksBarNode();
+    $(bbar.getDisplayNode()).removeClass("emptyTopic");
+
     // handle children
     bkNode.children.forEach(n => {
         let hasKids = n?.children?.length || 0;
@@ -98,7 +105,7 @@ function loadBookmarkNode(bkNode, parent) {
 function syncBookmarksBar(msg) {
     // bar has changed, sync btappnode tree to match
 
-    const bookmarksBarNode = AllNodes.find(node => node && node.isBookmarksBar());
+    const bookmarksBarNode = BTAppNode.findOrCreateBookmarksBarNode();
     if (msg.result != 'success' || !bookmarksBarNode) 
         return;
 
@@ -114,11 +121,13 @@ function syncBookmarksBar(msg) {
     
     // Remove bookmarks that no longer exist and save/update
     removeUnprocessedBookmarks(bookmarksBarNode, processedIds);
-    //!!!!!!!!!!!!!! initializeUI();
+    initializeUI();
     bbFolded && $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);        // Restore folded state if it was folded
+    if (bookmarksBarNode.childIds.length > 0)
+        $(bookmarksBarNode.getDisplayNode()).removeClass("emptyTopic");
 
-    //!!!!!!!!!!!!! saveBT();
-    
+    saveBT();
+
     // Helper function to process a folder's contents
     function processFolderContents(bookmarks, parentNode) {
         // Process each bookmark
@@ -316,5 +325,9 @@ function bookmarksBarIds(msg) {
         node.bookmarkId = mapped;
     }
 }
+
+registerMessageHandler('bookmarks', loadBookmarks);
+registerMessageHandler('bookmarksBar', syncBookmarksBar);
+registerMessageHandler('bookmarksBarIds', bookmarksBarIds);
 
 export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport };

@@ -24,7 +24,7 @@ import { sendMessage, callBackground } from './extensionMessaging.js';
 import { localStorageManager } from './localFileManager.js';
 
 var Topics = [];                                                                                // track topics for future tab assignment
-const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐🗂️ SESSION'];
+const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐 CURRENT SESSION'];
 class BTAppNode extends BTNode {
 
     /***
@@ -43,7 +43,7 @@ class BTAppNode extends BTNode {
         this._tabGroupId = 0;
         this._windowId = 0;
         this._opening = false;
-    this.aliases = new Set();                 // Set of alias URLs that map to this node's URL
+        this.aliases = new Set();                 // Set of alias URLs that map to this node's URL
 
         // Three attributes of org ndes to track
         this.drawers = {};
@@ -51,6 +51,33 @@ class BTAppNode extends BTNode {
         this.planning = "";
         
         AllNodes[this._id] = this;
+    }
+
+    allowedRowActions() {
+        // Row action defaults; specialized nodes override to disable operations
+        return {
+            open: true,
+            openInNewWindow: true,
+            close: true,
+            delete: true,
+            addChild: true,
+            promote: true,
+            edit: true,
+            todo: true,
+            drag: true,
+        };
+    }
+
+    canAcceptDrop(node) {
+        // Default: allow any child node to be dropped beneath this node
+        void node;
+        return true;
+    }
+
+    canMoveTo(parentNode) {
+        // Default: allow moving under any parent (or top-level)
+        void parentNode;
+        return true;
     }
 
     set text(txt) {
@@ -167,6 +194,22 @@ class BTAppNode extends BTNode {
      *
      ***/
     
+    rowClassList() {
+        const classes = [];
+        if (this.isTopic()) {
+            classes.push('topic');
+            if (!this.childIds.length) classes.push('emptyTopic');
+        }
+        return classes;
+    }
+
+    titleSpanClassList() {
+        const classes = this.isTopic() ? ['btTitleText', 'btTitle'] : ['btTitle'];
+        if (specialTopics.includes(this.title)) classes.push('specialTopic');
+        if (this.trashed) classes.push('trashed');
+        return classes;
+    }
+
     HTML() {
         // Generate HTML for this nodes table row
         let outputHTML = "";
@@ -174,16 +217,13 @@ class BTAppNode extends BTNode {
         if (this.parentId || this.parentId === 0)
             outputHTML += `data-tt-parent-id='${this.parentId}'`;
 
-        let emptyTopic = (this.isTopic() && !this.childIds.length) ? "emptyTopic" : "";
-        outputHTML += (this.isTopic()) ? `class='topic ${emptyTopic}' data-tt-branch='true'` : "";
+        const rowClasses = this.rowClassList();
+        if (rowClasses.length) outputHTML += ` class='${rowClasses.join(' ')}'`;
+        if (this.isTopic()) outputHTML += ` data-tt-branch='true'`;
 
-        let topicClasses = (this.isTopic()) ? "btTitleText btTitle" : "btTitle";
-        if (specialTopics.includes(this.title))
-            topicClasses += " specialTopic";
-        if (this.trashed) 
-            topicClasses += " trashed";
+        const titleClasses = this.titleSpanClassList().join(' ');
 	    
-        outputHTML += `><td class='left'><span class='${topicClasses}'>${this.displayTitle()}</span></td>`;
+        outputHTML += `><td class='left'><span class='${titleClasses}'>${this.displayTitle()}</span></td>`;
         outputHTML += `<td class='right'><span class='btText'>${this.displayText()}</span></td></tr>`;
         return outputHTML;
     }
@@ -299,6 +339,31 @@ class BTAppNode extends BTNode {
         // call out to treetable w nodes html, really its create or return. 
         // atTop is special case handling in ttable for a new top level node
         if (this.getTTNode()) return this.getTTNode();
+        
+        // For top-level app nodes, we need to insert after session nodes
+        if (this.level == 1 && !this.isSessionNode) {
+            // Find the last displayed session node by looking at actual DOM order
+            let lastSessionRow = null;
+            $("#content tr").each(function() {
+                const nodeId = $(this).attr('data-tt-id');
+                const node = AllNodes[nodeId];
+                if (node && node.isSessionNode) {
+                    lastSessionRow = this;
+                }
+            });
+            
+            if (lastSessionRow) {
+                // Insert after the last session node found in the table
+                $(this.HTML()).insertAfter(lastSessionRow);
+                const tree = $("table.treetable").data("treetable");
+                tree.loadRows($(this.getDisplayNode()));
+                return this.getTTNode();
+            }
+            // Fallback: if no session nodes, use atTop=true
+            $("table.treetable").treetable("loadBranch", null, this.HTML(), true);
+            return this.getTTNode();
+        }
+        
         const atTop = (this.level == 1) ? true : false;
         const displayParent = (this.parentId) ? AllNodes[this.parentId].createDisplayNode() : null;
         $("table.treetable").treetable("loadBranch", displayParent, this.HTML(), atTop);
@@ -306,23 +371,18 @@ class BTAppNode extends BTNode {
     }
 
     redisplay(show=false) {
-	    // regenerate content
-	    const dn = this.getDisplayNode();
+        // regenerate content
+        const dn = this.getDisplayNode();
         let keywordText = (this._keyword) ? `<span class='keyword'>${this._keyword} </span>` : ""; // TODO etc
 
-	    $(dn).find("span.btTitleText").html(keywordText + this.displayTopic);
-	    $(dn).find("span.btText").html(this.displayText());
-	    $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
+        $(dn).find("span.btTitleText").html(keywordText + this.displayTopic);
+        $(dn).find("span.btText").html(this.displayText());
+        $(dn).find("span.btText").scrollTop(0);           // might have scrolled down for search
         $(dn).find(".left").scrollLeft(0);                // might have scrolled right for search
         $(dn).find(".left").css("text-overflow", "ellipsis");    // reset text overflow default
-        /* !!!!! Refactor issue, but don't think it's needed on redisplay.
-	    $(dn).find("a").each(function() {				  // reset link click intercept
-	        //this.onclick = handleLinkClick;
-	    });
-        */
         if (this.isTopic() && this.childIds.length) $(dn).removeClass('emptyTopic');
         if (this.isTopic() && !this.childIds.length) $(dn).addClass('emptyTopic');
-	    show && this.showForSearch();					  // reclose if needed
+        show && this.showForSearch();				  // reclose if needed
     }
 
     setTGColor(color = null) {
@@ -331,16 +391,19 @@ class BTAppNode extends BTNode {
         if (!displayNode) return;
         this.tgColor = color;                      // remember color thru a refresh
         const colorClass = color ? 'tg'+color : null;
-        const selector = this.isTopic() ? ".btTitle" : ".btTitle span.btTitleText";
+        const titleSelector = this.isTopic() ? ".btTitle" : ".btTitle span.btTitleText";
+        const row = $(displayNode);
 
-        // remove any prev color and add new color or no longer shown in tg -> remove class
-        $(displayNode).find(selector).removeClass(
-            ['tggrey', 'tgblue', 'tgred', 'tgyellow', 'tggreen', 'tgpink',
-             'tgpurple', 'tgcyan', 'tgorange']);
-        if (color)
-            $(displayNode).find(selector).addClass(['tabgroup', colorClass]);
-        else
-            $(displayNode).find(selector).removeClass('tabgroup');
+        const colorClasses = ['tggrey', 'tgblue', 'tgred', 'tgyellow', 'tggreen', 'tgpink',
+             'tgpurple', 'tgcyan', 'tgorange'];
+
+        row.removeClass(colorClasses.concat('tabgroup'));
+        $(displayNode).find(titleSelector).removeClass(colorClasses.concat('tabgroup'));
+
+        if (color) {
+            row.addClass(['tabgroup', colorClass]);
+            $(displayNode).find(titleSelector).addClass(['tabgroup', colorClass]);
+        }
 
         // iterate to contained nodes
         this.childIds.forEach(id => {
@@ -419,13 +482,13 @@ class BTAppNode extends BTNode {
             console.warn(`Error storing alias: ${e}`);
         }
     }
-    static async findFromAlias(url) {
+    static async findFromAlias(url, { isSession = false } = {}) {
         // find the node, if any, for which this url is an alias for the actual url
         try {
             // On first use, hydrate alias Sets for all nodes from the DB
             await BTAppNode._loadAliasesOnce();
             // Fast in-memory lookup thereafter
-            return AllNodes.find(n => n && n.aliases && n.aliases.has(url));
+            return AllNodes.find(n => n && n.aliases && n.aliases.has(url) && (!!n.isSessionNode === isSession));
         }
         catch (e) {
             console.warn(`Error finding alias: ${e}`);
@@ -460,7 +523,10 @@ class BTAppNode extends BTNode {
             this.src = 'resources/help.png';                    // if no favicon found, use ? from help icon
             this.width = this.height = 16;
         });
-        $(dn).find('.btlink').prepend(fav);
+        let iconTarget = $(dn).find('.btlink').first();
+        if (!iconTarget.length) iconTarget = $(dn).find('.btTitle span.btTitleText').first();
+        if (!iconTarget.length) return;
+        iconTarget.prepend(fav);
     }
     static populateFavicons() {
         // iterate thru tab nodes adding favicon icon either from local storage or goog
@@ -769,9 +835,9 @@ class BTAppNode extends BTNode {
     }
 
     async updateTabGroup() {
-        // set TG in browser to appropriate name/folded state
+        // set TG in browser to appropriate name/folded state. browserUpdate is set when expand/collapse came from browser
         let rsp;
-        if (this.tabGroupId && this.isTopic())
+        if (this.tabGroupId && this.isTopic() && !Window.BrainTool.browserUpdate)
             rsp = await callBackground({'function': 'updateGroup', 'tabGroupId': this.tabGroupId,
                                   'collapsed': this.folded, 'title': this.topicName()});
         if (rsp?.status == 'error') this.tabGroupId = 0; // if error, reset tabGroupId
@@ -868,10 +934,12 @@ class BTAppNode extends BTNode {
 
     orgTextwChildren() {
         // Generate org text for this node and its descendents
+        if (this.isSessionNode) return "";
         let outputOrg = this.orgText();
         if (this.isTrash() || this.isBookmarksBar()) return outputOrg;       // don't save these
         this.childIds.forEach(function(id) {
             if (!AllNodes[id]) return;
+            if (AllNodes[id].isSessionNode) return;
             let txt = AllNodes[id].orgTextwChildren();
             outputOrg += txt.length ? "\n" + txt : "";        // eg BTLinkNodes might not have text 
         });
@@ -883,7 +951,7 @@ class BTAppNode extends BTNode {
         let orgText = metaPropertiesToString();
         
         // find and order the top level nodes according to table position
-        const topNodes = AllNodes.filter(node => node && !node.parentId);
+        const topNodes = AllNodes.filter(node => node && (node.parentId == null) && !node.isSessionNode);
         topNodes.sort(function(a,b) {
             const eltA = $(`tr[data-tt-id='${a.id}']`)[0];
             const eltB = $(`tr[data-tt-id='${b.id}']`)[0];
@@ -894,6 +962,7 @@ class BTAppNode extends BTNode {
         
         // iterate on top level nodes, generate text and recurse
         topNodes.forEach(function (node) {
+            if (node.isSessionNode) return;
             orgText += node.orgTextwChildren() + "\n";
         });
         return orgText.slice(0, -1);                                      // take off final \n
@@ -1044,8 +1113,12 @@ class BTAppNode extends BTNode {
             const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
             if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
             if (!browserAction && !newParent.isTrash()) {
-                newParent.tabGroupId ? newParent.groupAndPosition(newLeft) : this.putInGroup();
-                newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
+                if (newParent.tabGroupId) {
+                    newParent.groupAndPosition(newLeft);
+                    newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
+                } else if (!this.isSessionNode) {
+                    this.putInGroup();
+                }
             }
             // update old P's display node to remove open tg styling
             if (!oldParent?.hasOpenChildren()) {
@@ -1091,7 +1164,7 @@ class BTAppNode extends BTNode {
 
         function topicsForNode(id) {
             // recurse over children
-            if (!AllNodes[id]) return;
+            if (!AllNodes[id] || AllNodes[id].isSessionNode) return;
             if (AllNodes[id].isTrash()) return;                  // don't include trash
             if (AllNodes[id].isTopic())
                 Topics.push({'name' : AllNodes[id].topicPath, 'level' : AllNodes[id].level});
@@ -1104,7 +1177,7 @@ class BTAppNode extends BTNode {
         Topics.length = 0;                                               // clear array
         $("#content tr").each(function() {
             const id = $(this).attr('data-tt-id');
-            if (AllNodes[id]?.parentId == null)
+            if (AllNodes[id]?.parentId == null && !AllNodes[id]?.isSessionNode)
                 topicsForNode(id);
         });
         
@@ -1112,20 +1185,42 @@ class BTAppNode extends BTNode {
         sendMessage({'function': 'localStore', 'data': {'topics': Topics }});
     }
     
-    static findFromTab(tabId) {
+    static findFromTab(tabId, { isSession = false } = {}) {
         // Return node associated w display tab
-        return AllNodes.find(node => node && (node.tabId == tabId));
+        return AllNodes.find(node => node && (node.tabId == tabId) && (!!node.isSessionNode === isSession));
     }
-    static findFromBookmark(bookmarkId) {
+    static findFromBookmark(bookmarkId, { isSession = false } = {}) {
         // Return node associated w display tab
-        return AllNodes.find(node => node && (node.bookmarkId == bookmarkId));
+        return AllNodes.find(node => node && (node.bookmarkId == bookmarkId) && (!!node.isSessionNode === isSession));
     }
     
-    static findFromURLTGWin(url, tg, win) {
+    sisterNodes() {
+        // Return list of nodes with the same tabId or tabGroupId (e.g., appNode and corresponding sessionNode)
+        // For tab nodes: find by tabId
+        // For topic/group nodes: find by tabGroupId
+        if (this.isTopic()) {
+            // Topic/Group nodes: match by tabGroupId
+            if (!this.tabGroupId) return [];
+            const sisterNode = this.isSessionNode 
+                ? BTAppNode.findFromGroup(this.tabGroupId, { isSession: false })
+                : BTAppNode.findFromGroup(this.tabGroupId, { isSession: true });
+            return sisterNode ? [sisterNode] : [];
+        } else {
+            // Tab nodes: match by tabId
+            if (!this.tabId) return [];
+            return AllNodes.filter(node => 
+                node && 
+                node.id !== this.id && 
+                node.tabId === this.tabId
+            );
+        }
+    }
+    
+    static findFromURLTGWin(url, tg, win, { isSession = false } = {}) {
         // find node from url/TG/Window combo.
         // #1 is there a unique BT node w url
         // #2 is there a matching url in same TG or window as new tab
-        const urlNodes = AllNodes.filter(node => node && BTNode.compareURLs(node.URL, url));
+        const urlNodes = AllNodes.filter(node => node && (!!node.isSessionNode === isSession) && BTNode.compareURLs(node.URL, url));
         if (urlNodes.length == 0) return null;
         if (urlNodes.length == 1) return urlNodes[0];
         for (const node of urlNodes) {
@@ -1141,14 +1236,30 @@ class BTAppNode extends BTNode {
         return urlNodes[0];                                      // else just use first
     }
 
-    static findFromWindow(winId) {
-        // find topic from win
-        return AllNodes.find(node => node && node.isTopic() && node.windowId == winId);
+    static findFromWindow(winId, { isSession = false } = {}) {
+        // find WINDOW node from windowId
+        if (isSession) {
+            // For session nodes, must be a WINDOW type node with this windowId
+            return AllNodes.find(node => 
+                node && 
+                node.isSessionNode && 
+                node.sessionType === 'WINDOW' && 
+                node.windowId == winId
+            );
+        } else {
+            // For app nodes, find topic with this windowId
+            return AllNodes.find(node => 
+                node && 
+                !node.isSessionNode && 
+                node.isTopic() && 
+                node.windowId == winId
+            );
+        }
     }
     
-    static findFromGroup(groupId) {
+    static findFromGroup(groupId, { isSession = false } = {}) {
         // find topic from tab group
-        return AllNodes.find(node => node && node.isTopic() && node.tabGroupId == groupId);
+    return AllNodes.find(node => node && (!!node.isSessionNode === isSession) && node.isTopic() && node.tabGroupId == groupId);
     }
     
     static findOrCreateFromTopicDN(topicDN) {
@@ -1159,7 +1270,7 @@ class BTAppNode extends BTNode {
         const topTopic = (components && components.length) ? components[0] : topic;
 
         // Find or create top node
-        let topNode = AllNodes.find(node => node && (node.topicName() == topTopic) && (node.isTopic()));
+        let topNode = AllNodes.find(node => node && !node.isSessionNode && (node.topicName() == topTopic) && (node.isTopic()));
         let newTopNodeId;
         if (!topNode) {
             topNode = new BTAppNode(topTopic, null, "", 1);

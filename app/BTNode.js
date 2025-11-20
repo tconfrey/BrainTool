@@ -89,6 +89,15 @@ class BTNode {
     get childIds() {
         return this._childIds;
     }
+    set childIds(ids) {
+        if (!Array.isArray(ids)) {
+            this._childIds = [];
+            return;
+        }
+        this._childIds = ids
+            .map(id => Number.parseInt(id, 10))
+            .filter(id => !Number.isNaN(id));
+    }
     addChild(id, index, firstChild = false) {
         if (index !== false)
             this._childIds.splice(index, 0, parseInt(id));
@@ -163,7 +172,8 @@ class BTNode {
             ary.splice(to, 0, elt);
         }
         // throw an exception if newP = oldP
-        if (newP == this._id) throw "reparentNode: setting self to parent!";
+        if (newP == this._id) 
+            throw "reparentNode: setting self to parent!";
     
         const oldP = this.parentId;
         if (!oldP && !newP) return;             // nothing to do
@@ -254,14 +264,15 @@ class BTNode {
         }
     }
 
-    static findFromTitle(title) {
-        return AllNodes.find(node => (node && (node.title == title)));
+    static findFromTitle(title, { isSession = false } = {}) {
+        return AllNodes.find(node => (node && (node.title == title) && (!!node.isSessionNode === isSession)));
     }
 
-    static findFromURL(url) {
+    static findFromURL(url, { isSession = false } = {}) {
         return AllNodes.find(node =>
 			                 (node &&
-			                  (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url))));
+			                  (BTNode.compareURLs(BTNode.URLFromTitle(node.title), url)) &&
+                              (!!node.isSessionNode === isSession)));
     }
     
     static topIndex = 1;    // track the index of the next node to create, static class variable.
@@ -336,6 +347,7 @@ class BTNode {
         let level = 1;
         AllNodes.forEach((n) => {
             if (!n) return;
+            if (n.isSessionNode) return;
             const topicName = n.topicName();
             if (n.isTopic()) {
                 if (topics[topicName]) {
@@ -380,6 +392,7 @@ class BTNode {
         
         // Finally set topic for link nodes to parent
         AllNodes.forEach(node => {
+            if (!node || node.isSessionNode) return;
             if (!node.isTopic()) {
                 if (node.parentId && AllNodes[node.parentId])
                     node._topicPath = AllNodes[node.parentId].topicPath;

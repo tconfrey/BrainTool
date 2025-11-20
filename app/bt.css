@@ -15,12 +15,12 @@
     --btControlsFont: Roboto;
     --btLetterSpacing: 0.02em;
     
-    --btTopicFontWeight: 900;
+    --btTopicFontWeight: 500;
     --btTopicFontSize: 12px;
     --btTopicLineHeight: 14px;
     --btIndenterTopOffset: -8px;
 
-    --btPageFontWeight: bold;
+    --btPageFontWeight: 500;
     --btPageFontSize: 10px;
     --btPageLineHeight: 12px;
 
@@ -62,11 +62,40 @@
     --btWarningBackground: #F31D1D;
     --btTipBackground: #B9CDDF;
 
+    /* Tab group palette */
+    --tg-grey-bg: grey;
+    --tg-grey-bg-rgb: 128, 128, 128;
+    --tg-grey-fg: white;
+    --tg-blue-bg: rgb(24, 89, 226);
+    --tg-blue-bg-rgb: 24, 89, 226;
+    --tg-blue-fg: white;
+    --tg-red-bg: rgb(206, 26, 29);
+    --tg-red-bg-rgb: 206, 26, 29;
+    --tg-red-fg: white;
+    --tg-yellow-bg: rgb(247, 155, 6);
+    --tg-yellow-bg-rgb: 247, 155, 6;
+    --tg-yellow-fg: black;
+    --tg-green-bg: green;
+    --tg-green-bg-rgb: 0, 128, 0;
+    --tg-green-fg: white;
+    --tg-pink-bg: rgb(194, 0, 113);
+    --tg-pink-bg-rgb: 194, 0, 113;
+    --tg-pink-fg: white;
+    --tg-purple-bg: rgb(142, 28, 240);
+    --tg-purple-bg-rgb: 142, 28, 240;
+    --tg-purple-fg: white;
+    --tg-cyan-bg: rgb(14, 104, 111);
+    --tg-cyan-bg-rgb: 14, 104, 111;
+    --tg-cyan-fg: white;
+    --tg-orange-bg: orange;
+    --tg-orange-bg-rgb: 255, 165, 0;
+    --tg-orange-fg: black;
+
     /* Items below differ in the DARK theme */
     
     --btColor: #3C4749;  /* was #2a3f3e;*/
     --btNoteColor: #636363; /* was #808285; */
-    --btTopicBackground: #bcc4c5;
+    --btTopicBackground: #d4dadb; /* was #bcc4c5; */
     --btPageBackground: #d4dadb;
 
     /* uncomment to set note background color 
@@ -115,7 +144,7 @@
 
     --btColor: whitesmoke; /* was #aebabc #b6c3c3; */
     --btNoteColor: ghostwhite; /* #aab6b8 */
-    --btTopicBackground: #3d4749;
+    --btTopicBackground: #626A6C; /* #3d4749; */
     --btPageBackground: #626A6C;
 
     --btInputBackground: #2d2d2d;
@@ -1177,39 +1206,121 @@ img.faviconOff {
     padding: var(--btTabgroupPadding); 
     border-radius: 5px;
 }
+
+/* Session node rows adopt the tab group color across the full row */
+tr.sessionNode.tabgroup[class*='tg'] > td {
+    background-color: inherit !important;
+    color: inherit !important;
+}
+
+    /* Tab group palette from above
+    --tg-grey-bg: grey;
+    --tg-grey-bg-rgb: 128, 128, 128;
+    --tg-grey-fg: white;
+    --tg-blue-bg: rgb(24, 89, 226);
+    --tg-blue-bg-rgb: 24, 89, 226;
+    --tg-blue-fg: white;
+    --tg-red-bg: rgb(206, 26, 29);
+    --tg-red-bg-rgb: 206, 26, 29;
+    --tg-red-fg: white;
+    --tg-yellow-bg: rgb(247, 155, 6);
+    --tg-yellow-bg-rgb: 247, 155, 6;
+    --tg-yellow-fg: black;
+    --tg-green-bg: green;
+    --tg-green-bg-rgb: 0, 128, 0;
+    --tg-green-fg: white;
+    --tg-pink-bg: rgb(194, 0, 113);
+    --tg-pink-bg-rgb: 194, 0, 113;
+    --tg-pink-fg: white;
+    --tg-purple-bg: rgb(142, 28, 240);
+    --tg-purple-bg-rgb: 142, 28, 240;
+    --tg-purple-fg: white;
+    --tg-cyan-bg: rgb(14, 104, 111);
+    --tg-cyan-bg-rgb: 14, 104, 111;
+    --tg-cyan-fg: white;
+    --tg-orange-bg: orange;
+    --tg-orange-bg-rgb: 255, 165, 0;
+    --tg-orange-fg: black;
+    */
+
 .tggrey {
-    background: grey;
-    color: white !important;
+    background: var(--tg-grey-bg);
+    background-color: var(--tg-grey-bg);
+    color: var(--tg-grey-fg) !important;
+}
+tr.sessionNode.tabgroup.tggrey {
+    background-color: rgba(var(--tg-grey-bg-rgb), 0.25);
+    color: var(--tg-grey-fg) !important;
 }
 .tgblue {
-    background: rgb(24, 89, 226);
-    color: white !important;
+    background: var(--tg-blue-bg);
+    background-color: var(--tg-blue-bg);
+    color: var(--tg-blue-fg) !important;
+}
+tr.sessionNode.tabgroup.tgblue {
+    background-color: rgba(var(--tg-blue-bg-rgb), 0.25);
+    color: var(--tg-blue-fg) !important;
 }
 .tgred {
-    background: rgb(206, 26, 29);
-    color: white !important;
+    background: var(--tg-red-bg);
+    background-color: var(--tg-red-bg);
+    color: var(--tg-red-fg) !important;
+}
+tr.sessionNode.tabgroup.tgred {
+    background-color: rgba(var(--tg-red-bg-rgb), 0.25);
+    color: var(--tg-red-fg) !important;
 }
 .tgyellow {
-    background: rgb(247, 155, 6);
-    color: black !important;
+    background: var(--tg-yellow-bg);
+    background-color: var(--tg-yellow-bg);
+    color: var(--tg-yellow-fg) !important;
+}
+tr.sessionNode.tabgroup.tgyellow {
+    background-color: rgba(var(--tg-yellow-bg-rgb), 0.25);
+    color: var(--tg-yellow-fg) !important;
 }
 .tggreen {
-    background: green;
-    color: white !important;
+    background: var(--tg-green-bg);
+    background-color: var(--tg-green-bg);
+    color: var(--tg-green-fg) !important;
+}
+tr.sessionNode.tabgroup.tggreen {
+    background-color: rgba(var(--tg-green-bg-rgb), 0.25);
+    color: var(--tg-green-fg) !important;
 }
 .tgpink {
-    background: rgb(194, 0, 113);
-    color: white !important;
+    background: var(--tg-pink-bg);
+    background-color: var(--tg-pink-bg);
+    color: var(--tg-pink-fg) !important;
+}
+tr.sessionNode.tabgroup.tgpink {
+    background-color: rgba(var(--tg-pink-bg-rgb), 0.25);
+    color: var(--tg-pink-fg) !important;
 }
 .tgpurple {
-    background: rgb(142, 28, 240);
-    color: white !important;
+    background: var(--tg-purple-bg);
+    background-color: var(--tg-purple-bg);
+    color: var(--tg-purple-fg) !important;
+}
+tr.sessionNode.tabgroup.tgpurple {
+    background-color: rgba(var(--tg-purple-bg-rgb), 0.25);
+    color: var(--tg-purple-fg) !important;
 }
 .tgcyan {
-    background: rgb(14, 104, 111);
-    color: white !important;
+    background: var(--tg-cyan-bg);
+    background-color: var(--tg-cyan-bg);
+    color: var(--tg-cyan-fg) !important;
+}
+tr.sessionNode.tabgroup.tgcyan {
+    background-color: rgba(var(--tg-cyan-bg-rgb), 0.25);
+    color: var(--tg-cyan-fg) !important;
 }
 .tgorange {
-    background: orange;
-    color: black !important;
+    background: var(--tg-orange-bg);
+    background-color: var(--tg-orange-bg);
+    color: var(--tg-orange-fg) !important;
+}
+tr.sessionNode.tabgroup.tgorange {
+    background-color: rgba(var(--tg-orange-bg-rgb), 0.25);
+    color: var(--tg-orange-fg) !important;
 }

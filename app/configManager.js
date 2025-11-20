@@ -35,7 +35,7 @@ const Properties = {
     'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
     'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime',
               'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],
-    'sessionVars': ['InitialInstall']
+    'sessionVars': ['InitialInstall', 'BTTabId', 'BTWindowId']
 };
 let Config = {};
 let Keys = {CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: ''};
@@ -55,20 +55,31 @@ function setConfigAndKeys(msg) {
 
 function setProp(prop, value) {
     // setter for property. extensionProps cannot be set
-    
+
+    const storeData = {};
+
     if (Properties.localStorageProps.includes(prop)) {
-        Config[prop] = value;       
-        sendMessage({'function': 'localStore', 'data': {'Config': Config}});
+        if (value === undefined) {
+            delete Config[prop];
+        } else {
+            Config[prop] = value;
+        }
+        storeData[prop] = value;
     }
     if (Properties.orgProps.includes(prop)) {
         Config[prop] = value;
-    }	 
+    }
     if (Properties.stats.includes(prop)) {
         Config['BTStats'][prop] = value;
-        sendMessage({'function': 'localStore', 'data': {'Config': Config}});
+        storeData.BTStats = { ...Config['BTStats'] };
     }
     if (Properties.sessionVars.includes(prop)) {
         SessionVars[prop] = value;
+    }
+
+    if (Object.keys(storeData).length) {
+        storeData.Config = { ...Config };
+        sendMessage({'function': 'localStore', 'data': storeData});
     }
 };
 
@@ -122,7 +133,13 @@ function incrementStat(statName) {
     Config['BTStats'][statName] = oldVal + 1;
     Config['BTStats']['BTLastActivityTime'] = date;
     checkNewDayOfUse(previousActivityTime, date);                   // see above
-    sendMessage({'function': 'localStore', 'data': {'Config': Config}});
+    sendMessage({
+        'function': 'localStore',
+        'data': {
+            Config: { ...Config },
+            BTStats: { ...Config['BTStats'] }
+        }
+    });
 };
 
 function setStat(statName, statValue) {

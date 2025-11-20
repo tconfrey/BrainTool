@@ -19,18 +19,19 @@
 'use strict'
 
 // Import all dependencies
-import { sendMessage, callBackground } from './extensionMessaging.js';
+import { sendMessage, callBackground, registerMessageHandler } from './extensionMessaging.js';
 import { BTNode, AllNodes } from './BTNode.js';
 import { setConfigAndKeys, getProp, setProp, setStat, incrementStat, initializeInstallDate } from './configManager.js';
 import { messageManager } from './messageManager.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
-import { loadBookmarks, syncBookmarksBar, bookmarksBarIds, registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
+import { registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
 import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
 import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays } from './applicationUI.js'
+import { initializeSessionManager } from './sessionManager.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -56,6 +57,8 @@ async function launchApp(msg) {
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
     BTWinId = msg.BTWin;                                    // got mad knowledge of self
+    setProp('BTTabId', BTTabId);
+    setProp('BTWindowId', BTWinId);
     if (msg.SidePanel) setProp('BTManagerHome', 'SIDEPANEL');              // track if running in side panel
 
     setBTFileText(msg.BTFileText);
@@ -444,6 +447,16 @@ function saveTabs(data) {
             if (note) {
                 existingNode.text = note;
                 existingNode.redisplay();
+                
+                // Update sister nodes with same text, if they haven't navigated away
+                const sisterNodes = existingNode.sisterNodes();
+                sisterNodes.forEach(sisterNode => {
+                    if (!existingNode.isTopic() && !BTNode.compareURLs(sisterNode.URL, existingNode.URL)) {
+                        return;
+                    }
+                    sisterNode.text = note;
+                    sisterNode.redisplay();
+                });
             }
             if (close) existingNode.closeTab(); 
             return;           // already saved, ignore other than making any note update
@@ -632,7 +645,7 @@ function tabActivated(data) {
     }
 
     const groupId = data['groupId'];
-    const node = BTAppNode.findFromTab(tabId);
+    const node = BTAppNode.findFromTab(tabId) || BTAppNode.findFromTab(tabId, {isSession: true});  // show in session if not saved.
     const winNode = BTAppNode.findFromWindow(winId);
     const groupNode = BTAppNode.findFromGroup(groupId);
     let m1, m2 = {'windowTopic': winNode ? winNode.topicPath : '',
@@ -697,8 +710,10 @@ function tabGroupUpdated(data){
         $(displayNode).find(".btTitle").html(name);
     }
     if (collapsed === undefined) return; 
+    Window.BrainTool.browserUpdate = true;        // prevent feedback loop
     if (collapsed) $("table.treetable").treetable("collapseNode", node.id);
     if (!collapsed) $("table.treetable").treetable("expandNode", node.id);
+    delete Window.BrainTool.browserUpdate;
 }
 
 function tabJoinedTG(data) {
@@ -882,7 +897,7 @@ function clearSelected() {
     if (currentSelection) {
         $("tr.selected").removeClass('selected');
         const node = $(currentSelection).attr("data-tt-id");
-	    AllNodes[node]?.unshowForSearch();
+	    AllNodes[node.parentId]?.unshowForSearch();
     }
 }
 
@@ -896,17 +911,35 @@ function changeSelected(node) {
     
 	const tableNode =  node.getDisplayNode();
     if (!tableNode) return;
-	if(!$(tableNode).is(':visible'))
-	    node.showForSearch();				    // unfold tree etc as needed
+    
+    const wasHidden = !$(tableNode).is(':visible');
+	if(wasHidden) {
+        // Make sure the containment hierarchy for this node is visible and then show it and siblings
+        let parentId = node.parentId;
+        $("table.treetable").treetable("collapseNode", parentId);
+        $("table.treetable").treetable("expandNode", parentId);
+	    AllNodes[parentId].showForSearch();				    // unfold tree etc as needed
+    }
 	currentSelection && $(currentSelection).removeClass('selected');
 	$(tableNode).addClass('selected');
 
-    // Make sure row is visible
-    const topOfRow = $(node.getDisplayNode()).position().top;
-    const displayTop = $(document).scrollTop();
-    const height = $(window).height();
-    if ((topOfRow < displayTop) || (topOfRow > (displayTop + height - 100)))
-	    tableNode.scrollIntoView({block: 'center'});
+    // Make sure row is visible - if we just expanded, wait for animation to complete
+    const scrollIntoViewIfNeeded = () => {
+        const topOfRow = $(node.getDisplayNode()).position().top;
+        const displayTop = $(document).scrollTop();
+        const height = $(window).height();
+        if ((topOfRow < displayTop) || (topOfRow > (displayTop + height - 190)))
+            tableNode.scrollIntoView({block: 'center'});
+    };
+    
+    if (wasHidden) {
+        // Wait for expand animation to complete - get animation time from treetable settings
+        const animationTime = $("#content").data("treetable")?.settings?.animationTime || 250;
+        setTimeout(scrollIntoViewIfNeeded, animationTime + 50);  // +50ms buffer for safety
+    } else {
+        scrollIntoViewIfNeeded();
+    }
+    
 	$("#search_entry").val("");				    // clear search box on nav
 }
 
@@ -1656,6 +1689,7 @@ function handleEditCardKeyup(e) {
 function undo() {
     // undo last delete
     const node = BTNode.undoDelete();
+    if (!node) return;                          // nothing to undo
     const parent = AllNodes[node.parentId];
     function updateTree(ttn, btn) {
         // recurse as needed on tree update
@@ -1686,47 +1720,23 @@ function undo() {
     BTAppNode.generateTopics();
 }
 
-/***
- *
- *  Centralized Mappings from MessageType to handler. Array of handler functions
- *
- ***/
-
-const Handlers = {
-    "launchApp": launchApp,                 // Kick the whole thing off
-    "bookmarks": loadBookmarks,
-    "bookmarksBar": syncBookmarksBar,
-    "bookmarksBarIds": bookmarksBarIds,     // node ids mapped to bookmarks bar node ids
-    "tabActivated": tabActivated,           // User nav to Existing tab
-    "tabJoinedTG" : tabJoinedTG,            // a tab was dragged or moved into a TG
-    "tabLeftTG" : tabLeftTG,                // a tab was dragged out of a TG
-    "tabNavigated": tabNavigated,           // User navigated a tab to a new url
-    "tabOpened" : tabOpened,                // New tab opened by bg on our behalf
-    "tabMoved" : tabMoved,                  // user moved a tab
-    "tabPositioned": tabPositioned,         // tab moved by extension
-    "tabClosed" : tabClosed,                // tab closed
-    "tabReplaced" : tabReplaced,            // tab replaced, generally due to it being suspended and then reopened
-    "saveTabs": saveTabs,                   // popup save operation - page, tg, window or session
-    "tabGroupCreated": tabGroupCreated,
-    "tabGroupUpdated": tabGroupUpdated,
-    "noSuchNode": noSuchNode,               // bg is letting us know we requested action on a non-existent tab or tg
-    "mouseOut": sidePanelMouseOut,          // sidepanel tells us mouse is out, undo hover states etc
-    "checkFileFreshness": checkFileFreshness, // bg is asking if we need to reload the org file
-};
-
-// Set handler for extension messaging
-window.addEventListener('message', event => {
-    if (event.source != window && event.source != window.parent) return;            // not our business
-    if (event?.data?.type == 'AWAIT') return;                                       // outbound msg from callBackground
-    if (event?.data?.type == 'AWAIT_RESPONSE') return;                              // sync rsp handled below
-
-    console.log(`BTAppNode received (${event?.data?.function}):`, event);
-    //console.count(`BTAppNode received: [${JSON.stringify(event)}]`);
-    if (Handlers[event.data.function]) {
-        console.log("BTAppNode dispatching to ", Handlers[event.data.function].name);
-        Handlers[event.data.function](event.data);
-    }
-});
+registerMessageHandler('launchApp', launchApp);
+registerMessageHandler('tabActivated', tabActivated);
+registerMessageHandler('tabJoinedTG', tabJoinedTG);
+registerMessageHandler('tabLeftTG', tabLeftTG);
+registerMessageHandler('tabNavigated', tabNavigated);
+registerMessageHandler('tabOpened', tabOpened);
+registerMessageHandler('tabMoved', tabMoved);
+registerMessageHandler('tabPositioned', tabPositioned);
+registerMessageHandler('tabClosed', tabClosed);
+registerMessageHandler('tabReplaced', tabReplaced);
+registerMessageHandler('saveTabs', saveTabs);
+registerMessageHandler('tabGroupCreated', tabGroupCreated);
+registerMessageHandler('tabGroupUpdated', tabGroupUpdated);
+registerMessageHandler('noSuchNode', noSuchNode);
+registerMessageHandler('mouseOut', sidePanelMouseOut);
+registerMessageHandler('checkFileFreshness', checkFileFreshness);
+initializeSessionManager();
 
 // Export functions that are called from inline HTML event handlers or by applicationUI or tableManager
 export { 
