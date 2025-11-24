@@ -383,6 +383,10 @@ chrome.tabs.onUpdated.addListener(logEventWrapper("tabs.onUpdated", async (tabId
 chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (info) => {
     // Let app know there's a new top tab
     if (!info.tabId) return;
+    if (Awaiting) return;                                           // ignore while executing our own commands
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (!BTTab && !BTPort) return;                                  // not initialized
+    if (info.tabId == BTTab) return;                                // ignore BT itself
     chrome.tabs.get(info.tabId, tab => {
         check();
         if (!tab) return;
@@ -452,12 +456,17 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     // don't care about special windows like dev tools
     check();
     if (windowId <= 0) return;
-    chrome.tabs.query({'active': true, 'windowId': windowId},tabs => {
-        check();
-        if (!tabs?.length) return;
-        btSendMessage({'function': 'tabActivated', 'tabId': tabs[0].id, 'windowId': windowId});
-        setTimeout(function() {setBadge(tabs[0].id);}, 200);
-    });
+    if (Awaiting) return;                                            // ignore TG events while we're awaiting our commands to take effect
+    
+    const [BTTab, BTWin] = await getBTTabWin();
+    if (!BTTab && !BTPort) return;                                  // not initialized
+    if (windowId == BTWin) return;                                  // ignore BT itself
+
+    const tabs = await chrome.tabs.query({'active': true, 'windowId': windowId});
+    check();
+    if (!tabs?.length) return;
+    btSendMessage({'function': 'tabActivated', 'tabId': tabs[0].id, 'windowId': windowId});
+    setTimeout(function() {setBadge(tabs[0].id);}, 200);
 }));
 
 chrome.windows.onCreated.addListener(logEventWrapper("windows.onCreated", async (window) => {
@@ -924,32 +933,32 @@ function signalError(type, id) {
     // send back message so TM can fix display
     btSendMessage({'function': 'noSuchNode', 'type': type, 'id': id});
 }
-function showNode(msg, sender) {
+
+async function showNode(msg, sender) {
     // Surface the window/tab associated with this node
 
     if (msg.tabId) {
-        chrome.tabs.get(msg.tabId, function(tab) {
-            check(); 
-            if (!tab) { signalError('tab', msg.tabId); return;}
-            chrome.windows.update(tab.windowId, {'focused' : true}, () => check());
-            chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index},
-                                  () => check());
-        });
+        const tab = await chrome.tabs.get(msg.tabId);
+        check(); 
+        if (!tab) { signalError('tab', msg.tabId); return;}
+        await chrome.windows.update(tab.windowId, {'focused' : true});
+        check();
+        await chrome.tabs.highlight({'windowId' : tab.windowId, 'tabs': tab.index});
+        check();
     }
     else if (msg.tabGroupId) {
-        chrome.tabs.query({groupId: msg.tabGroupId}, function(tabs) {
-            check(); 
-            if (!tabs) { signalError('tabGroup', msg.tabGroupId); return;}
-            if (tabs.length > 0) {
-                let firstTab = tabs[0];
-                chrome.windows.update(firstTab.windowId, {'focused' : true}, () => check());
-                chrome.tabs.highlight({'windowId' : firstTab.windowId, 'tabs': firstTab.index},
-                                      () => check());
-            }
-        });
+        const tabs = await chrome.tabs.query({groupId: msg.tabGroupId});
+        check(); 
+        if (!tabs || tabs.length === 0) { signalError('tabGroup', msg.tabGroupId); return;}
+        let firstTab = tabs[0];
+        await chrome.windows.update(firstTab.windowId, {'focused' : true});
+        check();
+        await chrome.tabs.highlight({'windowId' : firstTab.windowId, 'tabs': firstTab.index});
+        check();
     }
     else if (msg.windowId) {
-        chrome.windows.update(msg.windowId, {'focused' : true}, () => check());
+        await chrome.windows.update(msg.windowId, {'focused' : true});
+        check();
     }
 }
 

@@ -1,10 +1,9 @@
 'use strict';
 
-import { callBackground, sendMessage } from './extensionMessaging.js';
+import { callBackground, sendMessage, requestBrowserSnapshot } from './extensionMessaging.js';
 import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
 import { getProp } from './configManager.js';
-import { requestBrowserSnapshot } from './sessionManager.js';
 
 const SessionNodeType = Object.freeze({
     ROOT: 'ROOT',
@@ -110,8 +109,22 @@ class BTSessionNode extends BTAppNode {
         });
     }
 
+    showNode() {
+        // highlight this nodes associated tab or window. CallBackground to avoid getting back tab selected which jumps to the appNode
+        if (this.tabId)
+            callBackground(
+                {'function' : 'showNode', 'tabId': this.tabId});
+        else if (this.tabGroupId)
+            callBackground(
+                {'function' : 'showNode', 'tabGroupId': this.tabGroupId});
+        else if (this.windowId)
+            callBackground(
+                {'function' : 'showNode', 'windowId': this.windowId});
+    }
+
     
     setTGColor(color = null) {
+        // Session nodes only show tabgroup highlighting for tabs if they are also saved in topics
         super.setTGColor(color);
         const displayNode = this.getDisplayNode();
         if (!displayNode) return;
@@ -119,8 +132,8 @@ class BTSessionNode extends BTAppNode {
         const colorClasses = ['tggrey', 'tgblue', 'tgred', 'tgyellow', 'tggreen', 'tgpink', 'tgpurple', 'tgcyan', 'tgorange'];
         const inTopicTree = this.isRepresentedInTopicTree();
         if (!inTopicTree && !this.isTopic()) {
-            const selector = this.isTopic() ? '.btTitle' : '.btTitle span.btTitleText';
-            $(displayNode).find(selector).removeClass([...colorClasses, 'tabgroup']);
+            const selector = '.btTitle span.btTitleText';
+            row.find(selector).removeClass([...colorClasses, 'tabgroup']);
         }
     }
 
@@ -299,7 +312,7 @@ class BTSessionNode extends BTAppNode {
             'windowId': this.windowId, 'tabInfo': tabInfo,
             'groupName': this.topicName(), 'topicId': this.id,
             'leftmostTabIndex': left || newLeft } );
-        setTimeout(() => sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' }), 100);
+        setTimeout(() => requestBrowserSnapshot(), 100);
     }
 
     async updateTabGroup() {

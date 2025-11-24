@@ -16,6 +16,15 @@
 *
 ***/
 
+function getTimestamp() {
+    // Return current time as HH:MM:SS:mmm
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    return ` at: ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
 
 function getFromLocalStorage(key) {
     // Promisification of storage.local.get
@@ -44,7 +53,7 @@ window.addEventListener('message', async function(event) {
     if (event.data.from == "btextension") return;
     if (event.source != window && event.source.parent != window) return;
 
-    console.log(`Content-IN ${event.data.function || event.data.type} from TopicManager@ ${event.origin} :`, event.data);
+    console.log(`App Sending: ${event.data.function || event.data.type} from ${event.origin} :`, event.data, getTimestamp());
     if (event.data.function == 'localStore') {
         // stores topics, preferences, current tabs topic/note info etc for popup/extensions use
         try {
@@ -65,7 +74,7 @@ window.addEventListener('message', async function(event) {
             // Send the response back to the web page
             sendMessage({from: "btextension", type: "AWAIT_RESPONSE", response: response});
         } catch (error) {
-            console.error("Error sending message:", JSON.stringify(error));
+            console.error("Error sending message:", JSON.stringify(error), getTimestamp());
         }
     }
     
@@ -91,7 +100,7 @@ async function callToBackground(message) {
 
 // sendMessage utility, communicates from contentScript to TM either in containing tab, or contained iframe (sidepanel)
 function sendMessage(msg) { 
-    console.log(`sending message to TopicManager:`, msg);
+    console.log(`Content sending to App:`, msg, getTimestamp());
     const iframe = document.getElementById('BTTopicManager');       // frame to talk to
     const target = iframe ? iframe.contentWindow : window;
     target.postMessage(msg, '*');
@@ -104,7 +113,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
     response();
     
-    console.log(`Content-IN ${msg.function} from Extension:`, msg);
     switch (msg.function) {
     case 'bookmarks':
         chrome.storage.local.get('bookmarks', data => {
@@ -137,7 +145,7 @@ async function launchApp(msg) {
     // and then just pass on to app
     
     if (window.LOCALTEST) return;                          // running inside test harness
-    console.log("launching App");
+    console.log("launching App", getTimestamp());
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
         let response = await fetch('/app/BrainTool.org');

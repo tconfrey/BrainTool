@@ -17,7 +17,7 @@ import { AllNodes, BTNode } from './BTNode.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
 import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
 import { parseBTFile } from './parser.js';
-import { sendMessage, callBackground, registerMessageHandler } from './extensionMessaging.js';
+import { sendMessage, callBackground, registerMessageHandler, requestBrowserSnapshot } from './extensionMessaging.js';
 import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
 import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
@@ -1005,7 +1005,7 @@ function createBrowserWindow(dragNode, windowNode) {
         
         // Browser events will trigger snapshot which updates the UI
         setTimeout(() => {
-            sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
+            requestBrowserSnapshot();
         }, 100);
     }).catch(err => {
         console.error('moveTabsToNewWindow error:', err);
@@ -1177,4 +1177,5 @@ export {
     initializeNotesColumn, 
     initializeUI, 
     moveNode,
+    rememberFold,
 };

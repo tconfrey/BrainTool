@@ -20,6 +20,16 @@
 const messageHandlers = new Map();
 let dispatchInitialized = false;
 
+function getTimestamp() {
+    // Return current time as HH:MM:SS:mmm
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    return ` at: ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
 function ensureDispatchListener() {
     if (dispatchInitialized) return;
     window.addEventListener('message', async event => {
@@ -32,7 +42,7 @@ function ensureDispatchListener() {
         const handlers = messageHandlers.get(fn);
         if (!handlers || handlers.length === 0) return;
 
-        console.log(`BT message received (${fn}):`, data);
+        console.log(`App received (${fn}):`, data, getTimestamp());
         for (const handler of handlers) {
             try {
                 await handler(data);
@@ -83,10 +93,24 @@ function callBackground(message) {
             if (event?.data?.type !== 'AWAIT_RESPONSE')   return;                          // async handled above
             if (event.source != window && event.source != window.parent)  return;           // not our business            
             window.removeEventListener("message", handler);
-            sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });             // Make sure session state gets updated
+            requestBrowserSnapshot();                                                       // Make sure session state gets updated
             resolve(event.data.response);
         });
     });
 }
 
-export { sendMessage, callBackground, registerMessageHandler, registerMessageHandlers, unregisterMessageHandler };
+let snapshotRequestTimerId = null;
+
+function requestBrowserSnapshot() {
+    // Ask the background script to capture a fresh browser snapshot for reconciliation.
+    if (snapshotRequestTimerId) {
+        console.log("Snapshot request pending - swallowing duplicate request.");
+        return;
+    }
+    sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
+    snapshotRequestTimerId = setTimeout(() => {
+        snapshotRequestTimerId = null;
+    }, 500);
+}
+
+export { sendMessage, callBackground, registerMessageHandler, registerMessageHandlers, unregisterMessageHandler, requestBrowserSnapshot };

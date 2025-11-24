@@ -27,7 +27,7 @@ import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
 import { registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
-import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
+import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, rememberFold } from './tableManager.js';
 import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays } from './applicationUI.js'

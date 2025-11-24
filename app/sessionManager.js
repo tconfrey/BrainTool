@@ -1,6 +1,6 @@
 'use strict';
 
-import { registerMessageHandler, sendMessage } from './extensionMessaging.js';
+import { registerMessageHandler, requestBrowserSnapshot } from './extensionMessaging.js';
 import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
 import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
@@ -8,7 +8,6 @@ import { initializeUI } from './tableManager.js';
 import { buttonHide } from './rowManager.js';
 import { getProp } from './configManager.js';
 
-let snapshotRequestTimerId = null;
 let lastSyncErrorTime = 0;
 
 function stripURLForComparison(url) {
@@ -560,18 +559,6 @@ function handleSyncToBrowserMessage(message) {
     syncToBrowser(tabs, tabGroups);
 }
 
-function requestBrowserSnapshot() {
-    // Ask the background script to capture a fresh browser snapshot for reconciliation.
-    if (snapshotRequestTimerId) {
-        console.log("Snapshot request pending - swallowing duplicate request.");
-        return;
-    }
-    sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
-    snapshotRequestTimerId = setTimeout(() => {
-        snapshotRequestTimerId = null;
-    }, 500);
-}
-
 function handleSnapshotTriggeredEvent() {
     requestBrowserSnapshot();
 }
@@ -735,4 +722,4 @@ function initializeSessionManager() {
     ].forEach(eventName => registerMessageHandler(eventName, handleSnapshotTriggeredEvent));
 }
 
-export { initializeSessionManager, syncToBrowser, requestBrowserSnapshot };
+export { initializeSessionManager, syncToBrowser };

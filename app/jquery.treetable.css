@@ -74,6 +74,10 @@ table.treetable span.btText {
   max-height: calc(var(--btRowHeight) - 4px);
 }
 
+table.treetable tr.sessionNode span.btText {
+  color: var(--btSessionNotes);
+}
+
 table.treetable span.keyword {
   color: #e03030;
 }
