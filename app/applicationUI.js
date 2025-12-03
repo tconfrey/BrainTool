@@ -103,12 +103,14 @@ function toggleSettingsDisplay() {
             $('#settingsButton').removeClass('open');
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
         }, 250);
+        unregisterBackgroundClickHandler();
     } else {
         $('#settings').slideDown({duration: 250, 'easing': 'easeInCirc'});
         $('#settingsButton').addClass('open');
         $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass('DARK');
         $("#content").fadeOut(250);
         $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        registerBackgroundClickHandler();
         
         // fade in and maybe out the overlay to shut off non-supporter features if not supporter
         if (getProp('BTId')) return;
@@ -135,12 +137,14 @@ function toggleActionsDisplay() {
             $('#actionsButton').removeClass('open');
             $('#topBar img').removeClass(['DARK', 'LIGHT']).addClass(iconColor);
         }, 250);
+        unregisterBackgroundClickHandler();
     } else {
         $('#actions').slideDown({duration: 250, 'easing': 'easeInCirc'});
         $('#actionsButton').addClass('open');
         $('#topBar img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
         $("#content").fadeOut(250);
         $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        registerBackgroundClickHandler();
     }
 }
 
@@ -157,6 +161,7 @@ function toggleHelpDisplay(panel) {
             $('#footerHelp').removeClass('open');
             $('#footer img').removeClass(['LIGHT', 'DARK']).addClass(iconColor);
         }, 250);
+        unregisterBackgroundClickHandler();
     } else {
         // now visible => action is open
         $('#help').slideDown({duration: 250, 'easing': 'easeInCirc'});
@@ -164,6 +169,7 @@ function toggleHelpDisplay(panel) {
         $('#footer img').removeClass(['LIGHT', 'DARK']).addClass('DARK');
         $("#content").fadeOut(250);
         $("body").css("overflow", "hidden");          // don't allow table to be scrolled
+        registerBackgroundClickHandler();
     }
 }
 
@@ -334,6 +340,20 @@ function closeConfigDisplays() {
     if ($('#actions').is(':visible')) toggleActionsDisplay();
     if ($('#settings').is(':visible')) toggleSettingsDisplay();
     if ($('#help').is(':visible')) toggleHelpDisplay();
+}
+
+function registerBackgroundClickHandler() {
+    // Register handler to close config displays when clicking background
+    $(document).on('click.configClose', function(event) {
+        if (event.target.nodeName === 'HTML') {
+            closeConfigDisplays();
+        }
+    });
+}
+
+function unregisterBackgroundClickHandler() {
+    // Remove the background click handler
+    $(document).off('click.configClose');
 }
 
 /**

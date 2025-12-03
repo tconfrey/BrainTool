@@ -540,6 +540,7 @@ function getOpenTabs() {
                               'tabIndex' : tab.index,
                               'title': tab.title,
                               'pinned': tab.pinned,
+                              'active': tab.active,
                               'faviconUrl': tab.favIconUrl,
                               'url': tab.url}));
             resolve(allTabs);

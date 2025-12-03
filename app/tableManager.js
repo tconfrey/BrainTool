@@ -250,11 +250,6 @@ function initializeUI() {
         $(this).addClass("selected");
         closeConfigDisplays();                    // clicking also closes any open panel
     });
-    $(document).click(function(event) {
-        if (event.target.nodeName === 'HTML') {
-            closeConfigDisplays();                // clicking background also closes any open panel
-        }
-    });
     
     makeRowsDraggable();                                        // abstracted out below
 

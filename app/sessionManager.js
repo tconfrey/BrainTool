@@ -78,7 +78,14 @@ function buildSessionTree(tabs = [], tabGroups = []) {
         .forEach(windowEntry => {
             const windowId = windowEntry.windowId;
             if (btWindowId != null && windowId === btWindowId) return;
-            const windowTitle = BTSessionNode.generateWindowTitle();
+            
+            // Find the active tab for this window to append to title
+            const activeTab = windowEntry.tabs.find(tab => tab.active);
+            const baseWindowTitle = BTSessionNode.generateWindowTitle();
+            const windowTitle = activeTab && activeTab.title 
+                ? `${baseWindowTitle} - ${activeTab.title}` 
+                : baseWindowTitle;
+            
             const windowNode = new BTSessionNode(windowTitle, root.id, '', root.level + 1, {
                 sessionType: SessionNodeType.WINDOW,
             });
@@ -146,6 +153,60 @@ function buildSessionTree(tabs = [], tabGroups = []) {
     initializeUI();
 }
 
+function indicateActiveTab(windowNode, tabList) {
+    // Update window title to include active tab name and add arrow indicator to active tab's indenter
+    if (!windowNode || !tabList) return;
+    
+    const activeTab = tabList.find(tab => tab.active);
+    const baseWindowTitle = BTSessionNode.generateWindowTitle();
+    const windowTitle = activeTab && activeTab.title 
+        ? `${baseWindowTitle} - ${activeTab.title}` 
+        : baseWindowTitle;
+    
+    // Update window title if it has changed
+    if (windowNode.title !== windowTitle) {
+        windowNode.title = windowTitle;
+        const displayNode = windowNode.getDisplayNode?.();
+        if (displayNode) {
+            $(displayNode).find('span.btTitleText').text(windowNode.displayTopic || '');
+        }
+    }
+    
+    // Update indenter spans to show active tab with arrow
+    windowNode.childIds.forEach(childId => {
+        const childNode = AllNodes[childId];
+        if (!childNode) return;
+        
+        const updateIndenterForNode = (node) => {
+            if (!node || node.sessionType !== SessionNodeType.TAB) return;
+            const displayNode = node.getDisplayNode?.();
+            if (!displayNode) return;
+            
+            const $indenter = $(displayNode).find('td.left span.indenter');
+            if (!$indenter.length) return;
+            
+            const isActiveTab = node.tabId && activeTab && node.tabId === activeTab.id;
+            const currentText = $indenter.text();
+            const hasArrow = currentText.includes('▬▶');
+            
+            if (isActiveTab && !hasArrow) {
+                $indenter.text('▬▶' + currentText);
+            } else if (!isActiveTab && hasArrow) {
+                $indenter.text(currentText.replace('▬▶', ''));
+            }
+        };
+        
+        if (childNode.sessionType === SessionNodeType.GROUP) {
+            childNode.childIds.forEach(tabId => {
+                const tabNode = AllNodes[tabId];
+                updateIndenterForNode(tabNode);
+            });
+        } else {
+            updateIndenterForNode(childNode);
+        }
+    });
+}
+
 function syncToBrowser(tabs = [], tabGroups = []) {
     // Snapshot reconciliation algorithm:
     // 1. Build lookup maps from the snapshot for tab groups and tabs bucketed by window.
@@ -199,11 +260,24 @@ function syncToBrowser(tabs = [], tabGroups = []) {
     const removeNodeRecursive = nodeId => {
         const node = AllNodes[nodeId];
         if (!node) return;
+        
+        // First recursively remove all children
         node.childIds.slice().forEach(childId => removeNodeRecursive(childId));
-        if (tree?.length) tree.treetable("removeNode", nodeId);
+        
+        // Remove from treetable's internal structure
+        if (tree?.length) {
+            const treeNode = tree.treetable("node", nodeId);
+            if (treeNode) {
+                tree.treetable("removeNode", nodeId);
+            }
+        }
+        
+        // Clean up parent relationship
         if (node.parentId != null && AllNodes[node.parentId]) {
             AllNodes[node.parentId].removeChild(nodeId);
         }
+        
+        // Finally delete from AllNodes
         delete AllNodes[nodeId];
     };
     
@@ -223,9 +297,10 @@ function syncToBrowser(tabs = [], tabGroups = []) {
         tabsByWindow.forEach((tabList, windowId) => {
             // -- 2a: Reuse or create the window node.
             let windowNode = existingWindowNodes.get(windowId);
+            
             if (!windowNode) {
-                const windowTitle = BTSessionNode.generateWindowTitle();
-                windowNode = new BTSessionNode(windowTitle, root.id, '', root.level + 1, {
+                const baseWindowTitle = BTSessionNode.generateWindowTitle();
+                windowNode = new BTSessionNode(baseWindowTitle, root.id, '', root.level + 1, {
                     sessionType: SessionNodeType.WINDOW,
                 });
                 windowNode.windowId = windowId;
@@ -472,6 +547,9 @@ function syncToBrowser(tabs = [], tabGroups = []) {
             });
             
             if (windowChanged) markWindowForSort(windowNode);
+            
+            // Update window title and active tab indicator
+            indicateActiveTab(windowNode, tabList);
         });
         
         // --- Step 3: Remove any windows/groups/tabs that disappeared from the snapshot.
@@ -535,7 +613,8 @@ function syncToBrowser(tabs = [], tabGroups = []) {
             sortSessionChildrenByTabIndex(windowNode);
         });
         
-        initializeUI();
+        // Defer initializeUI to next tick to ensure DOM is fully updated after all removals/moves
+        setTimeout(() => initializeUI(), 0);
     } catch (err) {
         console.error("Error during syncToBrowser:", err);
         const now = Date.now();
@@ -559,7 +638,16 @@ function handleSyncToBrowserMessage(message) {
     syncToBrowser(tabs, tabGroups);
 }
 
-function handleSnapshotTriggeredEvent() {
+function handleSnapshotTriggeredEvent(message) {
+    if (message.function == "tabNavigated") {
+        const tabId = message.tabId;
+        if (tabId == null) return;
+        const sessionTabNode = BTAppNode.findFromTab(tabId, { isSession: true });
+        if (message.tabURL == sessionTabNode?.url()) {
+            console.log("tabNavigated same from/to urls, ignoring: ", message.tabURL);
+            return;
+        }
+    }
     requestBrowserSnapshot();
 }
 
@@ -585,14 +673,20 @@ function sortSessionChildrenByTabIndex(parentNode) {
         .filter(Boolean)
         .sort((a, b) => (a.tabIndex ?? a.tabId ?? 0) - (b.tabIndex ?? b.tabId ?? 0));
     parentNode.childIds = children.map(child => child.id);
-    if (tree?.length) {
-        const iterationOrder = (parentNode.sessionType === SessionNodeType.WINDOW)
-            ? [...children].reverse()
-            : children;
-        iterationOrder.forEach(child => {
+    
+    // Only move nodes that actually exist in the treetable
+    const iterationOrder = (parentNode.sessionType === SessionNodeType.WINDOW)
+        ? [...children].reverse()
+        : children;
+    
+    iterationOrder.forEach(child => {
+        // Verify both child and parent exist in treetable before attempting move
+        const childNode = tree.treetable("node", child.id);
+        const parentTreeNode = tree.treetable("node", parentNode.id);
+        if (childNode && parentTreeNode) {
             tree.treetable("move", child.id, parentNode.id);
-        });
-    }
+        }
+    });
 }
 
 function ensureSessionWindow(windowId) {
@@ -718,6 +812,7 @@ function initializeSessionManager() {
         'tabLeftTG',
         'tabGroupRemoved',
         'tabClosed',
+        'tabActivated',
         'windowCreated',
     ].forEach(eventName => registerMessageHandler(eventName, handleSnapshotTriggeredEvent));
 }

@@ -80,33 +80,29 @@ class BTSessionNode extends BTAppNode {
     }
 
     redisplay(show=false) {
+        // eg sessionnodes can change favicon.
+        super.redisplay(show);
         const tree = $("table.treetable");
-        if (!tree?.length) {
-            super.redisplay(show);
-            if (!this.isTopic()) this.populateFavicon();
-            return;
-        }
-
-        tree.treetable("removeNode", this.id);
-        this.displayNode = null;
-
-        const parentNode = (this.parentId || this.parentId === 0) ? AllNodes[this.parentId] : null;
-        parentNode?.createDisplayNode();
-
-        this.createDisplayNode();
         if (this.isTopic()) {
             if (this.folded) tree.treetable("collapseNode", this.id);
             else tree.treetable("expandNode", this.id);
+        } else {
+            // sessionNode may have been created as a topic before url etc was added to the tab so need to regenerate 
+            const dn = this.getDisplayNode();
+            const titleClasses = this.titleSpanClassList().join(' ');
+            
+            // Extract the indenter span and remove the <a> element
+            const $indenter = $(dn).find('td.left span.indenter').clone();
+            $indenter.find('a').remove();
+            
+            // Create new left cell with indenter + title
+            const leftHTML = `<td class='left'>${$indenter[0].outerHTML}<span class='${titleClasses}'>${this.displayTitle()}</span></td>`;
+            $(dn).removeClass('branch').addClass('leaf').removeAttr('data-tt-branch');
+            $(dn).find('td.left').replaceWith(leftHTML);
+            
+            this.populateFavicon();
         }
-
-        super.redisplay(show);
-        if (!this.isTopic()) this.populateFavicon();
         this.setTGColor(this.tgColor ?? null);
-
-        this.childIds.forEach(childId => {
-            const child = AllNodes[childId];
-            child?.redisplay(false);
-        });
     }
 
     showNode() {

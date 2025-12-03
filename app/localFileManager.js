@@ -219,6 +219,7 @@ async function saveBT(BTFileText) {
             let p = new Promise(function (resolve, reject) {
                 var listener = async () => {
                     $("#editOverlay").off('click', listener);
+                    $("#editOverlay").css("display", "none");
                     try {
                         await LocalFileHandle.requestPermission({mode: 'readwrite'});
                         resolve(event);
@@ -235,7 +236,6 @@ async function saveBT(BTFileText) {
             // hide request overlay
             $("#dialog").show();
             $("#permissions").hide();
-            $("#editOverlay").css("display", "none");
         }
 
         // check if newer version on disk
