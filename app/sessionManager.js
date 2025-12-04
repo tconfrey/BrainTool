@@ -191,8 +191,24 @@ function indicateActiveTab(windowNode, tabList) {
             
             if (isActiveTab && !hasArrow) {
                 $indenter.text('▬▶' + currentText);
+                // Adjust padding to compensate for arrow width
+                const currentStyle = $indenter.attr('style') || '';
+                const match = currentStyle.match(/padding-left:\s*calc\(var\(--btIndentStepSize\)\s*\*\s*(\d+)\)/);
+                if (match) {
+                    const multiplier = match[1];
+                    const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier} - 8px)`;
+                    $indenter.attr('style', newStyle);
+                }
             } else if (!isActiveTab && hasArrow) {
                 $indenter.text(currentText.replace('▬▶', ''));
+                // Remove padding adjustment
+                const currentStyle = $indenter.attr('style') || '';
+                const match = currentStyle.match(/padding-left:\s*calc\(var\(--btIndentStepSize\)\s*\*\s*(\d+)\s*-\s*8px\)/);
+                if (match) {
+                    const multiplier = match[1];
+                    const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier})`;
+                    $indenter.attr('style', newStyle);
+                }
             }
         };
         
@@ -547,9 +563,6 @@ function syncToBrowser(tabs = [], tabGroups = []) {
             });
             
             if (windowChanged) markWindowForSort(windowNode);
-            
-            // Update window title and active tab indicator
-            indicateActiveTab(windowNode, tabList);
         });
         
         // --- Step 3: Remove any windows/groups/tabs that disappeared from the snapshot.
@@ -611,6 +624,12 @@ function syncToBrowser(tabs = [], tabGroups = []) {
         windowsNeedingSort.forEach(windowNode => {
             if (!windowNode || AllNodes[windowNode.id] !== windowNode) return;
             sortSessionChildrenByTabIndex(windowNode);
+            
+            const tabList = tabsByWindow.get(windowNode.windowId);
+            if (tabList) {
+                // update the active tab with indicator arrow and window with title
+                indicateActiveTab(windowNode, tabList);
+            }
         });
         
         // Defer initializeUI to next tick to ensure DOM is fully updated after all removals/moves
