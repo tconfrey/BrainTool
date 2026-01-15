@@ -132,11 +132,24 @@ class BTAppNode extends BTNode {
     }
     resetLevel(l) {
         // after a ui drag/drop need to reset level under new parent
+        const different = (this.level == l) ? false : true;
+        if (!different) return;
         this.level = l;
+        
+        const displayNode = this.getDisplayNode?.();
+        if (!displayNode) return;
+        const $indenter = $(displayNode).find('td.left span.indenter');
+        if (!$indenter.length) return;
+        
+        // update padding
+        const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${this.level - 1})`;
+        $indenter.attr('style', newStyle);
+        
         this.childIds.forEach(childId => {
             AllNodes[childId].resetLevel(l+1);
         });
     }
+
     get keyword() {
         return this._keyword;
     }
@@ -676,8 +689,10 @@ class BTAppNode extends BTNode {
         // used by nextDisplayNode() to iterate through nodes in display order
         BTAppNode.displayOrder = {};
         let prevNodeId = null;
+        let firstNodeId = null;
         $("#content tr").each((i, node) => {
             const nodeId = $(node).attr('data-tt-id');
+            if (i === 0) firstNodeId = nodeId;  // capture the actual first displayed node
             BTAppNode.displayOrder[nodeId] = {
                 prev: prevNodeId,
                 next: null
@@ -687,9 +702,10 @@ class BTAppNode extends BTNode {
         });
 
         // set prev of first node to last and next of last node to first to iterate around
-        const firstNodeId = Object.keys(BTAppNode.displayOrder)[0];
-        BTAppNode.displayOrder[firstNodeId].prev = prevNodeId;
-        BTAppNode.displayOrder[prevNodeId].next = firstNodeId;
+        if (firstNodeId && prevNodeId) {
+            BTAppNode.displayOrder[firstNodeId].prev = prevNodeId;
+            BTAppNode.displayOrder[prevNodeId].next = firstNodeId;
+        }
     }
     static resetDisplayOrder() {
         // Clear out the display order cache

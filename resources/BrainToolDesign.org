@@ -173,27 +173,70 @@ Refactor special node handling (bookmarks bar, session nodes) to use event-based
 ** Phase 5 - Final Dependency Analysis
 Complete final dependency analysis and consider bundler integration for production builds.
 
-* The SessionManager project
-The Session Manager adds a live “Current Session” hierarchy alongside the persisted topic tree. It introduces a dedicated `BTSessionNode` subclass and a new `sessionManager` module to mirror the browser’s open windows, tab groups, and tabs inside the Topic Manager.
+** The SessionManager project
+The Session Manager adds a live "Current Session" hierarchy alongside the persisted topic tree. It introduces a dedicated `BTSessionNode` subclass and a new `sessionManager` module to mirror the browser's open windows, tab groups, and tabs inside the Topic Manager.
 
 ** Session nodes (`BTSessionNode`)
 - Derive from `BTAppNode`, tagging themselves with `isSessionNode` and a `sessionType` of `ROOT`, `WINDOW`, `GROUP`, or `TAB` so existing helpers can continue to ignore them when looking up saved nodes.
 - Carry browser identifiers (`windowId`, `tabGroupId`, `tabId`) rather than org IDs and expose only the subset of row actions that make sense (close, drag, todo). All other behaviors fall back to the base class only when appropriate.
-- Use `BTSessionNode.generateWindowTitle()` to assign incremental window labels (`Window 1`, `Window 2`, …); numbers keep increasing even if windows are closed.
+- Use `BTSessionNode.generateWindowTitle()` to assign incremental window labels with active tab titles appended (`Window 1 - Google Search`, `Window 2 - GitHub`). Window titles update dynamically when users switch tabs.
+- Implement proper color styling logic in `setTGColor()` override - session nodes only display tab group colors when represented in topic tree or are GROUP nodes themselves.
+- Support bidirectional text synchronization with corresponding app nodes, ensuring notes are shared between persisted topics and live session state.
 
 ** Session lifecycle (`sessionManager`)
 - Registers its handlers at startup and builds the session tree immediately after launch by processing the `launchApp` payload.
 - Runs `syncToBrowser` after every tab/window/group event from the background script, reusing existing nodes, updating metadata (titles, colors, indices, favicons), and pruning anything no longer present in Chrome.
+- Implements comprehensive text synchronization system that syncs notes between corresponding app and session nodes during browser snapshot reconciliation.
 - Relays user actions performed on session nodes back to the browser through the existing `sendMessage`/`callBackground` pipeline (close tabs, move groups, toggle collapsed state), while app/topic nodes keep handling persisted org-mode data exactly as before.
-- Uses `snapshotRequestTimerId` to throttle rapid consecutive browser snapshot requests (500ms delay).
+- Uses time-based error retry prevention (2-second threshold) to avoid infinite sync loops when browser operations fail.
+- Moved `requestBrowserSnapshot()` to `extensionMessaging.js` for better architectural separation and reuse across modules.
 
 ** Reconciliation Algorithm (`syncToBrowser`)
 The core `syncToBrowser` function (~400 lines) performs a sophisticated multi-phase reconciliation:
 1. **Preparation**: Groups tabs by window, creates lookup maps, initializes tracking sets
-2. **Window/Group/Tab Processing**: Traverses browser snapshot, reuses or creates nodes, updates metadata (titles, colors, tab indices, favicons)
-3. **Pruning**: Removes session nodes for windows/groups/tabs that no longer exist in browser
-4. **Ordering**: Sorts children by tabIndex to match browser tab strip order, updates group indices based on contained tabs
-This approach minimizes unnecessary UI updates while ensuring the session tree always reflects current browser state.
+2. **Window/Group/Tab Processing**: Traverses browser snapshot, reuses or creates nodes, updates metadata (titles, colors, tab indices, favicons, active tab info for window titles)
+3. **Text Synchronization**: Syncs notes from app nodes to corresponding session nodes using URL validation for TAB nodes and tabGroupId matching for GROUP nodes
+4. **Pruning**: Removes session nodes for windows/groups/tabs that no longer exist in browser
+5. **Ordering**: Sorts children by tabIndex to match browser tab strip order, updates group indices based on contained tabs
+This approach minimizes unnecessary UI updates while ensuring the session tree always reflects current browser state and maintains text synchronization between persisted and live data.
+
+** Text Synchronization System ✅ COMPLETED
+Bidirectional text synchronization keeps notes in sync between persisted app nodes and live session nodes:
+
+*** Synchronization Logic
+- **TAB Nodes**: Validates URL match using `stripURLForComparison()` and `BTNode.compareURLs()` before syncing text
+- **GROUP/TOPIC Nodes**: Matches by `tabGroupId` without URL validation since tab groups don't have URLs
+- **Sister Nodes**: Enhanced `sisterNodes()` method finds corresponding nodes by `tabId` (TAB nodes) or `tabGroupId` (GROUP nodes)
+- **Direct DOM Updates**: Updates `span.btText` innerHTML directly instead of calling `redisplay()` to preserve treetable structure
+
+*** Synchronization Points
+1. **Browser Snapshot Reconciliation**: `syncToBrowser()` syncs from app nodes to session nodes during browser state updates
+2. **Edit Dialog**: `updateRow()` syncs text changes to sister nodes after user edits
+3. **Tab Saving**: `bt.js` syncs text to sister nodes when existing nodes get note updates
+4. **Error Handling**: Time-based retry prevention prevents infinite loops on sync failures
+
+*** Technical Implementation
+- Uses `stripURLForComparison()` to remove query parameters and fragments for reliable URL matching
+- Direct DOM manipulation: `$(displayNode).find('span.btText').html(node.displayText())` 
+- Validation prevents sync to mismatched URLs (e.g., when tabs navigate to different sites)
+- Preserves treetable node references by avoiding `redisplay()` calls during sync
+
+** Enhanced Features ✅ COMPLETED
+*** Dynamic Window Titles
+- Window nodes display active tab titles: `Window 1 - Google Search`
+- Updates dynamically when users switch between tabs
+- Background script captures `active` tab property in browser snapshots
+- Gracefully falls back to base window title if no active tab found
+
+*** Color Styling Fixes
+- Fixed `BTSessionNode.setTGColor()` override logic
+- Session nodes only show tab group colors when appropriate (in topic tree or are GROUP nodes)
+- Eliminated broken conditional logic that checked `this.isTopic()` inside `!this.isTopic()` condition
+
+*** Architectural Improvements
+- Moved `requestBrowserSnapshot()` to `extensionMessaging.js` for better separation of concerns
+- Added timestamp utilities for debugging message flow across content script and background
+- Consolidated browser snapshot requests with throttling to prevent duplicate calls
 
 ** Remaining work
 - Drag of unopened appNodes into session will open tab or tab group in the dropped window. Only unopened nodes can be dropped. Dropped leaf/tab items must be dropped onto the appropriate tabgroup if its open, otherwise its newly created. 
@@ -207,8 +250,9 @@ The Summaries project will make use of the browsers ai summarizer to optionally 
 
 * /Appendix/: Application components and modules dependency map
 perl -0777 -ne 'while (/^(import|export)\s*\{[^}]*\}.*?;/gsm) { print "$ARGV: $&\n" }' *.js
-** extensionMessaging - abstracted out app to extension messaging that everyone depends on
-extensionMessaging.js: export { sendMessage, callBackground, registerMessageHandler, registerMessageHandlers, unregisterMessageHandler };
+** extensionMessaging - abstracted out app to extension messaging that everyone depends on, plus browser snapshot management
+extensionMessaging.js: export { sendMessage, callBackground, registerMessageHandler, registerMessageHandlers, unregisterMessageHandler, requestBrowserSnapshot };
+Note: Added `requestBrowserSnapshot()` function with throttling (500ms) to prevent duplicate browser sync requests. Includes automatic timestamp utilities for debugging message flow.
 ** BTNode - Base node management, holder of AllNodes
 BTNode.js: export { BTNode, AllNodes };
 ** configManager.js - store and manage configurations and stats. should migrate localStorage to here from localFileManager?
@@ -229,13 +273,12 @@ BTAppNode.js: import { sendMessage, callBackground } from './extensionMessaging.
 BTAppNode.js: import { localStorageManager } from './localFileManager.js';                      // Local storage used for favicons. break out from localFileStorage?
 BTAppNode.js: export { BTAppNode, BTLinkNode, Topics };                 // pretty much exports the kitchen sink.
 ** BTSessionNode - Session tree node subtype representing live browser state alongside saved topics
-BTSessionNode.js: import { sendMessage } from './extensionMessaging.js';
+BTSessionNode.js: import { callBackground, sendMessage, requestBrowserSnapshot } from './extensionMessaging.js';
 BTSessionNode.js: import { BTAppNode } from './BTAppNode.js';
 BTSessionNode.js: import { AllNodes } from './BTNode.js';
 BTSessionNode.js: import { getProp } from './configManager.js';
-BTSessionNode.js: import { requestBrowserSnapshot } from './sessionManager.js';
 BTSessionNode.js: export { BTSessionNode, SessionNodeType };
-Note: Uses requestBrowserSnapshot from sessionManager to trigger browser state updates. This is a callback registration pattern to avoid circular dependencies.
+Note: Now imports requestBrowserSnapshot from extensionMessaging.js for cleaner architecture. Enhanced sisterNodes() method handles both TAB and GROUP/TOPIC node relationships for text synchronization. Fixed setTGColor() override logic to properly determine when session nodes should display colors.
 ** rowManager - NEW in Phase 2. Handles all row operations (edit, open, close, delete, promote, toDo, etc) and generates button row UI. Companion to AppNode, handles application logic for rows (eg node deletion => update browser tab, update parent and ancestor open state in table). Registers toggleMoreButtons callback with configManager to avoid circular dependencies.
 rowManager.js: import { AllNodes, BTNode } from './BTNode.js';
 rowManager.js: import { BTAppNode, Topics } from './BTAppNode.js';
@@ -314,14 +357,15 @@ bt.js: export {
 };
 Note: Registers with configManager.registerUI({ groupingUpdate }) to provide callback for settings changes.
 ** sessionManager - builds and syncs the live session tree based on browser events
-sessionManager.js: import { registerMessageHandler, sendMessage } from './extensionMessaging.js';
+sessionManager.js: import { registerMessageHandler, requestBrowserSnapshot } from './extensionMessaging.js';
 sessionManager.js: import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
 sessionManager.js: import { BTAppNode } from './BTAppNode.js';
 sessionManager.js: import { AllNodes } from './BTNode.js';
 sessionManager.js: import { initializeUI } from './tableManager.js';
 sessionManager.js: import { buttonHide } from './rowManager.js';
 sessionManager.js: import { getProp } from './configManager.js';
-sessionManager.js: export { initializeSessionManager, syncToBrowser, requestBrowserSnapshot };
+sessionManager.js: export { initializeSessionManager, syncToBrowser };
+Note: No longer exports requestBrowserSnapshot (moved to extensionMessaging.js). Implements comprehensive text synchronization between app and session nodes using URL comparison for TAB nodes and tabGroupId matching for GROUP nodes. Includes time-based error retry prevention.
 ** fileManager - common backing store management and facade for local/gdrive file operations. also imports/exports of org and tabsOutliner data
 fileManager.js: import { getProp, setProp, incrementStat } from './configManager.js';
 fileManager.js: import { AllNodes } from './BTNode.js';

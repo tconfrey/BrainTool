@@ -153,8 +153,9 @@ function initializeNotesColumn() {
 
     if (percent < 95) {
         $("#content").addClass('showNotes').removeClass('hideNotes');
-        $("td.left").css("width", percent + "%");
-        $("td.right").css("width", (100 - percent) + "%");
+        // Exclude unsaved session rows from width changes - they're controlled by CSS
+        $("tr:not(.unsaved) td.left").css("width", percent + "%");
+        $("tr:not(.unsaved) td.right").css("width", (100 - percent) + "%");
     } else {
         $("#content").addClass('hideNotes').removeClass('showNotes');
     }
@@ -174,8 +175,9 @@ function handleResizer() {
 
     if (percent < 95) {
         $("#content").addClass('showNotes').removeClass('hideNotes');
-        $("td.left").css("width", percent + "%");
-        $("td.right").css("width", (100 - percent) + "%");
+        // Exclude unsaved session rows from width changes 
+        $("tr:not(.unsaved) td.left").css("width", percent + "%");
+        $("tr:not(.unsaved) td.right").css("width", (100 - percent) + "%");
     } else {
         $("#content").addClass('hideNotes').removeClass('showNotes');
     }

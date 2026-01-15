@@ -21,6 +21,7 @@
 // Import dependencies
 import { AllNodes, BTNode } from './BTNode.js';
 import { BTAppNode } from './BTAppNode.js';
+import { SessionNodeType } from './BTSessionNode.js';
 import { getProp, setProp, incrementStat } from './configManager.js';
 import { callBackground } from './extensionMessaging.js';
 import { saveBT } from './fileManager.js';
@@ -77,11 +78,18 @@ function buttonShow(e) {
     else
         $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
 
+    // Check if this is an unsaved session node (ROOT, WINDOW, or non-topic not in tree)
+    const isUnsaved = node.isSessionNode && (
+        (node.sessionType === SessionNodeType.ROOT) ||
+        (node.sessionType === SessionNodeType.WINDOW) ||
+        (!node.isTopic() && !node.isRepresentedInTopicTree())
+    );
+
     $('#deleteRow').parent().toggle(isActionAllowed(actions, 'delete'));
     $('#star').parent().toggle(isActionAllowed(actions, 'todo'));
     $('#move').parent().toggle(isActionAllowed(actions, 'drag')).toggle(!node.isTrash());
-    $('#editRow').parent().toggle(isActionAllowed(actions, 'edit')).toggle(!node.isTrash());
-    $('#tools').parent().toggle(!node.isTrash());
+    $('#editRow').parent().toggle(isActionAllowed(actions, 'edit')).toggle(!node.isTrash()).toggle(!isUnsaved);
+    $('#tools').parent().toggle(!node.isTrash()).toggle(!isUnsaved);
 
     // Open/close buttons 
     const topic = node.isTopic() ? node : AllNodes[node.parentId];

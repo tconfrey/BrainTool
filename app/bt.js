@@ -31,7 +31,7 @@ import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveN
 import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays } from './applicationUI.js'
-import { initializeSessionManager } from './sessionManager.js';
+import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -1736,6 +1736,7 @@ registerMessageHandler('tabGroupUpdated', tabGroupUpdated);
 registerMessageHandler('noSuchNode', noSuchNode);
 registerMessageHandler('mouseOut', sidePanelMouseOut);
 registerMessageHandler('checkFileFreshness', checkFileFreshness);
+registerMessageHandler('syncToBrowser', syncAppNodesToBrowser);
 initializeSessionManager();
 
 // Export functions that are called from inline HTML event handlers or by applicationUI or tableManager

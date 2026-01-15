@@ -171,7 +171,7 @@ class BTNode {
             ary.splice(from, 1);
             ary.splice(to, 0, elt);
         }
-        // throw an exception if newP = oldP
+        // throw an exception if newP = self
         if (newP == this._id) 
             throw "reparentNode: setting self to parent!";
     

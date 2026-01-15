@@ -148,6 +148,12 @@ table.treetable.showNotes td.right {
   display: table-cell;
 }
 
+/* Session nodes that are unsaved (not in topic tree) show only left column */
+/* DOM uses colspan="2" on td.left, so just remove the border */
+tr.sessionNode.unsaved td.left {
+    border-right: none;
+}
+
 table.treetable span.indenter a {
   display: inline-flex;
   align-items: center;

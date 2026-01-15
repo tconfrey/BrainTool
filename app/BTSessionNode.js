@@ -325,7 +325,6 @@ class BTSessionNode extends BTAppNode {
         const oldTabGroupId = this.tabGroupId;
         const oldWindowId = this.windowId;
         super.handleNodeMove(newP, index, browserAction);
-        //super.handleNodeMove(newP, index, true);        // set browserAction to avoid duplicate tab moves in browser
 
         if (this.sessionType === SessionNodeType.GROUP) {
             if (!this.tabGroupId || browserAction) return;

@@ -104,12 +104,13 @@ let snapshotRequestTimerId = null;
 function requestBrowserSnapshot() {
     // Ask the background script to capture a fresh browser snapshot for reconciliation.
     if (snapshotRequestTimerId) {
-        console.log("Snapshot request pending - swallowing duplicate request.");
+        console.log("Snapshot request pending - swallowing duplicate request at: ",  getTimestamp());
         return;
     }
-    sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
     snapshotRequestTimerId = setTimeout(() => {
         snapshotRequestTimerId = null;
+        console.log("Requesting browser snapshot at: ",  getTimestamp());
+        sendMessage({ from: 'btwindow', function: 'syncBrowserSnapshot' });
     }, 500);
 }
 

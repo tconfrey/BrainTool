@@ -386,7 +386,6 @@ chrome.tabs.onActivated.addListener(logEventWrapper("tabs.onActivated", async (i
     if (Awaiting) return;                                           // ignore while executing our own commands
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab && !BTPort) return;                                  // not initialized
-    if (info.tabId == BTTab) return;                                // ignore BT itself
     chrome.tabs.get(info.tabId, tab => {
         check();
         if (!tab) return;
@@ -460,7 +459,6 @@ chrome.windows.onFocusChanged.addListener(logEventWrapper("windows.onFocusChange
     
     const [BTTab, BTWin] = await getBTTabWin();
     if (!BTTab && !BTPort) return;                                  // not initialized
-    if (windowId == BTWin) return;                                  // ignore BT itself
 
     const tabs = await chrome.tabs.query({'active': true, 'windowId': windowId});
     check();
@@ -1071,7 +1069,7 @@ function setBadge(tabId) {
 
     function marquee(badgeText, index) {
         if (badgeText.length < 6 || index >= badgeText.length - 2) {
-            chrome.action.setBadgeText({'text' : badgeText, 'tabId': tabId}, () => check('marquee'));
+            chrome.action.setBadgeText({'text' : badgeText.slice(0, 5), 'tabId': tabId}, () => check('marquee'));
         } else {
             chrome.action.setBadgeText({'text' : badgeText.slice(index) + "   ",
                                         'tabId': tabId}, () => check('marquee'));

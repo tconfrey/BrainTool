@@ -188,27 +188,18 @@ function indicateActiveTab(windowNode, tabList) {
             const isActiveTab = node.tabId && activeTab && node.tabId === activeTab.id;
             const currentText = $indenter.text();
             const hasArrow = currentText.includes('▬▶');
+            const multiplier = node.level - 1;
             
             if (isActiveTab && !hasArrow) {
                 $indenter.text('▬▶' + currentText);
                 // Adjust padding to compensate for arrow width
-                const currentStyle = $indenter.attr('style') || '';
-                const match = currentStyle.match(/padding-left:\s*calc\(var\(--btIndentStepSize\)\s*\*\s*(\d+)\)/);
-                if (match) {
-                    const multiplier = match[1];
-                    const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier} - 8px)`;
-                    $indenter.attr('style', newStyle);
-                }
+                const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier} - 8px)`;
+                $indenter.attr('style', newStyle);
             } else if (!isActiveTab && hasArrow) {
                 $indenter.text(currentText.replace('▬▶', ''));
-                // Remove padding adjustment
-                const currentStyle = $indenter.attr('style') || '';
-                const match = currentStyle.match(/padding-left:\s*calc\(var\(--btIndentStepSize\)\s*\*\s*(\d+)\s*-\s*8px\)/);
-                if (match) {
-                    const multiplier = match[1];
-                    const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier})`;
-                    $indenter.attr('style', newStyle);
-                }
+                // Restore normal padding
+                const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${multiplier})`;
+                $indenter.attr('style', newStyle);
             }
         };
         
@@ -651,10 +642,44 @@ function syncToBrowser(tabs = [], tabGroups = []) {
     }
 }
 
+function applySessionNodeClasses() {
+    // Apply CSS classes to session nodes based on whether they're saved in the topic tree
+    // For unsaved nodes, modify DOM to use colspan to span full width
+    AllNodes.forEach(node => {
+        if (!node?.isSessionNode) return;
+        const displayNode = node.getDisplayNode();
+        if (!displayNode) return;
+        
+        const $row = $(displayNode);
+        const $leftCell = $row.find('td.left');
+        const $rightCell = $row.find('td.right');
+        const isInTopicTree = node.isRepresentedInTopicTree();
+        
+        // Apply unsaved styling to: ROOT, WINDOW, and non-topic nodes not in topic tree
+        const isUnsaved = (node.sessionType === SessionNodeType.ROOT) ||
+                          (node.sessionType === SessionNodeType.WINDOW) ||
+                          (!node.isTopic() && !isInTopicTree);
+        
+        if (isUnsaved) {
+            // Modify DOM: make left cell span both columns, hide right cell
+            $row.addClass('unsaved');
+            $leftCell.attr('colspan', '2');
+            $rightCell.hide();
+        } else {
+            // Restore normal two-column layout
+            $row.removeClass('unsaved');
+            $leftCell.removeAttr('colspan');
+            $rightCell.show();
+        }
+    });
+}
+
 function handleSyncToBrowserMessage(message) {
     const tabs = message?.tabs || [];
     const tabGroups = message?.tabGroups || [];
     syncToBrowser(tabs, tabGroups);
+    applySessionNodeClasses();              // Apply display classes based on save status
+    BTAppNode.setDisplayOrder();            // Display order may have changed
 }
 
 function handleSnapshotTriggeredEvent(message) {
@@ -836,4 +861,115 @@ function initializeSessionManager() {
     ].forEach(eventName => registerMessageHandler(eventName, handleSnapshotTriggeredEvent));
 }
 
-export { initializeSessionManager, syncToBrowser };
+function syncAppNodesToBrowser(message) {
+    /**
+     * Synchronize app node ordering to match browser tab positions.
+     * 
+     * This function ensures that app nodes (the persisted topic tree) are reordered to match
+     * the actual tab positions in the browser. When tabs are moved in tab groups in the browser,
+     * the corresponding app nodes should be reordered to maintain consistency.
+     * 
+     * Algorithm:
+     * 1. Build lookup maps of tabs by their IDs for efficient access
+     * 2. Iterate through all tabs and find corresponding app nodes
+     * 3. For each app node with a tab, compare its expected position (expectedTabIndex) 
+     *    with the actual browser tab position (tabIndex)
+     * 4. If positions differ, move the node to the correct position using handleNodeMove
+     * 5. Set browserAction=true to prevent triggering circular browser updates
+     */
+
+    const tabs = message?.tabs || [];
+    const tabGroups = message?.tabGroups || [];
+    const btTabId = getProp('BTTabId');
+    const btWindowId = getProp('BTWindowId');
+    console.log("syncAppNodesToBrowser called with", tabs.length, "tabs and", tabGroups.length, "tab groups");
+    
+    // --- Step 1: Build lookup map of tabs by tab ID for efficient access
+    const tabsById = new Map();
+    tabs.forEach(tab => {
+        if (!tab || tab.id == null) return;
+        if (btWindowId != null && tab.windowId === btWindowId) return;
+        if (btTabId != null && tab.id === btTabId) return;
+        tabsById.set(tab.id, tab);
+    });
+    
+    // --- Step 2: Build lookup map of tab groups by ID
+    const groupsById = new Map();
+    tabGroups.forEach(group => {
+        if (!group || group.id == null) return;
+        groupsById.set(group.id, group);
+    });
+    
+    // --- Step 3: Track nodes that need reordering
+    const nodesToReorder = [];
+    
+    // --- Step 4: Iterate through tabs and identify app nodes that need repositioning
+    tabs.forEach(tab => {
+        if (!tab || tab.id == null) return;
+        if (btWindowId != null && tab.windowId === btWindowId) return;
+        if (btTabId != null && tab.id === btTabId) return;
+        
+        // Find the app node associated with this tab
+        const appNode = BTAppNode.findFromTab(tab.id, { isSession: false });
+        if (!appNode) return;
+        
+        // Get actual browser tab position
+        const actualTabIndex = tab.tabIndex ?? tab.index ?? 0;
+        
+        // Get expected position based on app tree structure
+        const expectedTabIndex = appNode.expectedTabIndex();
+        
+        // If positions differ, mark for reordering
+        if (actualTabIndex !== expectedTabIndex) {
+            nodesToReorder.push({
+                node: appNode,
+                actualIndex: actualTabIndex,
+                expectedIndex: expectedTabIndex,
+                tabGroupId: tab.groupId || tab.tabGroupId || 0
+            });
+        }
+    });
+    
+    // --- Step 5: Sort nodes by actual tab index to process in correct order
+    nodesToReorder.sort((a, b) => a.actualIndex - b.actualIndex);
+    
+    // --- Step 6: Reorder nodes to match browser tab positions
+    nodesToReorder.forEach(({ node, actualIndex, expectedIndex, tabGroupId }) => {
+        const parent = node.parentId ? AllNodes[node.parentId] : null;
+        if (!parent) return;
+        
+        // Calculate the new index position within parent's children
+        // This is the position among siblings that corresponds to the browser tab order
+        const currentIndexInParent = parent.childIds.indexOf(node.id);
+        if (currentIndexInParent < 0) return;
+        
+        // Find where this node should be positioned among its siblings
+        // based on the actual tab index
+        let newIndexInParent = 0;
+        const siblingTabs = parent.childIds
+            .map(id => AllNodes[id])
+            .filter(n => n && n.tabId && !n.isSessionNode);
+        
+        // Count how many sibling tabs come before this node's actual tab position
+        siblingTabs.forEach(sibling => {
+            if (sibling.id === node.id) return;
+            const siblingTab = tabsById.get(sibling.tabId);
+            if (!siblingTab) return;
+            const siblingIndex = siblingTab.tabIndex ?? siblingTab.index ?? 0;
+            if (siblingIndex < actualIndex) {
+                newIndexInParent++;
+            }
+        });
+        
+        // Only move if the position actually needs to change
+        if (newIndexInParent !== currentIndexInParent) {
+            // Use browserAction=true to indicate this is a browser-initiated change
+            // This prevents handleNodeMove from trying to update the browser
+            node.handleNodeMove(parent.id, newIndexInParent, true);
+            console.log(`Moved app node ${node.title} to index ${newIndexInParent} in parent ${parent.id}`);
+        }
+    });
+    BTAppNode.setDisplayOrder();            // Display order may have changed
+}
+
+export { initializeSessionManager, syncToBrowser, syncAppNodesToBrowser };
