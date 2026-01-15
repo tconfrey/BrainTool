@@ -184,7 +184,8 @@ function handleResizer() {
 }
 function updateResizerPositionFromColumns() {
     // Align #resizer to the actual width of the left column (same approach as in draggable stop)
-    const leftCell = $("#content td.left:visible")[0];       // NB need a visible cell
+    // NB need a visible cell, not a session node which don't have the right column
+    const leftCell = $("#content tr:not(.sessionNode) td.left:visible")[0];       
     if (!leftCell) return;
     const leftWidth = $(leftCell).width();
     if (leftWidth == null) return;
