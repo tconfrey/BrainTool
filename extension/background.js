@@ -563,6 +563,15 @@ function updateBTIcon(text, title, color) {
         {'color' : color});
 }
 
+// helper for find correct windowId in vivaldi
+async function nonBTWindowId() {
+    if (BTManagerHome !== 'WINDOW') return null;
+    const all = await chrome.windows.getAll();
+    if (!all.some(w => 'vivExtData' in w)) return null;
+    const [, BTWin] = await getBTTabWin();
+    return all.find(w => w.id !== BTWin && w.type === 'normal')?.id || null;
+}
+
 function openTabs(msg, sender) {
     // open list of {nodeId, url} pairs, potentially in new window
 
@@ -588,14 +597,14 @@ function openTabs(msg, sender) {
             tabOpened(win.id, win.tabs[0].id, first.nodeId, win.tabs[0].index);
             openTabsInWin(rest, win.id);
         });
-    else if (!defaultWinId) openTabsInWin(msg.tabs);                      // open in current win
+    else if (!defaultWinId) nonBTWindowId().then(id => openTabsInWin(msg.tabs, id));
     else
         // else check window exists & iterate on all adding to current window
         chrome.windows.get(defaultWinId, (w) => {
             if (!w) {
                 // in rare error case win may no longer exist => set to null
                 console.warn(`Error in openTabs. ${chrome.runtime.lastError?.message}`);
-                openTabsInWin(msg.tabs);
+                nonBTWindowId().then(id => openTabsInWin(msg.tabs, id));
             } else {
                 openTabsInWin(msg.tabs, defaultWinId);
             }
@@ -647,9 +656,10 @@ function openTabGroups(msg, sender) {
                                       openTabsInTg(win.id, tgid, rest);
                                   });
             });
-        else 
+        else
             // create tg in current window
-            chrome.tabs.create({'url': first.url}, tab => {
+            nonBTWindowId().then(id => chrome.tabs.create(
+                id ? {'url': first.url, 'windowId': id} : {'url': first.url}, tab => {
                 check(); if (!tab) return;
                 chrome.tabs.group({'tabIds': tab.id,
                                    'createProperties': {'windowId': tab.windowId}},
@@ -660,7 +670,7 @@ function openTabGroups(msg, sender) {
                                       chrome.tabGroups.update(tgid, {'title' : groupName});
                                       openTabsInTg(tab.windowId, tgid, rest);
                                   });
-            });
+            }));
     });
 }
 
