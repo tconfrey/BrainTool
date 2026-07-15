@@ -7,6 +7,10 @@ audience: user
 ---
 
 # Local Install
+
+## ⚠️ This page is out of date
+These instructions describe the pre-1.0 Release Candidate and are no longer maintained. The versions, folders and download link referenced below may no longer exist. If you need to run a local install of BrainTool please email [braintool.extension@gmail.com](mailto:braintool.extension@gmail.com) and I'll help you get set up with current instructions.
+
 This page describes how to run the pre-1.0 Release-Candidate version of BrainTool. See the [Release Notes](/support/ReleaseNotes.html) for its contents or check out [this video](https://youtu.be/DbRUZz8oyXY?si=PlBn0FuVXWRe-aly) for an overview of the installation and brief introduction to the tool.
 
 ## Background
