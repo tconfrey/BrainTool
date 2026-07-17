@@ -501,3 +501,9 @@ async function importKey() {
 }
 
 export { handlePurchase, openStripePortal, checkLicense, importKey};
+
+// initializeFirebase is intentionally also exposed on window (not just exported) for admin/
+// console tooling - eg the createAnonymousFreeCustomer snippet used to generate free license
+// keys - which runs in the DevTools console and can't reach module-scoped bindings. It's the
+// only function this file exposes this way; everything else stays module-private.
+window.initializeFirebase = initializeFirebase;
