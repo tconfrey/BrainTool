@@ -18,3 +18,4 @@ reference
 Non Prod/*
 CLAUDE.md
 .claude/
+node_modules/

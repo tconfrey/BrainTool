@@ -131,7 +131,10 @@ const Summarizer = (() => {
                     console.log('No text selected, extracting full article');
                     try {
                         const documentClone = document.cloneNode(true);
-                        const reader = new Readability(documentClone);
+                        // Readability.js is injected into this tab just above; this closure runs
+                        // in the tab's page context, not here, so Readability only exists at the
+                        // point this actually runs.
+                        const reader = new Readability(documentClone); // eslint-disable-line no-undef
                         const article = reader.parse();
                         return article ? article.textContent : document.body.innerText;
                     } catch (e) {

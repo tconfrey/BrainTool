@@ -1,0 +1,12 @@
+{
+  "name": "braintool",
+  "private": true,
+  "description": "Dev-only tooling for BrainTool. Not used by the extension or app at runtime.",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint app extension utilities"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0"
+  }
+}
