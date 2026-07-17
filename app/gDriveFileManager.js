@@ -598,7 +598,11 @@ getAccessToken,
 getBTModifiedTime, 
 BTFileID,
 registerFileManager,
-registerUI
+registerUI,
+gapiLoadOkay,
+gapiLoadFail,
+gisLoadOkay,
+gisLoadFail
 };
 
 export { gDriveFileManager };

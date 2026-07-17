@@ -450,7 +450,7 @@ async function RCPurchase(sessionId) {
         price: OTP,
         object: "no_payment_intent",
     }
-    const docRef = await FBDB.collection("customers").doc(BTId).collection("payments").add(fakePayment);
+    const docRef = await FBDB.collection("customers").doc(getProp('BTId')).collection("payments").add(fakePayment);
     // Wait for the fakePayment to get attached by the fb extension
     docRef.onSnapshot((snap) => {
         const { error, sessionId } = snap.data();
@@ -477,7 +477,7 @@ async function getStripePortalURL() {
 	          .functions(FunctionLocation)
 	          .httpsCallable('createPortalLink');
 	    rsp = await functionRef(
-	        { returnUrl: "https://braintool.org", 'BTId': BTId });
+	        { returnUrl: "https://braintool.org", 'BTId': getProp('BTId') });
     } catch(e) {
         const err = JSON.stringify(e);
 	    console.error("Error in getPortal:", err);
@@ -490,7 +490,7 @@ async function getStripePortalURL() {
 async function importKey() {
     const key = prompt('Please enter your license key:');
     if (key) {
-        BTId = key;
+        setProp('BTId', key);
         if (await checkLicense()) {
             setProp('BTId', key);
             saveBT();

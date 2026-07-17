@@ -198,12 +198,12 @@ function authorizeGAPI(userInitiated) {
     if (!window.gapi) {
         let gapiscript = document.createElement('script');
         gapiscript.src = 'https://apis.google.com/js/api.js';               // URL of the Google API script
-        gapiscript.onload = gapiLoadOkay;
-        gapiscript.onerror = gapiLoadFail;
+        gapiscript.onload = gDriveFileManager.gapiLoadOkay;
+        gapiscript.onerror = gDriveFileManager.gapiLoadFail;
         let gisscript = document.createElement('script');
         gisscript.src = 'https://accounts.google.com/gsi/client';          // URL of the Google GIS script
-        gisscript.onload = gisLoadOkay;
-        gisscript.onerror = gisLoadFail;
+        gisscript.onload = gDriveFileManager.gisLoadOkay;
+        gisscript.onerror = gDriveFileManager.gisLoadFail;
         document.head.appendChild(gapiscript);
         document.head.appendChild(gisscript);
     }
