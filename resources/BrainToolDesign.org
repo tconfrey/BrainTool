@@ -238,12 +238,35 @@ Bidirectional text synchronization keeps notes in sync between persisted app nod
 - Added timestamp utilities for debugging message flow across content script and background
 - Consolidated browser snapshot requests with throttling to prevent duplicate calls
 
-** Remaining work
-- Drag of unopened appNodes into session will open tab or tab group in the dropped window. Only unopened nodes can be dropped. Dropped leaf/tab items must be dropped onto the appropriate tabgroup if its open, otherwise its newly created. 
-- Drop into root session opens new window. drop of topic opens new tab group w all tab items open.
-- Implementation approach: Use existing BTAppNode methods where possible (e.g., `openPage`, `openAll`). May need to add ability to pass windowId parameter to force opening in specific window.
-- Drag of unsaved session nodes into appnode should perform savetab or save tabgroup or save window action.
-- Integration point: Connect drag-and-drop handlers in tableManager with session node creation/save logic.
+** Drag into the session tree ✅ COMPLETED
+Verified working by testing.
+- Drag of unopened appNodes into session opens tab or tab group in the dropped window. Only unopened nodes can be dropped. Dropped leaf/tab items are dropped onto the appropriate tabgroup if its open, otherwise its newly created.
+- Drop into root session opens new window. Drop of topic opens new tab group w all tab items open.
+- Implemented in tableManager: `dropNode()` intercepts the unopened-appNode-into-session case and routes to `openAppNodeInBrowser()`, which dispatches to `openAppNodeInWindow()` or `openAppNodeInTabGroup()`. `createSessionNode()`/`createBrowserWindow()` handle new window creation and group preservation. As anticipated, this uses existing BTAppNode methods and passes a windowId to force opening in a specific window.
+
+** Drag of unsaved session nodes into the app tree - IMPLEMENTED, pending testing
+This is not really a D&D, it's the creation of a new AppNode corresponding to a sessionNode - a copy, not a move. Session nodes don't serialize to org (orgText() returns '') and are owned by the syncToBrowser reconciler, so they can never be moved into the app tree. Instead the drop is intercepted in `dropNode()` (mirroring the app->session interception) and routed to `saveSessionNodeToApp()` in tableManager, which builds a payload from the session subtree and hands it to `saveTabs()` in bt.js - the same save machinery the Bookmarker uses. bt.js registers saveTabs via `registerSessionSaveHandler()` at startup to avoid an import cycle.
+
+*** Behavior by dragged node type
+- TAB: creates a new AppNode under the drop topic; the session node doesn't move. Standard save semantics apply in the browser via groupAndPosition: the tab is wrapped in a new tabgroup named for the topic if the topic has no open tabs, otherwise moved into the topic's existing tabgroup wherever it is. The payload passes groupId 0 - passing the tab's real group would make saveTabs adopt and rename the group the tab is sitting in (the Bookmarker popup avoids the same hazard by ungrouping before save; here the browser's group-move handles removal automatically).
+- GROUP: creates a topic AppNode named for the tabgroup under the drop topic, with leaf AppNodes for each contained tab. The browser tabs are not impacted - a `grouping: false` flag added to saveTabs suppresses groupAndPosition. The real tabGroupId is passed so the new topic adopts the group (sister linkage). Suppressing grouping also suppresses the browser round trip whose tabGroupUpdated event normally delivers the tabgroup color, so the color is passed explicitly as `tabGroupColor` (taken from the session node) and applied to the topic after redisplay; setTGColor then propagates it to the contained tab rows.
+- Already saved TAB or GROUP: re-files rather than saving a duplicate. `saveSessionNodeToApp()` looks up the existing appNode via `BTSessionNode.topicTreeNode()` and hands it to `moveNode()`, which moves it under the new topic and regroups its tab via handleNodeMove. Needed because saveTabs silently no-ops on a tabId it has already saved, so without this the drag would appear to work and do nothing.
+- WINDOW/ROOT: drop does not take effect. Rejected in `BTAppNode.canAcceptDrop()` (via `BTSessionNode.canBeDroppedInTopicTree()`, a type check only), which also rejects any session drop onto trash (previously a session drag onto TRASH reached deleteNode).
+
+*** Supporting details
+- Session node notes are preserved: saveTabs now honors a per-tab `note` field overriding the common note, so annotated session tabs don't get blanked by the app->session text sync after save.
+- Drops into the BOOKMARKS BAR topic trigger exportBookmarksBar() to resync the bar.
+- After save, requestBrowserSnapshot() refreshes session rows to pick up inTopicTree styling.
+- `moveSessionToApp()` and `moveAppToSession()` were deleted - both unreachable once dropNode intercepts the conversions. `moveNode()` now dispatches only the true moves: session<->session and app<->app. `BTSessionNode.canMoveTo()` is unchanged and correctly returns false for app-tree parents.
+
+*** Testing checklist (not yet run)
+- Unsaved tab -> closed topic: new group named for topic, tab stays in its window, old group keeps its name and other tabs
+- Unsaved tab -> topic with open tabs: tab moves into that group, possibly cross-window
+- Group drag -> tree gains topic + leaves under drop target; browser untouched; colors on both trees
+- Window drag, saved-node drag, trash drop: all revert, nothing happens
+- Session node with a note -> note appears on the new appNode
+- Drop into BOOKMARKS BAR topic -> bar updates
+- Reload after each: org file contains the new nodes
 
 * Bookmarker Summaries project
 The Summaries project will make use of the browsers ai summarizer to optionally populate the notes field in the BT Bookmarker window with a summary of selected text or the whole page. The page text will be extracted using a version of the readability.js library.

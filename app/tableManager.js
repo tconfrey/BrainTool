@@ -694,10 +694,79 @@ function openAppNodeInBrowser(appNode, sessionNode) {
     }
 }
 
+// ====================================
+// Saving session nodes dropped into the app tree
+// ====================================
+
+let SessionSaveHandler = null;
+function registerSessionSaveHandler(fn) {
+    // bt.js registers saveTabs here at startup, avoiding a tableManager -> bt.js import cycle
+    SessionSaveHandler = fn;
+}
+
+function sessionTabData(node, topic, groupId = 0) {
+    // Build a saveTabs tab entry from a session TAB node.
+    // groupId defaults to 0: passing the tab's real group would make saveTabs adopt,
+    // and then rename, the group the tab happens to be sitting in.
+    const titleMatch = node.title?.match(/\[\[.*?\]\[(.*?)\]\]/);
+    return {'tabId': node.tabId, 'groupId': groupId, 'windowId': node.windowId,
+            'url': node.URL, 'title': titleMatch ? titleMatch[1] : (node.title || node.URL),
+            'favIconUrl': node.faviconUrl, 'tabIndex': node.tabIndex,
+            'note': node.text, 'topic': topic};
+}
+
+function saveSessionNodeToApp(dragNode, dropBTNode) {
+    // Dropping a session node into the app tree files it under the drop target's topic - the
+    // mirror of openAppNodeInBrowser above. Never a move: the session node itself is not touched,
+    // sisterNode linkage and text sync take over once its appNode exists. An unsaved node is
+    // saved as new appNode(s), an already saved one has its existing appNode re-filed.
+    if (!SessionSaveHandler) return;
+    const { newParent } = determineDropBehavior(dropBTNode);
+    const topicPath = newParent?.topicPath || '';
+
+    const savedNode = dragNode.topicTreeNode();
+    if (savedNode) {
+        // Already saved => re-file its appNode under the new topic rather than saving again
+        // (saveTabs would no-op on the known tabId). moveNode handles the tree move, the
+        // browser regrouping via handleNodeMove, and the file save.
+        if (savedNode.id == dropBTNode.id) return;          // dropped on its own appNode
+        moveNode(savedNode, dropBTNode, savedNode.parentId);
+    }
+    else if (dragNode.sessionType === SessionNodeType.TAB && dragNode.tabId) {
+        // Single tab: standard save semantics. groupAndPosition wraps the tab in a new group
+        // named for the topic, or moves it into the topic's existing group if it has open tabs.
+        // A tab needs a topic to live under, so a top level drop (no newParent) is a no-op -
+        // an empty topicPath would otherwise fall through to saveTabs' 📝 SCRATCH default.
+        if (!newParent) return;
+        SessionSaveHandler({'saveType': 'Tab', 'tabs': [sessionTabData(dragNode, topicPath)],
+                            'close': false, 'dropNodeId': dropBTNode.id});
+    }
+    else if (dragNode.sessionType === SessionNodeType.GROUP) {
+        // Tab group: create a subtopic named for the group with a leaf per contained tab.
+        // The real groupId is passed so the new topic adopts the tabgroup (colors, sister
+        // linkage); grouping:false so the browser tabs are not rearranged. Since grouping is
+        // suppressed the tabGroupUpdated event that normally delivers the color never fires,
+        // so pass the color we already have from the session node.
+        const topic = topicPath ? `${topicPath}:${dragNode.title}` : dragNode.title;
+        const tabs = dragNode.childIds.map(id => AllNodes[id])
+              .filter(node => node?.sessionType === SessionNodeType.TAB && node.tabId)
+              .map(node => sessionTabData(node, topic, dragNode.tabGroupId));
+        if (!tabs.length) return;
+        SessionSaveHandler({'saveType': 'TG', 'tabs': tabs, 'close': false,
+                            'grouping': false, 'tabGroupColor': dragNode.tgColor || null,
+                            'dropNodeId': dropBTNode.id});
+    }
+    else return;                                            // WINDOW/ROOT drags are rejected in canAcceptDrop
+
+    requestBrowserSnapshot();                               // refresh session rows w inTopicTree styling
+    if (dropBTNode.bookmarkId || newParent?.bookmarkId)
+        setTimeout(() => exportBookmarksBar(), 10);         // dropped into bookmarks bar topic => resync the bar
+}
+
 function dropNode(event, ui) {
     // Drop existing node w class=dragTarget below node w class=dropOver
     // NB if dropOver is expanded target becomes first child, if collapsed next sibling
-    
+
     const dragTarget = $(".dragTarget")[0];
     if (!dragTarget) return;                                // no target, no drop
     const dragNodeId = $(dragTarget).attr('data-tt-id');
@@ -710,6 +779,12 @@ function dropNode(event, ui) {
     // Handle drop of unopened appNode into session tree
     if (!dragNode.isSessionNode && dropBTNode.isSessionNode && !dragNode.tabId) {
         openAppNodeInBrowser(dragNode, dropBTNode);
+        return;
+    }
+
+    // Handle drop of unsaved session node into app tree => save it, session node doesn't move
+    if (dragNode.isSessionNode && !dropBTNode.isSessionNode) {
+        saveSessionNodeToApp(dragNode, dropBTNode);
         return;
     }
 
@@ -746,13 +821,12 @@ function moveNode(dragNode, dropNode, oldParentId, browserAction = false) {
     
     if (dragIsSession && dropIsSession) {
         moveSessionToSession(dragNode, dropNode, oldParentId, browserAction);
-    } else if (dragIsSession && !dropIsSession) {
-        moveSessionToApp(dragNode, dropNode, oldParentId, browserAction);
-    } else if (!dragIsSession && dropIsSession) {
-        console.warn("Should not get here - moving app to session should be handled elsewhere");
-        return;
-    } else {
+    } else if (!dragIsSession && !dropIsSession) {
         moveAppToApp(dragNode, dropNode, oldParentId, browserAction);
+    } else {
+        // session<->app transitions are conversions, not moves - handled in dropNode
+        console.warn("moveNode: session<->app drop should have been intercepted in dropNode");
+        return;
     }
     
     // Common post-move cleanup
@@ -1011,50 +1085,6 @@ function createBrowserWindow(dragNode, windowNode) {
 }
 
 // ====================================
-// Session-to-App moves
-// ====================================
-
-function moveSessionToApp(dragNode, dropNode, oldParentId, browserAction) {
-    // Moving a session node into the app tree (ungroups/closes tabs)
-    const { isDropInto, newParent } = determineDropBehavior(dropNode);
-    
-    if (!dragNode.canMoveTo(newParent)) return;
-    
-    if (isDropInto) {
-        // Drop into expanded topic as first child
-        performTreeMove(dragNode, dropNode, dropNode.id, 0, browserAction);
-    } else {
-        // Drop below node as sibling
-        const parentId = dropNode.parentId;
-        const parent = parentId ? AllNodes[parentId] : null;
-        const newIndex = calculateNewIndex(dragNode, dropNode, parent, oldParentId);
-        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
-    }
-}
-
-// ====================================
-// App-to-Session moves
-// ====================================
-
-function moveAppToSession(dragNode, dropNode, oldParentId, browserAction) {
-    // Moving an app node into session tree (groups/opens tabs)
-    const { isDropInto, newParent } = determineDropBehavior(dropNode);
-    
-    if (!dragNode.canMoveTo(newParent)) return;
-    
-    if (isDropInto) {
-        // Drop into expanded topic as first child
-        performTreeMove(dragNode, dropNode, dropNode.id, 0, browserAction);
-    } else {
-        // Drop below node as sibling
-        const parentId = dropNode.parentId;
-        const parent = parentId ? AllNodes[parentId] : null;
-        const newIndex = calculateNewIndex(dragNode, dropNode, parent, oldParentId);
-        performTreeMove(dragNode, dropNode, parentId, parent ? newIndex : -1, browserAction);
-    }
-}
-
-// ====================================
 // App-to-App moves
 // ====================================
 
@@ -1183,5 +1213,6 @@ export {
     initializeUI,
     moveNode,
     positionNode,
+    registerSessionSaveHandler,
     rememberFold,
 };

@@ -27,7 +27,7 @@ import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
 import { registerProcessImport as registerProcessImportBM, animateNewImport } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
-import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, rememberFold } from './tableManager.js';
+import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, registerSessionSaveHandler, rememberFold } from './tableManager.js';
 import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js'
@@ -427,10 +427,13 @@ function tabClosed(data) {
 
 function saveTabs(data) {
     // iterate thru array of tabsData and save each to BT
-    // data is of the form: {'function': 'saveTabs', 'saveType':Tab|TG|Window|Session, 'tabs': [], 'note': msg.note,  'close': msg.close, 'dropNodeId': node.id}
-    // tabs: [{'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url, 'topic': topic, 'title': msg.title, favIconUrl: t.favIconUrl}] 
+    // data is of the form: {'function': 'saveTabs', 'saveType':Tab|TG|Window|Session, 'tabs': [], 'note': msg.note,  'close': msg.close, 'dropNodeId': node.id, 'grouping': bool}
+    // tabs: [{'tabId': t.id, 'groupId': t.groupId, 'windowId': t.windowId, 'url': t.url, 'topic': topic, 'title': msg.title, favIconUrl: t.favIconUrl, 'note': note}]
     // topic is potentially topic-dn:window##:TGName:TODO
     // dropNodeId is passed back from app, keeping track of the node to create dropped urls under in the tree
+    // grouping: false suppresses groupAndPosition, used when saving session tabgroup nodes whose tabs should not move
+    // tabGroupColor sets the topic's tg color directly, needed when grouping is suppressed and so no tabGroupUpdated event delivers it
+    // per-tab note overrides the common note, used when saving session nodes which carry their own text
 
     console.log('saveTabs: ', data);
     if (data.from == "btwindow") return;                  // ignore our own messages
@@ -476,7 +479,7 @@ function saveTabs(data) {
 
         // Create and populate node
         const title = cleanTitle(tab.title);                    // get rid of unprintable characters etc
-        const node = new BTAppNode(`[[${tab.url}][${title}]]`, topicNode.id, note || "", topicNode.level + 1);
+        const node = new BTAppNode(`[[${tab.url}][${title}]]`, topicNode.id, tab.note ?? note ?? "", topicNode.level + 1);
         node.tabId = tab.tabId; node.windowId = tab.windowId;
         topicNode.windowId = tab.windowId;
         if (tab.groupId > 0) {                                  // groupid = -1 if not set
@@ -509,7 +512,9 @@ function saveTabs(data) {
     // update subtree of each changed topic node
     changedTopicNodes.forEach(node => {
         node.redisplay();
-        if (!close) node.groupAndPosition();
+        // nb color after redisplay, which regenerates the row. setTGColor propagates to contained tabs
+        if (data.tabGroupColor) node.setTGColor(data.tabGroupColor);
+        if (!close && data.grouping !== false) node.groupAndPosition();
     });
 
     // update topic list, sync extension, reset ui and save changes.
@@ -1731,6 +1736,7 @@ registerMessageHandler('tabPositioned', tabPositioned);
 registerMessageHandler('tabClosed', tabClosed);
 registerMessageHandler('tabReplaced', tabReplaced);
 registerMessageHandler('saveTabs', saveTabs);
+registerSessionSaveHandler(saveTabs);               // session nodes dropped into app tree save via saveTabs, see tableManager
 registerMessageHandler('tabGroupCreated', tabGroupCreated);
 registerMessageHandler('tabGroupUpdated', tabGroupUpdated);
 registerMessageHandler('noSuchNode', noSuchNode);

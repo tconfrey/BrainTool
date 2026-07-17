@@ -509,12 +509,14 @@ function promote(e) {
     const actions = getAllowedActions(node);
     if (!isActionAllowed(actions, 'promote')) return;
     
+    // Do the move, but not if it would strand a leaf at the top level
+    const newParentId = AllNodes[node.parentId].parentId;
+    if (!node.canMoveTo(newParentId ? AllNodes[newParentId] : null)) return;
+
     // collapse open subtree if any
     if (node.childIds.length)
         $("#content").treetable("collapseNode", node.id);
 
-    // Do the move
-    const newParentId = AllNodes[node.parentId].parentId;
     node.handleNodeMove(newParentId);
     $("table.treetable").treetable("promote", node.id);
 

@@ -70,14 +70,27 @@ class BTAppNode extends BTNode {
     }
 
     canAcceptDrop(node) {
-        // Default: allow any child node to be dropped beneath this node
-        void node;
+        // Can the dragged node be dropped beneath this node?
+        if (!node) return false;
+
+        // Drop into trash deletes the dragged node. Session nodes are views of browser state
+        // and aren't deletable, so they can't be trashed.
+        if (this.isTrash() || this.trashed) return !node.isSessionNode;
+
+        // Only topics live at the top level, so leaves need a topic parent. A drop below a top
+        // level node that isn't an expanded topic lands at the top level - cf determineDropBehavior.
+        const dropInto = this.isTopic() && !this.folded;
+        if (!dropInto && !this.parentId && !node.isTopic()) return false;
+
+        // Session nodes dropped into the app tree are saved as new appNodes, or re-filed if
+        // already saved (see saveSessionNodeToApp in tableManager): only TABs and GROUPs qualify.
+        if (node.isSessionNode) return node.canBeDroppedInTopicTree();
         return true;
     }
 
     canMoveTo(parentNode) {
-        // Default: allow moving under any parent (or top-level)
-        void parentNode;
+        // Only topics live at the top level, leaf nodes must have a topic parent
+        if (!parentNode) return this.isTopic();
         return true;
     }
 

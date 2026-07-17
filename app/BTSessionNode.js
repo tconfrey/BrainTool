@@ -66,17 +66,27 @@ class BTSessionNode extends BTAppNode {
         return classes;
     }
 
-    isRepresentedInTopicTree() {
+    topicTreeNode() {
+        // The saved appNode corresponding to this session node, if it has been saved
         switch (this.sessionType) {
         case SessionNodeType.TAB:
-            if (!this.tabId) return false;
-            return !!BTAppNode.findFromTab(this.tabId, { isSession: false });
+            return (this.tabId && BTAppNode.findFromTab(this.tabId, { isSession: false })) || null;
         case SessionNodeType.GROUP:
-            if (!this.tabGroupId) return false;
-            return !!BTAppNode.findFromGroup(this.tabGroupId, { isSession: false });
+            return (this.tabGroupId && BTAppNode.findFromGroup(this.tabGroupId, { isSession: false })) || null;
         default:
-            return false;
+            return null;
         }
+    }
+
+    isRepresentedInTopicTree() {
+        return !!this.topicTreeNode();
+    }
+
+    canBeDroppedInTopicTree() {
+        // TABs and GROUPs can be dropped into the app tree: an unsaved one is saved as a new
+        // appNode, an already saved one re-files its existing appNode - see saveSessionNodeToApp.
+        // WINDOW and ROOT drags into the app tree are not supported.
+        return this.sessionType === SessionNodeType.TAB || this.sessionType === SessionNodeType.GROUP;
     }
 
     redisplay(show=false) {
@@ -259,7 +269,7 @@ class BTSessionNode extends BTAppNode {
     canMoveTo(parentNode) {
         if (this.sessionType === SessionNodeType.ROOT) return false;
         if (!parentNode) return false;
-        if (!parentNode.isSessionNode) return false;        // will handle sessionNodes dropped into app hierarchy here
+        if (!parentNode.isSessionNode) return false;        // sessionNodes can't be *moved* into the app tree; dropping one there saves a copy, see saveSessionNodeToApp
 
         switch (parentNode.sessionType) {
         case SessionNodeType.ROOT:
