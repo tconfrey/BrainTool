@@ -504,6 +504,15 @@ export { handlePurchase, openStripePortal, checkLicense, importKey};
 
 // initializeFirebase is intentionally also exposed on window (not just exported) for admin/
 // console tooling - eg the createAnonymousFreeCustomer snippet used to generate free license
-// keys - which runs in the DevTools console and can't reach module-scoped bindings. It's the
-// only function this file exposes this way; everything else stays module-private.
+// keys - which runs in the DevTools console and can't reach module-scoped bindings.
 window.initializeFirebase = initializeFirebase;
+
+// Dev/test helper: clear the in-memory + localStorage-synced license state so importKey()'s
+// flow can be re-tested. Does NOT call saveBT(), so the org file's persisted BTId is untouched
+// until a subsequent successful key import (or other setProp('BTId', ...) + saveBT()) writes a
+// new one - a reload before that happens restores the real license from the file.
+window.clearLicense = () => {
+    setProp('BTId', null);
+    setProp('BTExpiry', null);
+    console.log('License cleared (not yet saved to file). BTId:', getProp('BTId'), 'BTExpiry:', getProp('BTExpiry'));
+};
