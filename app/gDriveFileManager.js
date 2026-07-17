@@ -22,6 +22,8 @@ import { getProp, setProp } from './configManager.js';
 let setGDriveConnectedCallback = null;
 let setBTFileTextCallback = null;
 let getBTFileTextCallback = null;
+let updateStatsRowCallback = null;
+let updateSyncSettingsCallback = null;
 let GDriveConnected = false;
 
 // Callback for UI functions - registered after UI loads
@@ -35,6 +37,8 @@ function registerFileManager(callbacks) {
     };
     setBTFileTextCallback = callbacks.setBTFileText;
     getBTFileTextCallback = callbacks.getBTFileText;
+    updateStatsRowCallback = callbacks.updateStatsRow;
+    updateSyncSettingsCallback = callbacks.updateSyncSettings;
 }
 
 function registerUI(callbacks) {
@@ -302,7 +306,7 @@ async function findOrCreateBTFile(userInitiated) {
     }
     // Update and Save FileID and save timestamp
     updateSigninStatus(true);
-    updateStatsRow(driveTimestamp);
+    updateStatsRowCallback && updateStatsRowCallback(driveTimestamp);
     setProp('BTFileID', BTFileID);
     getProp('BTTimestamp') || setProp('BTTimestamp', driveTimestamp);
 } 
@@ -371,7 +375,7 @@ async function createStartingBT() {
         setProp('BTFileID', BTFileID);
         const timestamp = Date.parse(responseValue.modifiedTime);
         setProp('BTTimestamp', timestamp);
-        updateStatsRow(timestamp);
+        updateStatsRowCallback && updateStatsRowCallback(timestamp);
         updateSigninStatus(true);
     }
     catch(err) {
@@ -496,7 +500,7 @@ async function _writeBTFile() {
                 throw new Error('access token exists, but upload failed. Probably need to renew token and retry');
             const mt = Date.parse(val.modifiedTime);
             setProp('BTTimestamp', mt);
-            updateStatsRow(mt);	     // update stats when we know successful save
+            updateStatsRowCallback && updateStatsRowCallback(mt);	     // update stats when we know successful save
         }).catch(function(err) {
             SaveUnderway = false;
             console.log("Error in writeBTFile: ", JSON.stringify(err));
@@ -570,7 +574,7 @@ async function updateSigninStatus(signedIn, error=false, userInitiated = false) 
     }
     alertText && alert(alertText);
 
-    updateSyncSettings(signedIn);            // common fileManager fn to show connectivity info
+    updateSyncSettingsCallback && updateSyncSettingsCallback(signedIn);            // common fileManager fn to show connectivity info
     setGDriveConnectedCallback && setGDriveConnectedCallback(signedIn);
     setProp('BTGDriveConnected', signedIn);
 }

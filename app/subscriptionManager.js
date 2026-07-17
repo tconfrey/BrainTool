@@ -20,6 +20,8 @@
  ***/
 
 import { getProp, setProp } from './configManager.js';
+import { saveBT } from './fileManager.js';
+import { updateLicenseSettings } from './bt.js';
 
 const FBENV = "prod"; // "local" or "test" or "prod"
 const LocalFB = (FBENV == "local");

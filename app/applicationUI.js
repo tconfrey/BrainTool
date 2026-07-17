@@ -1043,4 +1043,4 @@ function initializeFooter() {
     console.log('Footer initialized with event listeners');
 }
 
-export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs };
+export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs, toggleKeyCommands, toggleHelpDisplay };

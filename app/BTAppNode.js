@@ -22,6 +22,7 @@ import { BTNode, AllNodes } from './BTNode.js';
 import { getProp, incrementStat, metaPropertiesToString } from './configManager.js';
 import { sendMessage, callBackground } from './extensionMessaging.js';
 import { localStorageManager } from './localFileManager.js';
+import { loadOrgFile } from './fileManager.js';
 
 var Topics = [];                                                                                // track topics for future tab assignment
 const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐 CURRENT SESSION'];

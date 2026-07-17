@@ -25,12 +25,12 @@ import { setConfigAndKeys, getProp, setProp, setStat, incrementStat, initializeI
 import { messageManager } from './messageManager.js';
 import { BTAppNode, Topics } from './BTAppNode.js';
 import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
-import { registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
+import { registerProcessImport as registerProcessImportBM, animateNewImport } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
-import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, rememberFold } from './tableManager.js';
-import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
+import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, rememberFold } from './tableManager.js';
+import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
-import { closeConfigDisplays } from './applicationUI.js'
+import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js'
 import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
@@ -1740,8 +1740,9 @@ registerMessageHandler('syncToBrowser', syncAppNodesToBrowser);
 initializeSessionManager();
 
 // Export functions that are called from inline HTML event handlers or by applicationUI or tableManager
-export { 
+export {
     searchButton, filterSearch, filterToDos,
-    syncEnabled, updateStatsRow, groupingUpdate
+    syncEnabled, updateStatsRow, groupingUpdate,
+    updateLicenseSettings
 };
 

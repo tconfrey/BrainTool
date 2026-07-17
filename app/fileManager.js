@@ -524,14 +524,16 @@ if (typeof gDriveFileManager !== 'undefined' && gDriveFileManager.registerFileMa
     gDriveFileManager.registerFileManager({
         setGDriveConnected: setGDriveConnected,
         setBTFileText: setBTFileText,
-        getBTFileText: getBTFileText
+        getBTFileText: getBTFileText,
+        updateStatsRow: updateStatsRow,
+        updateSyncSettings: updateSyncSettings
     });
 }
 
-export { 
+export {
     saveBT, getBTFile, initiateBackups, syncEnabled, handleStartupFileConnection,
     updateSyncSettings, savePendingP,
     importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
     getBTFileText, setBTFileText, checkBTFileVersion,
-    authorizeGAPI, authorizeLocalFile
+    authorizeGAPI, authorizeLocalFile, loadOrgFile
 };

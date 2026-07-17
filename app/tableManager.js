@@ -1079,8 +1079,15 @@ function moveAppToApp(dragNode, dropNode, oldParentId, browserAction) {
 function positionNode(dragNode, dropParentId, dropBelow) {
     // Position dragged node below the dropbelow element under the parent
     // NB treetable does not support this so we need to use this sort method
-    const newPos = $("tr").index(dropBelow);
     const treeTable = $("#content");
+    if (!dropParentId) {
+        // Top level node. There's no parent branch to sort within - treetable("node", null) is
+        // undefined and sortBranch would throw - so insert directly, as performTreeMove does.
+        treeTable.treetable("insertAtTop", $(dragNode).attr('data-tt-id'),
+                            $(dropBelow).attr('data-tt-id'));
+        return;
+    }
+    const newPos = $("tr").index(dropBelow);
     const treeParent = treeTable.treetable("node", dropParentId);
     const dropNode = dropBelow[0];
     $(dragNode).attr('data-tt-parent-id', dropParentId);
@@ -1169,11 +1176,12 @@ function handleLinkClick(e) {
     e.preventDefault();
 }
 
-export { 
-    refreshTable, 
-    processBTFile, 
-    initializeNotesColumn, 
-    initializeUI, 
+export {
+    refreshTable,
+    processBTFile,
+    initializeNotesColumn,
+    initializeUI,
     moveNode,
+    positionNode,
     rememberFold,
 };

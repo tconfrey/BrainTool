@@ -22,7 +22,7 @@ import { sendMessage, registerMessageHandler } from './extensionMessaging.js';
 import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
 import { saveBT } from './fileManager.js';
-import { initializeUI } from './tableManager.js';
+import { initializeUI, positionNode } from './tableManager.js';
 import { deleteNode } from './rowManager.js';
 
 // Callback for processing imports - registered by bt.js
@@ -330,4 +330,4 @@ registerMessageHandler('bookmarks', loadBookmarks);
 registerMessageHandler('bookmarksBar', syncBookmarksBar);
 registerMessageHandler('bookmarksBarIds', bookmarksBarIds);
 
-export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport };
+export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport, animateNewImport };
