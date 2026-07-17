@@ -173,6 +173,17 @@ Refactor special node handling (bookmarks bar, session nodes) to use event-based
 ** Phase 5 - Final Dependency Analysis
 Complete final dependency analysis and consider bundler integration for production builds.
 
+** Phase 6 - Finish extension/'s ES6 module migration
+The Phase 1 migration covered app/ only. extension/ is still half-migrated: background.js, bookmarkHandler.js, config.js, configFallback.js and summarizer.js are ES modules, but popup.js, sidePanel.js, btContentScript.js, summarizerPopup.js, topicCard.js and topicSelector.js are still classic scripts that share one global scope via `<script>` tag load order per HTML page (popup.html loads awesomplete.js+topicSelector.js+topicCard.js+popup.js; summarizerPopup.html loads only topicCard.js+summarizerPopup.js; sidePanel.html loads btContentScript.js+sidePanel.js).
+
+*** Motivation
+Setting up ESLint (2026-07-17, see de6c7a4) required splitting its config into a separate globals block per HTML page's actual script list, rather than one shared pool for all of extension/ - treating them as one pool would have masked exactly the kind of bug it's meant to catch. It did catch two: `summarizerPopup.js` references `SaveAndCloseBtn` and `TopicSelector`, both only defined in files summarizerPopup.html never loads. That's the underlying problem with the classic-script pattern - "does this global actually get loaded on this page" is tracked by hand (or not at all) instead of enforced by the module system.
+
+Unlike the service worker split (mandated by Manifest V3) or the chrome.scripting.executeScript injected-page-context split (a real browser security boundary - see extension/summarizer.js), the classic-script split is not required by the platform. MV3 service workers already support `"type": "module"`, and popup/sidepanel HTML pages can equally load `<script type="module">` - background.js already proves ES modules work fine in this extension. This category of environment split is legacy from before the ES6 migration, not a platform necessity.
+
+*** Scope
+Convert popup.js, sidePanel.js, btContentScript.js, summarizerPopup.js, topicCard.js, topicSelector.js to ES modules with explicit import/export, following the same pattern Phase 1 established in app/. Once done, extension/'s ESLint config collapses from four classic-script blocks (one per HTML page) into a single ES-module block, matching app/'s. Cross-file references become explicit imports instead of implicit shared-scope globals, which would have made the SaveAndCloseBtn/TopicSelector bugs impossible to introduce rather than something a linter has to catch after the fact.
+
 ** The SessionManager project
 The Session Manager adds a live "Current Session" hierarchy alongside the persisted topic tree. It introduces a dedicated `BTSessionNode` subclass and a new `sessionManager` module to mirror the browser's open windows, tab groups, and tabs inside the Topic Manager.
 
