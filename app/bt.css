@@ -1214,6 +1214,23 @@ tr.sessionNode.tabgroup[class*='tg'] > td {
     color: inherit !important;
 }
 
+/* Segment the live-session block top and bottom with a divider in the open-descendant blue
+   (bug 6901). The bottom divider rides the first topic row (border-top, not a border-bottom on
+   the last session row) so it survives collapse of the session subtree - adjacency still
+   matches since the hidden session rows remain in the DOM. The top divider sits on the session
+   root (always the first row). Borders go on the tds since the table uses the separate border
+   model (border-spacing). The box-shadow fills the 1px border-spacing gap above the bottom
+   divider so the gap and the border don't read as two separate lines (border-spacing is a
+   table-wide property and can't be dropped for a single gap). */
+tr.sessionNode:first-child > td {
+    border-top: 6px solid var(--btLinkOpenedColor);
+}
+tr.sessionNode + tr:not(.sessionNode) > td {
+    /* narrower than the top border (which the viewport clips to ~half) so the two read the same */
+    border-top: 3px solid var(--btLinkOpenedColor);
+    box-shadow: 0 -1px 0 0 var(--btLinkOpenedColor);
+}
+
     /* Tab group palette from above
     --tg-grey-bg: grey;
     --tg-grey-bg-rgb: 128, 128, 128;

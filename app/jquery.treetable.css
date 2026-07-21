@@ -98,6 +98,12 @@ table.treetable tr.selected {
   background-color: var(--btButtonBackground) !important;
 }
 
+/* Dark mode: soften the selected-row tint to ~a0 alpha (0xA0/0xFF ~= 63%) so the open-tab
+   blue text (btLinkSelectedOpenedColor) reads against it instead of washing out. */
+[data-theme="DARK"] table.treetable tr.selected {
+  background-color: color-mix(in srgb, var(--btButtonBackground) 63%, transparent) !important;
+}
+
 table.treetable tr.attention {
   background-color: var(--btDrawAttention);
 }
