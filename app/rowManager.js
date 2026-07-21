@@ -26,7 +26,7 @@ import { getProp, setProp, incrementStat } from './configManager.js';
 import { callBackground } from './extensionMessaging.js';
 import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
-import { initializeUI } from './tableManager.js';
+import { initializeUI, scheduleOpenStateReconcile } from './tableManager.js';
 
 function getAllowedActions(node) {
     if (!node || typeof node.allowedRowActions !== 'function') return {};
@@ -541,6 +541,7 @@ function promote(e) {
     // save to file, update Topics etc
     saveBT();
     BTAppNode.generateTopics();
+    scheduleOpenStateReconcile();            // repaint stale .opened blue state (bug 6829)
     node.bookmarkId && exportBookmarksBar(); // update bookmarks bar if needed
 }
 

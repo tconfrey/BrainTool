@@ -898,11 +898,12 @@ function setNodeOpen(node) {
     // utility - show as open in browser, propagate upwards as needed above any collapsed nodes
 
     function propogateOpened(parentId) {
-        // recursively pass upwards adding opened class if appropriate
+        // Paint the whole ancestor chain to root blue - a node with an open descendant shows
+        // blue whether it's expanded or collapsed (bug 6829 consistency). Matches the invariant
+        // enforced by reconcileOpenStateCSS and un-painted symmetrically by propogateClosed.
         if (!parentId) return;               // terminate recursion
-        if ($("tr[data-tt-id='"+parentId+"']").hasClass("collapsed"))
-            $("tr[data-tt-id='"+parentId+"']").addClass("opened");
-        propogateOpened(AllNodes[parentId].parentId);
+        $("tr[data-tt-id='"+parentId+"']").addClass("opened");
+        propogateOpened(AllNodes[parentId]?.parentId);
     };
 
     const parentId = node.parentId;
