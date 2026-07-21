@@ -473,18 +473,17 @@ function syncToBrowser(tabs = [], tabGroups = []) {
                     
                     const updatedURLKey = stripURLForComparison(tabNode.URL);
                     const hostChanged = updatedURLKey !== previousURLKey;
-                    let textUpdated = false;
-                    
-                    // Sync notes from corresponding app node if URL host hasn't changed
-                    if (!hostChanged) {
-                        const appNode = BTAppNode.findFromTab(tabId, { isSession: false });
-                        if (appNode && appNode.text && tabNode.text !== appNode.text) {
-                            tabNode.text = appNode.text;
-                            textUpdated = true;
-                            const displayNode = tabNode.getDisplayNode();
-                            if (displayNode) {
-                                $(displayNode).find('span.btText').html(tabNode.displayText());
-                            }
+
+                    // Mirror the saved note only while the tab is on a saved page. Look up the
+                    // saved app node by the tab's CURRENT url (not its stale tabId association) so
+                    // the note clears when the tab navigates away and returns when it comes back.
+                    const savedNode = BTAppNode.findFromURLTGWin(tabNode.URL, desiredGroupId, windowId, { isSession: false });
+                    const desiredText = savedNode?.text || '';
+                    if (tabNode.text !== desiredText) {
+                        tabNode.text = desiredText;
+                        const displayNode = tabNode.getDisplayNode();
+                        if (displayNode) {
+                            $(displayNode).find('span.btText').html(tabNode.displayText());
                         }
                     }
                     

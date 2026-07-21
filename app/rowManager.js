@@ -335,6 +335,7 @@ function deleteRow(e) {
     }
 }
 
+let LastTrashMove = null;              // {nodeId, parentId, index} of the last move-to-Trash, for undo
 function deleteNode(id, browserAction = false) {
     // delete node and clean up
     // firstDelete moves the item into Trash, subsequent deletes it
@@ -379,7 +380,9 @@ function deleteNode(id, browserAction = false) {
     }
 
     if (!node.trashed) {
-        // Move to trash    
+        // Move to trash
+        LastTrashMove = {'nodeId': id, 'parentId': node.parentId,
+                         'index': AllNodes[node.parentId]?.childIds.indexOf(id) ?? -1};
         propogateClosed(node.parentId);                     // Update parent display
         const treeTable = $("#content");
         const trashNode = BTAppNode.findOrCreateTrashNode();
@@ -393,6 +396,7 @@ function deleteNode(id, browserAction = false) {
         initializeUI();
     } else {
         // Delete from trash
+        LastTrashMove = null;                                // undo now means resurrect, not un-trash
         $("table.treetable").treetable("removeNode", id);    // Remove from UI and treetable
         BTNode.deleteNode(id);             // delete from model. NB handles recusion to children
     }
@@ -408,8 +412,22 @@ function deleteNode(id, browserAction = false) {
         BTAppNode.generateTopics();
     }
     
-    // Update File 
+    // Update File
     saveBT();
+}
+
+function undoTrashMove() {
+    // Model-level reverse of the most recent move-to-Trash, if any. Returns the restored
+    // node or null. Display rebuild and file save are handled by the caller (undo() in bt.js).
+    if (!LastTrashMove) return null;
+    const {nodeId, parentId, index} = LastTrashMove;
+    LastTrashMove = null;                                   // single level of undo
+    const node = AllNodes[nodeId];
+    if (!node || !node.trashed) return null;                // already emptied or moved out
+    if (parentId && (!AllNodes[parentId] || AllNodes[parentId].trashed)) return null;
+    node.untrash();
+    node.handleNodeMove(parentId, index);
+    return node;
 }
 
 function updateRow() {
@@ -728,9 +746,10 @@ export {
     closeDialog, 
     openRow, 
     closeRow, 
-    deleteRow, 
-    deleteNode, 
-    updateRow, 
+    deleteRow,
+    deleteNode,
+    undoTrashMove,
+    updateRow,
     toDo, 
     promote,
     addNewTopLevelTopic,

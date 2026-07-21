@@ -28,7 +28,7 @@ import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, check
 import { registerProcessImport as registerProcessImportBM, animateNewImport } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
 import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, registerSessionSaveHandler, rememberFold } from './tableManager.js';
-import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit } from './rowManager.js';
+import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit, undoTrashMove } from './rowManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js'
 import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
@@ -593,7 +593,15 @@ function tabNavigated(data) {
     const transitionQualifiers = transitionData?.transitionQualifiers || [];
     const sticky = stickyTab();
 
-    if (tabNode && urlNode && (tabNode == urlNode)) return;     // nothing to see here, carry on
+    if (tabNode && urlNode && (tabNode == urlNode)) {
+        // tab is on its saved node's url. If it had navigated away (sticky) and come back,
+        // clear the navigated flag and refresh popup storage so the saved note reappears.
+        if (tabNode.navigated) {
+            tabNode.navigated = false;
+            tabActivated(data);         // rewrite currentText/currentTopic, tabNavigated=false
+        }
+        return;                         // otherwise nothing to see here, carry on
+    }
 
     if (tabNode) {
         // activity was on managed active tab
@@ -1692,8 +1700,12 @@ function handleEditCardKeyup(e) {
 };
 
 function undo() {
-    // undo last delete
-    const node = BTNode.undoDelete();
+    // undo last delete: either pull the node back out of Trash or restore a hard delete
+    let node = undoTrashMove();
+    if (node)                                   // remove trash row, tree rebuilt below
+        $("table.treetable").treetable("removeNode", node.id);
+    else
+        node = BTNode.undoDelete();
     if (!node) return;                          // nothing to undo
     const parent = AllNodes[node.parentId];
     function updateTree(ttn, btn) {
