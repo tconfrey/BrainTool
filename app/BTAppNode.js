@@ -1249,21 +1249,29 @@ class BTAppNode extends BTNode {
     static findFromURLTGWin(url, tg, win, { isSession = false } = {}) {
         // find node from url/TG/Window combo.
         // #1 is there a unique BT node w url
-        // #2 is there a matching url in same TG or window as new tab
+        // #2 if the url is saved under several (eg same-named) topics, prefer one already open
+        // #3 is there a matching url in same TG or window as new tab
         const urlNodes = AllNodes.filter(node => node && (!!node.isSessionNode === isSession) && BTNode.compareURLs(node.URL, url));
         if (urlNodes.length == 0) return null;
         if (urlNodes.length == 1) return urlNodes[0];
-        for (const node of urlNodes) {
+
+        // When the same url lives under multiple topics, prefer the one(s) whose topic already
+        // has an open tab so a nav/open joins the active topic instead of an arbitrary duplicate
+        // (bug 5804). If none are open, fall through to the original TG/window/first logic unchanged.
+        const openNodes = urlNodes.filter(node => AllNodes[node.parentId]?.hasOpenChildren());
+        const candidates = openNodes.length ? openNodes : urlNodes;
+
+        for (const node of candidates) {
             let parentId = node.parentId;
             if (parentId && AllNodes[parentId] && AllNodes[parentId].tabGroupId == tg)
                 return node;
         }
-        for (const node of urlNodes) {
+        for (const node of candidates) {
             let parentId = node.parentId;
             if (parentId && AllNodes[parentId] && AllNodes[parentId].windowId == win)
                 return node;
         }
-        return urlNodes[0];                                      // else just use first
+        return candidates[0];                                   // else just use first (open one if any)
     }
 
     static findFromWindow(winId, { isSession = false } = {}) {
