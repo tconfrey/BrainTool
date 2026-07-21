@@ -29,12 +29,15 @@ const TopicCard = (() => {
     function setupExisting(tab, note, title, tabNavigated, saveCB) {
         // entry point when existing page is selected.
         
-        TitleElt.value = tab.title; //title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");      // value, cos its a text input
         if (tabNavigated) {
+            TitleElt.value = tab.title;                            // sticky-nav'd to a new page => title field is for the Save As
             NoteElt.value = "";
             SaveAs.style.display = "block";
             NoteHint.style.display = "block";                      // show hint
         } else {
+            // Show the stored BT title (decoded), not the live tab title, so an edit here
+            // round-trips to the topic manager and a note-only save doesn't clobber a renamed node.
+            TitleElt.value = title ? title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">") : tab.title;
             if (note) NoteElt.value = note;
             SaveAs.style.display = "none";
         }

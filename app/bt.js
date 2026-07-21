@@ -447,6 +447,13 @@ function saveTabs(data) {
         // Handle existing node case: update and return
         const existingNode = tab.tabId && BTAppNode.findFromTab(tab.tabId);
         if (existingNode && !existingNode.navigated) {
+            // Update the title if the popup edited it. Compare against the decoded display title
+            // so an unchanged note-only save doesn't rewrite the stored title. See bug 7181.
+            const newTitle = tab.title && cleanTitle(tab.title);
+            if (newTitle && newTitle != BTAppNode._decodeHtmlEntities(existingNode.displayTopic)) {
+                existingNode.replaceURLandTitle(existingNode.URL, newTitle);
+                existingNode.redisplay();
+            }
             if (note) {
                 existingNode.text = note;
                 existingNode.redisplay();
@@ -822,6 +829,7 @@ function tabMoved(data) {
         tabNode.populateFavicon();
         initializeUI();
         changeSelected(tabNode);
+        tabActivated(data);             // write topic to storage so the popup recognizes the newly-saved tab (bug 7178)
     }
 
     // Now position the node within its topic.
