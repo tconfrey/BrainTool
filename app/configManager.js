@@ -31,7 +31,7 @@ const Properties = {
                           'BTLastShownMessageIndex', 'BTManagerHome', 'BTStickyTabs', 'BTTheme', 'BTFavicons',
                           'BTNotes', 'BTDense', 'BTSize', 'BTTooltips', 'BTGroupingMode', 'BTDontShowIntro',
                           'BTExpiry', 'BTBackupsOn', 'BTBackupsList', 'BTMoreToolsOn', 'BTFileText', 'BTMoreToolsOn',
-                          'mruTopics'],
+                          'BTShowSession', 'mruTopics'],
     'orgProps': ['BTCohort',  'BTVersion', 'BTId'],
     'stats': ['BTNumTabOperations', 'BTNumSaves', 'BTNumLaunches', 'BTInstallDate', 'BTSessionStartTime',
               'BTLastActivityTime', 'BTSessionStartSaves', 'BTSessionStartOps', 'BTDaysOfUse'],

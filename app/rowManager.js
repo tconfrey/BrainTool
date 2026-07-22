@@ -79,8 +79,10 @@ function buttonShow(e) {
     else
         $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
 
-    // The session root shows only the delete tool (CSS hides the rest); delete closes the view
-    const isSessionRoot = node.isSessionNode && node.sessionType === SessionNodeType.ROOT;
+    // The session root shows only the delete tool (CSS hides the rest); delete closes the view.
+    // NB coerce to a real boolean: node.isSessionNode is undefined (not false) on app nodes, and
+    // jQuery toggleClass toggles rather than removes when the 2nd arg isn't a strict boolean.
+    const isSessionRoot = !!(node.isSessionNode && node.sessionType === SessionNodeType.ROOT);
     $("#buttonRow").toggleClass('sessionRootOnly', isSessionRoot);
     if (isSessionRoot) $('#deleteRow').parent().attr('data-wenk', 'Close session view');
 
