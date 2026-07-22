@@ -620,6 +620,17 @@ function updateBTIcon(text, title, color) {
         {'color' : color});
 }
 
+// helper to find the correct windowId in Vivaldi (issue #38 / PR #45). In Vivaldi's panel
+// window mode a tab opened "in the current window" can land inside the BT panel; pick a real
+// normal window instead. Returns null for non-Vivaldi / non-WINDOW mode => open as before.
+async function nonBTWindowId() {
+    if (BTManagerHome !== 'WINDOW') return null;
+    const all = await chrome.windows.getAll();
+    if (!all.some(w => 'vivExtData' in w)) return null;
+    const [, BTWin] = await getBTTabWin();
+    return all.find(w => w.id !== BTWin && w.type === 'normal')?.id || null;
+}
+
 function openTabs(msg, sender) {
     // open list of {nodeId, url} pairs, potentially in new window or specific tab group
 
@@ -676,14 +687,14 @@ function openTabs(msg, sender) {
             tabOpened(win.id, win.tabs[0].id, first.nodeId, win.tabs[0].index);
             openTabsInWin(rest, win.id);
         });
-    else if (!defaultWinId) openTabsInWin(msg.tabs, null, index);         // open in current win with index
+    else if (!defaultWinId) nonBTWindowId().then(id => openTabsInWin(msg.tabs, id, index));  // open in current win with index (Vivaldi: real window)
     else
         // else check window exists & iterate on all adding to current window
         chrome.windows.get(defaultWinId, (w) => {
             if (!w) {
                 // in rare error case win may no longer exist => set to null
                 console.warn(`Error in openTabs. ${chrome.runtime.lastError?.message}`);
-                openTabsInWin(msg.tabs, null, index);
+                nonBTWindowId().then(id => openTabsInWin(msg.tabs, id, index));
             } else {
                 openTabsInWin(msg.tabs, defaultWinId, index);
             }
@@ -760,9 +771,10 @@ function openTabGroups(msg, sender) {
                                       openTabsInTg(targetWindowId, tgid, rest);
                                   });
             });
-        else 
-            // create tg in current window
-            chrome.tabs.create({'url': first.url, 'index': index}, tab => {
+        else
+            // create tg in current window (Vivaldi: target a real window, not the BT panel)
+            nonBTWindowId().then(id => chrome.tabs.create(
+                id ? {'url': first.url, 'index': index, 'windowId': id} : {'url': first.url, 'index': index}, tab => {
                 check(); if (!tab) return;
                 chrome.tabs.group({'tabIds': tab.id,
                                    'createProperties': {'windowId': tab.windowId}},
@@ -773,7 +785,7 @@ function openTabGroups(msg, sender) {
                                       chrome.tabGroups.update(tgid, {'title' : groupName});
                                       openTabsInTg(tab.windowId, tgid, rest);
                                   });
-            });
+            }));
     });
 }
 
