@@ -10,15 +10,15 @@ The BT codebase is plain vanilla javascript, html and CSS. The Topic Manager mak
 BrainTool is composed of extension code that runs inside the browser, app code that is served from the github repository and a set of markdown files and resources which compose the braintool.org web site.
 
 ** Extension
-Extension code is all contained in the /extension directory. This directory is compressed and uploaded to the browser app store. The extension code is modularized with import/export annotations.
+Extension code is all contained in the /extension directory. This directory is compressed and uploaded to the browser app store. The extension code is ES-module based (import/export), matching /app, as of Phase 6. Two files stay classic scripts by necessity - btContentScript.js (MV3 content scripts can't be ES modules) and sidePanel.js (shares btContentScript's page scope) - plus vendored awesomplete.js.
 *** Service worker
-The service worker code is mainly contained in background.js. This code registers for events and forwards them to the application. It also listens for messages from the app and sends back required information.
+The service worker code is mainly contained in background.js (`"type": "module"`). This code registers for events and forwards them to the application. It also listens for messages from the app and sends back required information. Imports bookmarkHandler.js and config.js (Keys).
 *** Bookmarker popup
-The popup.* files and the topic*.js files handles the Bookmarker interaction.
+popup.html loads awesomplete.js (vendored classic) then popup.js as an ES module; popup.js imports topicCard.js (TopicCard) and topicSelector.js (TopicSelector), which handle the note card and topic autocomplete for adding a page to BT.
 *** Content Script
-The content script code is injected into the tab running the Topic Manager (served from braintool.org). It relays messages between the extension and the application.
+btContentScript.js is injected into the tab running the Topic Manager (served from braintool.org / localhost in dev). It relays messages between the extension and the application. Classic script (MV3 constraint); also loaded plain in sidePanel.html.
 *** SidePanel
-The sidepanel.* js html code provides a slim wrapper that runs the topic manager in an iframe and mediates communication.
+sidePanel.{html,js} provides a slim wrapper that runs the topic manager in an iframe and mediates communication. sidePanel.js is a classic script sharing btContentScript.js's page scope (its `sendMessage`).
 
 ** App
 The application code is all contained in the /app directory. As of Phase 2 refactoring (completed), the code has been successfully modularized with explicit ES6 import/export modules. The main bt.js file has been broken down into focused modules:
@@ -173,16 +173,21 @@ Refactor special node handling (bookmarks bar, session nodes) to use event-based
 ** Phase 5 - Final Dependency Analysis
 Complete final dependency analysis and consider bundler integration for production builds.
 
-** Phase 6 - Finish extension/'s ES6 module migration
-The Phase 1 migration covered app/ only. extension/ is still half-migrated: background.js, bookmarkHandler.js, config.js, configFallback.js and summarizer.js are ES modules, but popup.js, sidePanel.js, btContentScript.js, summarizerPopup.js, topicCard.js and topicSelector.js are still classic scripts that share one global scope via `<script>` tag load order per HTML page (popup.html loads awesomplete.js+topicSelector.js+topicCard.js+popup.js; summarizerPopup.html loads only topicCard.js+summarizerPopup.js; sidePanel.html loads btContentScript.js+sidePanel.js).
+** Phase 6 - Finish extension/'s ES6 module migration ✅ COMPLETED (2026-07-21)
+The Phase 1 migration covered app/ only; extension/ was left half-migrated (background.js, bookmarkHandler.js, config.js, configFallback.js as modules; popup.js, sidePanel.js, btContentScript.js, topicCard.js, topicSelector.js as classic scripts sharing global scope via `<script>` load order). Phase 6 finished it.
 
-*** Motivation
-Setting up ESLint (2026-07-17, see de6c7a4) required splitting its config into a separate globals block per HTML page's actual script list, rather than one shared pool for all of extension/ - treating them as one pool would have masked exactly the kind of bug it's meant to catch. It did catch two: `summarizerPopup.js` references `SaveAndCloseBtn` and `TopicSelector`, both only defined in files summarizerPopup.html never loads. That's the underlying problem with the classic-script pattern - "does this global actually get loaded on this page" is tracked by hand (or not at all) instead of enforced by the module system.
+*** What was done
+- Deleted the dead-ended Summarizer experiment rather than migrating it (see the Bookmarker Summaries project below): removed summarizer.js, summarizerPopup.{js,html}, summarizerManifest.json and the vendored Readability.js, and dropped the `import`/GENERATE_SUMMARY handler from background.js. This alone cleared 5 of the standing ESLint errors (3 undefined `Summarizer`, 2 dead `SaveAndCloseBtn`/`TopicSelector` refs in summarizerPopup.js) and ~3.5k lines. (commit 05aabef)
+- Converted the popup page to ES modules: topicCard.js and topicSelector.js now `export` their objects; popup.js `import`s them and loads via `<script type="module">`; awesomplete.js stays a vendored classic `<script>` (loaded first). (commit b8d2fee)
+- Also fixed a long-standing unrelated no-undef in app/localFileManager.js (bare `event` global), bringing the whole repo to 0 ESLint errors. (commit cdea25b)
 
-Unlike the service worker split (mandated by Manifest V3) or the chrome.scripting.executeScript injected-page-context split (a real browser security boundary - see extension/summarizer.js), the classic-script split is not required by the platform. MV3 service workers already support `"type": "module"`, and popup/sidepanel HTML pages can equally load `<script type="module">` - background.js already proves ES modules work fine in this extension. This category of environment split is legacy from before the ES6 migration, not a platform necessity.
+*** Permanent classic-script exceptions (not incomplete migration)
+- btContentScript.js MUST stay classic: MV3 declaratively-injected content scripts don't support static ES-module imports. It's also loaded plain in sidePanel.html (double duty).
+- sidePanel.js stays classic: it shares btContentScript.js's page scope (uses its `sendMessage` global), so a matching classic script is the honest, low-risk choice.
+- awesomplete.js: vendored.
 
-*** Scope
-Convert popup.js, sidePanel.js, btContentScript.js, summarizerPopup.js, topicCard.js, topicSelector.js to ES modules with explicit import/export, following the same pattern Phase 1 established in app/. Once done, extension/'s ESLint config collapses from four classic-script blocks (one per HTML page) into a single ES-module block, matching app/'s. Cross-file references become explicit imports instead of implicit shared-scope globals, which would have made the SaveAndCloseBtn/TopicSelector bugs impossible to introduce rather than something a linter has to catch after the fact.
+*** Result
+extension/'s ESLint config collapsed from four classic-script blocks into a single ES-module block for the popup trio plus two small classic blocks (btContentScript.js, sidePanel.js). Cross-file references in the migrated code are now explicit imports rather than implicit shared-scope globals - the class of bug (dead SaveAndCloseBtn/TopicSelector refs) is now structurally impossible in that code rather than something the linter catches after the fact.
 
 ** The SessionManager project
 The Session Manager adds a live "Current Session" hierarchy alongside the persisted topic tree. It introduces a dedicated `BTSessionNode` subclass and a new `sessionManager` module to mirror the browser's open windows, tab groups, and tabs inside the Topic Manager.
@@ -255,7 +260,7 @@ Verified working by testing.
 - Drop into root session opens new window. Drop of topic opens new tab group w all tab items open.
 - Implemented in tableManager: `dropNode()` intercepts the unopened-appNode-into-session case and routes to `openAppNodeInBrowser()`, which dispatches to `openAppNodeInWindow()` or `openAppNodeInTabGroup()`. `createSessionNode()`/`createBrowserWindow()` handle new window creation and group preservation. As anticipated, this uses existing BTAppNode methods and passes a windowId to force opening in a specific window.
 
-** Drag of unsaved session nodes into the app tree - IMPLEMENTED, pending testing
+** Drag of unsaved session nodes into the app tree ✅ COMPLETED (verified by TC, 2026-07)
 This is not really a D&D, it's the creation of a new AppNode corresponding to a sessionNode - a copy, not a move. Session nodes don't serialize to org (orgText() returns '') and are owned by the syncToBrowser reconciler, so they can never be moved into the app tree. Instead the drop is intercepted in `dropNode()` (mirroring the app->session interception) and routed to `saveSessionNodeToApp()` in tableManager, which builds a payload from the session subtree and hands it to `saveTabs()` in bt.js - the same save machinery the Bookmarker uses. bt.js registers saveTabs via `registerSessionSaveHandler()` at startup to avoid an import cycle.
 
 *** Behavior by dragged node type
@@ -270,7 +275,7 @@ This is not really a D&D, it's the creation of a new AppNode corresponding to a 
 - After save, requestBrowserSnapshot() refreshes session rows to pick up inTopicTree styling.
 - `moveSessionToApp()` and `moveAppToSession()` were deleted - both unreachable once dropNode intercepts the conversions. `moveNode()` now dispatches only the true moves: session<->session and app<->app. `BTSessionNode.canMoveTo()` is unchanged and correctly returns false for app-tree parents.
 
-*** Testing checklist (not yet run)
+*** Testing checklist (core cases verified by TC; kept for regression reference)
 - Unsaved tab -> closed topic: new group named for topic, tab stays in its window, old group keeps its name and other tabs
 - Unsaved tab -> topic with open tabs: tab moves into that group, possibly cross-window
 - Group drag -> tree gains topic + leaves under drop target; browser untouched; colors on both trees
@@ -279,8 +284,8 @@ This is not really a D&D, it's the creation of a new AppNode corresponding to a 
 - Drop into BOOKMARKS BAR topic -> bar updates
 - Reload after each: org file contains the new nodes
 
-* Bookmarker Summaries project
-The Summaries project will make use of the browsers ai summarizer to optionally populate the notes field in the BT Bookmarker window with a summary of selected text or the whole page. The page text will be extracted using a version of the readability.js library.
+* Bookmarker Summaries project ❌ ABANDONED / REMOVED (2026-07-21)
+The Summaries experiment aimed to use the browser's built-in AI summarizer to optionally populate the Bookmarker notes field with a summary of selected text or the whole page (text extracted via Readability.js). It never shipped - the shipping manifests always used popup.html, while the summarizer only wired up under the separate non-shipping summarizerManifest.json. summarizer.js was nonetheless dead-loaded into the production service worker via a stray background.js `import`, registering a GENERATE_SUMMARY handler nothing in the shipping build ever triggered. Removed entirely in Phase 6 (commit 05aabef): summarizer.js, summarizerPopup.{js,html}, summarizerManifest.json, Readability.js, and the background.js import + handler. Kept here as a record of the dead end; revive from git history if the built-in Summarizer API is ever worth revisiting.
 
 * /Appendix/: Application components and modules dependency map
 perl -0777 -ne 'while (/^(import|export)\s*\{[^}]*\}.*?;/gsm) { print "$ARGV: $&\n" }' *.js
@@ -315,31 +320,19 @@ BTSessionNode.js: export { BTSessionNode, SessionNodeType };
 Note: Now imports requestBrowserSnapshot from extensionMessaging.js for cleaner architecture. Enhanced sisterNodes() method handles both TAB and GROUP/TOPIC node relationships for text synchronization. Fixed setTGColor() override logic to properly determine when session nodes should display colors.
 ** rowManager - NEW in Phase 2. Handles all row operations (edit, open, close, delete, promote, toDo, etc) and generates button row UI. Companion to AppNode, handles application logic for rows (eg node deletion => update browser tab, update parent and ancestor open state in table). Registers toggleMoreButtons callback with configManager to avoid circular dependencies.
 rowManager.js: import { AllNodes, BTNode } from './BTNode.js';
-rowManager.js: import { BTAppNode, Topics } from './BTAppNode.js';
+rowManager.js: import { BTAppNode } from './BTAppNode.js';
+rowManager.js: import { SessionNodeType } from './BTSessionNode.js';
 rowManager.js: import { getProp, setProp, incrementStat } from './configManager.js';
 rowManager.js: import { callBackground } from './extensionMessaging.js';
 rowManager.js: import { saveBT } from './fileManager.js';
 rowManager.js: import { exportBookmarksBar } from './bookmarksManager.js';
-rowManager.js: import { initializeUI, Resizing } from './tableManager.js';
+rowManager.js: import { initializeUI, scheduleOpenStateReconcile } from './tableManager.js';
 rowManager.js: export {
-    buttonShow,
-    buttonHide,
-    editRow,
-    closeDialog,
-    openRow,
-    closeRow,
-    deleteRow,
-    deleteNode,
-    updateRow,
-    toDo,
-    promote,
-    addNewTopLevelTopic,
-    addChild,
-    cancelEdit,
-    initializeButtonRow,
-    toggleMoreButtons
+    buttonShow, buttonHide, editRow, closeDialog, openRow, closeRow, deleteRow,
+    deleteNode, undoTrashMove, updateRow, toDo, promote, addNewTopLevelTopic,
+    addChild, cancelEdit, initializeButtonRow, toggleMoreButtons
 };
-Note: Registers with configManager.registerUI({ toggleMoreButtons }) to provide callback for settings. Imports both initializeUI and Resizing constant from tableManager - the Resizing import is used to prevent row operations during column resize.
+Note: Registers with configManager.registerUI({ toggleMoreButtons }) for the settings callback. undoTrashMove backs a single level of undo for a soft move-to-Trash. Imports scheduleOpenStateReconcile from tableManager to repaint the open-tab (blue) ancestor state after a promote.
 ** tableManager - works w rowManager, btAppNode, and bt.js to run the show
 tableManager.js: import { getProp, setProp } from './configManager.js';
 tableManager.js: import { closeConfigDisplays, updatePrefs } from './applicationUI.js';
@@ -348,19 +341,15 @@ tableManager.js: import { AllNodes, BTNode } from './BTNode.js';
 tableManager.js: import { BTAppNode, Topics } from './BTAppNode.js';
 tableManager.js: import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
 tableManager.js: import { parseBTFile } from './parser.js';
-tableManager.js: import { sendMessage, callBackground, registerMessageHandler } from './extensionMessaging.js';
+tableManager.js: import { sendMessage, callBackground, registerMessageHandler, requestBrowserSnapshot } from './extensionMessaging.js';
 tableManager.js: import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
 tableManager.js: import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
 tableManager.js: import { exportBookmarksBar } from './bookmarksManager.js';
 tableManager.js: export {
-    refreshTable,
-    processBTFile,
-    initializeNotesColumn,
-    initializeUI,
-    moveNode,
-    Resizing
+    refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode,
+    positionNode, registerSessionSaveHandler, rememberFold, scheduleOpenStateReconcile
 };
-Note: Exports both the initializeUI function and the Resizing constant. The Resizing constant is used by rowManager to check if a column resize is in progress.
+Note: scheduleOpenStateReconcile debounces (~500ms) a single O(n) reconcileOpenStateCSS pass that repaints the .opened (blue "has open tab") state across the whole tree, keeping the invariant "blue iff hasOpenDescendants" after moves/promotes and on load (bug 6829). registerSessionSaveHandler wires the session-node drop-to-save path; rememberFold persists fold state.
 ** applicationUI - generates all the markup for the header, footer and settings/actions/help panels. Handles open/close and associated ui updates to change settings etc
 applicationUI.js: import { getProp, setProp } from './configManager.js';
 applicationUI.js: import { searchButton, filterToDos, filterSearch, groupingUpdate } from './bt.js';
@@ -369,8 +358,8 @@ applicationUI.js: import { refreshTable } from './tableManager.js';
 applicationUI.js: import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
 applicationUI.js: import { importBookmarks, exportBookmarks } from './bookmarksManager.js';
 applicationUI.js: import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, initiateBackups, authorizeGAPI, authorizeLocalFile } from './fileManager.js';
-applicationUI.js: export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs };
-Note: Exports updatePrefs function for preference management alongside the UI initialization functions.
+applicationUI.js: export { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter, closeConfigDisplays, updatePrefs, toggleKeyCommands, toggleHelpDisplay };
+Note: Exports updatePrefs for preference management, plus toggleKeyCommands / toggleHelpDisplay (used by bt.js keyboard handling) alongside the UI initialization functions.
 ** Main app logic. Handles startup, browser events, search, key commands. Significantly reduced in Phase 2 with row operations moved to rowManager.
 bt.js: import { sendMessage, callBackground, registerMessageHandler } from './extensionMessaging.js';
 bt.js: import { BTNode, AllNodes } from './BTNode.js';
@@ -378,18 +367,18 @@ bt.js: import { setConfigAndKeys, getProp, setProp, setStat, incrementStat, init
 bt.js: import { messageManager } from './messageManager.js';
 bt.js: import { BTAppNode, Topics } from './BTAppNode.js';
 bt.js: import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, checkBTFileVersion, setBTFileText } from './fileManager.js';
-bt.js: import { loadBookmarks, syncBookmarksBar, bookmarksBarIds, registerProcessImport as registerProcessImportBM } from './bookmarksManager.js';
+bt.js: import { registerProcessImport as registerProcessImportBM, animateNewImport } from './bookmarksManager.js';
 bt.js: import { checkLicense } from './subscriptionManager.js';
-bt.js: import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode } from './tableManager.js';
-bt.js: import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote } from './rowManager.js';
+bt.js: import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, registerSessionSaveHandler, rememberFold } from './tableManager.js';
+bt.js: import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit, undoTrashMove } from './rowManager.js';
 bt.js: import { registerProcessImport as registerProcessImportParser } from './parser.js';
-bt.js: import { closeConfigDisplays } from './applicationUI.js';
-bt.js: import { initializeSessionManager } from './sessionManager.js';
+bt.js: import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js';
+bt.js: import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
 bt.js: export {
     searchButton, filterSearch, filterToDos,
-    syncEnabled, updateStatsRow, groupingUpdate
+    syncEnabled, updateStatsRow, groupingUpdate, updateLicenseSettings
 };
-Note: Registers with configManager.registerUI({ groupingUpdate }) to provide callback for settings changes.
+Note: Registers with configManager.registerUI({ groupingUpdate }) for settings changes. Exports updateLicenseSettings, imported by subscriptionManager to refresh the license UI after a purchase/import.
 ** sessionManager - builds and syncs the live session tree based on browser events
 sessionManager.js: import { registerMessageHandler, requestBrowserSnapshot } from './extensionMessaging.js';
 sessionManager.js: import { BTSessionNode, SessionNodeType } from './BTSessionNode.js';
@@ -398,8 +387,8 @@ sessionManager.js: import { AllNodes } from './BTNode.js';
 sessionManager.js: import { initializeUI } from './tableManager.js';
 sessionManager.js: import { buttonHide } from './rowManager.js';
 sessionManager.js: import { getProp } from './configManager.js';
-sessionManager.js: export { initializeSessionManager, syncToBrowser };
-Note: No longer exports requestBrowserSnapshot (moved to extensionMessaging.js). Implements comprehensive text synchronization between app and session nodes using URL comparison for TAB nodes and tabGroupId matching for GROUP nodes. Includes time-based error retry prevention.
+sessionManager.js: export { initializeSessionManager, syncToBrowser, syncAppNodesToBrowser };
+Note: requestBrowserSnapshot lives in extensionMessaging.js. syncAppNodesToBrowser is the app->browser reconciliation entry point (imported by bt.js). Implements text synchronization between app and session nodes using URL comparison for TAB nodes and tabGroupId matching for GROUP nodes; includes time-based error retry prevention.
 ** fileManager - common backing store management and facade for local/gdrive file operations. also imports/exports of org and tabsOutliner data
 fileManager.js: import { getProp, setProp, incrementStat } from './configManager.js';
 fileManager.js: import { AllNodes } from './BTNode.js';
@@ -413,7 +402,7 @@ fileManager.js: export {
     updateSyncSettings, savePendingP,
     importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, updateStatsRow,
     getBTFileText, setBTFileText, checkBTFileVersion,
-    authorizeGAPI, authorizeLocalFile
+    authorizeGAPI, authorizeLocalFile, loadOrgFile
 };
 
 gDriveFileManager.js: import { getProp, setProp } from './configManager.js';
@@ -426,9 +415,9 @@ bookmarksManager.js: import { sendMessage, registerMessageHandler } from './exte
 bookmarksManager.js: import { BTAppNode } from './BTAppNode.js';
 bookmarksManager.js: import { AllNodes } from './BTNode.js';
 bookmarksManager.js: import { saveBT } from './fileManager.js';
-bookmarksManager.js: import { initializeUI } from './tableManager.js';
+bookmarksManager.js: import { initializeUI, positionNode } from './tableManager.js';
 bookmarksManager.js: import { deleteNode } from './rowManager.js';
-bookmarksManager.js: export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport };
+bookmarksManager.js: export { importBookmarks, loadBookmarks, syncBookmarksBar, exportBookmarksBar, bookmarksBarIds, exportBookmarks, registerProcessImport, animateNewImport };
 Note: Uses registerMessageHandler from extensionMessaging to handle bookmark-related messages from the extension.
 ** messageManager - handles intro slides on first install and message banner. NOW also generates HTML dynamically and attaches event listeners (Phase 2). Generates both #messageContainer (tips/messages) and #intro slideshow within #editOverlay.
 messageManager.js: import { getProp, setProp } from './configManager.js';
@@ -440,8 +429,10 @@ Note: initializeMessageContainer() generates message banner, initializeIntro() g
 parser.js: import { setProp } from './configManager.js';
 parser.js: import { BTAppNode, BTLinkNode } from './BTAppNode.js';
 parser.js: export { parseBTFile, insertOrgFile, registerProcessImport };
-** subscriptionManager - shoudl be called purchaseManager? handles stripe/firebase interaction to get license
+** subscriptionManager - should be called purchaseManager? handles stripe/firebase interaction to get license
 subscriptionManager.js: import { getProp, setProp } from './configManager.js';
+subscriptionManager.js: import { saveBT } from './fileManager.js';
+subscriptionManager.js: import { updateLicenseSettings } from './bt.js';
 subscriptionManager.js: export { handlePurchase, openStripePortal, checkLicense, importKey};
 ** index.html - main entry point. Minimal inline handlers remain (3 edit dialog buttons). Imports initialize functions and orchestrates UI generation before loading bt.js.
 index.html: import { initializeControlsHeader, initializeSettings, initializeActions, initializeHelp, initializeFooter } from './applicationUI.js';
