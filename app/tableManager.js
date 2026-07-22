@@ -925,7 +925,24 @@ function scheduleOpenStateReconcile(delay = 500) {
     openStateReconcileTimer = setTimeout(() => {
         openStateReconcileTimer = null;
         reconcileOpenStateCSS();
+        reconcileSessionIndents();
     }, delay);
+}
+
+function reconcileSessionIndents() {
+    // Recompute the indent (indenter paddingLeft) for every session-tree row. treetable's
+    // move() reparents a node but never re-render()s it, and the session drop-into path relies
+    // solely on that move() (no sortBranch re-indent pass like the app path), so a dragged
+    // session node and its descendants keep their old depth's indent. Reassert it from each
+    // treetable node's live level() - mirrors what render() does (jquery.treetable.js:252).
+    const tt = $("#content");
+    AllNodes.forEach(node => {
+        if (!node || !node.isSessionNode) return;
+        const ttNode = tt.treetable("node", node.id);
+        if (ttNode?.indenter?.[0])
+            ttNode.indenter[0].style.paddingLeft =
+                "calc(var(--btIndentStepSize) * " + ttNode.level() + ")";
+    });
 }
 
 function reconcileOpenStateCSS() {
