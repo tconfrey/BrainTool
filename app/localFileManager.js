@@ -222,7 +222,7 @@ async function saveBT(BTFileText) {
                     $("#editOverlay").css("display", "none");
                     try {
                         await LocalFileHandle.requestPermission({mode: 'readwrite'});
-                        resolve(event);
+                        resolve();                         // resolved value is unused (see `await p` below)
                     } catch (error) {
                         alert('Error requesting file permission:', JSON.stringify(error));
                         reject(error);
