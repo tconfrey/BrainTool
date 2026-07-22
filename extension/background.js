@@ -21,7 +21,6 @@
 import {getBookmarks, getBookmarksBar, syncBookmarksBar,
         exportBookmarks, createSessionName, generateBTNodesFromBookmarks } from './bookmarkHandler.js';
 import { Keys } from './config.js';
-import './summarizer.js';  // Load Summarizer module for AI summary generation
 
 let LocalTest = false;                            // control code path during unit testing
 let InitialInstall = false;                       // should we serve up the welcome page
@@ -199,34 +198,6 @@ const Handlers = {
 
 var Awaiting = false;
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    // Handle AI summary generation requests from popup
-    if (msg.type === 'GENERATE_SUMMARY') {
-        console.log('Background received GENERATE_SUMMARY request for tab:', msg.tabId);
-        
-        async function generateSummary() {
-            try {
-                // Extract content from the tab
-                const content = await Summarizer.extractContent(msg.tabId);
-                if (!content) {
-                    throw new Error('Could not extract page content');
-                }
-                
-                // Create summarizer and generate summary
-                // Running in background script context where AI APIs work properly
-                await Summarizer.create();
-                const summary = await Summarizer.summarize({ tabId: msg.tabId });
-                
-                sendResponse({ summary });
-            } catch (error) {
-                console.error('Summary generation failed in background:', error);
-                sendResponse({ error: error.message });
-            }
-        }
-        
-        generateSummary();
-        return true;  // Will respond asynchronously
-    }
-    
     if ((msg.from != 'btwindow' && msg.from != 'popup'))
         return;
     

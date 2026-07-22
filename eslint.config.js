@@ -43,7 +43,6 @@ export default [
             'node_modules/**',
             'app/orga-bundlev2.js',         // vendored org-mode parser
             'app/jquery.treetable.js',      // vendored (forked) treetable widget
-            'extension/Readability.js',     // vendored
             'extension/awesomplete.js',     // vendored
             'tests/**',                     // pre-refactor QUnit harness, unmaintained - see CLAUDE.md
         ],
@@ -79,7 +78,6 @@ export default [
             'extension/bookmarkHandler.js',
             'extension/config.js',
             'extension/configFallback.js',
-            'extension/summarizer.js',
         ],
         languageOptions: {
             ecmaVersion: 2024,
@@ -91,9 +89,9 @@ export default [
 
     // extension/ classic scripts - each block below matches one HTML page's actual <script>
     // tag list, so only the globals genuinely loaded together on that page are declared.
-    // Deliberately NOT one shared pool for all of extension/: summarizerPopup.html only loads
-    // topicCard.js, not topicSelector.js or popup.js, so TopicSelector/SaveAndCloseBtn are
-    // correctly flagged as undefined there rather than masked.
+    // Deliberately NOT one shared pool for all of extension/: sidePanel.html loads
+    // btContentScript.js + sidePanel.js, not popup's topicCard/topicSelector, so those
+    // globals are correctly flagged as undefined there rather than masked.
 
     // popup.html: awesomplete.js, topicSelector.js, topicCard.js, popup.js
     {
@@ -114,19 +112,6 @@ export default [
             globals: {
                 ...jsBrowserGlobals, ...jqueryGlobals, ...extensionGlobals,
                 Awesomplete: 'readonly',
-            },
-        },
-        rules: commonRules,
-    },
-
-    // summarizerPopup.html: topicCard.js, summarizerPopup.js only
-    {
-        files: ['extension/summarizerPopup.js'],
-        languageOptions: {
-            ecmaVersion: 2024, sourceType: 'script',
-            globals: {
-                ...jsBrowserGlobals, ...jqueryGlobals, ...extensionGlobals,
-                TopicCard: 'readonly',
             },
         },
         rules: commonRules,
