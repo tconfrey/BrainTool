@@ -1214,6 +1214,15 @@ tr.sessionNode.tabgroup[class*='tg'] > td {
     color: inherit !important;
 }
 
+/* On the session-root row the button row shows ONLY the delete tool (which closes the session
+   view). Toggled by rowManager.buttonShow via the .sessionRootOnly class; CSS (not per-button JS)
+   guarantees the suppression regardless of the normal open/close/expand button logic. */
+#buttonRow.sessionRootOnly #otherButtons { display: inline !important; }
+#buttonRow.sessionRootOnly #basebuttons > span,
+#buttonRow.sessionRootOnly #otherButtons > span:not(:has(#deleteRow)) {
+    display: none !important;
+}
+
 /* Segment the live-session block top and bottom with a divider in the open-descendant blue
    (bug 6901). The bottom divider rides the first topic row (border-top, not a border-bottom on
    the last session row) so it survives collapse of the session subtree - adjacency still

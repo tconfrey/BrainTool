@@ -6,9 +6,39 @@ import { BTAppNode } from './BTAppNode.js';
 import { AllNodes } from './BTNode.js';
 import { initializeUI } from './tableManager.js';
 import { buttonHide } from './rowManager.js';
-import { getProp } from './configManager.js';
+import { getProp, setProp } from './configManager.js';
 
 let lastSyncErrorTime = 0;
+
+function removeSessionSubtree() {
+    // Remove the session root and all its descendants from both the treetable/DOM and AllNodes.
+    const root = AllNodes.find(n => n && n.isSessionNode && n.sessionType === SessionNodeType.ROOT);
+    if (!root) return;
+    const tree = $("table.treetable");
+    const removeRec = nodeId => {
+        const node = AllNodes[nodeId];
+        if (!node) return;
+        node.childIds.slice().forEach(removeRec);
+        if (tree?.length && tree.treetable("node", nodeId)) tree.treetable("removeNode", nodeId);
+        if (node.parentId != null && AllNodes[node.parentId]) AllNodes[node.parentId].removeChild(nodeId);
+        delete AllNodes[nodeId];
+    };
+    removeRec(root.id);
+}
+
+function hideSessionTree() {
+    // Close the live session view: persist the choice so syncToBrowser stops rebuilding it,
+    // then tear down the current subtree. Re-enable via showSessionTree (Settings / turning the
+    // session-manager toggle back on).
+    setProp('BTShowSession', 'HIDDEN');
+    removeSessionSubtree();
+}
+
+function showSessionTree() {
+    // Re-enable the live session view and rebuild it from a fresh browser snapshot.
+    setProp('BTShowSession', 'SHOWN');
+    requestBrowserSnapshot();
+}
 
 function stripURLForComparison(url) {
     if (!url) return '';
@@ -42,6 +72,11 @@ function clearSessionTree(rootNode) {
 
 function buildSessionTree(tabs = [], tabGroups = []) {
     // Create the full session tree hierarchy from the launch payload.
+    if (getProp('BTShowSession') === 'HIDDEN') {
+        // Session view closed by the user - honor it across reloads/launch, don't build.
+        removeSessionSubtree();
+        return;
+    }
     const root = BTSessionNode.findOrCreateSessionRoot();
     clearSessionTree(root);
     const btTabId = getProp('BTTabId');
@@ -221,6 +256,11 @@ function syncToBrowser(tabs = [], tabGroups = []) {
     // 3. Refresh node metadata (title, indices, favicons, group styling) and order children to mirror Chrome.
     // 4. Remove session nodes missing from the snapshot while preserving the BrainTool window/tab exclusions.
     // The implementation below follows those steps with careful tracking to avoid unnecessary DOM churn.
+    if (getProp('BTShowSession') === 'HIDDEN') {
+        // Session view closed by the user - don't rebuild it; tear down anything that snuck back.
+        removeSessionSubtree();
+        return;
+    }
     const root = BTSessionNode.findOrCreateSessionRoot();
     if (!root) return;
     
@@ -971,4 +1011,4 @@ function syncAppNodesToBrowser(message) {
     BTAppNode.setDisplayOrder();            // Display order may have changed
 }
 
-export { initializeSessionManager, syncToBrowser, syncAppNodesToBrowser };
+export { initializeSessionManager, syncToBrowser, syncAppNodesToBrowser, hideSessionTree, showSessionTree };

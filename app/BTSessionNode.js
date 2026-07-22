@@ -40,6 +40,13 @@ class BTSessionNode extends BTAppNode {
     }
 
     allowedRowActions() {
+        if (this.sessionType === SessionNodeType.ROOT) {
+            // The session root exposes only delete, which closes (hides) the whole session view.
+            return {
+                open: false, openInNewWindow: false, close: false, delete: true,
+                addChild: false, promote: false, edit: false, todo: false, drag: false,
+            };
+        }
         return {
             open: false,
             openInNewWindow: false,

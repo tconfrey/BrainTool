@@ -27,6 +27,7 @@ import { callBackground } from './extensionMessaging.js';
 import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
 import { initializeUI, scheduleOpenStateReconcile } from './tableManager.js';
+import { hideSessionTree } from './sessionManager.js';
 
 function getAllowedActions(node) {
     if (!node || typeof node.allowedRowActions !== 'function') return {};
@@ -77,6 +78,11 @@ function buttonShow(e) {
         $('#deleteRow').parent().attr('data-wenk', 'Empty Trash');
     else
         $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
+
+    // The session root shows only the delete tool (CSS hides the rest); delete closes the view
+    const isSessionRoot = node.isSessionNode && node.sessionType === SessionNodeType.ROOT;
+    $("#buttonRow").toggleClass('sessionRootOnly', isSessionRoot);
+    if (isSessionRoot) $('#deleteRow').parent().attr('data-wenk', 'Close session view');
 
     // Check if this is an unsaved session node (ROOT, WINDOW, or non-topic not in tree)
     const isUnsaved = node.isSessionNode && (
@@ -316,6 +322,12 @@ function deleteRow(e) {
     const kids = appNode.childIds.length && appNode.isTopic();         // Topic determines non link kids
     buttonHide();
 
+    // Session root delete = close the live session view (non-destructive, re-openable via settings)
+    if (appNode.isSessionNode && appNode.sessionType === SessionNodeType.ROOT) {
+        deleteNode(appNode.id);
+        return;
+    }
+
     // Special handling for Trash node
     if (appNode.isTrash()) {
         // Create a copy of the childIds array before iterating
@@ -343,6 +355,13 @@ function deleteNode(id, browserAction = false) {
     id = parseInt(id);                 // could be string value
     const node = AllNodes[id];
     if (!node) return;
+
+    // Session root: close the whole session view rather than trashing (session nodes don't trash)
+    if (node.isSessionNode && node.sessionType === SessionNodeType.ROOT) {
+        hideSessionTree();
+        buttonHide();
+        return;
+    }
     const wasTopic = node.isTopic();
     const openTabs = node.listOpenTabs();
 

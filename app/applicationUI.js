@@ -17,6 +17,7 @@ import { refreshTable } from './tableManager.js';
 import { handlePurchase, openStripePortal, importKey } from './subscriptionManager.js';
 import { importBookmarks, exportBookmarks } from './bookmarksManager.js';
 import { importOrgFile, importTabsOutliner, exportOrgFile, stopSyncing, initiateBackups, authorizeGAPI, authorizeLocalFile } from './fileManager.js';
+import { hideSessionTree, showSessionTree } from './sessionManager.js';
 
 /**
  * Generate the Controls Header HTML (without inline event handlers)
@@ -322,6 +323,11 @@ function updatePrefs() {
         toggleMoreButtons();
     }
     
+    // Session Manager visibility (default shown; only 'HIDDEN' turns it off)
+    const showSession = (getProp('BTShowSession') === 'HIDDEN') ? 'HIDDEN' : 'SHOWN';
+    $radio = $('#sessionToggle :radio[name=session]');
+    $radio.filter(`[value=${showSession}]`).prop('checked', true);
+
     // Theme saved or set from OS
     const themeSet = getProp('BTTheme');
     const theme = themeSet ||
@@ -426,6 +432,21 @@ function generateSettingsHTML() {
         <div id="settingsBackups">
           <input type="checkbox" id="backups">
           <label for="backups">Keep Backups (Saves recent, daily and monthly backups)</label>
+        </div>
+        <hr/>
+      </div>
+
+      <div id="settingsSession">
+        <div class="settingsSubtitle">Session Manager?</div>
+        <div id="sessionToggle" class="settingsInput">
+          <span>
+            <input type="radio" id="settingsSessionOn" name="session" value="SHOWN" checked>
+            <label for="settingsSessionOn">Yes</label>
+          </span>
+          <span>
+            <input type="radio" id="settingsSessionOff" name="session" value="HIDDEN">
+            <label for="settingsSessionOff">No</label>
+          </span>
         </div>
         <hr/>
       </div>
@@ -630,6 +651,12 @@ function attachSettingsListeners() {
         }
     });
     
+    // Session Manager toggle (show/hide the live session tree)
+    $('#sessionToggle :radio').change(function () {
+        // 'HIDDEN' closes the session view (same as deleting the session row); 'SHOWN' rebuilds it
+        ($(this).val() === 'SHOWN') ? showSessionTree() : hideSessionTree();
+    });
+
     // Theme toggle (Light/Dark)
     $('#themeToggle :radio').change(function () {
         const newTheme = $(this).val();
