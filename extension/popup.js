@@ -18,6 +18,9 @@
  ***/
 'use strict';
 
+import { TopicCard } from './topicCard.js';
+import { TopicSelector } from './topicSelector.js';
+
 // Utilities to show/hide array of elements
 function showElements(elementIds) {
     elementIds.forEach(elementId => {

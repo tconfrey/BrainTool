@@ -234,3 +234,5 @@ const TopicSelector = (() => {
         clearGuess: clearGuess
     }
 })();
+
+export { TopicSelector };

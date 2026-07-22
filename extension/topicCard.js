@@ -87,3 +87,5 @@ const TopicCard = (() => {
         setupNew: setupNew
     };
 })();
+
+export { TopicCard };

@@ -87,28 +87,13 @@ export default [
         rules: commonRules,
     },
 
-    // extension/ classic scripts - each block below matches one HTML page's actual <script>
-    // tag list, so only the globals genuinely loaded together on that page are declared.
-    // Deliberately NOT one shared pool for all of extension/: sidePanel.html loads
-    // btContentScript.js + sidePanel.js, not popup's topicCard/topicSelector, so those
-    // globals are correctly flagged as undefined there rather than masked.
-
-    // popup.html: awesomplete.js, topicSelector.js, topicCard.js, popup.js
+    // popup.html: awesomplete.js (vendored, classic global) loads first, then popup.js as an
+    // ES module that imports topicCard.js / topicSelector.js. topicSelector reads the vendored
+    // Awesomplete global at runtime.
     {
-        files: ['extension/popup.js'],
+        files: ['extension/popup.js', 'extension/topicCard.js', 'extension/topicSelector.js'],
         languageOptions: {
-            ecmaVersion: 2024, sourceType: 'script',
-            globals: {
-                ...jsBrowserGlobals, ...jqueryGlobals, ...extensionGlobals,
-                TopicSelector: 'readonly', TopicCard: 'readonly',
-            },
-        },
-        rules: commonRules,
-    },
-    {
-        files: ['extension/topicSelector.js', 'extension/topicCard.js'],
-        languageOptions: {
-            ecmaVersion: 2024, sourceType: 'script',
+            ecmaVersion: 2024, sourceType: 'module',
             globals: {
                 ...jsBrowserGlobals, ...jqueryGlobals, ...extensionGlobals,
                 Awesomplete: 'readonly',
@@ -116,6 +101,10 @@ export default [
         },
         rules: commonRules,
     },
+
+    // extension/ classic scripts - btContentScript.js can't be an ES module under MV3
+    // (content scripts don't support static imports) and sidePanel.js shares its page scope,
+    // so each declares its own globals rather than drawing from one shared pool.
 
     // sidePanel.html: btContentScript.js, sidePanel.js
     {
