@@ -271,7 +271,7 @@ async function warnBTFileVersion(e) {
     const warnNewer = await checkBTFileVersion();
     if (warnNewer) {
         const cb = async () => { refreshTable(true); messageManager.removeWarning(); };
-        messageManager.showWarning("The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.", cb);
+        messageManager.showWarning(t('warnStaleFileClick'), cb);
     }
 }
 

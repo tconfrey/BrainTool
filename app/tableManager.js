@@ -100,7 +100,9 @@ function processBTFile(fileText = getBTFileText()) {
 
     $(container).treetable({ expandable: true, initialState: 'expanded', indent: 30,
                              animationTime: 1, onNodeCollapse: nodeCollapse,
-                             onNodeExpand: nodeExpand}, true);
+                             onNodeExpand: nodeExpand,
+                             expanderTemplate: `<a href='#' class='wenk--bottom' data-wenk='${t('expandCollapse')}'>&nbsp;</a>`
+                           }, true);
 
     BTAppNode.generateTopics();
 

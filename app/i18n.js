@@ -268,6 +268,18 @@ const catalogs = {
         alertParseOrg: 'Error in parsing BrainTool.org file:\n{err}',
         alertSaveInProgress: 'A save is currently in process, please wait a few seconds and try again',
         alertProcessFileFail: 'Could not process BT file. Please check it for errors and restart',
+        confirmOpenTabs: 'Open {n} tabs?',
+        confirmDeleteSubtree: 'Delete whole subtree?',
+        warnStaleFileClick: 'The synced version of your BrainTool file has newer data. <br/>Click here to refresh or disregard and it will be overwritten on the next save.',
+        warnGdriveAuthExpired: "GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.",
+        warnLocalFileAccess: 'Error accessing the synced BrainTool file{detail}',
+        warnLocalFileAccessDetail: ':<br/><small>"{msg}"</small>',
+        confirmGdriveExists: "A BrainTool.org file already exists. It was last modified {date}. 'OK' to use its contents, 'Cancel' to overwrite with local data.",
+        confirmGdriveNewer: "Synced BrainTool.org file on GDrive is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?",
+        alertGdriveListError: 'BT - error reading file list from GDrive. Check permissions and retry',
+        alertGdriveListErrorGoogle: 'BT - error reading file list from GDrive. Check permissions and retry\nGoogle says: {msg}',
+        bookmarkImportName: '🔖 Bookmark Import ({date})',
+        expandCollapse: 'Expand/Collapse',
     },
 
     ru: {
@@ -513,6 +525,18 @@ const catalogs = {
         alertParseOrg: 'Ошибка разбора файла BrainTool.org:\n{err}',
         alertSaveInProgress: 'Сейчас идёт сохранение, подождите несколько секунд и повторите',
         alertProcessFileFail: 'Не удалось обработать файл BT. Проверьте файл на ошибки и перезапустите',
+        confirmOpenTabs: 'Открыть {n} вкладок?',
+        confirmDeleteSubtree: 'Удалить всё поддерево?',
+        warnStaleFileClick: 'В синхронизированном файле BrainTool есть более новые данные. <br/>Нажмите сюда, чтобы обновить, или проигнорируйте — при следующем сохранении файл будет перезаписан.',
+        warnGdriveAuthExpired: 'Авторизация GDrive истекла. <br/>Нажмите сюда, чтобы обновить сейчас, иначе попробую при следующем сохранении.',
+        warnLocalFileAccess: 'Ошибка доступа к синхронизированному файлу BrainTool{detail}',
+        warnLocalFileAccessDetail: ':<br/><small>«{msg}»</small>',
+        confirmGdriveExists: 'Файл BrainTool.org уже есть. Последнее изменение: {date}. «OK» — взять его содержимое, «Отмена» — перезаписать локальными данными.',
+        confirmGdriveNewer: 'Файл BrainTool.org на GDrive новее данных в браузере.\nОтмена — оставить как есть, OK — загрузить новый.',
+        alertGdriveListError: 'BT — ошибка чтения списка файлов GDrive. Проверьте права и повторите',
+        alertGdriveListErrorGoogle: 'BT — ошибка чтения списка файлов GDrive. Проверьте права и повторите\nGoogle: {msg}',
+        bookmarkImportName: '🔖 Импорт закладок ({date})',
+        expandCollapse: 'Развернуть/свернуть',
     }
 };
 

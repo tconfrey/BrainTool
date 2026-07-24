@@ -286,9 +286,9 @@ async function findOrCreateBTFile(userInitiated) {
         // if user just initiated connection but file exists ask to import
         // or if we have a recorded version thats older than disk, ask to import
         const driveDate = new Date(driveTimestamp).toLocaleString();
-        const msg = userInitiated ?
-            `A BrainTool.org file already exists. It was last modified ${driveDate}. 'OK' to use its contents, 'Cancel' to overwrite with local data.` :
-            "Synced BrainTool.org file on GDrive is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?"
+        const msg = userInitiated
+            ? t('confirmGdriveExists', { date: driveDate })
+            : t('confirmGdriveNewer');
         if (confirm(msg)) {
             try {
                 if (refreshTableCallback) await refreshTableCallback(true);
@@ -331,9 +331,9 @@ async function connectAndFindFiles() {
         }
     }
     catch (err) {
-        let msg = "BT - error reading file list from GDrive. Check permissions and retry";
-        if (err?.result?.error?.message)
-            msg += "\nGoogle says:" + err.result.error.message;
+        const msg = err?.result?.error?.message
+            ? t('alertGdriveListErrorGoogle', { msg: err.result.error.message })
+            : t('alertGdriveListError');
         alert(msg);
         console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
         updateSigninStatus(false);

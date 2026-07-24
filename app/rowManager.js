@@ -285,7 +285,7 @@ function openRow(e, newWin = false) {
     // Warn if opening lots of stuff
     const numTabs = appNode.countOpenableTabs();
     if (numTabs > 10)
-        if (!confirm(`Open ${numTabs} tabs?`))
+        if (!confirm(t('confirmOpenTabs', { n: numTabs })))
             return;
 
     if (appNode.isTopic()) {
@@ -344,7 +344,7 @@ function deleteRow(e) {
     }
 
     // If children nodes ask for confirmation
-    if (!kids || confirm('Delete whole subtree?')) {
+    if (!kids || confirm(t('confirmDeleteSubtree'))) {
         // Remove from UI and treetable
         deleteNode(appNode.id);
     }

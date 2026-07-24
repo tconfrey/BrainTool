@@ -227,7 +227,7 @@ async function checkBTFileVersion() {
         const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
         if (!lastModifiedTime) {
             const cb = async () => { gDriveFileManager.renewToken(); messageManager.removeWarning(); };
-            messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
+            messageManager.showWarning(t('warnGdriveAuthExpired'), cb);
             return;
         }
     }
@@ -240,8 +240,10 @@ async function checkBTFileVersion() {
         } catch (err) {
             console.warn('warnBTFileVersion: error checking BT file version:', err);
             const cb = async () => { messageManager.removeWarning(); };
-            const msg = `Error accessing the synced BrainTool file${err?.message ? `:<br/><small>"${err.message}"</small>` : '.'}`;
-            messageManager.showWarning(msg, cb);
+            const detail = err?.message
+                ? t('warnLocalFileAccessDetail', { msg: err.message })
+                : '.';
+            messageManager.showWarning(t('warnLocalFileAccess', { detail }), cb);
         }
     return false;
 }

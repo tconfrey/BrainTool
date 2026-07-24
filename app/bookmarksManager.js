@@ -51,7 +51,7 @@ function loadBookmarks(msg) {
     }
 
     const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
-    const importName = "🔖 Bookmark Import (" + dateString + ")";
+    const importName = t('bookmarkImportName', { date: dateString });
     const importNode = new BTAppNode(importName, null, "", 1);
 
     msg?.data?.bookmarks?.children.forEach(node => {

@@ -41,7 +41,8 @@ function setToLocalStorage(obj) {
     return new Promise(resolve => {
         chrome.storage.local.set(obj, function() {
             if (chrome.runtime.lastError)
-                alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
+                alert(chrome.i18n.getMessage('errorStorage', [chrome.runtime.lastError.message])
+                    || `Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
             resolve();
         });
     });
@@ -153,7 +154,7 @@ async function launchApp(msg) {
             btdata = await response.text();
             chrome.storage.local.set({'BTFileText': btdata});
         } else {            
-            alert('Error getting initial BT file');
+            alert(chrome.i18n.getMessage('errorInitialBtFile') || 'Error getting initial BT file');
             return;
         }
     }

@@ -10,5 +10,16 @@
   "actionTitle": {
     "message": "BrainTool!",
     "description": "Browser action tooltip"
+  },
+  "errorStorage": {
+    "message": "Ошибка сохранения в хранилище браузера:\n$1\nОбратитесь в поддержку BrainTool",
+    "description": "Storage write failure in content script",
+    "placeholders": {
+      "1": { "content": "$1", "example": "quota exceeded" }
+    }
+  },
+  "errorInitialBtFile": {
+    "message": "Ошибка загрузки начального файла BT",
+    "description": "Failed to fetch default BrainTool.org"
   }
 }
