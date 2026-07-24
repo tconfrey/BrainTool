@@ -24,6 +24,7 @@ import { AllNodes } from './BTNode.js';
 import { saveBT } from './fileManager.js';
 import { initializeUI, positionNode } from './tableManager.js';
 import { deleteNode } from './rowManager.js';
+import { t } from './i18n.js';
 
 // Callback for processing imports - registered by bt.js
 let processImportCallback = null;
@@ -44,7 +45,7 @@ function loadBookmarks(msg) {
     // nested {title: , url: , children: []}
 
     if (msg.result != 'success') {
-        alert('Bookmark permissions denied');
+        alert(t('alertBookmarkPerm'));
         $('body').removeClass('waiting');
         return;
     }
@@ -248,7 +249,7 @@ function exportBookmarks() {
     const dateString = getDateString().replace(':', '∷');        // 12:15 => :15 is a sub topic
     sendMessage({'function': 'localStore',
                         'data': {'AllNodes': nodeList,
-                                 title: 'BrainTool Export ' + dateString}});
+                                 title: t('exportBookmarksTitle', { date: dateString })}});
 
     // wait briefly to allow local storage too be written before background tries to access
     setTimeout(() => sendMessage({'function': 'exportBookmarks'}), 100);

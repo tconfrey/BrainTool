@@ -32,6 +32,7 @@ import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, prom
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js'
 import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
+import { t, initI18n } from './i18n.js';
 
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
 var UpgradeInstall = false;
@@ -53,6 +54,8 @@ async function launchApp(msg) {
     registerProcessImportBM(processImport);
     
     setConfigAndKeys(msg);
+    // Re-apply locale once Config is available (BTLocale from extension storage)
+    try { initI18n(getProp('BTLocale') || msg?.Config?.BTLocale); } catch { /* ignore */ }
     setProp('InitialInstall', msg.initial_install);
     UpgradeInstall = msg.upgrade_install;                   // null or value of 'previousVersion'
     BTTabId = msg.BTTab;                                    // knowledge of self
@@ -75,7 +78,7 @@ async function launchApp(msg) {
     if (msg?.Config?.BTId) {
 	    const msgBTId = msg.Config.BTId;
         if (getProp('BTId') && (msgBTId != getProp('BTId')))
-	        alert(`Conflicting subscription id's found! This should not happen. I'm using the local value, if there are issues contact BrainTool support.\nLocal value:${msgBTId}\nOrg file value:${getProp('BTId')}`);
+	        alert(t('alertConflictSub', { local: msgBTId, file: getProp('BTId') }));
         setProp('BTId', msgBTId);
     } else {
 	    // get from file if not in local storage and save locally (will allow for recovery if lost)
@@ -146,7 +149,7 @@ function updateStats() {
     
     // Record this launch and software version. also update version shown in ui help.
     const BTAppVersion = getProp('BTAppVersion');
-    $("#BTVersion").html(`<i>(Version: ${BTAppVersion})</i>`);
+    $("#BTVersion").html(`<i>(${t('version', { v: BTAppVersion })})</i>`);
 
     gtag('event', 'launch_'+BTAppVersion, {'event_category': 'General', 'event_label': BTAppVersion,
                              'value': 1});    

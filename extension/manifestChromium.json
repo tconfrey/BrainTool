@@ -24,7 +24,7 @@
             "48": "images/BrainTool48.png",
             "128": "images/BrainToolIcon128.png"
         },
-        "default_title" : "BrainTool!",
+        "default_title" : "__MSG_actionTitle__",
         "default_popup" : "popup.html"
     },
     "icons": {

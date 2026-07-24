@@ -20,6 +20,7 @@
  ***/
 
 import { getProp, setProp } from './configManager.js';
+import { t } from './i18n.js';
 import { saveBT } from './fileManager.js';
 import { updateLicenseSettings } from './bt.js';
 
@@ -31,7 +32,7 @@ async function handlePurchase(product) {
     // handle monthly or annual subscribe. Load Stripe code, load and init FB, check for existing sub or purchase, then pass to Stripe to complete txn
     
     if (getProp('BTManagerHome') == "SIDEPANEL") {
-        alert("Unfortunately purchasing is not currently supported in the side panel. \n\nPlease set the Topic Manager Location to Window or Tab to make a purchase.");
+        alert(t('alertPurchaseSidepanel'));
         return;
     }
     // First Check if Stripe script is already loaded
@@ -59,16 +60,16 @@ async function handlePurchase(product) {
         FBDB || await initializeFirebase();
         if (!FBDB) {
             console.error("Problem initializing Firebase");
-            alert("Sorry Firebase initialization failed.");
+            alert(t('alertFirebaseFail'));
             return;
         }
     } catch(error) {
         console.error("Error initializing Stripe/Firebase: ", error);
-        alert("Sorry Stripe/Firebase initialization failed.");
+        alert(t('alertStripeFail'));
         return;
     }
 
-    if (!confirm("You will now be forwarded to Stripe to confirm payment details to Data Foundries LLC (BrainTool's incorporated name).\n\nAfter that BT will reload with your supporter status in place.\n\nNB coupons can be applied at purchase.\nForwarding might take several seconds."))
+    if (!confirm(t('confirmStripe')))
 	    return;
     $('body').addClass('waiting');
 
@@ -78,14 +79,14 @@ async function handlePurchase(product) {
         if (!btId) {
             $('body').removeClass('waiting');
             console.error("Error signing in to FB");
-            alert("Sorry Firebase user creation failed.");
+            alert(t('alertFirebaseUserFail'));
             return;
         }
         setProp('BTId', btId);
     } catch(error) {
         $('body').removeClass('waiting');
         console.error("Error signing in FB user:", error);
-        alert("Sorry Firebase user creation failed.");
+        alert(t('alertFirebaseUserFail'));
         return;
     }
     // Save sub id as BTId in local storage and org file property
@@ -96,7 +97,7 @@ async function handlePurchase(product) {
         // handle subscriptions different than one time purchase
         let subscription = await getPurchase('subscriptions');
         if (subscription) {
-	        alert("Seems like you already have a subscription associated with this browser. Close and restart BrainTool.");
+	        alert(t('alertAlreadySubscription'));
 	        //console.log("Subscription exists for this user:", JSON.stringify(subscription));
 	        return;
         }    
@@ -107,7 +108,7 @@ async function handlePurchase(product) {
         // handle one time purchase
         let myproduct = await getPurchase('payments');
         if (myproduct) {
-	        alert("Seems like you already have a license associated with this browser. Close and restart BrainTool.");
+	        alert(t('alertAlreadyLicense'));
 	        //console.log("License exists for this user:", JSON.stringify(myproduct));
 	        return;
         }    
@@ -120,10 +121,10 @@ async function handlePurchase(product) {
 async function openStripePortal() {
     // open page to manage subscription
     if (!getProp('BTId')) {
-	    alert('BrainTool Id not set!');
+	    alert(t('alertBtIdNotSet'));
 	    return;
     }
-    alert("Opening Stripe portal to manage your subscription. This may take a few seconds.");
+    alert(t('alertOpeningStripePortal'));
     const url = await getStripePortalURL();
     window.open(url, '_blank');
 }
@@ -284,7 +285,7 @@ async function checkLicense() {
     const purchase = urlParams.get('purchase');
     if (purchase == 'cancelled') {
         // need to reset BTId cos a user account was created prior to purchase
-        alert('Your purchase was cancelled. No changes were made.');
+        alert(t('alertPurchaseCancelled'));
         setProp('BTId', null);
         saveBT();
         return false;
@@ -294,13 +295,13 @@ async function checkLicense() {
     // await load fb codebase
     const product = await getPurchase('payments');
     if (product) {
-        if (purchase == 'product') alert('You now have a permanent license. Thank you for supporting BrainTool!');
+        if (purchase == 'product') alert(t('alertPermanentLicense'));
         setProp('BTExpiry', 8640000000000000);      // max date
         return true;
     }
     const subscription = await getPurchase('subscriptions');
     if (subscription && purchase == 'subscription') {
-        alert('Your subscription is now active. Thank you for supporting BrainTool!');
+        alert(t('alertSubscriptionActive'));
         setProp('BTExpiry', subscription.current_period_end.seconds * 1000);                // convert to ms for Date
         return true;
     }
@@ -316,7 +317,7 @@ async function checkLicense() {
         return true;
     }
     console.log("License expired");
-    alert("Looks like your subscription has expired. Create a new subscription or continue using the free version.");
+    alert(t('alertSubscriptionExpired'));
     return false;
 }
 
@@ -387,7 +388,7 @@ async function subscribe(productPrice) {
 	        const { error, sessionId } = snap.data();
 	        if (error) {
                 $('body').removeClass('waiting');
-	            alert(`An error occured: ${error.message}`);
+	            alert(t('alertGenericError', { msg: error.message }));
 	        }
 	        if (sessionId) {
 	            // We have a session, let's redirect to Checkout
@@ -422,7 +423,7 @@ async function purchase(productPrice) {
 	        const { error, sessionId } = snap.data();
 	        if (error) {
                 $('body').removeClass('waiting');
-	            alert(`An error occured: ${error.message}`);
+	            alert(t('alertGenericError', { msg: error.message }));
 	        }
 	        if (sessionId) {
 	            // We have a session, let's redirect to Checkout
@@ -456,11 +457,11 @@ async function RCPurchase(sessionId) {
         const { error, sessionId } = snap.data();
         if (error) {
             $('body').removeClass('waiting');
-            alert(`An error occured in RCPurchase: ${error.message}`);
+            alert(t('alertGenericError', { msg: error.message }));
             return;
         }
         $('body').removeClass('waiting');
-        alert("Your (free) purchase was successful. You now have a permanent license. Thank you for supporting BrainTool!");
+        alert(t('alertPermanentLicense'));
         setProp('BTExpiry', 8640000000000000);      // max date
         updateLicenseSettings();
     });
@@ -481,20 +482,20 @@ async function getStripePortalURL() {
     } catch(e) {
         const err = JSON.stringify(e);
 	    console.error("Error in getPortal:", err);
-        alert("Error accessing Stripe portal:\n", err);
+        alert(t('alertStripePortalError', { err }));
 	    return ("https://braintool.org/support");
     }
     return rsp.data.url;
 }
 
 async function importKey() {
-    const key = prompt('Please enter your license key:');
+    const key = prompt(t('promptLicenseKey'));
     if (key) {
         setProp('BTId', key);
         if (await checkLicense()) {
             setProp('BTId', key);
             saveBT();
-            alert('License key accepted. Thank you for supporting BrainTool!');
+            alert(t('alertLicenseAccepted'));
             updateLicenseSettings();
         }
     }

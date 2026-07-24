@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "BrainTool — больше, чем закладки",
+    "description": "The title of the application, displayed in the web store."
+  },
+  "appDesc": {
+    "message": "BrainTool — удобный менеджер закладок и вкладок для вашей онлайн-жизни.",
+    "description": "The description of the application, displayed in the web store."
+  },
+  "actionTitle": {
+    "message": "BrainTool!",
+    "description": "Browser action tooltip"
+  }
+}

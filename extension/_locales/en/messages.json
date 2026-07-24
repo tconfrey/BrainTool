@@ -6,5 +6,9 @@
   "appDesc": {
     "message": "BrainTool is the best Bookmarks and Tabs Manager for your online life.",
     "description": "The description of the application, displayed in the web store."
+  },
+  "actionTitle": {
+    "message": "BrainTool!",
+    "description": "Browser action tooltip"
   }
 }

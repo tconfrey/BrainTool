@@ -17,6 +17,7 @@
 'use strict';
 
 import { setProp, getProp } from './configManager.js';
+import { t } from './i18n.js';
 
 // Callback for fileManager state setters - registered after fileManager loads
 let setLocalFileConnectedCallback = null;
@@ -155,19 +156,19 @@ async function saveBT(BTFileText) {
     async function authorizeLocalFile(content) {
         // Called from user action button to allow filesystem access and choose BT folder
         if (typeof window.showSaveFilePicker !== "function") {
-            alert("Sorry, local file saving is not supported on your browser (NB Brave has a flag to enable, open brave://flags and toggle 'File System Access API')");
+            alert(t('alertLocalUnsupported'));
             return null;
         }
         if (getProp('BTManagerHome') == 'SIDEPANEL') {
-            alert("Local file saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
+            alert(t('alertLocalSidepanel'));
             return null;
         }
 
-        alert("Choose where you want to store your BrainTool file");
+        alert(t('alertLocalChoose'));
         const options = {startIn: 'documents', create: true};
         LocalDirectoryHandle = await window.showDirectoryPicker(options);
         if (!LocalDirectoryHandle) {
-            alert('Cancelling Local File sync');
+            alert(t('alertLocalCancel'));
             return null;
         }
 
@@ -186,11 +187,11 @@ async function saveBT(BTFileText) {
                 await LocalDirectoryHandle.getFileHandle('BrainTool.org', { create: true });
         } catch (err) {
             console.log(err);
-            alert('Error accessing local file, cancelling sync');
+            alert(t('alertLocalAccess'));
             return null;
         }
         setLocalFileConnectedCallback && setLocalFileConnectedCallback(true);  // used in fileManager facade
-        if (fileExists && confirm("BrainTool.org file already exists. Click OK to use its contents"))
+        if (fileExists && confirm(t('confirmLocalUseExisting')))
 		    if (refreshTableCallback) await refreshTableCallback(true);
 	    
 	    saveBT(content);                                        // Either way do a save to sync everything up
@@ -224,7 +225,7 @@ async function saveBT(BTFileText) {
                         await LocalFileHandle.requestPermission({mode: 'readwrite'});
                         resolve();                         // resolved value is unused (see `await p` below)
                     } catch (error) {
-                        alert('Error requesting file permission:', JSON.stringify(error));
+                        alert(t('alertLocalPerm', { err: JSON.stringify(error) }));
                         reject(error);
                     }
                 };
@@ -241,12 +242,12 @@ async function saveBT(BTFileText) {
         // check if newer version on disk
         setLocalFileConnectedCallback && setLocalFileConnectedCallback(true);
         const newerOnDisk = await checkBTFileVersion();
-        if (newerOnDisk && confirm("Synced BrainTool.org file on disk is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?")) {
+        if (newerOnDisk && confirm(t('confirmLocalNewer'))) {
             try {
 		        if (refreshTableCallback) await refreshTableCallback(true);
             }
             catch (err) {
-                alert("Error parsing BrainTool.org file from local file:\n" + JSON.stringify(err));
+                alert(t('alertLocalParse', { err: JSON.stringify(err) }));
                 throw(err);
             }
         }
@@ -305,14 +306,14 @@ async function saveBT(BTFileText) {
             LocalDirectoryHandle = LocalDirectoryHandle || await getLocalDirectoryHandle();
             const backupDirectoryHandle = await LocalDirectoryHandle.getDirectoryHandle('BT-Backups', {create: true});
             if (!backupDirectoryHandle) {
-                alert('Error creating BT-Backups folder');
+                alert(t('alertBackupFolderErr'));
                 return;
             }
             BackupDirectoryHandle = backupDirectoryHandle;
             localStorageManager.set('backupDirectoryHandle', BackupDirectoryHandle);
-            alert(`Backups will be stored in "${BackupDirectoryHandle.name}" under "${LocalDirectoryHandle.name}"`);
+            alert(t('alertBackupStored', { backup: BackupDirectoryHandle.name, parent: LocalDirectoryHandle.name }));
         } catch (err) {
-          alert('Error accessing BT-Backups folder');
+          alert(t('alertBackupAccess'));
           throw err;
         }
     }
