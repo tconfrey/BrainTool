@@ -18,7 +18,7 @@
 
 'use strict'
 
-import { t } from './i18n.js';
+import { t, displaySpecialTopic } from './i18n.js';
 
 const ReservedWords = {'TODO': 'Todo', 'DONE': 'Done'};             // can't name topics these org-mode reserved words
 
@@ -76,6 +76,9 @@ class BTNode {
         this._URL = url;
     }
     get displayTopic() {
+        // Special system topics: show localized label, keep stored title for logic
+        const special = displaySpecialTopic(this._title);
+        if (special) return special;
 	    return this._displayTopic;
     }
     get topicPath() {

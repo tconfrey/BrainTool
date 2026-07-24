@@ -1350,7 +1350,7 @@ class BTAppNode extends BTNode {
         // Find or create the trash node
         let trashNode = AllNodes.find(node => node && (node.isTrash()));
         if (!trashNode) {
-            trashNode = new BTAppNode("🗑️ TRASH", null, "Deleted items. The Delete button empties this Topic.", 1);
+            trashNode = new BTAppNode("🗑️ TRASH", null, t('specialTrashDesc'), 1);
             trashNode.createDisplayNode();
             trashNode.redisplay();
         }
@@ -1360,7 +1360,7 @@ class BTAppNode extends BTNode {
         // Find or create the bookmarks bar node
         let bookmarksBarNode = AllNodes.find(node => node && (node.isBookmarksBar()));
         if (!bookmarksBarNode) {
-            bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, "Synced to your browser bookmarks bar contents.", 1);
+            bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, t('specialBookmarksBarDesc'), 1);
             bookmarksBarNode.createDisplayNode();
             bookmarksBarNode.redisplay();            
             $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);            // start closed

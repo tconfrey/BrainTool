@@ -149,7 +149,19 @@ async function launchApp(msg) {
     console.log("launching App", getTimestamp());
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
-        let response = await fetch('/app/BrainTool.org');
+        // First install: sample topic tree. Prefer localized starter if available.
+        let starter = '/app/BrainTool.org';
+        try {
+            const store = await getFromLocalStorage('BTLocale');
+            const ui = (chrome.i18n?.getUILanguage?.() || navigator.language || 'en').toLowerCase();
+            const lang = (store === 'en' || store === 'ru') ? store
+                : (ui.startsWith('ru') ? 'ru' : 'en');
+            if (lang === 'ru') starter = '/app/BrainTool.ru.org';
+        } catch { /* keep English starter */ }
+        let response = await fetch(starter);
+        if (!response.ok && starter !== '/app/BrainTool.org') {
+            response = await fetch('/app/BrainTool.org');
+        }
         if (response.ok) {
             btdata = await response.text();
             chrome.storage.local.set({'BTFileText': btdata});

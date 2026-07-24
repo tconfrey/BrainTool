@@ -280,6 +280,14 @@ const catalogs = {
         alertGdriveListErrorGoogle: 'BT - error reading file list from GDrive. Check permissions and retry\nGoogle says: {msg}',
         bookmarkImportName: '🔖 Bookmark Import ({date})',
         expandCollapse: 'Expand/Collapse',
+        // Special topic *display* labels (stored titles stay English for logic)
+        specialCurrentSession: 'CURRENT SESSION',
+        specialBookmarksBar: 'BOOKMARKS BAR',
+        specialScratch: 'SCRATCH',
+        specialTrash: 'TRASH',
+        specialTrashDesc: 'Deleted items. The Delete button empties this Topic.',
+        specialBookmarksBarDesc: 'Synced to your browser bookmarks bar contents.',
+        specialScratchDesc: 'Pages that you save without a Topic will be filed under SCRATCH',
     },
 
     ru: {
@@ -537,8 +545,36 @@ const catalogs = {
         alertGdriveListErrorGoogle: 'BT — ошибка чтения списка файлов GDrive. Проверьте права и повторите\nGoogle: {msg}',
         bookmarkImportName: '🔖 Импорт закладок ({date})',
         expandCollapse: 'Развернуть/свернуть',
+        specialCurrentSession: 'ТЕКУЩИЙ СЕАНС',
+        specialBookmarksBar: 'ПАНЕЛЬ ЗАКЛАДОК',
+        specialScratch: 'ЧЕРНОВИК',
+        specialTrash: 'КОРЗИНА',
+        specialTrashDesc: 'Удалённые элементы. Кнопка «Удалить» на этой теме очищает корзину.',
+        specialBookmarksBarDesc: 'Синхронизируется с панелью закладок браузера.',
+        specialScratchDesc: 'Страницы без выбранной темы попадают в «Черновик».',
     }
 };
+
+/** Map stored special-topic titles → localized short label for the tree UI */
+const SPECIAL_TITLE_LABELS = {
+    '🌐 CURRENT SESSION': 'specialCurrentSession',
+    '🔖 BOOKMARKS BAR': 'specialBookmarksBar',
+    '📝 SCRATCH': 'specialScratch',
+    '🗑️ TRASH': 'specialTrash',
+};
+
+/**
+ * Display label for special system topics; other titles returned unchanged.
+ * Internal title strings stay English so isTrash() / bookmarks logic keep working.
+ */
+export function displaySpecialTopic(title) {
+    const key = SPECIAL_TITLE_LABELS[title];
+    if (!key) return null;
+    // Keep emoji prefix from the stored title
+    const emoji = title.split(/\s+/).slice(0, 1)[0];
+    const rest = t(key);
+    return `${emoji} ${rest}`;
+}
 
 let currentLocale = 'en';
 
