@@ -6,5 +6,20 @@
   "appDesc": {
     "message": "BrainTool is the best Bookmarks and Tabs Manager for your online life.",
     "description": "The description of the application, displayed in the web store."
+  },
+  "actionTitle": {
+    "message": "BrainTool!",
+    "description": "Browser action tooltip"
+  },
+  "errorStorage": {
+    "message": "Error saving to browser storage:\n$1\nContact BrainTool support",
+    "description": "Storage write failure in content script",
+    "placeholders": {
+      "1": { "content": "$1", "example": "quota exceeded" }
+    }
+  },
+  "errorInitialBtFile": {
+    "message": "Error getting initial BT file",
+    "description": "Failed to fetch default BrainTool.org"
   }
 }

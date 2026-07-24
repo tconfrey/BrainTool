@@ -11,6 +11,7 @@
 'use strict';
 
 import { getProp, setProp } from './configManager.js';
+import { t, setLocalePreference } from './i18n.js';
 import { searchButton, filterToDos, filterSearch, groupingUpdate } from './bt.js';
 import { addNewTopLevelTopic, toggleMoreButtons } from './rowManager.js';
 import { refreshTable } from './tableManager.js';
@@ -29,21 +30,21 @@ function generateControlsHeaderHTML() {
             <div>                
                 <img id="brain" type="image" alt="BrainTool" src="../extension/images/BrainTool48.png"
                      height="40" width="40" >
-	              <span id="searchCancelButton" class="searchButton" title="Exit Search">
+	              <span id="searchCancelButton" class="searchButton" title="${t('exitSearch')}">
                     <img src="resources/closeSearch.png" height="12" width="12"/>
                 </span>
                 <div id="searchHint" class="hint searchHint">
                     <img src="resources/searchGlass.svg"/>
-                    <span class="hintText">Click here or 's' to search</span>
+                    <span class="hintText">${t('searchHint')}</span>
                 </div>
-                <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="Search">
-                <span data-wenk="Filter TODOs" class="wenk--top filter-button"><img id="todoFilter" src="resources/star-transparent.svg"></span>
-                <span data-wenk="Filter Matches" class="wenk--top filter-button"><img id="searchFilter" src="resources/filter.svg" style="display:none"></span>
+                <input id="search_entry" type="text" size="20" autocomplete="off" aria-label="${t('searchAria')}">
+                <span data-wenk="${t('filterTodos')}" class="wenk--top filter-button"><img id="todoFilter" src="resources/star-transparent.svg"></span>
+                <span data-wenk="${t('filterMatches')}" class="wenk--top filter-button"><img id="searchFilter" src="resources/filter.svg" style="display:none"></span>
 	              <span class="searchButton" >
-	                <span id="searchUpBtn" title="Previous Match">
+	                <span id="searchUpBtn" title="${t('previousMatch')}">
                         <img src="resources/arrowUp.png" height="8" width="10"/>
                   </span>
-	                <span id="searchDownBtn" title="Next Match">
+	                <span id="searchDownBtn" title="${t('nextMatch')}">
                         <img src="resources/arrowDown.png" height="8" width="10"/>
                   </span>
 	              </span>
@@ -51,11 +52,11 @@ function generateControlsHeaderHTML() {
             <div id="topBarRight">
 
                 <div id="settingsButton">
-                    <span>Settings</span>
+                    <span>${t('settings')}</span>
                     <img id="settingsIcon" src="resources/settingsIcon.png" style="padding-left:2px;"/>
                 </div>
                 <div id="actionsButton">
-                    <span>Actions</span>
+                    <span>${t('actions')}</span>
                     <img id="actionsIcon" src="resources/actionsIcon.png" style="padding-left:5px;"/>
                 </div>
                 
@@ -63,18 +64,18 @@ function generateControlsHeaderHTML() {
             
         </div>
         <div id="newTopLevelTopic">
-            <span id="newTopic">+ ADD A NEW TOP LEVEL TOPIC</span>
+            <span id="newTopic">${t('addTopLevelTopic')}</span>
             <span id="resizer" class="draggable-icon ui-widget-content">&larr;|&rarr;</span>
         </div>
         <div id="trialExpiredWarning">
-          <img id="trialWarningClose" class="panelClose" type="image" alt="Close" title="Close"
+          <img id="trialWarningClose" class="panelClose" type="image" alt="${t('close')}" title="${t('close')}"
                src="resources/close.png" height="17" width="20">
           <div id="nagHeading">
-          YOUR 30 DAY NAG-FREE TRIAL HAS EXPIRED
+          ${t('trialExpiredHeading')}
           </div>
           <div id="nagContent">
             <img id="BTTrialBuddy" src="resources/BTTrialBuddy.png" alt="trial Buddy">
-            <p id="nagText">Hello there! <br/>It looks like your 30 trial has expired and you haven't signed up as a Supporter. Please consider doing so to support the creation and ongoing evolution of BrainTool.<br/> <a href="#" id="trialWarningLink">Go to Settings for Supporter options.</a></p>
+            <p id="nagText">${t('trialExpiredText')}</p>
           </div>
         </div>
       </div>`;
@@ -378,188 +379,208 @@ function generateSettingsHTML() {
     const html = `
     <div class="settingsActions" id="settings" style="margin-bottom: 5px">
       <div id="youShallNotPass">
-        <p id="warningBanner">Supporter<br/>Zone</p>
+        <p id="warningBanner">${t('supporterZone')}</p>
       </div>
-        <img class="panelClose" type="image" alt="Close" title="Close"
+        <img class="panelClose" type="image" alt="${t('close')}" title="${t('close')}"
              src="resources/close.png"  height="17" width="20">
         
-        <div class="settingsTitle">BrainTool Settings</div>
+        <div class="settingsTitle">${t('settingsTitle')}</div>
       <hr/>
       <div id="settingsLocation">
-        <div class="settingsSubtitle">Topic Manager Location:</div>
+        <div class="settingsSubtitle">${t('topicManagerLocation')}</div>
         <div id="panelToggle" class="settingsInput">
           <span>
             <input type="radio" id="settingsLocationWindow" name="location" value="WINDOW" checked>
-            <label for="settingsLocationPanel">Window</label>
+            <label for="settingsLocationWindow">${t('locationWindow')}</label>
           </span>
           <span>
             <input type="radio" id="settingsLocationPanel" name="location" value="SIDEPANEL">
-            <label for="settingsLocationPanel">Side panel</label>
+            <label for="settingsLocationPanel">${t('locationSidePanel')}</label>
           </span>
           <span>
             <input type="radio" id="settingsLocationTab" name="location" value="TAB" >
-            <label for="settingsLocationTab">Tab</label>
+            <label for="settingsLocationTab">${t('locationTab')}</label>
           </span>
         </div>
-        <div class="settingsFootnote">* Applies next time the Topic Manager is opened.</div>
+        <div class="settingsFootnote">${t('locationFootnote')}</div>
         <hr/>
       </div>
       
       <div id="settingsSync">
-        <div class="settingsSubtitle">Sync To:</div>
+        <div class="settingsSubtitle">${t('syncTo')}</div>
         <div id="syncSetting" class="settingsInput">
           <span>
             <input type="radio" id="settingsSyncGDrive" name="sync" value="gdrive">
-            <label for="settingsSyncGDrive">Google Drive file</label>
+            <label for="settingsSyncGDrive">${t('syncGDrive')}</label>
           </span>
           <span>
             <input type="radio" id="settingsSyncLocal" name="sync" value="local">
-            <label for="settingsSyncLocal">Local file</label>
+            <label for="settingsSyncLocal">${t('syncLocal')}</label>
           </span>
           <span>
             <input type="radio" id="settingsSyncNone" name="sync" value="none" checked>
-            <label for="settingsSyncNone">No sync</label>
+            <label for="settingsSyncNone">${t('syncNone')}</label>
           </span>
         </div>
-        <div class="settingsFootnote">* You will need to grant appropriate permissions</div>
+        <div class="settingsFootnote">${t('syncPermissionFootnote')}</div>
         <hr/>
       </div>
       
       <div id="settingsSyncStatus" style="display:none">
-          <div class="settingsSubtitle"><span id="syncType"></span> Sync Enabled</div>
+          <div class="settingsSubtitle" id="syncEnabledLabel"><span id="syncType"></span></div>
           <div class="settingsFootnote" id="fileLocation" style="display:none"></div>
-        <div class="settingsFootnote settingsFootnoteSecondLine">Disable current syncing (under Actions) to change this setting</div>
+        <div class="settingsFootnote settingsFootnoteSecondLine">${t('syncDisableFootnote')}</div>
         <div id="settingsBackups">
           <input type="checkbox" id="backups">
-          <label for="backups">Keep Backups (Saves recent, daily and monthly backups)</label>
+          <label for="backups">${t('keepBackups')}</label>
         </div>
         <hr/>
       </div>
 
       <div id="settingsSession">
-        <div class="settingsSubtitle">Session Manager?</div>
+        <div class="settingsSubtitle">${t('sessionManager')}</div>
         <div id="sessionToggle" class="settingsInput">
           <span>
             <input type="radio" id="settingsSessionOn" name="session" value="SHOWN" checked>
-            <label for="settingsSessionOn">Yes</label>
+            <label for="settingsSessionOn">${t('yes')}</label>
           </span>
           <span>
             <input type="radio" id="settingsSessionOff" name="session" value="HIDDEN">
-            <label for="settingsSessionOff">No</label>
+            <label for="settingsSessionOff">${t('no')}</label>
           </span>
         </div>
         <hr/>
       </div>
 
       <div id="settingsTheme">
-        <div class="settingsSubtitle">Dark Mode?</div>
+        <div class="settingsSubtitle">${t('darkMode')}</div>
         <div id="themeToggle" class="settingsInput">
           <span>
             <input type="radio" id="settingsThemeLight" name="theme" value="DARK" checked>
-            <label for="settingsThemeLight">Yes</label>
+            <label for="settingsThemeLight">${t('yes')}</label>
           </span>
           <span>
             <input type="radio" id="settingsThemeDark" name="theme" value="LIGHT">
-            <label for="settingsThemeDark">No</label>
+            <label for="settingsThemeDark">${t('no')}</label>
           </span>
         </div>
         <hr/>
       </div>
 
       <div id="settingsFavicons">
-          <div class="settingsSubtitle">Show Favicons?</div>
+          <div class="settingsSubtitle">${t('showFavicons')}</div>
           <div id="faviconToggle" class="settingsInput">
               <span>
                   <input type="radio" id="settingsFaviconOn" name="favicon" value="ON" checked>
-                  <label for="settingsFaviconOn">Yes</label>
+                  <label for="settingsFaviconOn">${t('yes')}</label>
               </span>
               <span>
                   <input type="radio" id="settingsFaviconOff" name="favicon" value="OFF">
-                  <label for="settingsFaviconOff">No</label>
+                  <label for="settingsFaviconOff">${t('no')}</label>
               </span>
           </div>
           <hr/>
       </div>
 
       <div id="settingsDense">
-          <div class="settingsSubtitle">Compact?</div>
+          <div class="settingsSubtitle">${t('compact')}</div>
           <div id="denseToggle" class="settingsInput">
               <span>
                   <input type="radio" id="settingsDenseOn" name="dense" value="DENSE" >
-                  <label for="settingsDenseOn">Yes</label>
+                  <label for="settingsDenseOn">${t('yes')}</label>
               </span>
               <span>
                   <input type="radio" id="settingsDenseOff" name="dense" value="NOTDENSE" checked>
-                  <label for="settingsDenseOff">No</label>
+                  <label for="settingsDenseOff">${t('no')}</label>
               </span>
           </div>
           <hr/>
       </div>
 
       <div id="settingsLarge">
-          <div class="settingsSubtitle">Large Font?</div>
+          <div class="settingsSubtitle">${t('largeFont')}</div>
           <div id="largeToggle" class="settingsInput">
               <span>
                   <input type="radio" id="settingsLargeOn" name="large" value="LARGE" >
-                  <label for="settingsLargeOn">Yes</label>
+                  <label for="settingsLargeOn">${t('yes')}</label>
               </span>
               <span>
                   <input type="radio" id="settingsLargeOff" name="large" value="NOTLARGE" checked>
-                  <label for="settingsLargeOff">No</label>
+                  <label for="settingsLargeOff">${t('no')}</label>
               </span>
           </div>
           <hr/>
       </div>
 
       <div id="settingsTooltips">
-        <div class="settingsSubtitle">Show Tooltips?</div>
+        <div class="settingsSubtitle">${t('showTooltips')}</div>
         <div id="tooltipsToggle" class="settingsInput">
             <span>
                 <input type="radio" id="settingsTooltipsOn" name="tooltips" value="ON" checked>
-                <label for="settingsTooltipsOn">Yes</label>
+                <label for="settingsTooltipsOn">${t('yes')}</label>
             </span>
             <span>
                 <input type="radio" id="settingsTooltipsOff" name="tooltips" value="OFF" >
-                <label for="settingsTooltipsOff">No</label>
+                <label for="settingsTooltipsOff">${t('no')}</label>
             </span>
         </div>
         <hr/>
     </div>
 
     <div id="settingsGrouping">
-      <div class="settingsSubtitle">Use Tabgroups?</div>
+      <div class="settingsSubtitle">${t('useTabgroups')}</div>
       <div id="tabGroupToggle" class="settingsInput">
         <span>
           <input type="radio" id="settingsGroupingTG" name="grouping" value="TABGROUP" checked>
-          <label for="settingsGroupingTG">Yes</label>
+          <label for="settingsGroupingTG">${t('yes')}</label>
         </span>
         <span>
           <input type="radio" id="settingsGroupingTab" name="grouping" value="NONE">
-          <label for="settingsGroupingTab">No</label>
+          <label for="settingsGroupingTab">${t('no')}</label>
         </span>
       </div>
       <hr/>
     </div>
+
+    <div id="settingsLanguage">
+      <div class="settingsSubtitle">${t('language')}</div>
+      <div id="languageToggle" class="settingsInput">
+        <span>
+          <input type="radio" id="settingsLangAuto" name="btlang" value="auto">
+          <label for="settingsLangAuto">${t('languageAuto')}</label>
+        </span>
+        <span>
+          <input type="radio" id="settingsLangEn" name="btlang" value="en">
+          <label for="settingsLangEn">${t('languageEn')}</label>
+        </span>
+        <span>
+          <input type="radio" id="settingsLangRu" name="btlang" value="ru">
+          <label for="settingsLangRu">${t('languageRu')}</label>
+        </span>
+      </div>
+      <div class="settingsFootnote">${t('languageFootnote')}</div>
+      <hr/>
+    </div>
       
       <div id="settingsSubscription">
-        <div class="settingsSubtitle">Supporter Status:</div>
+        <div class="settingsSubtitle">${t('supporterStatus')}</div>
         <div id="settingsSubscriptionAdd">
-          <div class="settingsSubText">You are using BrainTool for free.<br/>Please consider supporting BrainTool with a purchase. Thank you!</div>
+          <div class="settingsSubText">${t('freeUserText')}</div>
           <div id="settingsSubscriptionButtons" class="settingsInput">
-            <button class="subButton" data-plan="Monthly">Month $1.33</button>
-            <button class="subButton" data-plan="Annual">Year $10.66</button>
-            <button class="subButton" data-plan="OTP">Lifetime $20.99</button>
+            <button class="subButton" data-plan="Monthly">${t('planMonth')}</button>
+            <button class="subButton" data-plan="Annual">${t('planYear')}</button>
+            <button class="subButton" data-plan="OTP">${t('planLifetime')}</button>
           </div>
-          <i>Coupons applied at checkout</i>
+          <i>${t('couponsNote')}</i>
           <div class="settingsFootnote">
-            <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">Click here for current offers and all benefits information.</a><br/>
-            <div class="settingsFootnote" id="importKey">Click here to manually enter a license code.</div>
+            <a class="settingsFootnote" href="https://braintool.org/pricing.html" target="_blank">${t('offersLink')}</a><br/>
+            <div class="settingsFootnote" id="importKey">${t('importKey')}</div>
           </div>
         </div>
         <div id="settingsSubscriptionStatus" style="display:none">
-          <div class="settingsSubText" id="sub">You have a valid BrainTool subscription (ID = <span class="subId"></span>) <br/> Renews on <span id="renewDate"></span><br>Thank you for your support!</div>
-          <div class="settingsSubText" id="otp">You have a permanent BrainTool license (ID = <span class="subId"></span>) <br/> Thank you for your support!</div>
-          <a id="portalLink" href="https://billing.stripe.com" title="Manage Subscription" target="_blank">Manage your subscription</a>
+          <div class="settingsSubText" id="sub">${t('subActive')}</div>
+          <div class="settingsSubText" id="otp">${t('otpActive')}</div>
+          <a id="portalLink" href="https://billing.stripe.com" title="${t('manageSubscription')}" target="_blank">${t('manageSubscription')}</a>
         </div>
       </div>
     </div>
@@ -625,7 +646,8 @@ function attachSettingsListeners() {
             if (success) {
                 $("#settingsSync").hide();
                 $("#settingsSyncStatus").show();
-                $("#syncType").text((newVal == 'gdrive') ? "GDrive" : "Local File");
+                const typeLabel = (newVal == 'gdrive') ? t('gdrive') : t('localFile');
+                $("#syncType").text(t('syncEnabled', { type: typeLabel }));
                 $("#actionsSyncStatus").show();
             } else {
                 $("#settingsSyncNone").prop("checked", true);
@@ -636,6 +658,15 @@ function attachSettingsListeners() {
             $("#settingsSyncNone").prop("checked", true);
             return false;
         }
+    });
+
+    // Language preference
+    const storedLang = getProp('BTLocale') || 'auto';
+    const langVal = (storedLang === 'en' || storedLang === 'ru') ? storedLang : 'auto';
+    $(`#languageToggle input[value="${langVal}"]`).prop('checked', true);
+    $('#languageToggle :radio').change(function () {
+        setLocalePreference($(this).val());
+        location.reload();
     });
     
     // Backups checkbox
@@ -724,19 +755,19 @@ function generateActionsHTML() {
     const html = `
     <div class="settingsActions" id="actions">
         
-        <img class="panelClose" type="image" alt="Close" title="Close"
+        <img class="panelClose" type="image" alt="${t('close')}" title="${t('close')}"
              src="resources/close.png"  height="17" width="20">
         
-        <div class="settingsTitle">BrainTool Actions</div>
+        <div class="settingsTitle">${t('actionsTitle')}</div>
         <hr/>
         <div id="actionsImportExport">
-            <div class="settingsSubtitle">Import/Export:</div>
+            <div class="settingsSubtitle">${t('importExport')}</div>
 
             <div id="settingsDropdowns" class="settingsInput">
                 <div class="dropdown">
                     
                     <button class="button_text general_button dropdown_button">
-                        <span class="dropdown_text">Import:</span>
+                        <span class="dropdown_text">${t('importColon')}</span>
                         <span class="button_image_wrapper">
                             <img class="split_image" src="resources/expanded.png">
                         </span>		    
@@ -744,18 +775,18 @@ function generateActionsHTML() {
                     
                     <div class="dropdown_content">                    
                         <div id="importBookmarksItem">
-                            <label for="import_bookmarks" class="button_text">Browser Bookmarks</label>
+                            <label for="import_bookmarks" class="button_text">${t('browserBookmarks')}</label>
                             <input id="import_bookmarks" type="button" style="display:none">
                         </div>
                         
                         <div style="border-top: solid 1px #ddd" id="importOrgFileItem">
-                            <label for="org_upload" class="button_text">An Org-mode file</label>
+                            <label for="org_upload" class="button_text">${t('orgModeFile')}</label>
                             <input type="file" id="org_upload" name="org_upload" accept=".org"
                                    style="display:none">
                         </div>
                         
                         <div style="border-top: solid 1px #ddd" id="importTabsOutlinerItem">
-                            <label for="to_upload" class="button_text">A TabsOutliner export</label>
+                            <label for="to_upload" class="button_text">${t('tabsOutlinerExport')}</label>
                             <input type="file" id="to_upload" name="to_upload" accept=".tree,.json"
                                    style="display:none">
                         </div>
@@ -766,7 +797,7 @@ function generateActionsHTML() {
                 <div class="dropdown">
                     
                     <button class="button_text general_button dropdown_button">
-                        <span class="dropdown_text">Export To:</span>
+                        <span class="dropdown_text">${t('exportTo')}</span>
                         <span class="button_image_wrapper">
                             <img class="split_image" src="resources/expanded.png">
                         </span>		    
@@ -774,12 +805,12 @@ function generateActionsHTML() {
                     
                     <div class="dropdown_content">
                         <div id="exportBookmarksItem">
-                            <label class="button_text" for="export_bookmarks">Browser Bookmarks</label>
+                            <label class="button_text" for="export_bookmarks">${t('browserBookmarks')}</label>
                             <input id="export_bookmarks" type="button" style="display:none">
                         </div>
 
                         <div style="border-top: solid 1px #ddd">
-                            <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none">Local Org-mode file</a>
+                            <a id="org_export" class="button_text" href="" download="BrainTool.org" style="text-align:left; text-decoration: none">${t('localOrgFile')}</a>
                         </div>
                     </div>
                 </div>
@@ -790,8 +821,8 @@ function generateActionsHTML() {
             
             <div class="settingsSubtitle" id="autoSaveLabel"></div>
           <div class="settingsInput">
-            <button id="refresh" class="button_text">Refresh from File</button>
-            <button id="stopSyncing" class="button_text">Stop Syncing</button>
+            <button id="refresh" class="button_text">${t('refreshFromFile')}</button>
+            <button id="stopSyncing" class="button_text">${t('stopSyncing')}</button>
           </div>
 
         </div>
@@ -880,99 +911,99 @@ function generateHelpHTML() {
     const html = `
     <div class="settingsActions" id="help">
         
-        <img class="panelClose" type="image" alt="Close" title="Close"
+        <img class="panelClose" type="image" alt="${t('close')}" title="${t('close')}"
              src="resources/close.png"  height="17" width="20">
-        <div class="settingsTitle">Help and Support</div>
+        <div class="settingsTitle">${t('helpTitle')}</div>
         <div id='BTVersion'><i>BTVersion</i></div>  
         <hr/>
         <div>
-            <div class="settingsSubtitle helpAction" id="helpUserGuide">User Guide and General Help</div>
+            <div class="settingsSubtitle helpAction" id="helpUserGuide">${t('helpUserGuide')}</div>
         </div>
         <hr/>
         <div>
             <div id="helpKeys" class="settingsSubtitle helpAction">
-                Keyboard Commands (or just press 'h' or '?')
+                ${t('helpKeys')}
             </div>
             <div id="keyCommands" style="display:none;">
                 <table id="keyCommandsTable" style="border-spacing:4px;">
                 <tr>
-                    <td rowspan="5" class="row_divider verticalCol">Nav</td>
+                    <td rowspan="5" class="row_divider verticalCol">${t('keyNav')}</td>
                     <td class="keyCol">s,r,/ (&darr;&uarr;,<span class="alt_opt">Option</span>-s/r)</td>
-                    <td>Search/Reverse-search (next/prev match)</td>
+                    <td>${t('keySearch')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol">n,p,&uarr;&darr;</td>
-                    <td>Navigate to Next, Previous row</td>
+                    <td>${t('keyNavRows')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol">&larr; &rarr;</td>
-                    <td>Navigate up/down hierarchy</td>
+                    <td>${t('keyHierarchy')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol">1-9</td>
-                    <td>Show tree nodes up to level N</td>
+                    <td>${t('keyLevels')}</td>
                 </tr>
                 <tr >
                     <td class="keyCol row_divider">Tab</td>
-                    <td class="row_divider">Subtree cycle expand one level/all-levels/collapse</td>
+                    <td class="row_divider">${t('keyTab')}</td>
                 </tr>
                 <tr>
-                    <td rowspan="2" class="row_divider verticalCol">Browse&nbsp;</td>
+                    <td rowspan="2" class="row_divider verticalCol">${t('keyBrowse')}&nbsp;</td>
                     <td class="keyCol">Space (w)</td>
-                    <td>Show/open item (in a new window)</td>
+                    <td>${t('keySpace')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol row_divider">Enter</td>
-                    <td class="row_divider">Open/Close in the browser</td>
+                    <td class="row_divider">${t('keyEnter')}</td>
                 </tr>
                 <tr>
-                    <td rowspan="6" class="row_divider verticalCol">Edit</td>
+                    <td rowspan="6" class="row_divider verticalCol">${t('keyEdit')}</td>
                     <td class="keyCol"><span class="alt_opt">Option</span>+z</td>
-                    <td >Undo last deletion</td>
+                    <td >${t('keyUndo')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol"><span class="alt_opt">Option</span> &uarr;&darr;</td>
-                    <td >Move selection up/down</td>
+                    <td >${t('keyMove')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol"><span class="alt_opt">Option</span> &larr;</td>
-                    <td>Promote selection up a level</td>
+                    <td>${t('keyPromote')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol">t, e</td>
-                    <td>t cycle TODO state, e Edit</td>
+                    <td>${t('keyTodoEdit')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol">Delete</td>
-                    <td>Delete selection</td>
+                    <td>${t('keyDelete')}</td>
                 </tr>
                 <tr>
                     <td class="keyCol row_divider"><span class="alt_opt">Option</span>-Enter</td>
-                    <td class="row_divider">Create a new sub Topic</td>
+                    <td class="row_divider">${t('keyNewSubtopic')}</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td class="keyCol"><span class="alt_opt">Option</span>+b+b</td>
-                    <td>Open BT SidePanel (this window)</td>
+                    <td>${t('keySidePanel')}</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td class="keyCol">Ctrl+c/Cmd+c</td>
-                    <td>Copy selection and children to clipboard</td>
+                    <td>${t('keyCopy')}</td>
                 </tr>
 
                 </table>
-                <p class="settingsFootnote">NB Option is a modifier key like shift or control. It is also called Alt.</p>
+                <p class="settingsFootnote">${t('keyOptionNote')}</p>
             </div>
         </div>
 
         <hr/>
         <div>
-            <div class="settingsSubtitle helpAction" id="helpFAQ">FAQs and How-tos</div>
+            <div class="settingsSubtitle helpAction" id="helpFAQ">${t('helpFAQ')}</div>
         </div>
         <hr/>
         <div>
-            <div class="settingsSubtitle helpAction" id="helpWebsite">BrainTool Website</div>
+            <div class="settingsSubtitle helpAction" id="helpWebsite">${t('helpWebsite')}</div>
         </div>
     </div>
     `;
@@ -1029,18 +1060,18 @@ function generateFooterHTML() {
         <img id="footerSavedIcon" type="image" alt="#File Saves"
              src="resources/fileSave.png" height="16" width="16">
         <span id="footerSavedInfo">
-          Last saved
+          ${t('lastSaved')}
         </span>
         <span id="footerInfo">
-          <span id="footerItemInfo">Topics, pages</span>
+          <span id="footerItemInfo">${t('topicsPages', { topics: '—', pages: '—' })}</span>
           <span id="footerOpenInfo">
-            (open)
+            ${t('openParen')}
           </span>
         </span>
 
         <div id="footerHelp">
             <span id="footerHelpText">
-                Help
+                ${t('help')}
             </span>
             <img id="footerHelpIcon" type="image" alt="#Help"
                  src="resources/help.png" height="16" width="16">

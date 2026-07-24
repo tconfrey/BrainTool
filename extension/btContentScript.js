@@ -41,7 +41,8 @@ function setToLocalStorage(obj) {
     return new Promise(resolve => {
         chrome.storage.local.set(obj, function() {
             if (chrome.runtime.lastError)
-                alert(`Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
+                alert(chrome.i18n.getMessage('errorStorage', [chrome.runtime.lastError.message])
+                    || `Error saving to browser storage:\n${chrome.runtime.lastError.message}\nContact BrainTool support`);
             resolve();
         });
     });
@@ -148,12 +149,24 @@ async function launchApp(msg) {
     console.log("launching App", getTimestamp());
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
-        let response = await fetch('/app/BrainTool.org');
+        // First install: sample topic tree. Prefer localized starter if available.
+        let starter = '/app/BrainTool.org';
+        try {
+            const store = await getFromLocalStorage('BTLocale');
+            const ui = (chrome.i18n?.getUILanguage?.() || navigator.language || 'en').toLowerCase();
+            const lang = (store === 'en' || store === 'ru') ? store
+                : (ui.startsWith('ru') ? 'ru' : 'en');
+            if (lang === 'ru') starter = '/app/BrainTool.ru.org';
+        } catch { /* keep English starter */ }
+        let response = await fetch(starter);
+        if (!response.ok && starter !== '/app/BrainTool.org') {
+            response = await fetch('/app/BrainTool.org');
+        }
         if (response.ok) {
             btdata = await response.text();
             chrome.storage.local.set({'BTFileText': btdata});
         } else {            
-            alert('Error getting initial BT file');
+            alert(chrome.i18n.getMessage('errorInitialBtFile') || 'Error getting initial BT file');
             return;
         }
     }

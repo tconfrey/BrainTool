@@ -17,6 +17,7 @@
 'use strict';
 
 import { getProp, setProp } from './configManager.js';
+import { t } from './i18n.js';
 
 // Callback for fileManager state getters/setters - registered after fileManager loads
 let setGDriveConnectedCallback = null;
@@ -178,7 +179,7 @@ async function renewToken() {
 async function renewTokenAndRetry(cb) {
     // The access token is missing, invalid, or expired, or not yet existed, prompt for user consent to obtain one.
     // might be a callback to call after token is renewed
-    if (confirm("BT - Security token expired. Renew the token and try again?")) {
+    if (confirm(t('alertGdriveToken'))) {
         try {
             await renewToken();
             cb && cb();
@@ -230,7 +231,7 @@ async function saveBT(fileText, forceAuth = false) {
         const authorized = await getAccessToken(forceAuth);
         if (authorized) writeBTFile(fileText);
     } catch(err) {
-        alert(`Changes saved locally. GDrive connection failed. Google says:\n${JSON.stringify(err)}`);
+        alert(t('alertGdriveLocalSave', { err: JSON.stringify(err) }));
         updateSigninStatus(false);
         console.log("Error in saveBT:", err);
     }
@@ -240,7 +241,7 @@ async function authorizeGapi(userInitiated = false) {
     // gapi needed to access gdrive not yet loaded => this script needs to wait
 
     if (getProp('BTManagerHome') == 'SIDEPANEL') {
-        alert("GDrive saving cannot be initiated from Sidepanel view. \n\nPlease set the Topic Manager Location to Window or Tab to perform this action.");
+        alert(t('alertGdriveSidepanel'));
         return null;
     }
     console.log('Loading Google API...');
@@ -248,7 +249,7 @@ async function authorizeGapi(userInitiated = false) {
     if (userInitiated) {
         // implies from button click
         gtag('event', 'auth_initiated_by_user', {'event_category': 'GDrive'});
-        alert("- Passing you to Google to grant permissions. \n- Allow cookies and popups from both braintool.org and accounts.google.com in browser settings.\n- Complete all steps to allow file access, see braintool.org/support for details.");
+        alert(t('alertGdriveAuth'));
     }
     // Init client will async flow will ensure that gapi is loaded
     await initClient(userInitiated);
@@ -258,7 +259,7 @@ function checkLoginReturned() {
     // gapi.auth also sometimes doesn't return, most noteably cos of Privacy Badger
     $('body').removeClass('waiting');
     if (GDriveConnected) return;
-    alert("Google Authentication should have completed by now.\nIt may have failed due to extensions such as Privacy Badger or if 3rd party cookies are disallowed. Exempt braintool.org and accounts.google.com from blockers and allow cookies and popups from those urls. If problems continues see \nbraintool.org/support");
+    alert(t('alertGdriveAuthTimeout'));
 }
 
 /**
@@ -285,9 +286,9 @@ async function findOrCreateBTFile(userInitiated) {
         // if user just initiated connection but file exists ask to import
         // or if we have a recorded version thats older than disk, ask to import
         const driveDate = new Date(driveTimestamp).toLocaleString();
-        const msg = userInitiated ?
-            `A BrainTool.org file already exists. It was last modified ${driveDate}. 'OK' to use its contents, 'Cancel' to overwrite with local data.` :
-            "Synced BrainTool.org file on GDrive is newer than browser data. \nHit Cancel to ignore or OK to load newer. \nUse newer?"
+        const msg = userInitiated
+            ? t('confirmGdriveExists', { date: driveDate })
+            : t('confirmGdriveNewer');
         if (confirm(msg)) {
             try {
                 if (refreshTableCallback) await refreshTableCallback(true);
@@ -299,7 +300,7 @@ async function findOrCreateBTFile(userInitiated) {
                 if (fileText) await gDriveFileManager.saveBT(fileText);
             }
             catch (err) {
-                alert("Error parsing BrainTool.org file from GDrive:\n" + JSON.stringify(err));
+                alert(t('alertGdriveParse', { err: JSON.stringify(err) }));
                 throw(err);
             }
         }
@@ -330,9 +331,9 @@ async function connectAndFindFiles() {
         }
     }
     catch (err) {
-        let msg = "BT - error reading file list from GDrive. Check permissions and retry";
-        if (err?.result?.error?.message)
-            msg += "\nGoogle says:" + err.result.error.message;
+        const msg = err?.result?.error?.message
+            ? t('alertGdriveListErrorGoogle', { msg: err.result.error.message })
+            : t('alertGdriveListError');
         alert(msg);
         console.log("Error in findOrCreateBTFile: ", JSON.stringify(err));
         updateSigninStatus(false);
@@ -379,14 +380,14 @@ async function createStartingBT() {
         updateSigninStatus(true);
     }
     catch(err) {
-        alert(`Error creating BT file on GDrive: [${JSON.stringify(err)}]`);
+        alert(t('alertGdriveCreate', { err: JSON.stringify(err) }));
     }
 }
 
 async function getBTFile() {
     console.log('Retrieving BT file');
     if (!BTFileID) {
-        alert("Something went wrong. BTFileID not set. Try restarting BrainTool");
+        alert(t('alertGdriveNoId'));
         return;
     }
     try {
@@ -455,7 +456,7 @@ async function _writeBTFile() {
     
     BTFileID = BTFileID || getProp('BTFileID');
     if (!BTFileID) {
-        alert("BTFileID not set, not saving to GDrive");
+        alert(t('alertGdriveNoIdSave'));
         return;
     }
     
@@ -465,7 +466,7 @@ async function _writeBTFile() {
         
         // check we're not overwriting remote file
         const warn = await checkBTFileVersion();
-        if (warn && !confirm("There's a newer BrainTool.org file on GDrive. Overwrite it?\nNB changes have been made locally either way."))
+        if (warn && !confirm(t('confirmGdriveOverwrite')))
         return;
         
         // go about saving the file
@@ -510,7 +511,7 @@ async function _writeBTFile() {
     }
     catch(err) {
         SaveUnderway = false;
-        alert("BT - Error saving to GDrive.");
+        alert(t('alertGdriveSaveErr'));
         console.log("Error in _writeBTFile: ", JSON.stringify(err));
         return;
     }

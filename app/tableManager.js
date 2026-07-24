@@ -21,6 +21,7 @@ import { sendMessage, callBackground, registerMessageHandler, requestBrowserSnap
 import { getBTFile, getBTFileText, savePendingP, saveBT, updateSyncSettings, syncEnabled, updateStatsRow } from './fileManager.js';
 import { buttonShow, buttonHide, deleteNode } from './rowManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
+import { t } from './i18n.js';
 
 /***
  *
@@ -37,7 +38,7 @@ async function refreshTable(fromStore = false) {
 
     // First check to make sure we're not clobbering a pending write, see fileManager.
     if (savePendingP()) {
-        alert('A save is currently in process, please wait a few seconds and try again');
+        alert(t('alertSaveInProgress'));
         return;
     }
     $('body').addClass('waiting');
@@ -84,7 +85,7 @@ function processBTFile(fileText = getBTFileText()) {
         parseBTFile(fileText);
     }
     catch(e) {
-        alert('Could not process BT file. Please check it for errors and restart');
+        alert(t('alertProcessFileFail'));
         $('body').removeClass('waiting');
         throw(e);
     }
@@ -99,7 +100,9 @@ function processBTFile(fileText = getBTFileText()) {
 
     $(container).treetable({ expandable: true, initialState: 'expanded', indent: 30,
                              animationTime: 1, onNodeCollapse: nodeCollapse,
-                             onNodeExpand: nodeExpand}, true);
+                             onNodeExpand: nodeExpand,
+                             expanderTemplate: `<a href='#' class='wenk--bottom' data-wenk='${t('expandCollapse')}'>&nbsp;</a>`
+                           }, true);
 
     BTAppNode.generateTopics();
 

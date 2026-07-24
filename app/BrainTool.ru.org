@@ -1,0 +1,129 @@
+#+PROPERTY: BTVersion 1
+#+PROPERTY: BTGroupingMode TABGROUP
+#+PROPERTY: BTFavicons ON
+
+* 👋  Добро пожаловать
+Можете править или удалять эти примеры тем
+* TODO Звезда ⭐️ отмечает элементы как TODO
+* Тема (например, Проекты)
+Храните ссылки и заметки по проекту в одном месте.
+
+** Подтема (например, Новая кухня)
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Разворачивайте и сворачивайте дерево стрелками слева.
+
+*** Пример: поиск подрядчика
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Темы можно вкладывать на любую глубину
+**** [[https://northriverbuilders.com/][North River Builders]]
+К страницам можно добавлять текстовые заметки...
+Отлично! Nile приятно общаться. Вовлечён в проект. Хорошее ПО для управления, сильное портфолио.
+
+** Пример проекта knowledge worker
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+Пример профессиональной темы
+*** [[https://slack.com/][Where work happens | Slack]]
+Канал Slack
+
+*** [[https://www.atlassian.com/software/jira][Jira | Issue & Project Tracking Software]]
+Доска Jira
+
+* Сферы жизни
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Непроектные области, которые удобно отслеживать.
+
+** Личное
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Личное и рабочее можно держать отдельно.
+
+*** Финансы
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+**** [[https://www.bankofamerica.com/][Bank of America - Login]]
+ Сайт банка
+
+**** [[https://login.northwesternmutual.com/login][Login | Northwestern Mutual]]
+ Инвестиции
+
+**** [[https://docs.google.com/spreadsheets/d/1yvidpw2wwS5x2Z1NX8lJ3yVLrdVBW4M3UBlB8PCWl_0/edit#gid=0][Учёт расходов]]
+
+*** Здоровье и wellness
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://myhealth.atriushealth.org/Authentication/Login?][MyHealth Online Portal]]
+медицинский портал
+
+**** [[https://aspireap.com/][Aspire]]
+Расписание зала
+
+*** Досуг и развлечения
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://netflix.com][Очередь Netflix]]
+
+**** [[https://open.spotify.com/][Плейлисты для работы]]
+
+** Работа
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Зоны ответственности на работе.
+*** Админ, HR, бюджет
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://www.workday.com/][Workday — годовой review]]
+
+**** [[https://www.adp.com/][зарплата]]
+
+*** Команда
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+
+**** [[https://wikipedia.org][wiki команды]]
+Идея понятна...
+
+* Ресурсы
+    :PROPERTIES:
+    :VISIBILITY: folded
+    :END:
+Справочные материалы и всё, к чему хотите возвращаться.
+
+** [[https://braintool.org/topicTrees/][Публичные деревья тем]]
+Темы BrainTool можно сохранять и делиться. Как это работает — и примеры.
+
+** [[https://braintool.org/support/userGuide][Руководство пользователя BrainTool]]
+
+** [[https://braintool.org/posts.html][Блог BrainTool]]
+
+* 🗄 Архив
+То, что больше не в активной работе. Сюда — завершённые проекты.
+
+* 🔖 BOOKMARKS BAR
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+Синхронизируется с панелью закладок браузера
+
+* 📝 SCRATCH
+Страницы без выбранной темы попадают в SCRATCH
+
+* 🗑️ TRASH
+Удалённые элементы. Кнопка «Удалить» на этой теме очищает корзину.

@@ -23,6 +23,7 @@ import { getProp, incrementStat, metaPropertiesToString } from './configManager.
 import { sendMessage, callBackground } from './extensionMessaging.js';
 import { localStorageManager } from './localFileManager.js';
 import { loadOrgFile } from './fileManager.js';
+import { t } from './i18n.js';
 
 var Topics = [];                                                                                // track topics for future tab assignment
 const specialTopics = ['📝 SCRATCH', '🗑️ TRASH', '🔖 BOOKMARKS BAR', '🌐 CURRENT SESSION'];
@@ -766,7 +767,7 @@ class BTAppNode extends BTNode {
 
         // if this node is a link to a topic tree load it up
         if (this.isTopicTree()) {
-            if (!this.childIds.length || confirm('Re-add this topic tree?'))
+            if (!this.childIds.length || confirm(t('confirmReaddTopic')))
                 this.openTopicTree();
             return;
         }
@@ -878,7 +879,7 @@ class BTAppNode extends BTNode {
         // user has changed from TABGROUP to NONE, tell background to ungroup all BT tabs
         const tabIds = AllNodes.flatMap(n => n.tabId ? [n.tabId] : []);
         if (tabIds.length)
-            if (confirm('Also ungroup open tabs?'))
+            if (confirm(t('confirmUngroup')))
                 callBackground({'function': 'ungroup', 'tabIds': tabIds});
     }
 
@@ -1349,7 +1350,7 @@ class BTAppNode extends BTNode {
         // Find or create the trash node
         let trashNode = AllNodes.find(node => node && (node.isTrash()));
         if (!trashNode) {
-            trashNode = new BTAppNode("🗑️ TRASH", null, "Deleted items. The Delete button empties this Topic.", 1);
+            trashNode = new BTAppNode("🗑️ TRASH", null, t('specialTrashDesc'), 1);
             trashNode.createDisplayNode();
             trashNode.redisplay();
         }
@@ -1359,7 +1360,7 @@ class BTAppNode extends BTNode {
         // Find or create the bookmarks bar node
         let bookmarksBarNode = AllNodes.find(node => node && (node.isBookmarksBar()));
         if (!bookmarksBarNode) {
-            bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, "Synced to your browser bookmarks bar contents.", 1);
+            bookmarksBarNode = new BTAppNode("🔖 BOOKMARKS BAR", null, t('specialBookmarksBarDesc'), 1);
             bookmarksBarNode.createDisplayNode();
             bookmarksBarNode.redisplay();            
             $("table.treetable").treetable("collapseNode", bookmarksBarNode.id);            // start closed

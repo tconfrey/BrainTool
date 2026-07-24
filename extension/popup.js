@@ -20,6 +20,11 @@
 
 import { TopicCard } from './topicCard.js';
 import { TopicSelector } from './topicSelector.js';
+import { initI18n, applyStaticDom, t } from './i18n.js';
+
+// Localize static popup markup as early as possible
+await initI18n();
+applyStaticDom(document);
 
 // Utilities to show/hide array of elements
 function showElements(elementIds) {
@@ -128,7 +133,7 @@ chrome.storage.local.get(contextVariables, async val => {
 });
 
 function reloadExtension() {            
-    chrome.tabs.query({title: "BrainTool Topic Manager"},
+    chrome.tabs.query({title: t('topicManagerTitle')},
         (tabs => {
             if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));
             chrome.storage.local.remove('newVersion');
@@ -145,7 +150,7 @@ function openTopicManager(home = 'WINDOW', location) {
     // First check for existing BT Tab eg error condition or after an Extension restart.
     // Either way best thing is to kill it and start fresh.
     chrome.tabs.query(
-        {title: "BrainTool Topic Manager"},
+        {title: t('topicManagerTitle')},
         (tabs => {if (tabs.length) chrome.tabs.remove(tabs.map(tab => tab.id));})
         );
     
@@ -212,7 +217,7 @@ function createTopicManagerWindow(wargs) {
             console.warn('Adjusting window bounds and re-creating Topic Manager:', wargs);
             chrome.windows.create(wargs, async function(window2) {
                 if (!window2) {
-                    alert('Error creating the TopicManager window. Chrome says:' + chrome.runtime.lastError?.message + '\n Using a tab instead...');
+                    alert(t('alertWindowError', { err: chrome.runtime.lastError?.message }));
                     chrome.tabs.create({'url': wargs.url});
                 }
             });
@@ -323,6 +328,10 @@ async function openBookmarker(tab) {
     if (tg) {
         // tab is part of a TG => set the saveTg checkbox to be checked
         document.getElementById('tgName').textContent = tg.title;
+        const tgHeading = document.getElementById('topicSaveTgHeading');
+        if (tgHeading) {
+            tgHeading.innerHTML = t('topicSaveTg', { name: `<span id="tgName">${tg.title}</span>` });
+        }
         saveWindow.style.display = 'none';
         saveTG.checked = true;
         saveTab.checked = false;
@@ -396,7 +405,7 @@ async function saveCB(close) {
 
     if ((saveType == 'Tab') && (CurrentTab.pinned)) {
         // We don't handle pinned tabs, so alert and return
-        alert('BrainTool does not handle pinned tabs. Unpin the tab and try again.');
+        alert(t('alertPinned'));
     } else {
         if ((saveType == 'Tab') && (CurrentTab.groupId > 0) && (!close) && (newTopic != OldTopic)) {
             // ungroup the tab to avoid confusion with the group name, but also need to wait for that to complete

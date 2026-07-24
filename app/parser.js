@@ -18,6 +18,7 @@
 
 import { setProp } from './configManager.js';
 import { BTAppNode, BTLinkNode } from './BTAppNode.js';
+import { t } from './i18n.js';
 
 var Lines= [];
 
@@ -37,7 +38,7 @@ function parseBTFile(fileText) {
         parseTree = orgaparse(fileText);
     }
     catch(e) {
-        alert('Error in parsing BrainTool.org file:\n', JSON.stringify(e));
+        alert(t('alertParseOrg', { err: JSON.stringify(e) }));
         throw(e);
     }
     Lines = generateLinesAndColumns(fileText);                 // used to pull out text content

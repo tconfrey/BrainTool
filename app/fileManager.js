@@ -24,6 +24,7 @@ import { localFileManager } from './localFileManager.js';
 import { gDriveFileManager } from './gDriveFileManager.js';
 import { messageManager } from './messageManager.js';
 import { insertOrgFile } from './parser.js';
+import { t } from './i18n.js';
 
 var GDriveConnected = false;
 let LocalFileConnected = false;
@@ -162,7 +163,7 @@ async function _saveBT(localOnly = false, newContent = true) {
     // Check if we're about to overwrite newer data in the sync file
     const warnNewer = await checkBTFileVersion();
     if ((warnNewer) && 
-        (confirm("The synced version of your BrainTool file has newer data. \n\nClick OK the refresh from it, or Cancel to overwrite with this change."))) {
+        (confirm(t('confirmStaleFile')))) {
             if (refreshTableCallback) refreshTableCallback(true);
             return;
     }
@@ -189,7 +190,7 @@ async function authorizeLocalFile() {
     setProp('BTGDriveConnected', false);
     setProp('BTTimestamp', await localFileManager.getFileLastModifiedTime());
     updateSyncSettings(true);
-    alert('Local file sync established. See Actions to disable.');
+    alert(t('alertLocalSyncOn'));
     return true;
 }
 
@@ -226,7 +227,7 @@ async function checkBTFileVersion() {
         const lastModifiedTime = await gDriveFileManager.getBTModifiedTime();
         if (!lastModifiedTime) {
             const cb = async () => { gDriveFileManager.renewToken(); messageManager.removeWarning(); };
-            messageManager.showWarning("GDrive authorization has expired. <br/>Click here to refresh now, otherwise I'll try when there's something to save.", cb);
+            messageManager.showWarning(t('warnGdriveAuthExpired'), cb);
             return;
         }
     }
@@ -239,8 +240,10 @@ async function checkBTFileVersion() {
         } catch (err) {
             console.warn('warnBTFileVersion: error checking BT file version:', err);
             const cb = async () => { messageManager.removeWarning(); };
-            const msg = `Error accessing the synced BrainTool file${err?.message ? `:<br/><small>"${err.message}"</small>` : '.'}`;
-            messageManager.showWarning(msg, cb);
+            const detail = err?.message
+                ? t('warnLocalFileAccessDetail', { msg: err.message })
+                : '.';
+            messageManager.showWarning(t('warnLocalFileAccess', { detail }), cb);
         }
     return false;
 }
@@ -251,7 +254,7 @@ async function getBTFile() {
         return await gDriveFileManager.getBTFile();
     if (LocalFileConnected)
         return await localFileManager.getBTFile();
-    alert("No file connected");
+    alert(t('alertNoFile'));
     return "";
 }
 
@@ -263,7 +266,7 @@ function stopSyncing() {
     setProp('BTBackupsOn', false);
     localFileManager.reset();
     updateSyncSettings();
-    alert('Sync has been disabled. See Settings to re-enable.');
+    alert(t('alertSyncDisabled'));
 }
 
 
@@ -278,14 +281,14 @@ async function initiateBackups(setOn = true) {
     // Call out to local or gdrive file managers to create or find BT-Backups folder
     console.log('creating backups');
     if (!LocalFileConnected) {
-        alert('Local File syncing is required to create backups');
+        alert(t('alertBackupsNeedLocal'));
         return false;
     }
     if (setOn) {
         await localFileManager.initiateBackups(setOn);
         saveBT();                   // Save version to show a backup file and avoid confusion
     } else
-        alert('Backups are off');
+        alert(t('alertBackupsOff'));
         return true;
 }
 async function performBackups(BtFileVersion) {
@@ -385,10 +388,10 @@ function updateStatsRow(modifiedTime = null) {
     const saveTime = getDateString(modifiedTime);
 
     // update Footer. take account of single column mode
-    const saveInfo = $("#content").hasClass('compactMode') ? `${saveTime}` : `Last saved ${saveTime}`;
-    const openInfo = $("#content").hasClass('compactMode') ? '' : `(${numOpenLinks} open)`;
+    const saveInfo = $("#content").hasClass('compactMode') ? `${saveTime}` : t('lastSavedAt', { time: saveTime });
+    const openInfo = $("#content").hasClass('compactMode') ? '' : t('openCount', { n: numOpenLinks });
     $("#footerSavedInfo").html(saveInfo);
-    $("#footerItemInfo").text(`${numTopics} Topics, ${numLinks} pages`);
+    $("#footerItemInfo").text(t('topicsPages', { topics: numTopics, pages: numLinks }));
     $("#footerOpenInfo").html(openInfo);
 
     if (GDriveConnected) {                                  // set save icon to GDrive, not fileSave
@@ -406,17 +409,17 @@ async function updateSyncSettings(connected = false, time = null) {
         $("#settingsSync").hide();
         $("#settingsSyncStatus").show();
         $("#actionsSyncStatus").show();
-        const filetype = GDriveConnected ? 'GDrive' : 'Local File';
-        $("#autoSaveLabel").text(`${filetype} sync is on.`);
+        const filetype = GDriveConnected ? t('gdrive') : t('localFile');
+        $("#autoSaveLabel").text(t('syncIsOn', { type: filetype }));
         if (GDriveConnected) {
-            $("#fileLocation").html(`File: ${"https://drive.google.com/file/d/" + getProp('BTFileID')}`);
+            $("#fileLocation").html(t('fileLabel', { path: "https://drive.google.com/file/d/" + getProp('BTFileID') }));
             getProp('BTFileID') && $("#fileLocation").show();
         } else {
             let handle = await localFileManager.getLocalDirectoryHandle();
-            $("#fileLocation").html(`Folder: ${handle.name}`);
+            $("#fileLocation").html(t('folderLabel', { name: handle.name }));
             $("#fileLocation").show();
         }
-        $("#syncType").text(filetype);
+        $("#syncType").text(t('syncEnabled', { type: filetype }));
         updateStatsRow(time);                                           // last saved time etc
     }  else {
         // remote sync turned off
@@ -467,7 +470,7 @@ async function loadOrgFile(url) {
         insertOrgFile("Import", btdata);
     } else {            
         $('body').removeClass('waiting');
-        alert('Error loading Topic file');
+        alert(t('alertErrorLoading'));
     }
     return;
 }

@@ -28,6 +28,7 @@ import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
 import { initializeUI, scheduleOpenStateReconcile } from './tableManager.js';
 import { hideSessionTree } from './sessionManager.js';
+import { t } from './i18n.js';
 
 function getAllowedActions(node) {
     if (!node || typeof node.allowedRowActions !== 'function') return {};
@@ -75,16 +76,16 @@ function buttonShow(e) {
     if (!node || node.trashed) return;          // don't allow operations on deleted nodes
     const actions = getAllowedActions(node);
     if (node.isTrash())
-        $('#deleteRow').parent().attr('data-wenk', 'Empty Trash');
+        $('#deleteRow').parent().attr('data-wenk', t('emptyTrash'));
     else
-        $('#deleteRow').parent().attr('data-wenk', 'Delete item (del)');
+        $('#deleteRow').parent().attr('data-wenk', t('deleteItem'));
 
     // The session root shows only the delete tool (CSS hides the rest); delete closes the view.
     // NB coerce to a real boolean: node.isSessionNode is undefined (not false) on app nodes, and
     // jQuery toggleClass toggles rather than removes when the 2nd arg isn't a strict boolean.
     const isSessionRoot = !!(node.isSessionNode && node.sessionType === SessionNodeType.ROOT);
     $("#buttonRow").toggleClass('sessionRootOnly', isSessionRoot);
-    if (isSessionRoot) $('#deleteRow').parent().attr('data-wenk', 'Close session view');
+    if (isSessionRoot) $('#deleteRow').parent().attr('data-wenk', t('closeSessionView'));
 
     // Check if this is an unsaved session node (ROOT, WINDOW, or non-topic not in tree)
     const isUnsaved = node.isSessionNode && (
@@ -153,7 +154,7 @@ function toggleMoreButtons(e) {
     $("#otherButtons").toggle(100, 'easeInCirc', () => {
         $("#tools").toggleClass('moreToolsOn');
         let moreToolsOn = $("#tools").hasClass('moreToolsOn');
-        let hint = moreToolsOn ? "Fewer Tools" : "More Tools";
+        let hint = moreToolsOn ? t('fewerTools') : t('moreTools');
         $("#moreToolsSpan").attr('data-wenk', hint);
         setProp('BTMoreToolsOn', moreToolsOn ? 'ON' : 'OFF');
     });
@@ -284,7 +285,7 @@ function openRow(e, newWin = false) {
     // Warn if opening lots of stuff
     const numTabs = appNode.countOpenableTabs();
     if (numTabs > 10)
-        if (!confirm(`Open ${numTabs} tabs?`))
+        if (!confirm(t('confirmOpenTabs', { n: numTabs })))
             return;
 
     if (appNode.isTopic()) {
@@ -343,7 +344,7 @@ function deleteRow(e) {
     }
 
     // If children nodes ask for confirmation
-    if (!kids || confirm('Delete whole subtree?')) {
+    if (!kids || confirm(t('confirmDeleteSubtree'))) {
         // Remove from UI and treetable
         deleteNode(appNode.id);
     }
@@ -643,41 +644,41 @@ function generateButtonRowHTML() {
     const html = `
     <div id="buttonRow" style="display: none;">
         <span id="otherButtons" style="display: none;">
-            <span data-wenk="Delete item (del)" class="wenk--left">
+            <span data-wenk="${t('deleteItem')}" class="wenk--left">
                 <img id="deleteRow" src="resources/delete.svg" class="rowButton">
             </span>
-            <span data-wenk="ToDo (t)" class="wenk--left">
+            <span data-wenk="${t('todoStar')}" class="wenk--left">
                 <img id="star" src="resources/star.svg" class="rowButton">
             </span>
-            <span data-wenk="Drag to move (m-&uarr;&darr;)" class="wenk--left">
+            <span data-wenk="${t('dragMove')}" class="wenk--left">
                 <img id="move" src="resources/drag.svg" class="rowButton"
                      style="cursor: move;">
             </span>
-            <span data-wenk="Promote up hierarchy" class="wenk--left">
+            <span data-wenk="${t('promoteUp')}" class="wenk--left">
                 <img id="outdent" src="resources/outdent.svg" class="rowButton">
             </span>
-            <span data-wenk="Add child topic (m-enter)" class="wenk--left">
+            <span data-wenk="${t('addChildTopic')}" class="wenk--left">
                 <img id="addChild" src="resources/addSubtopic.svg" class="rowButton">
             </span>
-            <span data-wenk="Edit item (e)" class="wenk--left">
+            <span data-wenk="${t('editItem')}" class="wenk--left">
                 <img id="editRow" src="resources/edit.svg" class="rowButton">
             </span>
-            <span data-wenk="Open in new window (w)" class="wenk--left">
+            <span data-wenk="${t('openNewWindow')}" class="wenk--left">
                 <img id="openWindow" src="resources/openWindow.svg" class="rowButton">
             </span>
         </span>
         <span id="basebuttons">      
-            <span data-wenk="Open/show in browser (space)" class="wenk--left">  
+            <span data-wenk="${t('openShow')}" class="wenk--left">  
                 <img id="openTab" alt="Open"
                      src="resources/openTab.svg" class="rowButton openClose">
             </span>
             
-            <span data-wenk="Close in browser (enter)" class="wenk--left">
-                <img id="closeRow" alt="Close" class="rowButton openClose" 
+            <span data-wenk="${t('closeBrowser')}" class="wenk--left">
+                <img id="closeRow" alt="${t('close')}" class="rowButton openClose" 
                      src="resources/closeItem.svg" height="28" width="26" >
             </span>
             
-            <span data-wenk="More tools" class="wenk--left" id="moreToolsSpan">
+            <span data-wenk="${t('moreTools')}" class="wenk--left" id="moreToolsSpan">
                 <img id="tools" src="resources/toolsOpen.svg" class="rowButton"
                      height="28" width="26">
             </span>

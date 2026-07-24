@@ -21,86 +21,86 @@
     <div id="welcome">
       <div class="topBanner" id="slideHeader">
         <img id="headerImage" src="resources/headerImage.png"/>
-        <div id="introTitle">&nbsp;&nbsp;Welcome to BrainTool&nbsp;</div>
+        <div id="introTitle" data-i18n="welcomeTitle">&nbsp;&nbsp;Welcome to BrainTool&nbsp;</div>
       </div>
-      <p id="welcomeMessage">
+      <p id="welcomeMessage" data-i18n-html="welcomeMessage">
       To get you started I'm going to:<br/>
 	    - Open the Topic Manager on the left of this window.<br/>
 	    - Nudge this window right to make sure the Topic Manager is visible.<br/>
 	    - Open a tab to the Welcome page with new user information.<br/>
       </p>
-      <p id="openingMessage">
+      <p id="openingMessage" data-i18n="openingMessage">
         Opening the BrainTool Topic Manager at its previously saved location...
       </p>
-      <p id="upgradeMessage">
+      <p id="upgradeMessage" data-i18n-html="upgradeMessage">
         <b>Upgrading to BrainTool <span id="upgradeVersion"></span>. <br/>Please re-open the Topic Manager. <br/>Release Notes will open if necessary, after restart.</b>
       </p>
-      <p id="sidepanelMessage">
+      <p id="sidepanelMessage" data-i18n-html="sidepanelMessage">
         <b>Open BrainTool in the sidepanel?</b>
       </p>
       <img id="introImage" src="resources/intro.png" width="400"/>
       <img id="openingImage" src="resources/openingTransparent.png"/>
-      <button id="okButton">OK</button>
+      <button id="okButton" data-i18n="ok">OK</button>
     </div>
 
     <div id="saver" style="display:none">
       <div id="header">
-        <h1>BrainTool Bookmarker</h1>
+        <h1 data-i18n="bookmarkerTitle">BrainTool Bookmarker</h1>
       </div>
       <div id="warning">
-        <h2>Warning! <br/>Synced BrainTool file has newer data. <br/>Refresh from the Topic Manager before saving.</h2>
+        <h2 data-i18n-html="warningStale">Warning! <br/>Synced BrainTool file has newer data. <br/>Refresh from the Topic Manager before saving.</h2>
       </div>
-      <h2 class="onePage" id="title">Page Title</h2>
-      <h2 id="saveAs">Note this will save as a new page.</h2>
-      <h2 class="allPages tgPages">Multiple Pages</h2>
+      <h2 class="onePage" id="title" data-i18n="pageTitle">Page Title</h2>
+      <h2 id="saveAs" data-i18n="saveAsNew">Note this will save as a new page.</h2>
+      <h2 class="allPages tgPages" data-i18n="multiplePages">Multiple Pages</h2>
       
       <div id="saveCheckboxes">
         <hr style="margin-left: -11px;"/>
         <span id="saveSpan">
           <input type="checkbox" id="saveTab" name="saveTab" checked>
-          <label for="saveTab">Save Tab</label>
+          <label for="saveTab" data-i18n="saveTab">Save Tab</label>
         </span>
         <span id="saveWindowSpan">
           <input type="checkbox" id="saveWindow" name="saveWindow">
-          <label for="saveWindow">Save Window</label>
+          <label for="saveWindow" data-i18n="saveWindow">Save Window</label>
         </span>
         <span id="saveTGSpan">
           <input type="checkbox" id="saveTG" name="saveTG">
-          <label for="saveTG">Save TabGroup</label>
+          <label for="saveTG" data-i18n="saveTabGroup">Save TabGroup</label>
         </span>
         <span id="saveSession">
           <input type="checkbox" id="saveAllSession" name="saveAllSession">
-          <label for="saveAllSession">Save Session</label>
+          <label for="saveAllSession" data-i18n="saveSession">Save Session</label>
         </span>
-        <div id="saveHint" class="hint hintText allPages">Pinned or already-saved tabs are not saved</div>
+        <div id="saveHint" class="hint hintText allPages" data-i18n="saveHint">Pinned or already-saved tabs are not saved</div>
       </div>
       <hr/>
       
       <div id="topicSelector">
-        <h3 class="onePage">Topic to save the page under:</h3>
-        <h3 class="allPages">Topic to save pages to:</h3>
-        <h3 class="tgPages">Optional parent Topic to save tabs in "<span id="tgName">TG</span>" to:</h3>
+        <h3 class="onePage" data-i18n="topicSaveUnder">Topic to save the page under:</h3>
+        <h3 class="allPages" data-i18n="topicSavePages">Topic to save pages to:</h3>
+        <h3 class="tgPages" id="topicSaveTgHeading">Optional parent Topic to save tabs in "<span id="tgName">TG</span>" to:</h3>
         <div class="hint">
-          <span id="newTopicHint" class="hintText">Select from below, type for autocomplete, or leave blank</span>
+          <span id="newTopicHint" class="hintText" data-i18n="newTopicHint">Select from below, type for autocomplete, or leave blank</span>
         </div>
         <input type="text" id="topic" autofocus>
-        <h3>Topic tree:</h3>
+        <h3 data-i18n="topicTree">Topic tree:</h3>
         <div id="currentTopics"></div>
       </div>
       
       <div id="editCard" class="onePage">
-        <h3>Page title:</h3>
+        <h3 data-i18n="pageTitleLabel">Page title:</h3>
         <input type="text" id="titleInput" class="inactive" tabindex="1" value='title'>
-        <h3>Note:</h3>
+        <h3 data-i18n="noteLabel">Note:</h3>
         <div class="hint">
-          <span id="newNoteHint" class="hintText">Add a note or just hit enter to save</span>
+          <span id="newNoteHint" class="hintText" data-i18n="newNoteHint">Add a note or just hit enter to save</span>
         </div>        
         <textarea id="note" tabindex="2"></textarea>
       </div>
       
       <div id="buttonDiv">
-        <button id="saveAndClose" tabindex="3" class="activeButton">Save and close</button>
-        <button id="saveAndGroup" tabindex="4">Save</button>
+        <button id="saveAndClose" tabindex="3" class="activeButton" data-i18n="saveAndClose">Save and close</button>
+        <button id="saveAndGroup" tabindex="4" data-i18n="save">Save</button>
       </div>
     </div>
 
