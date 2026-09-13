@@ -1143,6 +1143,39 @@ body.waiting * {
     line-height: 11px;
     color: var(--btColor);
 }
+
+/* Keep research sharing reachable above the fixed footer, including in the
+   extension's narrow side-panel iframe. The controls scroll within the panel. */
+body:has(#webmcp-research) {
+    padding-bottom: 80px;
+}
+#webmcp-research {
+    position: fixed;
+    bottom: 34px;
+    right: 8px;
+    width: min(26rem, calc(100% - 16px));
+    box-sizing: border-box;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    z-index: 4;
+    padding: 8px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    color: var(--btColor);
+    background: var(--btEmptyBackground);
+    font: 14px Roboto, sans-serif;
+}
+#webmcp-research summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+#webmcp-research select {
+    width: 100%;
+    margin-bottom: 8px;
+}
+#webmcp-research button {
+    margin: 3px;
+}
 #footerSavedIcon {
     position: absolute;
     width: 16px;

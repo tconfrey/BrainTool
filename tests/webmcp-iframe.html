@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>BrainTool cross-origin WebMCP fixture</title>
+<h1>Cross-origin permission check</h1>
+<p>Serve this page on localhost:8768. Both frames contain synthetic data only.
+This is a web iframe test, not proof of an extension side panel.</p>
+<h2>Without delegated tools permission</h2>
+<iframe title="Without delegation" src="http://127.0.0.1:8768/tests/webmcp-browser.html" width="900" height="400"></iframe>
+<h2>With permission limited to the frame source</h2>
+<iframe title="With delegation" allow="tools 'src'" src="http://127.0.0.1:8768/tests/webmcp-browser.html" width="900" height="400"></iframe>
+</html>
