@@ -4,7 +4,8 @@
   "description": "Dev-only tooling for BrainTool. Not used by the extension or app at runtime.",
   "type": "module",
   "scripts": {
-    "lint": "eslint app extension utilities"
+    "lint": "eslint app extension utilities",
+    "test:webmcp": "node --test tests/webmcpResearch.test.js tests/webmcpTools.test.js tests/webmcpUI.test.js tests/researchCoverage.test.js"
   },
   "devDependencies": {
     "eslint": "^9.19.0"

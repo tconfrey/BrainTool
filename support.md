@@ -12,6 +12,7 @@ audience: user
 - Here's a [playlist of short videos](https://youtu.be/g_843PjL8s8?list=PLhaw8BE1kin0CQFuDXrWsdC6Nzhyo9dix). They walk through the complete set of BrainTool features (note that the first one is more of an ad).
 - You can post to the [BrainTool Discussion Group](https://groups.google.com/u/2/g/braintool-discussion) with feedback or questions.
 - There's also the [Welcome](/support/welcome) page and the [Release Notes](/support/releaseNotes).
+- The [Agent Research Access](/support/webmcp) page explains how to share one saved research topic with a compatible browser agent.
 - And some other relevant stuff on the [blog](/posts.html).
 
 # Common BrainTool Problems

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>BrainTool WebMCP research fixture</title>
+<link rel="stylesheet" href="../app/bt.css">
+<h1>BrainTool WebMCP research fixture</h1>
+<p>Synthetic saved data using the real BTNode model. No personal BrainTool data is loaded.</p>
+<button id="discover">Discover native tools</button>
+<button id="invoke">Invoke native list tool</button>
+<label><input type="checkbox" id="legacy"> Use serialized arguments (older browser API)</label>
+<button id="edit">Change saved evidence</button>
+<pre id="result" role="status">Enable a research topic below, then discover the tools.</pre>
+<div id="footer">Fixed footer layout test</div>
+<script type="module">
+import {BTNode} from '../app/BTNode.js';
+const root = new BTNode('Research fixture');
+const evidence = new BTNode('Evidence', root.id);
+const source = new BTNode('[[https://example.org/source][Primary source]]', evidence.id);
+source.text = 'A saved claim, not fetched page content.';
+new BTNode('Private fixture outside scope');
+await import('../app/webmcpUI.js');
+const result = document.querySelector('#result');
+let tools = [];
+document.querySelector('#discover').onclick = async () => {
+    try {
+        tools = await document.modelContext.getTools();
+        result.textContent = JSON.stringify(tools.map(({name, description}) => ({name, description})), null, 2);
+    } catch (error) { result.textContent = `Native discovery unavailable: ${error.message}`; }
+};
+document.querySelector('#invoke').onclick = async () => {
+    try {
+        const tool = tools.find(tool => tool.name === 'braintool_list_topics');
+        if (!tool) throw new Error('Discover the registered list tool first');
+        const args = document.querySelector('#legacy').checked ? JSON.stringify({limit: 10}) : {limit: 10};
+        result.textContent = JSON.stringify(await document.modelContext.executeTool(tool, args), null, 2);
+    } catch (error) { result.textContent = `Native invocation unavailable: ${error.message}`; }
+};
+document.querySelector('#edit').onclick = () => { source.text += ' Changed.'; result.textContent = 'Evidence changed; old scope must reject its next invocation.'; };
+</script></html>
