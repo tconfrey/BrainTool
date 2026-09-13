@@ -18,23 +18,40 @@ class Element {
 }
 
 let sequence = 0;
-async function setup(t, modelContext) {
+async function setup(t, modelContext, embedded = false) {
     const previousDocument = globalThis.document, previousWindow = globalThis.window;
+    const previousLocation = globalThis.location;
     const elements = [];
     globalThis.document = {modelContext, body: new Element(), createElement: () => {
         const element = new Element(); elements.push(element); return element;
     }};
     globalThis.window = new Element();
+    globalThis.window.self = globalThis.window;
+    globalThis.window.top = embedded ? new Element() : globalThis.window;
+    globalThis.location = {href: 'http://localhost:8768/app/'};
     AllNodes.length = 0;
     new BTNode('Research');
     t.after(() => {
         globalThis.document = previousDocument;
         globalThis.window = previousWindow;
+        globalThis.location = previousLocation;
     });
     await import(`../app/webmcpUI.js?test=${++sequence}`);
     return {find: label => elements.find(e => e.textContent === label), window: globalThis.window,
         select: elements.find(e => e['aria-label']), status: elements.find(e => e.role === 'status')};
 }
+
+test('embedded Topic Manager directs agents to an explicit tab surface', async t => {
+    let registrations = 0;
+    const ui = await setup(t, {registerTool: async () => { registrations++; }}, true);
+    const link = ui.find('Open Topic Manager for agent access');
+    assert.ok(link);
+    assert.equal(link.href, 'http://localhost:8768/app/');
+    assert.equal(link.target, '_blank');
+    assert.equal(link.rel, 'noopener');
+    assert.equal(ui.find('Enable read access'), undefined);
+    assert.equal(registrations, 0);
+});
 
 test('unavailable native API leaves sharing disabled and topics inspectable', async t => {
     const ui = await setup(t, undefined);

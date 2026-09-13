@@ -41,6 +41,25 @@ audience: landingpage
         <img src="/site/pageAssets/controlYourBrowserStatic.jpg" class="landing-image" alt="Autocomplete topics">
     </div>
 </div>
+<div class="row agent-research-row">
+    <div class="cell text">
+        <h1 class="landing-header">Research with your browser agent</h1>
+        <h3>
+            Keep your topics, links and notes organized in BrainTool.<br/>
+            Share one chosen research branch with a compatible agent when you need help exploring it.
+        </h3>
+        <p><a class="agent-research-link" href="/support/webmcp.html">How agent access works</a></p>
+    </div>
+    <div class="cell image agent-research-steps" aria-label="BrainTool agent access workflow">
+        <ol>
+            <li><strong>Organize</strong> your sources in the BrainTool side panel.</li>
+            <li><strong>Open</strong> Topic Manager in a regular browser tab.</li>
+            <li><strong>Choose</strong> one topic and enable read-only research access.</li>
+            <li><strong>Ask</strong> your browser agent to find the Topic Manager tab.</li>
+        </ol>
+        <p>The agent runs separately from BrainTool. You choose what it can read and can revoke access at any time.</p>
+    </div>
+</div>
 <div class="row" style="background: #4b4b4b">
   <div class="cell image">
     <img src="/media/ZDNet.png" class="landing-image" id="ZDNet" >

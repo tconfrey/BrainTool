@@ -597,3 +597,42 @@ small {
     width: 250px;
   }
 }
+.agent-research-row {
+  box-sizing: border-box;
+  background: #eef8ed;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+.agent-research-link {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 5px;
+  background: #0eaa00;
+  color: white;
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: 400;
+}
+.agent-research-link:hover {
+  background: #0c9200;
+  color: white;
+  text-decoration: none;
+}
+.agent-research-steps {
+  box-sizing: border-box;
+  padding: 22px 8%;
+}
+.agent-research-steps ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #4b5559;
+  font-family: Roboto;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.agent-research-steps p {
+  color: #606c71;
+  font-family: Roboto;
+  font-size: 14px;
+  line-height: 1.4;
+}

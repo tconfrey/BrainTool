@@ -1176,6 +1176,11 @@ body:has(#webmcp-research) {
 #webmcp-research button {
     margin: 3px;
 }
+#webmcp-research a {
+    display: inline-block;
+    margin: 4px 0;
+    font-weight: 600;
+}
 #footerSavedIcon {
     position: absolute;
     width: 16px;
