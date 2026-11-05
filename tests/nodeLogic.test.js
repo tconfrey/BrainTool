@@ -31,6 +31,7 @@ function resetModel() {
     AllNodes.length = 0;                      // AllNodes is an exported var binding: empty it, can't reassign
     BTNode.topIndex = 1;
     BTNode.undoStack = [];
+    BTNode.undoIndices = [];
     Topics.length = 0;
     BTAppNode.searchNodesToRedisplay.clear();
     BTAppNode.displayOrder = {};
@@ -226,9 +227,9 @@ QUnit.module('BTNode: title and URL parsing', function () {
         assert.strictEqual(plain.replaceURLandTitle('https://b.com', 'B'), 'Plain', 'no link => unchanged');
     });
 
-    QUnit.todo('BUG replaceURLandTitle keeps text after the link', function (assert) {
-        // BTNode.js:227 - trailing (.*?) is lazy and unanchored so it always matches '',
-        // and the rebuilt title drops everything after the link. Today: 'Pre [[https://b.com][B]]'
+    QUnit.test('replaceURLandTitle keeps text after the link', function (assert) {
+        // Was bug 1: the trailing (.*?) was lazy and unanchored so it always matched '', and the
+        // rebuilt title dropped everything after the link.
         const n = new BTNode('Pre [[https://a.com][A]] post');
         assert.strictEqual(n.replaceURLandTitle('https://b.com', 'B'), 'Pre [[https://b.com][B]] post');
     });
@@ -379,10 +380,9 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.notOk(new BTNode('Lonely')._hasWebLinks(), 'childless, no URL');
     });
 
-    QUnit.todo('BUG _hasWebLinks is false for a subtree with no URLs', function (assert) {
-        // BTNode.js:144 (and :149 in isTopic) pass AllNodes[id]._hasWebLinks - the method itself,
-        // always truthy - to some() instead of calling it. So any node with any child "has web
-        // links", and in isTopic any URL node with any child (eg a plain note) becomes a topic.
+    QUnit.test('_hasWebLinks is false for a subtree with no URLs', function (assert) {
+        // Was bug 2: _hasWebLinks and isTopic passed the method itself (always truthy) to some()
+        // instead of calling it, so any URL node with any child (eg a plain note) was a topic.
         const p = new BTNode('Parent');
         new BTNode('plain child', p.id);
         assert.notOk(p._hasWebLinks());
@@ -458,10 +458,9 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.strictEqual(s.topicPath, '');
     });
 
-    QUnit.todo('BUG generateUniqueTopicPaths: duplicate top-level names both get a path', function (assert) {
-        // Two top-level topics with the same name can't be qualified by a parent, so the loop
-        // at BTNode.js:362 spins to level 99 and only the first id in the bucket gets a path
-        // (BTNode.js:390). Today the second keeps topicPath '' and shows up in Topics as ''.
+    QUnit.test('generateUniqueTopicPaths: duplicate top-level names both get a path', function (assert) {
+        // Was bug 3: two top-level topics with the same name can't be qualified by a parent, and
+        // only the first id in the bucket got a path; the second kept '' and showed up in Topics.
         const a = topic('Dup');
         const b = topic('Dup');
         BTNode.generateUniqueTopicPaths();
@@ -470,16 +469,17 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.notStrictEqual(a.topicPath, b.topicPath, 'and they differ');
     });
 
-    QUnit.todo('BUG generateUniqueTopicPaths: parentless non-topic does not throw', function (assert) {
-        // BTNode.js:351 calls topicName() on every node before checking isTopic; for a
-        // non-topic with no parent topicName() dereferences AllNodes[null] and throws. The
-        // fallback for exactly this case at BTNode.js:400 is therefore unreachable.
+    QUnit.test('generateUniqueTopicPaths: parentless non-topic does not throw', function (assert) {
+        // Was bug 4: topicName() was called on every node before checking isTopic; for a
+        // non-topic with no parent it dereferenced AllNodes[null] and threw, so the fallback
+        // for exactly this case was unreachable.
         // (BTAppNode level-1 nodes are always topics, so this needs a level>1 parentless node,
         // eg a link whose parent was deleted out from under it.)
         new BTAppNode('[[https://a.com][Stray]]', null, '', 2);
         let threw = false;
         try { BTNode.generateUniqueTopicPaths(); } catch { threw = true; }
         assert.notOk(threw);
+        assert.strictEqual(AllNodes.find(n => n)?.topicPath, 'Stray', 'falls back to the link label');
     });
 });
 
@@ -530,17 +530,15 @@ QUnit.module('BTNode: moves', function () {
         assert.throws(() => a.reparentNode(a.id), /setting self to parent/);
     });
 
-    QUnit.todo('BUG reparentNode with the default index appends to the new parent', function (assert) {
-        // index defaults to -1 (BTNode.js:166) and is passed to addChild -> splice(-1, 0, id),
-        // which inserts *before the last* child, not at the end. Same for the same-parent case
-        // (arrayMoveElt to -1). Hit by rowManager.promote, delete-to-trash (rowManager.js:411)
-        // and sessionManager reparents, so model order drifts from the displayed order.
+    QUnit.test('reparentNode with the default index appends to the new parent', function (assert) {
+        // Was bug 5: the default index -1 became splice(-1, 0, id), inserting *before the last*
+        // child, so model order drifted from the displayed order.
         const p = new BTNode('P');
         const x = new BTNode('X', p.id);
         const y = new BTNode('Y', p.id);
         const a = new BTNode('A');
         a.reparentNode(p.id);
-        assert.deepEqual(p.childIds, [x.id, y.id, a.id]);          // today: [x, a, y]
+        assert.deepEqual(p.childIds, [x.id, y.id, a.id]);
         x.reparentNode(p.id);
         assert.deepEqual(p.childIds, [y.id, a.id, x.id], 'same parent, default index => last');
     });
@@ -595,9 +593,9 @@ QUnit.module('BTNode: delete and undo', function () {
         assert.strictEqual(AllNodes[a.id], a);
     });
 
-    QUnit.todo('BUG undoDelete puts the node back at its original position', function (assert) {
-        // undoDelete calls addChild(id) with no index (BTNode.js:327) which inserts at the front,
-        // so a restored node always becomes its parent's first child. Today: [b, x, y].
+    QUnit.test('undoDelete puts the node back at its original position', function (assert) {
+        // Was bug 6: undoDelete called addChild(id) with no index, which inserts at the front,
+        // so a restored node always became its parent's first child.
         const p = new BTNode('P');
         const x = new BTNode('X', p.id);
         const b = new BTNode('B', p.id);
@@ -605,6 +603,13 @@ QUnit.module('BTNode: delete and undo', function () {
         BTNode.deleteNode(b.id);
         BTNode.undoDelete();
         assert.deepEqual(p.childIds, [x.id, b.id, y.id]);
+        const c1 = new BTNode('C1', b.id);
+        const c2 = new BTNode('C2', b.id);
+        const c3 = new BTNode('C3', b.id);
+        BTNode.deleteNode(b.id);
+        BTNode.undoDelete();
+        assert.deepEqual(p.childIds, [x.id, b.id, y.id], 'again, with a subtree');
+        assert.deepEqual(b.childIds, [c1.id, c2.id, c3.id], 'subtree order preserved');
     });
 });
 
@@ -1029,6 +1034,17 @@ QUnit.module('BTAppNode: topics and Topics', function () {
         assert.strictEqual(n.newTopNodeId, n.id);
     });
 
+    QUnit.test('findOrCreateFromTopicDN: resolves a numbered duplicate topicPath', function (assert) {
+        initTreeTable();
+        const a = topic('Dup');
+        const b = topic('Dup');
+        a.createDisplayNode(); b.createDisplayNode();
+        BTNode.generateUniqueTopicPaths();
+        assert.strictEqual(BTAppNode.findOrCreateFromTopicDN(a.topicPath), a);
+        assert.strictEqual(BTAppNode.findOrCreateFromTopicDN(b.topicPath), b, 'second Dup, not a new topic');
+        assert.strictEqual(AllNodes.filter(Boolean).length, 2);
+    });
+
     QUnit.test('findOrCreateFromTopicDN: first segment matches a topic anywhere (topicPaths are not full paths)', function (assert) {
         initTreeTable();
         const home = topic('Home');
@@ -1083,11 +1099,8 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.strictEqual(t.orgDrawers(), '', 'empty PROPERTIES drawer omitted');
     });
 
-    QUnit.todo('BUG orgDrawers adds a space before every property value on each save', function (assert) {
-        // The regex at BTAppNode.js:913 captures the value *with* its leading space (:(.*)$) and
-        // :926 writes ': ' + value. orga keeps drawer values verbatim (checked: ':ID:  abc' parses
-        // back as ':ID:  abc'), so every save/load cycle adds one more space to every property.
-        // Today: '  :ID:  abc'.
+    QUnit.test('orgDrawers does not add a space before property values on each save', function (assert) {
+        // Was bug 9 (each save added a space before every value); fixed in PR #54.
         const t = topic('T');
         t.drawers = { PROPERTIES: ':ID: abc' };
         assert.strictEqual(t.orgDrawers(), '  :PROPERTIES:\n  :ID: abc\n  :END:\n');
@@ -1105,10 +1118,9 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.ok(s.orgDrawers().includes(':VISIBILITY: folded'));
     });
 
-    QUnit.todo('BUG orgDrawers: folded node with an existing PROPERTIES drawer keeps its folded state', function (assert) {
-        // The fallback at BTAppNode.js:931 only adds VISIBILITY when there is no PROPERTIES drawer;
-        // the drawer loop only writes VISIBILITY if the drawer already had one. So folding a node
-        // whose drawer has eg only :ID: loses the fold on save. Today: no VISIBILITY line.
+    QUnit.test('orgDrawers: folded node with an existing PROPERTIES drawer keeps its folded state', function (assert) {
+        // Was bug 10: VISIBILITY was only written if the drawer already had one, or if there was
+        // no PROPERTIES drawer at all, so folding a node whose drawer had eg only :ID: was lost.
         const t = topic('T');
         topic('child', t);
         t.drawers = { PROPERTIES: ':ID: abc' };
@@ -1116,9 +1128,9 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.ok(t.orgDrawers().includes(':VISIBILITY: folded'));
     });
 
-    QUnit.todo('BUG orgDrawers: non-property drawer content is kept', function (assert) {
-        // Drawer lines are re-emitted only if they match /:prop: value/ (BTAppNode.js:913/926), so
-        // eg a LOGBOOK's '- State "DONE" from "TODO" [...]' lines are silently dropped on save.
+    QUnit.test('orgDrawers: non-property drawer content is kept', function (assert) {
+        // Was bug 11: only /:prop: value/ lines were re-emitted, so eg a LOGBOOK's
+        // '- State "DONE" from "TODO" [...]' lines were silently dropped on save.
         const t = topic('T');
         t.drawers = { LOGBOOK: '- State "DONE"       from "TODO"       [2024-01-01 Mon 10:00]' };
         assert.ok(t.orgDrawers().includes('- State "DONE"'));
@@ -1195,12 +1207,14 @@ QUnit.module('BTAppNode: search helpers (model side)', function () {
         assert.strictEqual(h('see [[id:123][Other]]'), "see <span class='file-link'>Other</span>", 'org id links are not hrefs');
     });
 
-    QUnit.todo('BUG _orgTextToHTML converts every link, not just the first', function (assert) {
-        // BTAppNode.js:1014 runs reg.exec once, so in notes (displayText) only the first link
-        // becomes an <a>; later ones show as raw [[url][label]]. The old tests/test.js
-        // "_orgTextToHTML" case expects both converted.
+    QUnit.test('_orgTextToHTML converts every link, not just the first', function (assert) {
+        // Was bug 12: reg.exec ran once, so in notes (displayText) only the first link became
+        // an <a>; later ones showed as raw [[url][label]].
         const out = BTAppNode._orgTextToHTML('[[http://a.com][A]] and [[http://b.com][B]]');
         assert.notOk(out.includes('[['), out);
+        assert.strictEqual(BTAppNode._orgTextToHTML('[[http://a.com][A]] and [[http://b.com][B]]', 'KW '),
+            "<a href='http://a.com' class='btlink'><span class='btTitleText'>KW A</span></a> and " +
+            "<a href='http://b.com' class='btlink'><span class='btTitleText'>B</span></a>", 'keyword only in the first');
     });
 
     QUnit.test('escapeRegExp', function (assert) {
@@ -1498,17 +1512,19 @@ QUnit.module('BTAppNode: handleNodeMove and levels', function () {
         assert.strictEqual(calls.length, 0);
     });
 
-    QUnit.todo('BUG handleNodeMove of an open top-level node does not throw', function (assert) {
-        // A top-level topic can have a URL and an open tab. Moving it under another topic
-        // reaches BTAppNode.js:1156 with oldParent undefined: !undefined?.hasOpenChildren()
-        // is true, then oldParent.setTGColor(null) throws TypeError. (newParent is also
-        // dereferenced unguarded at :1142 when moving an open node to top level.)
+    QUnit.test('handleNodeMove of an open top-level node does not throw', function (assert) {
+        // Was bug 8: with oldParent undefined, oldParent.setTGColor(null) threw TypeError.
+        // (newParent was also dereferenced unguarded when moving an open node to top level.)
         const lt = link('https://a.com', 'Link topic', null);
         Object.assign(lt, { tabId: 10, windowId: 1 });
         const p = topic('P');
         let threw = false;
         try { lt.handleNodeMove(p.id, 0, true); } catch { threw = true; }
         assert.notOk(threw);
+        threw = false;
+        try { lt.handleNodeMove(null, -1, true); } catch { threw = true; }
+        assert.notOk(threw, 'and back to top level');
+        assert.strictEqual(lt.level, 1);
     });
 
     QUnit.test('resetLevel cascades when rows are displayed', function (assert) {
@@ -1522,11 +1538,9 @@ QUnit.module('BTAppNode: handleNodeMove and levels', function () {
         assert.ok($(l.getDisplayNode()).find('span.indenter').attr('style').includes('* 1)'), 'indent updated');
     });
 
-    QUnit.todo('BUG resetLevel cascades to descendants without a display row', function (assert) {
-        // BTAppNode.js:153-156 return before the child loop when the node has no row/indenter,
-        // so descendants keep their old level - and level is the org '*' count, so a move of a
-        // not-yet-rendered subtree (eg via handleNodeMove from a browser event) writes the
-        // wrong outline depth. Today: l.level stays 3.
+    QUnit.test('resetLevel cascades to descendants without a display row', function (assert) {
+        // Was bug 7: resetLevel returned before the child loop when the node had no row, so a
+        // moved, unrendered subtree kept its old levels (== org '*' depth).
         const t = topic('T');
         const s = topic('S', t);
         const l = link('https://a.com', 'A', s);

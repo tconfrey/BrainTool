@@ -10,7 +10,7 @@
       The import map swaps BTAppNode's app dependencies for the recording stubs in tests/stubs/,
       so nothing here talks to the extension, IndexedDB, GDrive or the real file manager.
     -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qunit@2.22.0/qunit/qunit.css">
+    <link rel="stylesheet" href="../node_modules/qunit/qunit/qunit.css" />
     <script type="importmap">
       {
         "imports": {
@@ -23,9 +23,9 @@
     </script>
     <!-- jQuery: BTAppNode uses $ even in model paths (tabGroupId setter, resetLevel, trash...).
          treetable: only for the findOrCreate* tests, which build display rows. -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../app/jquery.treetable.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qunit@2.22.0/qunit/qunit.js"></script>
+    <script src="../node_modules/qunit/qunit/qunit.js"></script>
     <script>
       // Classic-script globals the app gets from index.html / bt.js
       QUnit.config.autostart = false;

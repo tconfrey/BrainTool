@@ -141,12 +141,12 @@ class BTNode {
     _hasWebLinks() {
 	    // Calculate on demand since it may change based on node creation/deletion
 	    if (this.URL) return true;
-	    return this.childIds.some(id => AllNodes[id]._hasWebLinks);
+	    return this.childIds.some(id => AllNodes[id]?._hasWebLinks());
     }
 
     isTopic() {
         // Is this node used as a topic => has webLinked children
-        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]?._hasWebLinks());
     }
 
     topicName () {
@@ -164,7 +164,8 @@ class BTNode {
     }
     
     reparentNode(newP, index = -1) {
-        // move node from existing parent to new one, optional positional order
+        // move node from existing parent to new one, optional positional order.
+        // A missing or negative index means append as the last child.
         function arrayMoveElt(ary, from, to) {
             // utility to move element within array
             const elt = ary[from];
@@ -177,16 +178,17 @@ class BTNode {
     
         const oldP = this.parentId;
         if (!oldP && !newP) return;             // nothing to do
+        const append = (index == null || index < 0);
         if (oldP === newP) {
             // Special case: new parent is the same as the old parent
             const parentNode = AllNodes[oldP];
             const oldIndex = parentNode.childIds.indexOf(this._id);
-            arrayMoveElt(parentNode.childIds, oldIndex, index);
+            arrayMoveElt(parentNode.childIds, oldIndex, append ? parentNode.childIds.length - 1 : index);
         } else {
             // either old or newP might be null, ie at top level
             oldP && AllNodes[oldP].removeChild(this.id);
             this.parentId = newP;
-            newP && AllNodes[newP].addChild(this.id, index);
+            newP && AllNodes[newP].addChild(this.id, append ? AllNodes[newP].childIds.length : index);
         }
     }
     indexInParent() {
@@ -224,7 +226,7 @@ class BTNode {
     
     replaceURLandTitle(newURL, newTitle) {
         // replace the [[url][title]] part of the title with newTitle preserving any other text before/after
-        let match = this.title.match(/(.*?)\[\[(.*?)\]\[(.*?)\]\](.*?)/);
+        let match = this.title.match(/(.*?)\[\[(.*?)\]\[(.*?)\]\](.*)$/);
         if (match) {
             //was: this.title = this.title.replace(match[1], newURL).replace(match[2], newTitle);
             this.title = `${match[1]}[[${newURL}][${newTitle}]]${match[4]}`;
@@ -290,9 +292,11 @@ class BTNode {
     }
 
     static undoStack = [];
+    static undoIndices = [];                       // parallel to undoStack: each node's index in its parent
     static deleteNode(nodeId) {
         // Cleanly delete this node
         BTNode.undoStack = [];                     // only one level of undo, so clear each time
+        BTNode.undoIndices = [];
 
         function _deleteNode(nodeId) {
             const node = AllNodes[nodeId];
@@ -304,8 +308,9 @@ class BTNode {
                 _deleteNode(cid);
             };
             
-            // Remove from parent
+            // Remove from parent, remembering where it was for undo
             const parent = AllNodes[node.parentId];
+            BTNode.undoIndices.push(parent ? parent.childIds.indexOf(nodeId) : -1);
             if (parent)
                 parent.removeChild(nodeId);
 
@@ -319,13 +324,18 @@ class BTNode {
     static undoDelete() {
         // read back in the undo list
         if (!BTNode.undoStack.length) return;
+        // Nodes come back in the reverse of the order they were removed, so each recorded
+        // index is valid again by the time its node is restored
         let node, topNode = BTNode.undoStack[BTNode.undoStack.length -1];
         while (BTNode.undoStack.length) {
             node = BTNode.undoStack.pop();
+            const index = BTNode.undoIndices.pop();
             AllNodes[node.id] = node;
-            if (node.parentId && AllNodes[node.parentId])
-                AllNodes[node.parentId].addChild(node.id);
+            const parent = node.parentId && AllNodes[node.parentId];
+            if (parent)
+                parent.addChild(node.id, (index >= 0) ? index : parent.childIds.length);
         }
+        BTNode.undoIndices = [];
         return topNode;
     }
     
@@ -348,8 +358,8 @@ class BTNode {
         AllNodes.forEach((n) => {
             if (!n) return;
             if (n.isSessionNode) return;
-            const topicName = n.topicName();
             if (n.isTopic()) {
+                const topicName = n.topicName();      // NB only for topics, a parentless non-topic would throw
                 if (topics[topicName]) {
                     topics[topicName].push(n.id);
                     flat = false;
@@ -385,9 +395,13 @@ class BTNode {
             });
         }
 
-        // Now walk thru map and assign unique DN to topic nodes
-        Object.entries(topics).forEach(([topic, id]) => {
-            AllNodes[id[0]]._topicPath = topic;
+        // Now walk thru map and assign unique DN to topic nodes. Any ids still sharing a DN have
+        // identical paths all the way up (eg two top-level topics with the same name), so number
+        // them: 'Dup', 'Dup (2)'. findOrCreateFromTopicDN resolves an exact topicPath first.
+        Object.entries(topics).forEach(([topic, ids]) => {
+            ids.forEach((id, i) => {
+                AllNodes[id]._topicPath = i ? `${topic} (${i + 1})` : topic;
+            });
         });
         
         // Finally set topic for link nodes to parent

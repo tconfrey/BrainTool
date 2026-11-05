@@ -75,9 +75,8 @@ function padTags(text) {
 
 // NORMALISED: drawers are re-indented by two spaces and each property is written ":KEY: value"
 // with one space (BTAppNode.orgDrawers), whatever the original alignment. :VISIBILITY: is only
-// kept when folded.
-// LOST: lines in a drawer that aren't ":KEY: value" (LOGBOOK clock lines, free text in custom
-// drawers) are dropped. See the todos on drawers.org.
+// kept when folded. Other drawer lines (LOGBOOK clock lines, free text in custom drawers) are
+// kept, re-indented by two spaces.
 function normaliseDrawers(text) {
     let inDrawer = false;
     const out = [];
@@ -93,6 +92,7 @@ function normaliseDrawers(text) {
             if (m && m[1] === 'VISIBILITY')                   // only stored if folded, fixed format
                 { if (/folded/.test(m[2])) out.push('  :VISIBILITY: folded'); }
             else if (m) out.push(`  :${m[1]}:` + (m[2].trim() ? ' ' + m[2].trim() : ''));
+            else if (line.trim()) out.push('  ' + line.trim());
         } else {
             out.push(line);
         }
@@ -180,13 +180,7 @@ const FIXTURES = [
             ['#+TODO keyword line (custom TODO states) is dropped', '#+TODO: TODO NEXT WAITING | DONE CANCELLED'],
         ],
     },
-    {
-        file: 'fixtures/drawers.org',
-        lost: [
-            ['LOGBOOK drawer contents are dropped', 'CLOCK: [2024-01-01 Mon 09:00]--[2024-01-01 Mon 10:30] =>  1:30'],
-            ['Custom drawer free text is dropped', 'Free text inside a custom drawer.'],
-        ],
-    },
+    { file: 'fixtures/drawers.org' },
     {
         file: 'fixtures/links.org',
         replace: [

@@ -320,7 +320,7 @@ function deleteNode(id, browserAction = false) {
         const treeTable = $("#content");
         const trashNode = BTAppNode.findOrCreateTrashNode();
         $(`tr[data-tt-id='${trashNode.id}']`).show();
-        node.handleNodeMove(trashNode.id);
+        node.handleNodeMove(trashNode.id, 0);               // treetable move draws it as Trash's first row
         treeTable.treetable("move", node.id, trashNode.id);
         const treeNode = $(`tr[data-tt-id='${node.id}']`)[0];
         $(treeNode).attr('data-tt-parent-id', trashNode.id);
@@ -465,7 +465,9 @@ function promote(e) {
     if (node.childIds.length)
         $("#content").treetable("collapseNode", node.id);
 
-    node.handleNodeMove(newParentId);
+    // treetable promote draws the node just above its old parent, so put it there in the model too
+    const oldParentIndex = newParentId ? AllNodes[newParentId].childIds.indexOf(node.parentId) : -1;
+    node.handleNodeMove(newParentId, oldParentIndex);
     $("table.treetable").treetable("promote", node.id);
 
     // save to file, update Topics etc

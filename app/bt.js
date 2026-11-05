@@ -1734,6 +1734,9 @@ function undo() {
     // Update tree
     let n = parent ? $("table.treetable").treetable("node", parent.id) : null;
     updateTree(n, node);
+    // loadBranch draws the node as its parent's last child; move its row to its model position
+    if (n) $("table.treetable").treetable("sortBranch", n, (a, b) =>
+        parent.childIds.indexOf(parseInt(a.id)) - parent.childIds.indexOf(parseInt(b.id)));
     $($(`tr[data-tt-id='${node.id}']`)[0]).addClass('selected');
     node.tgColor && node.setTGColor(node.tgColor);
     // find nodes topic, either itself or its parent. if tabgrouping is on call topicnode.groupOpenChildren

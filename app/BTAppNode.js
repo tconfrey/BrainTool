@@ -145,22 +145,26 @@ class BTAppNode extends BTNode {
         return this._opening;
     }
     resetLevel(l) {
-        // after a ui drag/drop need to reset level under new parent
-        const different = (this.level == l) ? false : true;
-        if (!different) return;
+        // after a ui drag/drop need to reset level under new parent: update the model for the
+        // whole subtree, then redraw the indent of whichever of its rows are displayed
+        if (this.level == l) return;
+        this.setLevel(l);
+        this.redrawIndent();
+    }
+    setLevel(l) {
+        // Model only: set level (== org * depth) for this node and all its descendants
         this.level = l;
-        
-        const displayNode = this.getDisplayNode?.();
-        if (!displayNode) return;
-        const $indenter = $(displayNode).find('td.left span.indenter');
-        if (!$indenter.length) return;
-        
-        // update padding
-        const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${this.level - 1})`;
-        $indenter.attr('style', newStyle);
-        
-        this.childIds.forEach(childId => {
-            AllNodes[childId].resetLevel(l+1);
+        this.childIds.forEach(childId => AllNodes[childId]?.setLevel(l + 1));
+    }
+    redrawIndent() {
+        // Update indent padding for this node's row and its descendants' rows, if displayed
+        [this.id, ...this.getDescendantIds()].forEach(id => {
+            const node = AllNodes[id];
+            const displayNode = node?.getDisplayNode?.();
+            if (!displayNode) return;
+            const $indenter = $(displayNode).find('td.left span.indenter');
+            if (!$indenter.length) return;
+            $indenter.attr('style', `padding-left: calc(var(--btIndentStepSize) * ${node.level - 1})`);
         });
     }
 
@@ -908,19 +912,25 @@ class BTAppNode extends BTNode {
     orgDrawers() {
         // generate any required drawer text
         let drawerText = "";
+        // fold state is only worth saving for top items or nodes with children
+        const saveFold = this.folded && (this.childIds.length || (this.level == 1));
         if (this.drawers) {
             const drawers = Object.keys(this.drawers);
-            const reg = /:([\w-]*):(.*)$/gm;              // regex to grab prop and its value from each line
-            let hits, ptext;
+            const reg = /^:([\w-]*):(.*)$/;                // grab prop and its value from a line
             for (const drawer of drawers) {
                 drawerText += "  :" + drawer + ":\n";
-                ptext = this.drawers[drawer];                        // of the form ":prop: val\n
-                
-                while (hits = reg.exec(ptext)) {
-                    // Iterate thru properties handling VISIBILITY 
-                    if ((drawer == "PROPERTIES") && (hits[1] == "VISIBILITY"))
+                const lines = this.drawers[drawer].split('\n').map(l => l.trim()).filter(l => l);
+                if ((drawer == "PROPERTIES") && saveFold && !lines.some(l => reg.exec(l)?.[1] == "VISIBILITY"))
+                    drawerText += "  :VISIBILITY: folded\n";       // drawer has no VISIBILITY line to update
+                for (const line of lines) {
+                    const hits = reg.exec(line);
+                    if (!hits) {
+                        // not a :prop: value line (eg LOGBOOK entries, free text), keep as is
+                        drawerText += `  ${line}\n`;
+                    }
+                    else if ((drawer == "PROPERTIES") && (hits[1] == "VISIBILITY"))
                     {           // only if needed
-                        if (this.folded) drawerText += "  :VISIBILITY: folded\n"; 
+                        if (this.folded) drawerText += "  :VISIBILITY: folded\n";
                     }
                     else {
                         // trim: hits[2] keeps the original spacing, so without this each save added a space
@@ -931,7 +941,7 @@ class BTAppNode extends BTNode {
                 drawerText += "  :END:\n";
             }
         }
-        if ((this.childIds.length || (this.level == 1)) && this.folded && (!this.drawers || !this.drawers.PROPERTIES))
+        if (saveFold && (!this.drawers || !this.drawers.PROPERTIES))
             //need to add in the PROPERTIES drawer if we need to store the nodes folded state. only care about top items if childless
             drawerText += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
         // finally, check to see if props is empty, otherwise return
@@ -1010,25 +1020,19 @@ class BTAppNode extends BTNode {
     
     static _orgTextToHTML(txt, keyword = "") {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
+        // Every link is converted; keyword (eg TODO) goes inside the first one, or in front if none.
 
-        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        const reg = new RegExp(regexStr, "mg");
-        let outputStr = txt;
-        let hits = reg.exec(outputStr);
-        if (hits) {
-            const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
-            if (hits[1].indexOf('id:') == 0)             // internal org links get highlighted, but not as hrefs
-                outputStr = outputStr.substring(0, hits.index) +
-                "<span class='file-link'>" + h2 + "</span>" +
-                outputStr.substring(hits.index + hits[0].length);
-            else
-                outputStr = outputStr.substring(0, hits.index) + 
-               "<a href='" + hits[1] + "' class='btlink'><span class='btTitleText'>" + keyword + h2 + "</span></a>" +
-                outputStr.substring(hits.index + hits[0].length);
-        } else {
-            outputStr = keyword + outputStr;
-        }
-        return outputStr;
+        const reg = /\[\[(.*?)\]\[(.*?)\]\]/gm;           // NB non greedy
+        let first = true;
+        const outputStr = txt.replace(reg, (match, url, label) => {
+            const h2 = (label == "undefined") ? url : label;
+            const kw = first ? keyword : "";
+            first = false;
+            if (url.indexOf('id:') == 0)                  // internal org links get highlighted, but not as hrefs
+                return "<span class='file-link'>" + h2 + "</span>";
+            return "<a href='" + url + "' class='btlink'><span class='btTitleText'>" + kw + h2 + "</span></a>";
+        });
+        return first ? keyword + outputStr : outputStr;
     }
     
     static displayNotesForSearch() {
@@ -1141,20 +1145,23 @@ class BTAppNode extends BTNode {
 
         // if node has open tab we might need to update its tab group/position
         // NB Can't left align w dragged tab, need to left align w its new tg, *but* if its left whole tg will slide left by one
+        // Either parent can be null (top level): no tab group to join or leave there.
         if (this.tabId) {
-            const newPleftmost = newParent.leftmostOpenTabIndex();
-            const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
-            if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
-            if (!browserAction && !newParent.isTrash()) {
-                if (newParent.tabGroupId) {
-                    newParent.groupAndPosition(newLeft);
-                    newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
-                } else if (!this.isSessionNode) {
-                    this.putInGroup();
+            if (newParent) {
+                const newPleftmost = newParent.leftmostOpenTabIndex();
+                const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
+                if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
+                if (!browserAction && !newParent.isTrash()) {
+                    if (newParent.tabGroupId) {
+                        newParent.groupAndPosition(newLeft);
+                        newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
+                    } else if (!this.isSessionNode) {
+                        this.putInGroup();
+                    }
                 }
             }
             // update old P's display node to remove open tg styling
-            if (!oldParent?.hasOpenChildren()) {
+            if (oldParent && !oldParent.hasOpenChildren()) {
                 $("tr[data-tt-id='"+oldP+"']").removeClass("opened");
                 oldParent.setTGColor(null);
                 // oldParent.tabGroupId = null;     // breaks when tg dragged out of window
@@ -1305,6 +1312,14 @@ class BTAppNode extends BTNode {
     
     static findOrCreateFromTopicDN(topicDN) {
         // Walk down tree of topics from top, finding or creating nodes & tt display nodes
+
+        // A DN from the Topics list is some topic's topicPath, which may be numbered to tell
+        // apart same-named topics (see generateUniqueTopicPaths), so check for that first
+        const exact = AllNodes.find(n => n && !n.isSessionNode && n.topicPath && (n.topicPath == topicDN) && n.isTopic());
+        if (exact) {
+            exact.newTopNodeId = undefined;
+            return exact;
+        }
         let components = topicDN.match(/.*?:/g);
         if (components) components = components.map(c => c.slice(0, -1));          // remove :
         const topic = topicDN.match(/:/) ? topicDN.match(/.*:(.*?$)/)[1] : topicDN;

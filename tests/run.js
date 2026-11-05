@@ -16,6 +16,7 @@ import { startServer } from './server.js';
 
 const PAGES = [
     'tests/orgRoundTrip.html',
+    'tests/nodeLogic.html',
     // tests/test.html is the old pre-ES-module suite; it needs the extension loaded, so it's
     // not run here yet.
 ];
