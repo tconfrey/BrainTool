@@ -1517,11 +1517,9 @@ QUnit.module('BTAppNode: handleNodeMove and levels', function () {
         assert.ok($(l.getDisplayNode()).find('span.indenter').attr('style').includes('* 1)'), 'indent updated');
     });
 
-    QUnit.todo('BUG resetLevel cascades to descendants without a display row', function (assert) {
-        // BTAppNode.js:153-156 return before the child loop when the node has no row/indenter,
-        // so descendants keep their old level - and level is the org '*' count, so a move of a
-        // not-yet-rendered subtree (eg via handleNodeMove from a browser event) writes the
-        // wrong outline depth. Today: l.level stays 3.
+    QUnit.test('resetLevel cascades to descendants without a display row', function (assert) {
+        // Was bug 7: resetLevel returned before the child loop when the node had no row, so a
+        // moved, unrendered subtree kept its old levels (== org '*' depth).
         const t = topic('T');
         const s = topic('S', t);
         const l = link('https://a.com', 'A', s);

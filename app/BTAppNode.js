@@ -145,22 +145,26 @@ class BTAppNode extends BTNode {
         return this._opening;
     }
     resetLevel(l) {
-        // after a ui drag/drop need to reset level under new parent
-        const different = (this.level == l) ? false : true;
-        if (!different) return;
+        // after a ui drag/drop need to reset level under new parent: update the model for the
+        // whole subtree, then redraw the indent of whichever of its rows are displayed
+        if (this.level == l) return;
+        this.setLevel(l);
+        this.redrawIndent();
+    }
+    setLevel(l) {
+        // Model only: set level (== org * depth) for this node and all its descendants
         this.level = l;
-        
-        const displayNode = this.getDisplayNode?.();
-        if (!displayNode) return;
-        const $indenter = $(displayNode).find('td.left span.indenter');
-        if (!$indenter.length) return;
-        
-        // update padding
-        const newStyle = `padding-left: calc(var(--btIndentStepSize) * ${this.level - 1})`;
-        $indenter.attr('style', newStyle);
-        
-        this.childIds.forEach(childId => {
-            AllNodes[childId].resetLevel(l+1);
+        this.childIds.forEach(childId => AllNodes[childId]?.setLevel(l + 1));
+    }
+    redrawIndent() {
+        // Update indent padding for this node's row and its descendants' rows, if displayed
+        [this.id, ...this.getDescendantIds()].forEach(id => {
+            const node = AllNodes[id];
+            const displayNode = node?.getDisplayNode?.();
+            if (!displayNode) return;
+            const $indenter = $(displayNode).find('td.left span.indenter');
+            if (!$indenter.length) return;
+            $indenter.attr('style', `padding-left: calc(var(--btIndentStepSize) * ${node.level - 1})`);
         });
     }
 
