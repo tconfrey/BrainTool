@@ -74,7 +74,8 @@ function padTags(text) {
 }
 
 // NORMALISED: drawers are re-indented by two spaces and each property is written ":KEY: value"
-// with one space (BTAppNode.orgDrawers), whatever the original alignment.
+// with one space (BTAppNode.orgDrawers), whatever the original alignment. :VISIBILITY: is only
+// kept when folded.
 // LOST: lines in a drawer that aren't ":KEY: value" (LOGBOOK clock lines, free text in custom
 // drawers) are dropped. See the todos on drawers.org.
 function normaliseDrawers(text) {
@@ -91,7 +92,7 @@ function normaliseDrawers(text) {
             const m = line.match(/^\s*:([\w-]*):(.*)$/);
             if (m && m[1] === 'VISIBILITY')                   // only stored if folded, fixed format
                 { if (/folded/.test(m[2])) out.push('  :VISIBILITY: folded'); }
-            else if (m) out.push(`  :${m[1]}: ${m[2]}`);
+            else if (m) out.push(`  :${m[1]}:` + (m[2].trim() ? ' ' + m[2].trim() : ''));
         } else {
             out.push(line);
         }
@@ -187,8 +188,6 @@ const FIXTURES = [
     },
     {
         file: 'fixtures/drawers.org',
-        unstable: 'Each save adds another space before every property value (orgDrawers keeps the ' +
-                  'leading space of the value and adds its own)',
         lost: [
             ['LOGBOOK drawer contents are dropped', 'CLOCK: [2024-01-01 Mon 09:00]--[2024-01-01 Mon 10:30] =>  1:30'],
             ['Custom drawer free text is dropped', 'Free text inside a custom drawer.'],

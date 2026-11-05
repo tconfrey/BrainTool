@@ -922,8 +922,11 @@ class BTAppNode extends BTNode {
                     {           // only if needed
                         if (this.folded) drawerText += "  :VISIBILITY: folded\n"; 
                     }
-                    else
-                        drawerText += `  :${hits[1]}: ${hits[2]}\n`;
+                    else {
+                        // trim: hits[2] keeps the original spacing, so without this each save added a space
+                        const value = hits[2].trim();
+                        drawerText += `  :${hits[1]}:${value ? ' ' + value : ''}\n`;
+                    }
                 }
                 drawerText += "  :END:\n";
             }
