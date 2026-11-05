@@ -75,9 +75,11 @@ function unregisterMessageHandler(messageName, handler) {
 }
 
 function sendMessage(message) {
-    // Send message to extension via contained content script or side panel container
-    // Check if SIDEPANEL is set on the window (set by sidePanel.js when in side panel mode)
-    const dest = window.SIDEPANEL ? window.parent : window;
+    // Send message to extension via contained content script or side panel container.
+    // In the side panel the app is an iframe in sidePanel.html, whose btContentScript.js does the
+    // relaying, so post to the parent. (sidePanel.js's SIDEPANEL const is in the parent page and
+    // is never a property of this window, so it can't be tested for here.)
+    const dest = (window.parent !== window) ? window.parent : window;
     dest.postMessage(message, '*');
 }
 
