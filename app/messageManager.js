@@ -24,47 +24,56 @@ import { importBookmarks } from './bookmarksManager.js';
 
 // Module-level constants and state (was inside IIFE)
 const OptionKey = /Mac/i.test(navigator.platform) ? "Option" : "Alt";
+const GuideURL = "https://braintool.org/support/userGuide.html";
 const tipsArray = [
     "Add ':' at the end of a topic in the Bookmarker to create a new subtopic.",
-    "Double click on a table row to go to it's tab or tabgroup, if it's open.",
+    "Double click on a row to go to its tab, tab group or window, if it's open.",
     "Type ':TODO' after a topic in the Bookmarker to make the item a TODO in the BT tree.",
     "Create topics like ToRead or ToWatch to keep track of pages you want to come back to.",
-    "You'll need to Refresh if you've been editing the BrainTool.org file directly.",
-    `${OptionKey}-b is the BrainTool accelerator key. You can change that in the browsers extension settings`,
+    "You'll need to Refresh (under Actions) if you've been editing the BrainTool.org file directly.",
+    `${OptionKey}-b is the BrainTool accelerator key. You can change that in the browser's extension settings.`,
     "Save LinkedIn pages under specific topics to keep track of your contacts in context.",
     "Use the TODO (star) button on a row to toggle between TODO, DONE and none.",
-    "See BrainTool.org for the BrainTool blog and other info.",
-    "Follow <a target='_blank' href='https://twitter.com/ABraintool'>@ABrainTool</a> on X and other socials!",
-    "Check out the Bookmark import/export functions under Actions",
+    "See <a target='_blank' href='https://braintool.org'>BrainTool.org</a> for the BrainTool blog and other info.",
+    // TODO(tony): confirm which socials to list here (pricing.md also lists LinkedIn, Instagram, Facebook)
+    "Follow BrainTool on <a target='_blank' href='https://bsky.app/profile/braintool.org'>Bluesky</a>, <a target='_blank' href='https://twitter.com/ABraintool'>X</a> and other socials!",
+    "Check out the Bookmark import/export functions under Actions.",
     "You can click on the topics shown in the Bookmarker instead of typing out the name.",
-    "Use the forward (>>) button on the right to cycle through tips",
+    "Use the forward (>>) button on the right to cycle through tips.",
     `Double tap ${OptionKey}-b, or double click the toolbar icon, to surface the Topic Manager.`,
     `When you have an Edit card open, the ${OptionKey}-up/down arrows will open the next/previous card.`,
     "Click on a row to select it then use keyboard commands. 'h' for a list of them.",
-    "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///users/tconfrey/Documents/' in the browser address bar.",
+    "You can also store local files and folders in BrainTool. <br/>Enter something like 'file:///Users/yourname/Documents/' in the browser address bar.",
     "Try hitting '1','2','3' etc to collapse the tree to that level.",
     "Import public topic trees and useful links from braintool.org/topicTrees.",
     "Try the DARK theme. It's under Settings.",
     "Tab cycles a selected topic from collapsed, to showing children, to showing all descendants.",
-    "The Topic Manager can run inside the browser window in a side panel. See Settings.",
+    "The Topic Manager can run in its own window, a browser tab or the side panel. See Settings.",
     "Check out ToDo and search results filtering! Click the ⭐️ or <img src='resources/filter.svg' style='height:20px;vertical-align:middle'> button in Search.",
     "You can drag a tab from the URL bar and drop onto the Topic Manager to add a page to a given topic.",
-    "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>"
+    "<span class='emoji'>&#128512;</span> You can use emojis to <span class='emoji'>&#127774;</span> brighten up your topic names. <span class='emoji'>&#128079; &#128736;</span>",
+    "Drag a tab or tab group from the 🌐 CURRENT SESSION block onto a topic to save it there. If it's already saved, it gets re-filed.",
+    "Drag a topic into the 🌐 CURRENT SESSION block to open it. Drop it on a window to open it there, or on the CURRENT SESSION row for a new window.",
+    "Don't need the session view? Delete the 🌐 CURRENT SESSION row, or set 'Session Manager?' to No under Settings. No tabs get closed.",
+    `Deleted something by mistake? ${OptionKey}-z puts your last deletion back, even if it went into the Trash.`,
+    "Saved tabs and groups are highlighted in the 🌐 CURRENT SESSION block, so you can see at a glance what's saved and what isn't."
 ];
 const messageArray = [
-    "Welcome to the BrainTool 1.3!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
-    "You can now drag links from inside web pages and drop them onto the Topic Manager to add them to a topic.",
-    "There's a new 'Special' Bookmarks Bar Topic synced to the contents of your browser's Bookmarks Bar. Just delete it to remove.",
-    "There's a new Trash 'special' topic to hold deleted nodes until emptied.",
-    "Check out the updated <a target='_blank' href='https://braintool.org'>BrainTool.org</a> and the added <a target='_blank' href='https://braintool.org/support/userGuide.html'>User Guide</a> material!"
+    "Welcome to BrainTool 1.4!<br/>See the <a target='_blank' href='https://braintool.org/support/releaseNotes.html'>release notes</a> for a list of changes.",
+    `New in 1.4: the 🌐 CURRENT SESSION block at the top of the tree is a live view of your open windows, tab groups and tabs. Saved items are highlighted. See the <a target='_blank' href='${GuideURL}#the-session-manager'>User Guide</a>.`,
+    `You can now drag between the session and your topics. Drag a tab or group onto a topic to save it, or drag a topic into the session to open it. <a target='_blank' href='${GuideURL}#moving-things-between-the-trees'>More</a>.`,
+    `Don't want the session view? Delete the 🌐 CURRENT SESSION row or set 'Session Manager?' to No under Settings. It won't close any tabs. <a target='_blank' href='${GuideURL}#showing-and-hiding-the-session-manager'>More</a>.`,
+    `${OptionKey}-z now undoes a delete to the Trash, and sticky tabs keep their notes when you navigate away and back.`
 ];
 const introSlidesArray = [
     `<p>This window is the <b>Topic Manager</b>.</p><p>It allows you to open and close tabs, tab groups, and browser windows, organize them into nested <b>Topics</b> and find them again when you need them.</p><img class="introImage" src="resources/slide1.png"/>`,
+    // TODO screenshot: slide6.png - Topic Manager with the 🌐 CURRENT SESSION block expanded above the topic tree (two windows, one colored tab group, a saved tab highlighted). Until then this slide has no image.
+    `<p>At the top of the Topic Manager, the <b>🌐 CURRENT SESSION</b> block is a live view of your open windows, tab groups and tabs. It stays in sync with the browser as you work.</p><p>Drag a tab or group onto a topic to save it, or drag a topic into the session to open it.</p><p>Don't need it? Turn it off under Settings.</p>`,
     `<p>The BrainTool <b>Bookmarker</b> tool lives in the browser bar.</p><p>It allows you to save the current tab, tab group, window or session under a named <b>Topic</b>, along with an optional note.</p><p>Pin it for easy access.</p><img class="introImage" src="resources/slide2.png"/>`,
     `<p>Use BrainTool to organize all the tabs you want to save and come back to. Hover over a row for tools to open and close groups of tabs, add notes and todo's or edit the topic hierarchy.</p><img class="introImage" src="resources/slide3.png"/>`,
     `<p>Everything is kept in plain text in a private local file that you own and can edit, or under your personal Google Drive account for cloud access.</p><img class="introImage" src="resources/slide4.png"/>`,
     `<p>See Search, Settings and Actions in the Header and Help below. Watch for Messages, Warnings and Tips on startup.</p><img class="introImage" src="resources/slide5.png"/>`,
-    `<p>Those are the basics. See the Help section and linked manuals and tutorial videos for more.</p><p>Now lets get started organizing your online life!</p><p>We've set you up with a sample <b>Topic</b> hierarchy. You might want to also pull in your bookmarks or save your current session (either one can be done later).</p>`
+    `<p>Those are the basics. See the Help section and linked manuals and tutorial videos for more.</p><p>Now let's get started organizing your online life!</p><p>We've set you up with a sample <b>Topic</b> hierarchy. You might want to also pull in your bookmarks or save your current session (either one can be done later).</p>`
 ];
 
 let Warning = false, Message = false, lastShownMessageIndex = 0, lastShownSlideIndex = 0;
@@ -273,7 +282,7 @@ function generateIntroHTML() {
         <div class="topBanner" id="slideHeader">
           <img id="headerImage" src="resources/headerImage.png" height="100%" />
           <div id="introTitle">Welcome to BrainTool</div>
-          <div id="introSubtitle">Slide <span id="slideNum">1</span> of 6</div>
+          <div id="introSubtitle">Slide <span id="slideNum">1</span> of <span id="slideCount">${introSlidesArray.length}</span></div>
           <img id="introClose" src="resources/close.png" height="17" width="20" />
         </div>
         <div id="slide"><!-- Filled in by messageManager --></div>
