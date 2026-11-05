@@ -10,7 +10,7 @@ audience: user
 ## Introduction
 BrainTool is a "Topic" Manager for your tabs and bookmarks. Topics are the basic unit of organization. A topic can be any category, or grouping or tag that you might apply to a set of web pages. Examples might include: "Vacation Research", "Ireland hotel options", "XYZ Project", "Party Playlist" etc.
 
-The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of. There's a 45 second intro video [here](https://youtu.be/4lhHBbBRyEU).
+The BrainTool Topic Manager shows your topic hierarchy, highlighting open items. Above your topics, the Session Manager shows the windows, tab groups and tabs you have open right now. It provides tools for controlling tabs and editing and curating your topics. The BrainTool Bookmarker lets you quickly assign a topic to any set of web pages or resources that you want to keep track of. There's a 45 second intro video [here](https://youtu.be/4lhHBbBRyEU).
 <div class="row">
 <div class="cell left" style="width:50%">
 <img src="/site/TopicManager.png" alt="side-panel" style="width:80%">
@@ -60,7 +60,7 @@ You can also drag a URL from the url bar and drop it under a topic in the Topic 
 ## The Topic Manager
 Once you have a set of pages saved into your personal braintool you can use the Topic Manager to control the browser. You can select it as you would any other browser window, or double click the icon or use the accelerator Alt/Option-b-b (ie hit b twice) to pop it into focus.
 
-The Topic Manager shows your topic hierarchy in an expandable table. The triangles next to topics allows you to expand or collapse the hierarchy. Pages that are open in a tab are highlighted as are topics which have one or more of their pages open. If an open topic is hidden under a collapsed parent the parent is shown in blue text.
+The Topic Manager shows your topic hierarchy in an expandable table. The triangles next to topics allows you to expand or collapse the hierarchy. Pages that are open in a tab are highlighted as are topics which have one or more of their pages open. If an open topic is hidden under a collapsed parent the parent is shown in blue text. The live 🌐 CURRENT SESSION block at the top of the tree is covered in [The Session Manager](#the-session-manager) below.
 
 Hovering your mouse over a row in the table reveals a set of buttons that perform operations on that row. As shown below, right to left, the operations are as follows:
 
@@ -81,13 +81,41 @@ Note not all tools apply to every item and so not all will be shown every time. 
 ## Special Topics
 There are currently three 'special' topics supported in the tree. 
 
-🗑️ TRASH is a holding area for all deleted items. The delete button on that row empties the trash, fully deleteing all items. Note that deleted items are not saved with the rest of your data, so they do not show up in any backing file and the Trash will be empty any time you restart the Topic Manager.
+🗑️ TRASH is a holding area for all deleted items. The delete button on that row empties the trash, fully deleting all items. Note that deleted items are not saved with the rest of your data, so they do not show up in any backing file and the Trash will be empty any time you restart the Topic Manager. Deleted something by mistake? Alt/Option-z puts your last deletion back where it was, whether it went into the Trash or was emptied out of it.
 
 The 📝 SCRATCH, as mentioned above, is used as the topic for any item you saved without assigning a topic.
 
 The 🔖 BOOKMARKS BAR topic reflects the contents of your browsers bookmarks bar. It is populated on startup and thereafter any changes made to your browser bookmarks bar are upadated to the tree, and vice-versa, any changes you make to re-organize items under the topic in the tree will be reflected in your browser. Note that browser tab groups, which can be optionally shown in the bookmarks bar, are not actually bookmarks and are not included in the sync.
 
 You may move the special topics anywhere in the tree, as with any other topic, you can also make them subtopics of some other top level topic. If you delete the Bookmarks Bar item bookmarks will no longer be synced, until you re-create a similarly named item. If you delete Scratch, it will be recreated as needed. The Trash item is not deleteable. 
+
+The 🌐 CURRENT SESSION block is not a topic. It isn't saved to your file and it always sits at the top of the tree. See the next section.
+
+## The Session Manager
+<!-- TODO screenshot: Topic Manager with the 🌐 CURRENT SESSION block expanded at the top of the tree: two windows ("Window 1 - <active tab title>", "Window 2 - ..."), one colored tab group with a few tabs, a couple of ungrouped tabs, and the blue divider line separating it from the topic tree below. Suggested file: /site/SessionManager.png -->
+The 🌐 CURRENT SESSION block at the top of the Topic Manager is a live view of your browser. Under it you'll see each open window, the tab groups in that window, and the tabs in each group, in the same order as your tab strip. Windows are labelled Window 1, Window 2 etc, followed by the title of that window's active tab. Tab groups keep their browser name and color. The Topic Manager's own window or tab is left out.
+
+The Session Manager stays in sync with the browser on its own. Open, close, move or regroup a tab, rename or recolor a group, switch tabs, and the session tree updates to match. Nothing in it is saved to your BrainTool file, it's always just what's open right now.
+
+Tabs and groups you've already saved in a topic are highlighted, so you can see at a glance what's saved and what isn't. Notes on a saved item show on its session row too. You can edit a saved item's notes from either row.
+
+Session rows have a smaller set of tools than topic rows:
+- **Close:** close the tab, or all tabs in a group or window.
+- **Edit:** edit the notes, for tabs and groups that are already saved in a topic.
+- **Move:** drag it somewhere else, see below.
+
+### Moving things between the trees
+Drag and drop works between the session and your topics, as well as within each:
+- **Topic → Session:** drag a topic or saved page that isn't open into the session tree to open it there. Drop it on a window to open it in that window, or on the 🌐 CURRENT SESSION row to open it in a new window. A topic opens as a tab group with all its pages. Pages that are already open can't be dropped.
+- **Session → Topic:** drag a tab onto a topic to save it under that topic, just like using the Bookmarker. Drag a tab group onto a topic to save the group as a new subtopic, with a page for each tab. If the tab or group is already saved, it's moved (re-filed) to the new topic rather than saved twice. The session row itself stays where it is.
+- **Within the session:** drag tabs and groups around to move them between windows and groups in the browser.
+
+Windows and the session row itself can't be dragged into your topics, and session rows can't be dropped into the Trash.
+
+<!-- TODO screenshot (or short gif): a tab being dragged from the 🌐 CURRENT SESSION block and dropped under a topic in the tree, with the drop indicator bar visible, and the tab now highlighted as saved. Suggested file: /site/SessionDragToTopic.png -->
+
+### Showing and hiding the Session Manager
+The Session Manager is on by default. To hide it, delete the 🌐 CURRENT SESSION row (its only tool is delete, labelled 'Close session view') or set 'Session Manager?' to No under Settings. This only hides the view, it doesn't close any tabs. Set 'Session Manager?' back to Yes to bring it back. Your choice is remembered next time you open the Topic Manager.
 
 ## Keyboard Accelerators
 <div class="row">
@@ -98,6 +126,8 @@ You may move the special topics anywhere in the tree, as with any other topic, y
 BrainTool is designed to allow you to work more efficiently in your browser. One way of speeding up your work is to use the keyboard accelerators. Accelerators can access all the tools described above, as well as navigating and searching through the tree. Hitting 'h' will open Help, where you can see all the available keyboard commands.
 <br/><br/>
 One thing to note here is that BT has the notion of a 'selection', which is the table row that is currently selected. This is the one on which keyboard commands will operate. It is shown in green in the tree.
+<br/><br/>
+Alt/Option-z undoes your last deletion. That works whether the item went into the Trash or you emptied it out of the Trash. Only the most recent deletion can be undone.
 </div>
 </div>
 ## Search
@@ -119,12 +149,17 @@ There's also a brief demo video on [this blog post]({% post_url 2021-10-06-Contr
 ## Drag and Drop Organization
 Items in the tree can be dragged to new positions just by selecting the item and moving it. An indicator bar will show the drop location. Dragging past the top or bottom of the tree will scroll. Hovering over a collapsed topic for a couple of seconds will expand that topic to allow you to drop your item inside. You can further expand sub-topics to drop an item anywhere in your tree. Dropping below an expanded topic will make the item a child of that topic. Dropping below a collapsed topic will make the item a sibling of that topic, ie they will have the same parent topic. 
 
+Only topics can sit at the top level of the tree. A saved page always needs a parent topic, so if you try to drop a page at the top level it won't take, and Promote isn't offered on a page that is already directly under a top level topic. Topics, and tab groups dragged in from the session, can be dropped at the top level, where they become new top level topics.
+
+You can also drag between your topics and the live session tree, to open topics in the browser or to save and re-file open tabs and tab groups. See [Moving things between the trees](#moving-things-between-the-trees).
+
 You can also drag a link from the address bar or from within the contents of a web page and drop it under a topic in the tree, in the same manner as described above. If a single link with associated text is dropped then the text is added as the notes for the new item. If multiple links are dropped each is created as a new item in the tree. There's a brief demo [here](https://youtu.be/vdf5vR9ejzw)
 
 ## Settings and Actions
 Settings control the configuration of your BrainTool. Actions are system-wide operations. The settings and actions panels can be accessed from the relevant buttons in the top right of the Topic Manager.
 <div class="row">
 <div class="cell left" style="width:50%">
+<!-- TODO screenshot: replace /site/Settings.png with a current capture of the Settings panel that includes the new 'Session Manager?' Yes/No toggle (between the sync settings and 'Dark Mode?'). -->
 <img src="/site/Settings.png" alt="side-panel" style="width:none; border: none">
 </div>
 <div class="cell right" style="width:50%">
@@ -145,6 +180,8 @@ Next there is the option to link your personal braintool topic map to a file on 
 Note that you can only sync to one external file source. The GDrive option has the advantage that you can use the same synced file on different machines, browsers or accounts. Also Google will automatically keep incremental versions of your BrainTool file which can help with recovery if you overwrite or delete your data. The disadvantage is that Google requires *frequent* re-authorizations via a popup. The Local File saving has the option to 'Keep Backups' which will keep the last three versions, plus versions for the last three days of activity and a version for each of the last three months.
 
 If you edit the file externally, or via BrainTool on another browser or machine, BT will warn you that your data is out of date the next time the Topic Manager gets focus and will offer to refresh from the external version.  You can also use the 'Refresh from File' button in the Actions panel at any point.
+
+'Session Manager?' shows or hides the live 🌐 CURRENT SESSION view at the top of the tree. See [Showing and hiding the Session Manager](#showing-and-hiding-the-session-manager).
 
 The next few Settings control various BT display customizations:
 - Use the Dark Mode theme
@@ -221,6 +258,8 @@ One challenge in the design of BT is what constitutes a unique saved item, or we
 When you open the Bookmarker for an already saved item you get the option to update the items notes. But when you open a page from BT and then navigate to a different page via in-page links you might want to save that page as a new item. In this latter case you'll be warned that you are saving a new item. The original item will be marked as closed in the Topic Manager, and a new item will be created and saved into the same topic as the original item.
 
 When BT concludes that a page navigation was to a new web place, eg if you type a url in the address bar or click a bookmark bar link, it will mark the original BT item as closed and move the tab out of the associated tab group.
+
+Your notes stay with the saved item. If you click away from a saved page and then come back to it (eg with the Back button), the Bookmarker shows the item's saved notes again, and in the Session Manager the notes show only while the tab is on the saved page.
 
 # What Next?
 For more information see the [FAQ and How-to page](../support) or reach out on the [BrainTool discussion group](https://groups.google.com/u/0/g/braintool-discussion).

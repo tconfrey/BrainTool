@@ -5,13 +5,27 @@ layout: default
 tagline: The Topic Manager for your Online Life
 audience: user
 ---
+# BrainTool 1.4
+Two major improvements:
+- 🌐 Session Manager. A live CURRENT SESSION view at the top of the Topic Manager shows your open windows, tab groups and tabs, and stays in sync with the browser as you work. Saved tabs and groups are highlighted so you can see what's saved and what isn't. Don't want it? Delete the row or turn it off under Settings.
+- Drag and Drop between your topics and the session. Drag a topic into the session to open it, in a specific window or a new one. Drag an open tab or tab group onto a topic to save it, or to re-file it if it's already saved. Pages always need a parent topic, so they can no longer be dropped at the top level of the tree.
+
+Also in this release:
+- Alt/Option-z now undoes a delete to the Trash, as well as a delete from the Trash.
+- Sticky tabs keep their notes when you navigate away from a saved page and come back.
+- The Bookmarker recognizes a tab you've dropped into a BrainTool tab group, and title edits made in the Bookmarker now show in the Topic Manager.
+- On Vivaldi, links and topics open in a real browser window rather than inside the BrainTool panel.
+- Dark mode contrast fixes, plus multiple minor updates and bug fixes.
+
+See the [User Guide](/support/userGuide#the-session-manager) for more details.
+
 # BrainTool 1.3
 Three major improvements:
 - Drag and Drop from web pages into the topic tree. Drag individual links or selected text including multiple links and drop under a topic in the tree. With a single link any associated text is added as a note. When text contains multiple links all are added under the topic.
 - 🗑️ TRASH special topic. Deleted items are moved under Trash rather than immediately deleted from the tree. 
 - 🔖 BOOKMARKS BAR special topic. This topic is kept in sync with the items in your browser bookmarks bar. Changes made in the tree are updated to the browser and vice-versa. 
 
-Mulitple minor updates and bug fixes. See the [User Guide](\./support/userGuide) for more details on how these new items work.
+Mulitple minor updates and bug fixes. See the [User Guide](/support/userGuide) for more details on how these new items work.
 
 # BrainTool 1.2.2
 New buttons inside the search box now allow you to filter rows to just show TODO's or just show the search matches.
