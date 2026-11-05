@@ -292,9 +292,11 @@ class BTNode {
     }
 
     static undoStack = [];
+    static undoIndices = [];                       // parallel to undoStack: each node's index in its parent
     static deleteNode(nodeId) {
         // Cleanly delete this node
         BTNode.undoStack = [];                     // only one level of undo, so clear each time
+        BTNode.undoIndices = [];
 
         function _deleteNode(nodeId) {
             const node = AllNodes[nodeId];
@@ -306,8 +308,9 @@ class BTNode {
                 _deleteNode(cid);
             };
             
-            // Remove from parent
+            // Remove from parent, remembering where it was for undo
             const parent = AllNodes[node.parentId];
+            BTNode.undoIndices.push(parent ? parent.childIds.indexOf(nodeId) : -1);
             if (parent)
                 parent.removeChild(nodeId);
 
@@ -321,13 +324,18 @@ class BTNode {
     static undoDelete() {
         // read back in the undo list
         if (!BTNode.undoStack.length) return;
+        // Nodes come back in the reverse of the order they were removed, so each recorded
+        // index is valid again by the time its node is restored
         let node, topNode = BTNode.undoStack[BTNode.undoStack.length -1];
         while (BTNode.undoStack.length) {
             node = BTNode.undoStack.pop();
+            const index = BTNode.undoIndices.pop();
             AllNodes[node.id] = node;
-            if (node.parentId && AllNodes[node.parentId])
-                AllNodes[node.parentId].addChild(node.id);
+            const parent = node.parentId && AllNodes[node.parentId];
+            if (parent)
+                parent.addChild(node.id, (index >= 0) ? index : parent.childIds.length);
         }
+        BTNode.undoIndices = [];
         return topNode;
     }
     

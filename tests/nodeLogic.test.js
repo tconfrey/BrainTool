@@ -31,6 +31,7 @@ function resetModel() {
     AllNodes.length = 0;                      // AllNodes is an exported var binding: empty it, can't reassign
     BTNode.topIndex = 1;
     BTNode.undoStack = [];
+    BTNode.undoIndices = [];
     Topics.length = 0;
     BTAppNode.searchNodesToRedisplay.clear();
     BTAppNode.displayOrder = {};
@@ -592,9 +593,9 @@ QUnit.module('BTNode: delete and undo', function () {
         assert.strictEqual(AllNodes[a.id], a);
     });
 
-    QUnit.todo('BUG undoDelete puts the node back at its original position', function (assert) {
-        // undoDelete calls addChild(id) with no index (BTNode.js:327) which inserts at the front,
-        // so a restored node always becomes its parent's first child. Today: [b, x, y].
+    QUnit.test('undoDelete puts the node back at its original position', function (assert) {
+        // Was bug 6: undoDelete called addChild(id) with no index, which inserts at the front,
+        // so a restored node always became its parent's first child.
         const p = new BTNode('P');
         const x = new BTNode('X', p.id);
         const b = new BTNode('B', p.id);
@@ -602,6 +603,13 @@ QUnit.module('BTNode: delete and undo', function () {
         BTNode.deleteNode(b.id);
         BTNode.undoDelete();
         assert.deepEqual(p.childIds, [x.id, b.id, y.id]);
+        const c1 = new BTNode('C1', b.id);
+        const c2 = new BTNode('C2', b.id);
+        const c3 = new BTNode('C3', b.id);
+        BTNode.deleteNode(b.id);
+        BTNode.undoDelete();
+        assert.deepEqual(p.childIds, [x.id, b.id, y.id], 'again, with a subtree');
+        assert.deepEqual(b.childIds, [c1.id, c2.id, c3.id], 'subtree order preserved');
     });
 });
 
