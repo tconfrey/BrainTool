@@ -176,14 +176,8 @@ const FIXTURES = [
     },
     {
         file: 'fixtures/keywords.org',
-        replace: [
-            // LOST: two planning items on one line keep only the last (parser.orgaSection
-            // assigns appNode.planning per planning node instead of accumulating).
-            ['DEADLINE: <2024-05-12 Sun 17:00> SCHEDULED: <2024-05-11 Sat>', 'SCHEDULED: <2024-05-11 Sat>'],
-        ],
         lost: [
             ['#+TODO keyword line (custom TODO states) is dropped', '#+TODO: TODO NEXT WAITING | DONE CANCELLED'],
-            ['DEADLINE is dropped when it shares a line with SCHEDULED', 'DEADLINE: <2024-05-12 Sun 17:00>'],
         ],
     },
     {

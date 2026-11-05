@@ -106,7 +106,9 @@ function orgaSection(section, parentAppNode) {
             orgaSection(orgaChild, appNode);
             break;
         case "planning":
-            appNode.planning = orgaNodeRawText(orgaChild) + "\n";
+            // orga gives one node per item and items share the planning line, eg DEADLINE: <..> SCHEDULED: <..>
+            appNode.planning = (appNode.planning ? appNode.planning.slice(0, -1) + " " : "") +
+                orgaNodeRawText(orgaChild).trim() + "\n";
             break;
         case "drawer": 
             appNode.drawers[orgaChild.name] = orgaChild.value;
