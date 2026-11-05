@@ -1207,12 +1207,14 @@ QUnit.module('BTAppNode: search helpers (model side)', function () {
         assert.strictEqual(h('see [[id:123][Other]]'), "see <span class='file-link'>Other</span>", 'org id links are not hrefs');
     });
 
-    QUnit.todo('BUG _orgTextToHTML converts every link, not just the first', function (assert) {
-        // BTAppNode.js:1014 runs reg.exec once, so in notes (displayText) only the first link
-        // becomes an <a>; later ones show as raw [[url][label]]. The old tests/test.js
-        // "_orgTextToHTML" case expects both converted.
+    QUnit.test('_orgTextToHTML converts every link, not just the first', function (assert) {
+        // Was bug 12: reg.exec ran once, so in notes (displayText) only the first link became
+        // an <a>; later ones showed as raw [[url][label]].
         const out = BTAppNode._orgTextToHTML('[[http://a.com][A]] and [[http://b.com][B]]');
         assert.notOk(out.includes('[['), out);
+        assert.strictEqual(BTAppNode._orgTextToHTML('[[http://a.com][A]] and [[http://b.com][B]]', 'KW '),
+            "<a href='http://a.com' class='btlink'><span class='btTitleText'>KW A</span></a> and " +
+            "<a href='http://b.com' class='btlink'><span class='btTitleText'>B</span></a>", 'keyword only in the first');
     });
 
     QUnit.test('escapeRegExp', function (assert) {

@@ -1020,25 +1020,19 @@ class BTAppNode extends BTNode {
     
     static _orgTextToHTML(txt, keyword = "") {
         // convert text of form "asdf [[url][label]] ..." to "asdf <a href='url'>label</a> ..."
+        // Every link is converted; keyword (eg TODO) goes inside the first one, or in front if none.
 
-        const regexStr = "\\[\\[(.*?)\\]\\[(.*?)\\]\\]";           // NB non greedy
-        const reg = new RegExp(regexStr, "mg");
-        let outputStr = txt;
-        let hits = reg.exec(outputStr);
-        if (hits) {
-            const h2 = (hits[2]=="undefined") ? hits[1] : hits[2];
-            if (hits[1].indexOf('id:') == 0)             // internal org links get highlighted, but not as hrefs
-                outputStr = outputStr.substring(0, hits.index) +
-                "<span class='file-link'>" + h2 + "</span>" +
-                outputStr.substring(hits.index + hits[0].length);
-            else
-                outputStr = outputStr.substring(0, hits.index) + 
-               "<a href='" + hits[1] + "' class='btlink'><span class='btTitleText'>" + keyword + h2 + "</span></a>" +
-                outputStr.substring(hits.index + hits[0].length);
-        } else {
-            outputStr = keyword + outputStr;
-        }
-        return outputStr;
+        const reg = /\[\[(.*?)\]\[(.*?)\]\]/gm;           // NB non greedy
+        let first = true;
+        const outputStr = txt.replace(reg, (match, url, label) => {
+            const h2 = (label == "undefined") ? url : label;
+            const kw = first ? keyword : "";
+            first = false;
+            if (url.indexOf('id:') == 0)                  // internal org links get highlighted, but not as hrefs
+                return "<span class='file-link'>" + h2 + "</span>";
+            return "<a href='" + url + "' class='btlink'><span class='btTitleText'>" + kw + h2 + "</span></a>";
+        });
+        return first ? keyword + outputStr : outputStr;
     }
     
     static displayNotesForSearch() {
