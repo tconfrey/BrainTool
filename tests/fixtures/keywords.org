@@ -1,0 +1,22 @@
+#+TODO: TODO NEXT WAITING | DONE CANCELLED
+
+* TODO Plain todo
+* DONE Finished item
+CLOSED: [2024-03-01 Fri 10:15]
+* NEXT Custom keyword
+* WAITING [#A] Waiting with priority A
+* [#B] Priority without keyword
+* TODO [#C] Todo with priority C :work:urgent:
+* Tagged heading                                                      :alpha:beta:
+* Badly padded tags :gamma:
+* Scheduled item
+SCHEDULED: <2024-05-10 Fri>
+* Deadline item
+DEADLINE: <2024-05-12 Sun 17:00> SCHEDULED: <2024-05-11 Sat>
+* Repeating item
+SCHEDULED: <2024-05-13 Mon +1w>
+* Timestamps in body
+Meeting at <2024-06-01 Sat 09:00-10:00>.
+Inactive note [2024-06-02 Sun].
+Range <2024-06-03 Mon>--<2024-06-05 Wed>.
+* Timestamp in headline <2024-07-04 Thu>

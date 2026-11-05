@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BrainTool org round-trip tests</title>
+    <link rel="stylesheet" href="../node_modules/qunit/qunit/qunit.css" />
+    <!-- Same classic scripts app/index.html loads before the app modules -->
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../app/jquery.treetable.js"></script>
+    <script src="../app/orga-bundlev2.js"></script>
+    <script src="../utilities/converters.js"></script>
+    <script src="../node_modules/qunit/qunit/qunit.js"></script>
+    <script>
+      QUnit.config.autostart = false;     // orgRoundTrip.js calls QUnit.start() once tests are defined
+      QUnit.config.reorder = false;
+      window.LOCALTEST = true;
+      window.gtag = function() {};        // analytics stub, see app/index.html
+    </script>
+    <script type="module" src="orgRoundTrip.js"></script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <table id="content"></table>      <!-- BTAppNode.findOrCreateFromTopicDN draws new topics here -->
+  </body>
+</html>

@@ -1,0 +1,26 @@
+Some text before the first heading.
+It has two lines.
+
+* Level one
+Body of level one.
+** Level two
+*** Level three
+**** Level four
+***** Level five
+Deep body text.
+** Back to level two
+
+Paragraph after a blank line.
+
+Second paragraph after another blank line.
+* Second top level
+** Child that skips a level below
+**** Skipped straight to four
+* Heading with trailing whitespace   
+Body line with trailing whitespace   
+* Last heading
+* Whitespace in body
+ Leading space on a body line.
+  Indented continuation line.
+Ends with a link [[https://example.com/ws][ws]]   
+  * Indented star line is text, not a heading

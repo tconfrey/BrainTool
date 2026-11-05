@@ -1,0 +1,34 @@
+* Heading with properties
+:PROPERTIES:
+:CUSTOM_ID: my-id
+:CATEGORY: testing
+:END:
+Body after properties.
+* Indented property drawer
+  :PROPERTIES:
+  :ID:       7f3c9a2e-1b2c-4d5e-8f90-123456789abc
+  :END:
+* Folded topic
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+** Child of folded
+* Logbook drawer
+:LOGBOOK:
+CLOCK: [2024-01-01 Mon 09:00]--[2024-01-01 Mon 10:30] =>  1:30
+- State "DONE"       from "TODO"       [2024-01-01 Mon 10:30]
+:END:
+* Custom drawer
+:NOTES:
+Free text inside a custom drawer.
+:END:
+* Planning then properties
+SCHEDULED: <2024-02-02 Fri>
+:PROPERTIES:
+:EFFORT: 1:00
+:END:
+Body.
+* Property with empty value
+:PROPERTIES:
+:EMPTY:
+:END:

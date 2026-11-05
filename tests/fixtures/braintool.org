@@ -1,0 +1,18 @@
+#+PROPERTY: BTVersion 42
+#+PROPERTY: BTGroupingMode TABGROUP
+#+PROPERTY: BTFavicons ON
+
+* Projects
+  :PROPERTIES:
+  :VISIBILITY: folded
+  :END:
+** [[https://github.com/tconfrey/BrainTool][BrainTool repo]]
+Notes about the repo.
+** Kitchen
+*** [[https://northriverbuilders.com/][North River Builders]]
+* 🗑️ TRASH
+** Deleted topic
+*** [[https://deleted.example.com/][Deleted link]]
+* 🔖 BOOKMARKS BAR
+** [[https://bookmarked.example.com/][Bookmarked]]
+* After the specials

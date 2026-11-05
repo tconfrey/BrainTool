@@ -1,0 +1,14 @@
+* [[https://example.com/][Example with description]]
+* [[https://example.com/no-desc]]
+* Headline with [[https://example.com/inline][inline link]] and text
+* [[file:~/notes/todo.org][File link with description]]
+* [[file:/tmp/plain.txt]]
+* Links in body
+Body has a [[https://example.org/a][bracket link]] in it.
+And one with no description [[https://example.org/b]].
+A bare URL https://example.org/bare in text.
+A file link [[file:../relative/path.org][relative file]].
+An internal link [[id:7f3c9a2e-1b2c-4d5e-8f90-123456789abc][to an id]].
+A heading link [[*Links in body][self]].
+* [[https://example.com/q?a=1&b=two#frag][Query and fragment]]
+* [[chrome-extension://abcdefghijklmnop/page.html][Extension page]]
