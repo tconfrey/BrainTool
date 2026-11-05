@@ -1083,11 +1083,8 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.strictEqual(t.orgDrawers(), '', 'empty PROPERTIES drawer omitted');
     });
 
-    QUnit.todo('BUG orgDrawers adds a space before every property value on each save', function (assert) {
-        // The regex at BTAppNode.js:913 captures the value *with* its leading space (:(.*)$) and
-        // :926 writes ': ' + value. orga keeps drawer values verbatim (checked: ':ID:  abc' parses
-        // back as ':ID:  abc'), so every save/load cycle adds one more space to every property.
-        // Today: '  :ID:  abc'.
+    QUnit.test('orgDrawers does not add a space before property values on each save', function (assert) {
+        // Was bug 9 (each save added a space before every value); fixed in PR #54.
         const t = topic('T');
         t.drawers = { PROPERTIES: ':ID: abc' };
         assert.strictEqual(t.orgDrawers(), '  :PROPERTIES:\n  :ID: abc\n  :END:\n');
