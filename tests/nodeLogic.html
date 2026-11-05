@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BrainTool node logic unit tests</title>
+    <!--
+      UI-independent unit tests for app/BTNode.js and app/BTAppNode.js.
+      Must be served over http (ES modules don't load from file://), e.g. from the repo root:
+          python3 -m http.server 8000   ->   http://localhost:8000/tests/nodeLogic.html
+      The import map swaps BTAppNode's app dependencies for the recording stubs in tests/stubs/,
+      so nothing here talks to the extension, IndexedDB, GDrive or the real file manager.
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qunit@2.22.0/qunit/qunit.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "../app/configManager.js": "./stubs/configManager.js",
+          "../app/extensionMessaging.js": "./stubs/extensionMessaging.js",
+          "../app/localFileManager.js": "./stubs/localFileManager.js",
+          "../app/fileManager.js": "./stubs/fileManager.js"
+        }
+      }
+    </script>
+    <!-- jQuery: BTAppNode uses $ even in model paths (tabGroupId setter, resetLevel, trash...).
+         treetable: only for the findOrCreate* tests, which build display rows. -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../app/jquery.treetable.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qunit@2.22.0/qunit/qunit.js"></script>
+    <script>
+      // Classic-script globals the app gets from index.html / bt.js
+      QUnit.config.autostart = false;
+      QUnit.config.reorder = false;
+      window.gtag = function () {};                 // Google Analytics
+      window.testAlerts = [];
+      window.alert = msg => window.testAlerts.push(msg);
+      window.testConfirmAnswer = true;
+      window.testConfirms = [];
+      window.confirm = msg => { window.testConfirms.push(msg); return window.testConfirmAnswer; };
+    </script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script type="module" src="nodeLogic.test.js"></script>
+  </body>
+</html>
