@@ -31,12 +31,14 @@ function hideSessionTree() {
     // then tear down the current subtree. Re-enable via showSessionTree (Settings / turning the
     // session-manager toggle back on).
     setProp('BTShowSession', 'HIDDEN');
+    $('#settingsSessionOff').prop('checked', true);        // keep Settings in step when closed via the root row
     removeSessionSubtree();
 }
 
 function showSessionTree() {
     // Re-enable the live session view and rebuild it from a fresh browser snapshot.
     setProp('BTShowSession', 'SHOWN');
+    $('#settingsSessionOn').prop('checked', true);
     requestBrowserSnapshot();
 }
 
