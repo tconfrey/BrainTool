@@ -350,8 +350,8 @@ class BTNode {
         AllNodes.forEach((n) => {
             if (!n) return;
             if (n.isSessionNode) return;
-            const topicName = n.topicName();
             if (n.isTopic()) {
+                const topicName = n.topicName();      // NB only for topics, a parentless non-topic would throw
                 if (topics[topicName]) {
                     topics[topicName].push(n.id);
                     flat = false;
@@ -387,9 +387,13 @@ class BTNode {
             });
         }
 
-        // Now walk thru map and assign unique DN to topic nodes
-        Object.entries(topics).forEach(([topic, id]) => {
-            AllNodes[id[0]]._topicPath = topic;
+        // Now walk thru map and assign unique DN to topic nodes. Any ids still sharing a DN have
+        // identical paths all the way up (eg two top-level topics with the same name), so number
+        // them: 'Dup', 'Dup (2)'. findOrCreateFromTopicDN resolves an exact topicPath first.
+        Object.entries(topics).forEach(([topic, ids]) => {
+            ids.forEach((id, i) => {
+                AllNodes[id]._topicPath = i ? `${topic} (${i + 1})` : topic;
+            });
         });
         
         // Finally set topic for link nodes to parent

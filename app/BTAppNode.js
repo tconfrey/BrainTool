@@ -1318,6 +1318,14 @@ class BTAppNode extends BTNode {
     
     static findOrCreateFromTopicDN(topicDN) {
         // Walk down tree of topics from top, finding or creating nodes & tt display nodes
+
+        // A DN from the Topics list is some topic's topicPath, which may be numbered to tell
+        // apart same-named topics (see generateUniqueTopicPaths), so check for that first
+        const exact = AllNodes.find(n => n && !n.isSessionNode && n.topicPath && (n.topicPath == topicDN) && n.isTopic());
+        if (exact) {
+            exact.newTopNodeId = undefined;
+            return exact;
+        }
         let components = topicDN.match(/.*?:/g);
         if (components) components = components.map(c => c.slice(0, -1));          // remove :
         const topic = topicDN.match(/:/) ? topicDN.match(/.*:(.*?$)/)[1] : topicDN;

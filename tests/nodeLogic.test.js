@@ -457,10 +457,9 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.strictEqual(s.topicPath, '');
     });
 
-    QUnit.todo('BUG generateUniqueTopicPaths: duplicate top-level names both get a path', function (assert) {
-        // Two top-level topics with the same name can't be qualified by a parent, so the loop
-        // at BTNode.js:362 spins to level 99 and only the first id in the bucket gets a path
-        // (BTNode.js:390). Today the second keeps topicPath '' and shows up in Topics as ''.
+    QUnit.test('generateUniqueTopicPaths: duplicate top-level names both get a path', function (assert) {
+        // Was bug 3: two top-level topics with the same name can't be qualified by a parent, and
+        // only the first id in the bucket got a path; the second kept '' and showed up in Topics.
         const a = topic('Dup');
         const b = topic('Dup');
         BTNode.generateUniqueTopicPaths();
@@ -469,16 +468,17 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.notStrictEqual(a.topicPath, b.topicPath, 'and they differ');
     });
 
-    QUnit.todo('BUG generateUniqueTopicPaths: parentless non-topic does not throw', function (assert) {
-        // BTNode.js:351 calls topicName() on every node before checking isTopic; for a
-        // non-topic with no parent topicName() dereferences AllNodes[null] and throws. The
-        // fallback for exactly this case at BTNode.js:400 is therefore unreachable.
+    QUnit.test('generateUniqueTopicPaths: parentless non-topic does not throw', function (assert) {
+        // Was bug 4: topicName() was called on every node before checking isTopic; for a
+        // non-topic with no parent it dereferenced AllNodes[null] and threw, so the fallback
+        // for exactly this case was unreachable.
         // (BTAppNode level-1 nodes are always topics, so this needs a level>1 parentless node,
         // eg a link whose parent was deleted out from under it.)
         new BTAppNode('[[https://a.com][Stray]]', null, '', 2);
         let threw = false;
         try { BTNode.generateUniqueTopicPaths(); } catch { threw = true; }
         assert.notOk(threw);
+        assert.strictEqual(AllNodes.find(n => n)?.topicPath, 'Stray', 'falls back to the link label');
     });
 });
 
@@ -1024,6 +1024,17 @@ QUnit.module('BTAppNode: topics and Topics', function () {
         assert.strictEqual(n.level, 1);
         assert.strictEqual(n.parentId, null);
         assert.strictEqual(n.newTopNodeId, n.id);
+    });
+
+    QUnit.test('findOrCreateFromTopicDN: resolves a numbered duplicate topicPath', function (assert) {
+        initTreeTable();
+        const a = topic('Dup');
+        const b = topic('Dup');
+        a.createDisplayNode(); b.createDisplayNode();
+        BTNode.generateUniqueTopicPaths();
+        assert.strictEqual(BTAppNode.findOrCreateFromTopicDN(a.topicPath), a);
+        assert.strictEqual(BTAppNode.findOrCreateFromTopicDN(b.topicPath), b, 'second Dup, not a new topic');
+        assert.strictEqual(AllNodes.filter(Boolean).length, 2);
     });
 
     QUnit.test('findOrCreateFromTopicDN: first segment matches a topic anywhere (topicPaths are not full paths)', function (assert) {
