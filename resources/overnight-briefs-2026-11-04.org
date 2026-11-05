@@ -1,0 +1,143 @@
+#+title: Overnight cloud-session briefs (2026-11-04)
+
+* Status (2026-11-05)
+| Brief | PR | Status |
+|-------+----+--------|
+| A. Org round-trip tests | #54 | ✅ merged, including two save fixes |
+| B. Phase 3 edit dialog | #53 | ✅ merged |
+| C. User guide + release notes | #51 | ⏸ reviewed; merge on release day. New anchors: =#the-session-manager=, =#moving-things-between-the-trees=, =#showing-and-hiding-the-session-manager= |
+| D. Website sweep | #52 | ⏸ merge on release day |
+| H. Node logic tests | #55 | ✅ merged; 12 bugs → brief J |
+| E. Extension harness | | not started (ready) |
+| I. Tips and messages | | not started (ready; use C's anchors above) |
+| J. Fix H's bugs | | not started (ready) |
+| F. Lint warnings | | after J merges |
+| G. 1.4 snapshot | | last, after E, F, I, J |
+
+Run sessions in the cloud environment =BrainToolClaude=, not locally. The first batch 1 attempt ran locally by mistake and was stopped.
+
+* How to run these
+- *Prerequisite:* push =master= first. Cloud sessions start from GitHub's copy, not the local checkout.
+- One session per brief, each on its own branch, each ending in a PR. *Nobody merges.* The Jekyll site at the repo root deploys to braintool.org via Netlify, and =versions/= is served as the live app, so a merge publishes.
+- *Batch 1 (run in parallel, no file overlap):* A, B, C, D, H. A and H both work in =tests/=, but H adds new files only and leaves =package.json= and =tests/test.*= to A.
+- *Batch 2 (after batch 1 is reviewed and merged):* E builds on A's runner. F touches most JS files. I edits =app/messageManager.js= and =app/BrainTool.org=; run it before or alongside F, and tell F to leave those two files alone. J fixes the model bugs H found, in =app/BTNode.js= / =app/BTAppNode.js=; run it after H merges and *before* F, because F edits the same files. G snapshots everything, so it goes last.
+- Every brief includes the shared context below; paste it in with the brief.
+
+** Shared context (prepend to every brief)
+BrainTool is a Chromium MV3 extension (=extension/=) plus a jQuery/treetable app (=app/=) that uses org-mode files as its data store. Plain ES modules: no build step, no bundler. Read =CLAUDE.md= and =resources/BrainToolDesign.org= first. Ignore =versions/=: it holds old shipped snapshots. Run =npm run lint= before every commit; it must show 0 errors. Work on your own branch, open a PR, and do not merge. In the PR description list anything you couldn't verify. You have no access to Tony's Google Drive, license or Stripe accounts, or his real browser, so don't try to test those flows. Record them as manual checks in the PR.
+
+The unreleased work since 1.3.2 (the headline of the coming 1.4):
+- *Session Manager:* a live "Session" subtree shows the current browser windows, tab groups and tabs, reconciled with the browser (=app/sessionManager.js=, =app/BTSessionNode.js=). It can be shown or hidden from a Settings toggle (=BTShowSession= pref), and deleting the session root closes it.
+- *Drag and drop between the two trees:* drag a topic into the session tree to open it; drag a session tab or group onto a topic to save or re-file it. Rule: a link can't sit at top level; it needs a parent topic.
+- *Smaller items:* undo works after a delete-to-Trash (Option/Alt+Z); sticky-tab notes survive navigating away and back; the popup recognises tabs dropped into managed tab groups and reflects title edits; links and groups open in a real window on Vivaldi; dark-mode contrast fixes. The AI Summarizer experiment was removed; it was never public, so don't mention it.
+
+* A. Org round-trip test suite (batch 1)
+*Goal:* lock in that org syntax imported into BrainTool survives a save unchanged, or that any change is deliberate and documented.
+
+- Data path: =app/parser.js= (=insertOrgFile=, =orgaSection=, =orgaText=, wrapping =orga-bundlev2.js=) parses the text into =AllNodes=. =BTAppNode.orgText()= / =orgTextwChildren()= (=app/BTAppNode.js= ~l.951) write it back out. The fileManager export path wraps that.
+- =tests/test.html= + =tests/test.js= (QUnit, 39 tests) load the app as classic =<script>= tags. That has almost certainly been broken since the ES-module migration. Repair it, or add a new module-based page (e.g. =tests/orgRoundTrip.html=), whichever is cleaner.
+- Add a headless runner so this works with no human: Playwright with Chromium, a static server on port 8000, an =npm test= script that loads the QUnit page and fails on test failures. Keep it minimal; it's dev-only, like ESLint. Brief E will extend it.
+- Fixtures in =tests/fixtures/*.org= cover at least: nested headings at several depths; text before the first heading; TODO/DONE and custom keywords; priorities; tags; SCHEDULED/DEADLINE/CLOSED and active/inactive timestamps; =:PROPERTIES:= and other drawers; plain, bracket and file links, with and without descriptions; bare URLs in body text; lists (plain, numbered, checkbox); tables; src/quote/example blocks; =#+KEYWORDS= and file-level settings; footnotes; Unicode and emoji; blank lines and trailing whitespace; BrainTool's own properties and special topics (TRASH, BOOKMARKS BAR). Also use a real-ish file assembled from =topicTrees/= if suitable.
+- Assertion: parse, then serialize, then compare to the original (and that a second round trip is stable). Where BrainTool deliberately normalises something, assert the normalised form and say why in a comment. Where loss looks like a bug, mark it =QUnit.todo= with a clear description. *Don't fix the parser in this branch* unless a fix is a few lines and obviously right; if so, make it a separate commit.
+- *Done when:* =npm test= runs green headless (todos allowed), and the PR has a table of each construct: preserved, normalised, or lost.
+
+* B. Phase 3: edit dialog module (batch 1)
+*Goal:* finish the =app/= componentization. The spec is in =resources/BrainToolDesign.org= under "Phase 3 - Edit Dialog Module".
+
+- Move the =#editOverlay= / =#dialog= markup out of =app/index.html= into a new =app/editDialogManager.js= that follows the established =generateHTML()= + =attachListeners()= + =initialize()= pattern (see =applicationUI.js=, =messageManager.js=, =rowManager.js=).
+- Remove the =window.closeDialog/cancelEdit/updateRow= shim and the last inline =onclick= handlers in =index.html=. Move the dialog logic out of =rowManager.js= if that's the cleaner split, and avoid new circular imports.
+- Verify headless: serve =app/= on =localhost:8000=. Use Playwright if it's available; otherwise a script installing it is fine (only add it to package.json if A hasn't). Open, edit and cancel a topic and a link; cancelling a new empty node deletes it.
+- Update the Phase 3 section of the design doc to COMPLETED, in the same style as Phase 6.
+- *Done when:* there are no inline handlers in =index.html=, lint is clean, and the dialog behaves the same.
+
+* C. User guide update for 1.4 (batch 1)
+*Files:* =support/userGuide.md=, =support/releaseNotes.md=, plus images under =site/= if needed. *Touch nothing else* (brief D owns the rest of the site).
+
+- Read the shared-context feature list, then confirm each feature against the code (=app/sessionManager.js=, =app/applicationUI.js= for the setting, =app/tableManager.js= / =rowManager.js= for drag and undo) rather than trusting this summary.
+- Add a *Session Manager* section to the guide: what it shows, how it stays in sync, showing/hiding it, dragging between the trees, the top-level rule. Update "Drag and Drop Organization", "Keyboard Accelerators" (undo after Trash), "Settings" (the new toggle) and "Sticky Tabs" as needed. Check every existing section for statements the refactor made untrue.
+- Add a =# BrainTool 1.4= entry at the top of =releaseNotes.md=, in the voice and format of the 1.3 entry.
+- Screenshots: you can't capture the real product with a live session. Insert clearly marked placeholders (=<!-- TODO screenshot: ... -->=) and list each one in the PR with what it should show.
+- Match the existing tone: short, second person, practical.
+- *Done when:* the PR diff reads as a coherent 1.4 guide, and the screenshot TODOs are listed.
+
+* D. Website sweep for 1.4 (batch 1)
+*Scope:* the Jekyll site at the repo root: =index.md=, =overview.md=, =about.md=, =pricing.md=, =support.md=, =support/welcome.md=, =support/localInstall.md=, =topicTrees/=, =_includes/=, =_layouts/=, =_config.yml=. *Exclude* =support/userGuide.md= and =support/releaseNotes.md= (brief C), =_posts/= (dated posts stay historical; only fix broken links in them), =versions/=, =app/= and =extension/=.
+
+- Find anything stale given the 1.4 features: feature lists, the "how it works" copy, version numbers, the welcome page shown on install/upgrade (=support/welcome.md=) and its links to the guide/videos, and claims about side panel, window or tab modes.
+- Check internal links and anchors, especially any into =userGuide.md= sections that C may rename. Coordinate by linking to the existing anchors and flag any that C should keep.
+- =support/localInstall.md= is already marked out of date. Either bring it up to date (dev setup is in =CLAUDE.md=) or keep the warning, your call; explain in the PR.
+- If Ruby/Jekyll is available, run =bundle exec jekyll build= to confirm the site builds; otherwise say so.
+- Don't invent marketing claims or change pricing. Where copy needs Tony's judgement, leave a =TODO(tony)= comment and list it.
+- *Done when:* the PR has a per-page list of what changed and why, plus a list of open TODO(tony) items.
+
+* E. Headless extension test harness (batch 2, after A merges)
+*Goal:* automated checks of the real extension and app together, building on A's Playwright runner.
+
+- Launch Chromium with =--load-extension=extension/= in headless mode, with the dev manifest (content script matches =http://localhost:8000/app/*=), and serve the repo root on port 8000.
+- First prove the plumbing: the app loads in a tab or side panel and the content-script ↔ background messaging works (see =app/extensionMessaging.js=, =extension/btContentScript.js=). Local-file storage, not GDrive: seed an org file through whatever path =localFileManager.js= supports, or a test hook.
+- Then script the session-manager checks from the design doc's "Testing checklist" under the Session DnD section: open windows and tabs show in the session tree; drag an unsaved tab or group onto a topic saves it; re-filing an already-saved tab; dropping a link at top level is rejected; the show/hide toggle; the session root delete-to-close; delete-to-Trash then undo.
+- If something proves impossible headless (e.g. side panel APIs), document it and test the tab/window mode instead.
+- *Done when:* =npm test= runs both A's suite and these. The PR lists covered vs. manual-only cases.
+
+* F. Clear the ESLint warnings (batch 2)
+- =npm run lint= currently shows 0 errors and 39 warnings across =app/=, =extension/= and =utilities/=. Fix them properly (remove dead code and unused vars/imports) rather than suppressing them. If a warning is a false positive given the per-page classic-script setup in =eslint.config.js=, adjust the config with a comment explaining why.
+- Be careful with "unused" functions that are actually called from HTML, from =window=, or via message-handler registration (=registerMessageHandler=). Grep before deleting.
+- Run =npm test= if it exists by then.
+- *Done when:* there are 0 warnings and every deletion is justified in a commit message.
+
+* G. 1.4 release prep (batch 2, last)
+- Why 1.4 and not 1.3.3: the extension loads its app from =versions/<major.minor>/app= (=extension/sidePanel.js:15-26=, which strips the patch number). A 1.3.x extension would load the old =versions/1.3/app=, and overwriting =versions/1.3= would break current 1.3.2 users.
+- Run =./mkver.sh 1.4=. In =versions/1.4/extension/manifest.json= set the version to =1.4.0= and the content-script match to =https://BrainTool.org/versions/*= (copy the form from =versions/1.3/extension/manifest.json=). Leave the root =extension/manifest.json= on localhost for development, but bump its version to =1.4.0=.
+- Remove from the snapshot anything that shouldn't ship (test files, =.DS_Store=, =*~= backups). Fix =mkver.sh= if it's copying them.
+- Don't create zips, and don't touch =versions/1.3= or =versions/Release-Candidate=. Mention in the PR that the Release-Candidate directory looks stale (last touched 2026-02).
+- PR checklist for Tony: app files live on braintool.org before the store submission; build and submit the Chrome zip; decide whether Firefox ships (its manifest is at 1.3.1); manual tests of GDrive first-connect and license-key import.
+
+* H. BTNode / BTAppNode logic tests (batch 1)
+*Goal:* UI-independent unit tests for the core data model, so future refactors (and brief F's deletions) can't quietly break tree logic.
+
+- *Files you own:* new files only, e.g. =tests/nodeLogic.html=, =tests/nodeLogic.test.js= and any stubs under =tests/stubs/=. *Don't touch* =package.json=, =tests/test.html= or =tests/test.js=; brief A owns those and the =npm test= runner, and will wire your page in. To run your page headless tonight, use a throwaway =npx playwright= script outside =package.json=, and describe in the PR how you ran it.
+- *Targets:*
+  - =app/BTNode.js=: pure, no imports, no DOM. Cover all of it: construction and ids, =AllNodes= indexing, parent/child links, adding/removing/reordering children, ancestor/descendant queries, moves, delete and =undoStack= / =undoDelete=, title and URL parsing (the existing =tests/test.js= has a few examples to start from), and any static helpers.
+  - =app/BTAppNode.js= (=BTAppNode=, =BTLinkNode=, =Topics=): the logic, not the rendering. Cover topic naming and =Topics= lookup, including duplicate names and distinguished/full-path names; link vs. topic classification; =orgText()= for a single node (A covers whole-file round trips); keyword/TODO and priority state changes; special-topic handling (TRASH, BOOKMARKS BAR); open/closed state bookkeeping, using fake tab ids rather than real tabs; and search/match helpers.
+- *Isolation:* BTAppNode imports =configManager=, =extensionMessaging=, =localFileManager= and =fileManager=, and has ~57 jQuery calls. Don't load the real app. Use an import map in the test page to point those imports at small stubs in =tests/stubs/=, so =sendMessage= / =callBackground= calls are recorded and can be asserted on. Load jQuery only if a method under test needs it. Skip methods that are really DOM rendering (the HTML generation and row display) and list them in the PR.
+- *Reset* =AllNodes= and =Topics= between tests so each test stands alone.
+- *Don't change app code.* If logic is tangled with DOM or messaging in a way that blocks testing, record it in the PR as a refactor candidate (file:line, what to split). If you find a real bug, add a =QUnit.todo= test describing it and list it; don't fix it.
+- *Done when:* the page runs green headless (todos allowed), and the PR has a coverage list: each public method tested, skipped as UI, or blocked (and why).
+
+* I. Tips, messages, intro and sample file for 1.4 (batch 2, after C merges, before G)
+*Goal:* in-app onboarding copy that reflects 1.4. *Files:* =app/messageManager.js= (=tipsArray=, =messageArray=, =introSlidesArray=), =app/BrainTool.org= (the sample topic tree new users get) and, if needed, =app/resources/slide*.png=. This also closes the dailyLog item "update default BrainTool.org and intro slides for new session functionality".
+
+- *Messages* (=messageArray=): shown once each, in order, after install or upgrade. =bt.js:204= resets =BTLastShownMessageIndex= to 0 on upgrade, so existing users will see the new list. Replace the 1.3 set: the first message becomes "Welcome to BrainTool 1.4", linking to the release notes. Then one message each for the Session Manager, drag and drop between the session and topic trees, and the show/hide setting. Keep it to about 5 messages; each is a short sentence or two, with a guide link where useful. Use the anchors the merged user guide (brief C) actually has.
+- *Tips* (=tipsArray=, random): add 3–5 session-manager tips (e.g. drag a tab or group from Session onto a topic to save it; drag a topic into Session to open it; delete the Session root, or use Settings, to hide it; Option/Alt+Z after delete-to-Trash). Review every existing tip for accuracy against current behaviour: double-click a row, side-panel mode, the Twitter/X link, the =file:///users/tconfrey= example (make it generic), and grammar ("it's" → "its"). Remove tips that are no longer true.
+- *Intro slides* (=introSlidesArray=): add or adjust a slide that introduces the live Session tree. You can't capture real screenshots: reuse an existing image or leave the =img= out, and add an =<!-- TODO screenshot -->= / PR note describing the image needed.
+- *Sample file* (=app/BrainTool.org=): check it still parses and loads, update any text that describes features, and consider a short node that explains the Session tree. Don't add session nodes to the file; the session tree is live and isn't serialized to org.
+- Verify headless if A's runner exists (load the app and check that messages, tips and slides render without errors); otherwise at least check that =app/BrainTool.org= round-trips with A's test helper. =npm run lint= must be clean.
+- Same voice as the existing copy: short, friendly, second person. No new marketing claims; use =TODO(tony)= where judgement is needed.
+- *Done when:* the PR lists old → new for every message, tip and slide changed, plus any screenshot TODOs.
+
+* J. Fix the data-model bugs found by H (batch 2, after H merges, before F)
+*Goal:* fix the bugs that H's tests (=tests/nodeLogic.test.js=, merged from PR #55) record as =QUnit.todo=, so 1.4 doesn't ship them. The PR #55 description has the full analysis; the table below is enough to work from.
+
+| # | Where | Bug |
+|---+-------+-----|
+| 1 | =BTNode.js:227= | =replaceURLandTitle= drops all text after the link (the trailing =(.*?)= is lazy and unanchored, so it always matches nothing) |
+| 2 | =BTNode.js:144=, =:149= | =_hasWebLinks= is passed to =some()= without being called, so it's always truthy: any node with children "has web links", and a link with only a plain child note counts as a topic |
+| 3 | =BTNode.js:362= / =:390= | two top-level topics with the same name: only the first gets a =topicPath=; the second gets =''=, which ends up in =Topics= |
+| 4 | =BTNode.js:351= vs =:400= | =generateUniqueTopicPaths= calls =topicName()= before =isTopic()=, so a parentless non-topic throws and the fallback is never reached |
+| 5 | =BTNode.js:166= | =reparentNode='s default =index = -1= becomes =splice(-1, 0, id)=, which inserts *before the last* child. Used by promote, delete-to-Trash (=rowManager.js:411=) and =sessionManager=, so the model's order drifts from the displayed order and gets saved to the org file |
+| 6 | =BTNode.js:327= | =undoDelete= restores the node as its parent's first child, not at its original index |
+| 7 | =BTAppNode.js:153-156= | =resetLevel= returns before updating children when the node has no rendered row, so a moved, unrendered subtree keeps its old levels and gets the wrong =*= depth in the org file |
+| 8 | =BTAppNode.js:1156= (also =:1142=) | =handleNodeMove= on an open top-level node throws =TypeError= (=oldParent= is undefined) |
+| 9 | (fixed) | property values gaining a space on every save, already fixed by PR #54. Just convert its todo to a normal test |
+| 10 | =BTAppNode.js:931= | a folded node whose PROPERTIES drawer has no =VISIBILITY= line loses its folded state on save |
+| 11 | =BTAppNode.js:913= / =:926= | drawer lines that aren't =:prop: value= (e.g. LOGBOOK =- State "DONE" ...= entries) are silently dropped on save |
+| 12 | =BTAppNode.js:1014= | =_orgTextToHTML= runs =exec= once, so only the first link in notes is rendered as a link |
+
+- Line numbers are from H's branch. Check them against current master, since A's two save fixes touched =BTAppNode.js= and =parser.js=.
+- *Priority:* 5, 7, 8 and 11 can corrupt or lose user data, or crash, so do them first. 2, 3, 4, 6, 10 and 12 come next. Do 1 if it's simple.
+- *One commit per bug* (or per tightly related pair, e.g. 9 + 11 are both in =orgDrawers=), with a message naming the bug number. In the same commit, change its =QUnit.todo= to =QUnit.test=. Don't weaken a test to make it pass. If a test's expectation looks wrong, say so in the PR instead.
+- *Watch the callers:* for 5 and 6, check every caller of =reparentNode= / =addChild= / =undoDelete= (=rowManager.js=, =sessionManager.js=, =tableManager.js=, =bt.js=). Some may depend on the current behaviour, e.g. passing an index elsewhere or re-sorting after the call. Preserve visible behaviour except where it was the bug. For 7, the cleanest fix is probably H's refactor candidate #1: a pure recursive =setLevel=, plus a separate step that redraws the indent.
+- *Old test suite:* =tests/test.js= has a "Level reset ok" case and an =_orgTextToHTML= double-link case that encode bugs 7 and 12. If they still disagree after your fix, note it; that suite isn't run by =npm test=.
+- *Test run:* if =tests/nodeLogic.html= isn't in the =PAGES= list in =tests/run.js= yet, add it. Make it load jQuery and QUnit from =node_modules= like =tests/orgRoundTrip.html= does, rather than the CDN. =npm test= must run both pages green (remaining todos allowed) and =npm run lint= must be clean.
+- *Scope:* fix the listed bugs only. Leave H's other refactor candidates and "observations" for later, but list any you think are real bugs.
+- *Done when:* the PR has a table of bug → fixed / deferred (and why) → commit, and no remaining todo is for a bug you were able to fix.

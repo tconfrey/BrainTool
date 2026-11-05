@@ -69,6 +69,13 @@ Entry point for the application. Now minimal with most UI generated dynamically:
 Between them these files contain all the application css. wenk.css is a standalone library for toolips.
 
 * Testing and Development Files
+** Automated test suite (added 2026-11, PRs #54 and #55)
+QUnit pages under =tests/=, run headless by =npm test= (=tests/run.js=: starts =tests/server.js= on port 8000 and drives Playwright Chromium over the pages in its =PAGES= list) or by hand at =http://localhost:8000/tests/<page>.html= with the repo root served. Setup and commands are in =CLAUDE.md=.
+- =orgRoundTrip.html= / =orgRoundTrip.js= / =orgHarness.js=: parse → save → compare round trips over =tests/fixtures/*.org= (headings, keywords, planning lines, drawers, links, lists, tables, blocks, settings, unicode, BrainTool specials). It loads the real app modules starting from =bt.js=, so it also catches module-load and circular-import breakage. PR #54 fixed two save bugs it found: property values gaining a space on each save, and planning items being dropped when they share a line.
+- =nodeLogic.html= / =nodeLogic.test.js=: 111 UI-independent unit tests of =BTNode=, =BTAppNode=, =BTLinkNode= and =Topics=. An import map points =configManager=, =extensionMessaging=, =localFileManager= and =fileManager= at the recording stubs in =tests/stubs/=. It records 12 bugs as =QUnit.todo=; the table is in PR #55 and in brief J of =resources/overnight-briefs-2026-11-04.org=. It isn't in =PAGES= yet and still loads jQuery/QUnit from the CDN; brief J fixes both.
+- =test.html= / =test.js=: the original pre-ES-module suite. It needs the extension and isn't run by =npm test=. Some of its expectations encode bugs (level reset, double links in notes).
+- Convention: record a known bug as a =QUnit.todo= that describes it. When it starts passing, QUnit reports a failure: the bug is fixed, so convert it to =QUnit.test=.
+- Not yet automated: anything needing the loaded extension (session manager, drag and drop between trees, popup). Brief E adds a headless harness that loads the unpacked extension.
 ** btContentScript.test.js
 Test file for the content script in the extension directory. Testing infrastructure exists but has not been maintained
 ** gdrivetest.html
@@ -155,6 +162,17 @@ Refactor special node handling (bookmarks bar, session nodes) to use event-based
 
 ** Phase 5 - Final Dependency Analysis
 Complete final dependency analysis and consider bundler integration for production builds.
+
+*** Model/view separation candidates (found while writing =tests/nodeLogic.test.js=, PR #55)
+The logic is tangled with the DOM or messaging in these places, which blocks pure unit tests. Fold them into Phase 4/5:
+1. =BTAppNode.resetLevel=: model levels only cascade when a rendered indenter row exists. Split into a pure recursive =setLevel= plus a redraw-indent step. This also fixes bug 7 (brief J may already have done it).
+2. =search= / =extendedSearch=: matching and DOM highlighting are mixed. Extract a pure =matchFields(sstr)=. The reused =/g= regex with =.test()= can skip highlighting a notes match after a keyword match.
+3. =generateTopics= and =generateOrgFile= read top-level order from =$("#content tr")=. Keep top-level order in the model.
+4. The =tabGroupId= setter calls =setTGColor= (a DOM write) from a model setter.
+5. =handleNodeMove= mixes the =emptyTopic= class toggle, the model move and browser regrouping. Split into model, view and browser sync.
+6. =findOrCreateFromTopicDN=, =findOrCreateTrashNode= and =findOrCreateBookmarksBarNode= create display rows inline. Separate model creation from =createDisplayNode=.
+7. Module-load side effects (=document.createElement= at load, the =getDB= static block) mean =BTAppNode= can't be imported without a DOM and storage, so there's no Node-only test run.
+8. Implicit globals: =Window.BrainTool= (capital W) used as a state bag in =updateTabGroup=; =gtag= and =confirm= in =openPage=, =openAll= and =ungroupAll=.
 
 ** Phase 6 - Finish extension/'s ES6 module migration ✅ COMPLETED (2026-07-21)
 The Phase 1 migration covered app/ only; extension/ was left half-migrated (background.js, bookmarkHandler.js, config.js, configFallback.js as modules; popup.js, sidePanel.js, btContentScript.js, topicCard.js, topicSelector.js as classic scripts sharing global scope via `<script>` load order). Phase 6 finished it.
@@ -266,6 +284,29 @@ This is not really a D&D, it's the creation of a new AppNode corresponding to a 
 - Session node with a note -> note appears on the new appNode
 - Drop into BOOKMARKS BAR topic -> bar updates
 - Reload after each: org file contains the new nodes
+
+* 1.4 Release 🚧 IN PROGRESS (started 2026-11-04)
+Ships everything since 1.3.2: the Session Manager, drag and drop between the session and topic trees, the ES-module refactor, and the July bug fixes. The version is 1.4, not 1.3.x, because the extension loads its app from =versions/<major.minor>/app= and 1.3.2 users must keep getting =versions/1.3=. The work is split into briefs run as cloud sessions (environment =BrainToolClaude=); the full text and live status are in =resources/overnight-briefs-2026-11-04.org=.
+
+| Brief | What | Status |
+|-------+------+--------|
+| A | Org round-trip tests + =npm test= runner | ✅ merged (#54), plus two save fixes |
+| B | Phase 3 edit dialog module | ✅ merged (#53) |
+| C | User guide + 1.4 release notes | ⏸ PR #51 reviewed, held for release day (site goes live on merge) |
+| D | Website sweep | ⏸ PR #52, held for release day |
+| H | BTNode/BTAppNode unit tests | ✅ merged (#55); 12 bugs recorded as todos |
+| E | Headless harness with the extension loaded | not started |
+| I | Tips, messages, intro slides, sample =BrainTool.org= | not started |
+| J | Fix H's 12 model bugs | not started; before F |
+| F | Clear the 39 ESLint warnings | not started; after J |
+| G | =versions/1.4= snapshot + manifests | not started; last |
+
+** Release-day checklist
+- Merge C, D and G together. The app files must be live on braintool.org before the store submission.
+- Capture the screenshots that C and I leave as =TODO screenshot= placeholders.
+- Manual checks no session can do: Google Drive first-connect, license-key import, Vivaldi panel mode, and a full session-manager pass in a real browser.
+- Build the Chrome zip from =versions/1.4/extension= and submit it. Decide whether Firefox ships; its manifests are still at 1.3.1.
+- Clean up the stale =versions/Release-Candidate= directory (last touched 2026-02).
 
 * Bookmarker Summaries project ❌ ABANDONED / REMOVED (2026-07-21)
 The Summaries experiment aimed to use the browser's built-in AI summarizer to optionally populate the Bookmarker notes field with a summary of selected text or the whole page (text extracted via Readability.js). It never shipped - the shipping manifests always used popup.html, while the summarizer only wired up under the separate non-shipping summarizerManifest.json. summarizer.js was nonetheless dead-loaded into the production service worker via a stray background.js `import`, registering a GENERATE_SUMMARY handler nothing in the shipping build ever triggered. Removed entirely in Phase 6 (commit 05aabef): summarizer.js, summarizerPopup.{js,html}, summarizerManifest.json, Readability.js, and the background.js import + handler. Kept here as a record of the dead end; revive from git history if the built-in Summarizer API is ever worth revisiting.
