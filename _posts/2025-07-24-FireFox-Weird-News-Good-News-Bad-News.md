@@ -5,7 +5,7 @@ description: Challenges found
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/FireFox-Screenshot.png"
+image: "/site/postAssets/FireFox-Screenshot.png"
 ---
 # BrainTool on FireFox?
 Recently a user let me know that someone had posted BrainTool to the FireFox Add-On store (thanks Jeff!) They just totally took the code, images, text and all the artifacts and posted it as their own! It wasn't ported and totally didn't work. So that's the weird news! I had it taken down; but it prompted me to pick up the "port to FF" task off my backlog.

@@ -114,7 +114,7 @@ Other videos were recorded over the last four years as BT evolved and may not ac
 </div>
 
 ## Other Resources
-- See the [Blog](./posts.html) for deep dives and background
+- See the [Blog](/posts.html) for deep dives and background
 - See the [Discussion Group](https://groups.google.com/u/0/g/braintool-discussion) for user interactions
 - The [ZDNet article](https://www.zdnet.com/article/every-google-chrome-user-should-try-this/) that started in all.
 <br/>

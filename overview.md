@@ -29,7 +29,11 @@ The BrainTool browser extension is a **knowledge/notes/links/browser manager.** 
 
 **Topics provide a way of organizing your information.** Think of BrainTool as the index into your personal information space. Each topic is represented by a node in the tree shown on the BrainTool Topic Manager, and within the browser by a dedicated window or tab group, with tabs for saved links. 
 
-The Topic Manager is your central controller. With **drag and drop and powerful keyboard commands** it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease.
+The Topic Manager is your central controller. With **drag and drop and powerful keyboard commands** it allows you to organize and annotate your topic tree, and to operate your browser - opening, closing and navigating between tabs and windows with ease. It can live in its own window, in the browser side panel or in a tab.
+
+The Topic Manager also shows your **current browser session** - the windows, tab groups and tabs you have open right now - as a live tree alongside your topics. Drag a topic into the session to open it, or drag a tab or tab group from the session onto a topic to save it. The session view can be turned off in Settings.
+
+<!-- TODO(tony): the screenshot below predates 1.4 and does not show the session tree. Replace it if you have a new one. -->
 
 <img src="/media/ReleaseCandidate-TG.png" alt="Tab Groups">
 

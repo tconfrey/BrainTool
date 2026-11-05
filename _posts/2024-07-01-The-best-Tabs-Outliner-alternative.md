@@ -5,7 +5,7 @@ description: BrainTool is the best alternative to Tabs Outliner
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/BT-TO.png"
+image: "/site/postAssets/BT-TO.png"
 ---
 # BrainTool 1.0 is the best Tabs Outliner Alternative
 <!--start-->

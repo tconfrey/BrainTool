@@ -5,7 +5,7 @@ description: "Tools for Thought need a standard for data interoperability. Here'
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/org-interop.png"
+image: "/site/postAssets/org-interop.png"
 ---
 # Tools for Thought need a standard for data interoperability. It should be org-mode
 

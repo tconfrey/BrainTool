@@ -78,7 +78,7 @@ Nag-free.
 <i>Topic file sharing.</i>
 </p>
 <p>
-<i>Live sessions.</i>
+<i>Live sessions.</i><!-- TODO(tony): 1.4 ships a live Session Manager to all users (not gated). Is this 'Live sessions' planned Supporter feature now done, something different, or should it move to the free column? Left unchanged. -->
 </p>
 <p>
 <i>Deep search on contents of saved pages.</i>

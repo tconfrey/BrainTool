@@ -50,6 +50,7 @@ audience: landingpage
     <h3 style="color: #DDDDDD; font-weight: 300;">...Gave bookmarks the performance and usability boost that I'd been waiting for all these years...it's a very nice, very fresh, take on bookmarks...I really like BrainTool. The rather simple interface might not be for everyone, but behind that simplicity is a lot of power.<br/><br/>ZDNET BUSINESS</h3>
   </div>
 </div>
+<!-- TODO(tony): 1.4 adds the Session Manager (live CURRENT SESSION tree). Does it deserve its own hero row or feature tile? Adding a 13th tile would unbalance the grid, so only the drag-and-drop tile was updated. -->
 <div class="row feature-grid" style="background:#999; margin-top: -8px">
   <div class="feature">
     <img src="/site/pageAssets/bookmark.svg" alt="Organize into topics">
@@ -89,7 +90,7 @@ audience: landingpage
   </div>
   <div class="feature">
     <img src="/site/pageAssets/drag.svg" alt="Drag and Drop">
-    <p>Intuitive drag and drop from the browser bar into and within the Topic Manager.</p>
+    <p>Intuitive drag and drop from the browser bar into and within the Topic Manager, and between your topics and your live browser session.</p>
   </div>
   <div class="feature">
     <img src="/site/pageAssets/configurable.svg" alt="Dark mode">

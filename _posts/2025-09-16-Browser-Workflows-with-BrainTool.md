@@ -5,7 +5,7 @@ description: There are lots of ways BrainTool can improve your browser workflows
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/CollatoralMaterial/brianVideoThumbnail.png"
+image: "/site/CollatoralMaterial/brianVideoThumbnail.png"
 ---
 # Browser Workflows with BrainTool
 This post describes ways BrainTool can improve your browser workflows. It's illustrated with a set of short videos and video shorts.
