@@ -141,12 +141,12 @@ class BTNode {
     _hasWebLinks() {
 	    // Calculate on demand since it may change based on node creation/deletion
 	    if (this.URL) return true;
-	    return this.childIds.some(id => AllNodes[id]._hasWebLinks);
+	    return this.childIds.some(id => AllNodes[id]?._hasWebLinks());
     }
 
     isTopic() {
         // Is this node used as a topic => has webLinked children
-        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]._hasWebLinks);
+        return (this.level == 1) || (!this.URL) || this.childIds.some(id => AllNodes[id]?._hasWebLinks());
     }
 
     topicName () {

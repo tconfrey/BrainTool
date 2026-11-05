@@ -379,10 +379,9 @@ QUnit.module('BTNode: topics, ancestry and topic paths', function () {
         assert.notOk(new BTNode('Lonely')._hasWebLinks(), 'childless, no URL');
     });
 
-    QUnit.todo('BUG _hasWebLinks is false for a subtree with no URLs', function (assert) {
-        // BTNode.js:144 (and :149 in isTopic) pass AllNodes[id]._hasWebLinks - the method itself,
-        // always truthy - to some() instead of calling it. So any node with any child "has web
-        // links", and in isTopic any URL node with any child (eg a plain note) becomes a topic.
+    QUnit.test('_hasWebLinks is false for a subtree with no URLs', function (assert) {
+        // Was bug 2: _hasWebLinks and isTopic passed the method itself (always truthy) to some()
+        // instead of calling it, so any URL node with any child (eg a plain note) was a topic.
         const p = new BTNode('Parent');
         new BTNode('plain child', p.id);
         assert.notOk(p._hasWebLinks());
