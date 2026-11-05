@@ -4,9 +4,13 @@
   "description": "Dev-only tooling for BrainTool. Not used by the extension or app at runtime.",
   "type": "module",
   "scripts": {
-    "lint": "eslint app extension utilities"
+    "lint": "eslint app extension utilities",
+    "test": "node tests/run.js"
   },
   "devDependencies": {
-    "eslint": "^9.19.0"
+    "eslint": "^9.19.0",
+    "jquery": "3.7.1",
+    "playwright": "1.63.0",
+    "qunit": "^3.0.0"
   }
 }

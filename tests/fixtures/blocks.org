@@ -1,0 +1,37 @@
+* Lists
+- plain item one
+- plain item two
+  - nested item
+1. numbered one
+2. numbered two
+- [ ] unchecked box
+- [X] checked box
+- [-] partial box
+- term :: description list
+* Table
+| Name  | Value |
+|-------+-------|
+| alpha |     1 |
+| beta  |     2 |
+* Src block
+#+BEGIN_SRC python
+def hello():
+    print("hi")
+#+END_SRC
+* Quote block
+#+BEGIN_QUOTE
+Quoted text.
+#+END_QUOTE
+* Example block
+#+begin_example
+  indented example
+#+end_example
+* Markup
+Some *bold*, /italic/, _underline_, =verbatim=, ~code~ and +strike+ text.
+* Footnotes
+Text with a footnote[fn:1] and an inline one[fn:: inline note].
+
+[fn:1] The footnote definition.
+* Horizontal rule and comment
+-----
+# a comment line

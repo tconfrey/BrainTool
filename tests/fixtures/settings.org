@@ -1,0 +1,13 @@
+#+TITLE: Settings fixture
+#+AUTHOR: Test Author
+#+STARTUP: overview
+#+PROPERTY: BTVersion 7
+#+PROPERTY: BTCohort 2024-1
+#+PROPERTY: BTId abc-123
+#+PROPERTY: header-args :results silent
+#+FILETAGS: :fixture:
+
+* First heading
+* Second heading
+#+CAPTION: an in-section keyword
+Body.
