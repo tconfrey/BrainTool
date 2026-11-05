@@ -1493,17 +1493,19 @@ QUnit.module('BTAppNode: handleNodeMove and levels', function () {
         assert.strictEqual(calls.length, 0);
     });
 
-    QUnit.todo('BUG handleNodeMove of an open top-level node does not throw', function (assert) {
-        // A top-level topic can have a URL and an open tab. Moving it under another topic
-        // reaches BTAppNode.js:1156 with oldParent undefined: !undefined?.hasOpenChildren()
-        // is true, then oldParent.setTGColor(null) throws TypeError. (newParent is also
-        // dereferenced unguarded at :1142 when moving an open node to top level.)
+    QUnit.test('handleNodeMove of an open top-level node does not throw', function (assert) {
+        // Was bug 8: with oldParent undefined, oldParent.setTGColor(null) threw TypeError.
+        // (newParent was also dereferenced unguarded when moving an open node to top level.)
         const lt = link('https://a.com', 'Link topic', null);
         Object.assign(lt, { tabId: 10, windowId: 1 });
         const p = topic('P');
         let threw = false;
         try { lt.handleNodeMove(p.id, 0, true); } catch { threw = true; }
         assert.notOk(threw);
+        threw = false;
+        try { lt.handleNodeMove(null, -1, true); } catch { threw = true; }
+        assert.notOk(threw, 'and back to top level');
+        assert.strictEqual(lt.level, 1);
     });
 
     QUnit.test('resetLevel cascades when rows are displayed', function (assert) {

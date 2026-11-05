@@ -1145,20 +1145,23 @@ class BTAppNode extends BTNode {
 
         // if node has open tab we might need to update its tab group/position
         // NB Can't left align w dragged tab, need to left align w its new tg, *but* if its left whole tg will slide left by one
+        // Either parent can be null (top level): no tab group to join or leave there.
         if (this.tabId) {
-            const newPleftmost = newParent.leftmostOpenTabIndex();
-            const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
-            if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
-            if (!browserAction && !newParent.isTrash()) {
-                if (newParent.tabGroupId) {
-                    newParent.groupAndPosition(newLeft);
-                    newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
-                } else if (!this.isSessionNode) {
-                    this.putInGroup();
+            if (newParent) {
+                const newPleftmost = newParent.leftmostOpenTabIndex();
+                const newLeft = (origIndex < newPleftmost) ? newPleftmost - 1 : newPleftmost;
+                if (newP != oldP) this.tabGroupId = newParent.tabGroupId;
+                if (!browserAction && !newParent.isTrash()) {
+                    if (newParent.tabGroupId) {
+                        newParent.groupAndPosition(newLeft);
+                        newParent.tgColor && this.setTGColor(newParent.tgColor); // inherit color from new parent
+                    } else if (!this.isSessionNode) {
+                        this.putInGroup();
+                    }
                 }
             }
             // update old P's display node to remove open tg styling
-            if (!oldParent?.hasOpenChildren()) {
+            if (oldParent && !oldParent.hasOpenChildren()) {
                 $("tr[data-tt-id='"+oldP+"']").removeClass("opened");
                 oldParent.setTGColor(null);
                 // oldParent.tabGroupId = null;     // breaks when tg dragged out of window
