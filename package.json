@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "lint": "eslint app extension utilities",
-    "test": "node tests/run.js"
+    "test": "node tests/run.js",
+    "test:ext": "node tests/run.js --ext"
   },
   "devDependencies": {
     "eslint": "^9.19.0",
     "jquery": "3.7.1",
+    "jquery-ui-dist": "1.12.1",
     "playwright": "1.63.0",
     "qunit": "^3.0.0"
   }

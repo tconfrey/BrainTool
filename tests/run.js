@@ -3,16 +3,21 @@
 //
 //   npm test                          run every page in PAGES
 //   node tests/run.js tests/foo.html  run just the given page(s)
+//   node tests/run.js --ext           run just the extension checks (npm run test:ext)
 //
 // To add a suite: create tests/<name>.html that loads QUnit from node_modules (see
 // orgRoundTrip.html) and add it to PAGES. Pages need no reporting code; the runner hooks QUnit
 // as it loads. QUnit.todo tests count as passing while they fail (that's the point of a todo).
 // Set PORT to use a port other than 8000.
 //
+// npm test also runs tests/extension/ (the real extension loaded in Chromium, driving the app
+// and the Session Manager); see tests/extension/sessionManager.test.js. VERBOSE=1 lists every check.
+//
 // First run on a new machine: npx playwright install chromium
 
 import { chromium } from 'playwright';
 import { startServer } from './server.js';
+import { runExtensionTests } from './extension/sessionManager.test.js';
 
 const PAGES = [
     'tests/orgRoundTrip.html',
@@ -85,12 +90,15 @@ async function runPage(browser, page) {
     return ok;
 }
 
-const pages = process.argv.slice(2).length ? process.argv.slice(2) : PAGES;
+const args = process.argv.slice(2);
+const extOnly = args.includes('--ext');
+const pages = extOnly ? [] : (args.length ? args : PAGES);
 const server = await startServer(PORT);
 const browser = await chromium.launch();
 let allOk = true;
 try {
     for (const page of pages) allOk = (await runPage(browser, page)) && allOk;
+    if (extOnly || !args.length) allOk = (await runExtensionTests(PORT)) && allOk;
 } finally {
     await browser.close();
     server.close();
