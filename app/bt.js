@@ -28,7 +28,8 @@ import { saveBT, syncEnabled, handleStartupFileConnection, updateStatsRow, check
 import { registerProcessImport as registerProcessImportBM, animateNewImport } from './bookmarksManager.js';
 import { checkLicense } from './subscriptionManager.js';
 import { refreshTable, processBTFile, initializeNotesColumn, initializeUI, moveNode, positionNode, registerSessionSaveHandler, rememberFold } from './tableManager.js';
-import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, closeDialog, cancelEdit, undoTrashMove } from './rowManager.js';
+import { deleteNode, openRow, closeRow, toDo, editRow, deleteRow, addChild, promote, undoTrashMove } from './rowManager.js';
+import { closeDialog, cancelEditDialog } from './editDialogManager.js';
 import { registerProcessImport as registerProcessImportParser } from './parser.js';
 import { closeConfigDisplays, toggleKeyCommands, toggleHelpDisplay } from './applicationUI.js'
 import { initializeSessionManager, syncAppNodesToBrowser } from './sessionManager.js';
@@ -1705,7 +1706,7 @@ function handleEditCardKeyup(e) {
         e.preventDefault();
         closeDialog(function () {editRow({type: 'internal', duration: 100});}, 100);        
     }
-    if (code === "Escape") closeDialog(cancelEdit);    // escape out of edit then check need 4 cancel
+    if (code === "Escape") cancelEditDialog();         // escape out of edit then check need 4 cancel
 };
 
 function undo() {

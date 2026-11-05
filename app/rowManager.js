@@ -10,7 +10,7 @@
 /*** 
  * 
  * Row Operations
- * buttonShow/Hide, Edit Dialog control, Open Tab/Topic, Close, Delete, ToDo
+ * buttonShow/Hide, Edit (dialog view is in editDialogManager.js), Open Tab/Topic, Close, Delete, ToDo
  * NB same fns for key and mouse events. 
  * getActiveNode finds the correct node in either case from event
  * 
@@ -28,6 +28,7 @@ import { saveBT } from './fileManager.js';
 import { exportBookmarksBar } from './bookmarksManager.js';
 import { initializeUI, scheduleOpenStateReconcile } from './tableManager.js';
 import { hideSessionTree } from './sessionManager.js';
+import { openEditDialog, closeDialog, getEditDialogValues, registerEditDialogHandlers } from './editDialogManager.js';
 
 function getAllowedActions(node) {
     if (!node || typeof node.allowedRowActions !== 'function') return {};
@@ -165,101 +166,12 @@ function toggleMoreButtons(e) {
 }
 
 function editRow(e) {
-    // position and populate the dialog and open it
+    // open the card edit dialog on the active node (dialog view lives in editDialogManager.js)
     const node = getActiveNode(e);
     if (!node) return;
     const actions = getAllowedActions(node);
     if (!isActionAllowed(actions, 'edit')) return;
-    const duration = e.duration || 400;
-    const row = $(`tr[data-tt-id='${node.id}']`)[0];
-    const top = $(row).position().top - $(document).scrollTop();
-    const bottom = top + $(row).height();
-    const dialog = $("#dialog")[0];
-    
-    // populate dialog
-    const dn = node.fullTopicPath();
-    if (dn == node.displayTopic)
-        $("#distinguishedName").hide();    
-    else {
-        $("#distinguishedName").show();
-        const upto = dn.lastIndexOf(':');
-        const displayStr = dn.substr(0, upto);
-        $("#distinguishedName").text(displayStr);
-        // if too long scroll to right side
-        setTimeout(() => {
-            const overflow = $("#distinguishedName")[0].scrollWidth - $("#distinguishedName")[0].offsetWidth;
-            if (overflow > 0) $("#distinguishedName").animate({ scrollLeft: '+='+overflow}, 500);
-        }, 500);
-    }
-    if (node.isTopic()) {
-        $("#titleUrl").hide();
-        $("#titleText").hide();
-        $("#topic").show();        
-        $("#topicName").val($("<div>").html(node.displayTopic).text());
-        node.displayTopic && $("#newTopicNameHint").hide();
-        node.isTrash() && $("#topicName").hide();
-    } else {
-        $("#titleUrl").show();
-        $("#titleText").show();
-        $("#titleText").val(BTAppNode.editableTopicFromTitle(node.title));
-        $("#topic").hide();
-        $("#titleUrl").val(node.URL);
-    }
-    $("#textText").val(node.text);
-    $("#update").prop("disabled", true);
-
-    // overlay grays everything out, dialog animates open on top.
-    $("#editOverlay").css("display", "block");
-    const fullWidth = $($("#editOverlay")[0]).width();
-    const dialogWidth = Math.min(fullWidth - 66, 600);    // 63 = padding + 2xborder == visible width
-    const height = dialogWidth / 1.618;                   // golden!
-    /*
-    const otherRows = node.isTopic() ? 100 : 120;           // non-text area room needed
-    $("#textText").height(height - otherRows);           // notes field fits but as big as possible
-*/
-    if ((top + height + 140) < $(window).height())
-        $(dialog).css("top", bottom+80);
-    else
-        // position above row to avoid going off bottom of screen (or the top)
-        $(dialog).css("top", Math.max(10, top - height + 30));
-
-    // Animate opening w calculated size
-    $(dialog).css({display: 'flex', opacity: 0.0, height: 0, width:0})
-        .animate({width: dialogWidth, height: height, opacity: 1.0},
-                 duration, 'easeInCirc',
-                 function () {
-                     $("#textText")[0].setSelectionRange(node.text.length, node.text.length);
-                     e.newTopic ? $("#topicName").focus() : $("#textText").focus();
-                 });
-}
-
-$(".editNode").on('input', function() {
-    // enable update button if one of the texts is edited. Avoid creating new nodes with empty titles
-    if ($("#topicName").is(":visible") && (!$("#topicName").val())) return;
-    $("#update").prop('disabled', false);
-});
-
-$("#editOverlay").on('mousedown', function(e) {
-    // click on the backdrop closes the dialog
-    if (e.target.id == 'editOverlay')
-    {
-        closeDialog(cancelEdit); 
-        $("#buttonRow").show(100);
-    }
-});
-
-
-function closeDialog(cb = null, duration = 250) {
-    // animate dialog close and potentially callback when done
-    const dialog = $("#dialog")[0];
-    const height = $(dialog).height();
-    $(dialog).css({'margin-left':'auto'});                  // see above, resetting to collapse back to center
-    $(dialog).animate({width: 0, height: 0}, duration, function () {
-        $("#editOverlay").css("display", "none");
-        $(dialog).css({width: '88%', height: height});      // reset for next open
-        dialog.close();
-        if (cb) cb();
-    });
+    openEditDialog(node, {duration: e.duration || 400, newTopic: !!e.newTopic});
 }
 
 function getActiveNode(e) {
@@ -462,17 +374,14 @@ function updateRow() {
     if (!isActionAllowed(actions, 'edit')) return null;
 
     // Update Model
-    const url = $("#titleUrl").val();
-    const title = $("#titleText").val();
-    const topic = $("#topicName").val();
+    const {url, title, topic, text: newText} = getEditDialogValues();
     if (node.isTopic()) {
         const changed = (node.title != topic);
         node.title = topic;
         if (changed) node.updateTabGroup();               // update browser (if needed)
     } else
         node.replaceURLandTitle(url, title);
-    
-    const newText = $("#textText").val();
+
     node.text = newText;
     
     // Sync text to sister nodes (app/session nodes with matching tabId/tabGroupId)
@@ -579,12 +488,9 @@ function _displayForEdit(newNode) {
     const displayNode = tr[0];
 	displayNode.scrollIntoView({block: 'center'});
 
-    // position & open card editor. Set hint text appropriately
+    // position & open card editor (newTopic => show 'Name the Topic' hint, focus name field)
     const clientY = displayNode.getBoundingClientRect().top + 25;
     const dummyEvent = {'clientY': clientY, 'target': displayNode, 'newTopic': true};
-    $("#newTopicNameHint").show();
-    $("#topicName").off('keyup');
-    $("#topicName").on('keyup', () => $("#newTopicNameHint").hide());
     editRow(dummyEvent);
 }
 
@@ -625,6 +531,9 @@ function cancelEdit() {
 
     deleteNode(nodeId);
 }
+
+// Tell the edit dialog what Update and Cancel mean (callback registration avoids an import cycle)
+registerEditDialogHandlers({onUpdate: updateRow, onCancel: cancelEdit});
 
 let ButtonRowHTML = '';      // store button row html for re-creation if needed, set in initializeButtonRow below
 function reCreateButtonRow() {
@@ -765,18 +674,15 @@ export {
     buttonShow, 
     buttonHide, 
     editRow, 
-    closeDialog, 
     openRow, 
     closeRow, 
     deleteRow,
     deleteNode,
     undoTrashMove,
-    updateRow,
     toDo, 
     promote,
     addNewTopLevelTopic,
     addChild, 
-    cancelEdit,
     initializeButtonRow,
     toggleMoreButtons
 };
