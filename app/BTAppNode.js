@@ -912,19 +912,25 @@ class BTAppNode extends BTNode {
     orgDrawers() {
         // generate any required drawer text
         let drawerText = "";
+        // fold state is only worth saving for top items or nodes with children
+        const saveFold = this.folded && (this.childIds.length || (this.level == 1));
         if (this.drawers) {
             const drawers = Object.keys(this.drawers);
-            const reg = /:([\w-]*):(.*)$/gm;              // regex to grab prop and its value from each line
-            let hits, ptext;
+            const reg = /^:([\w-]*):(.*)$/;                // grab prop and its value from a line
             for (const drawer of drawers) {
                 drawerText += "  :" + drawer + ":\n";
-                ptext = this.drawers[drawer];                        // of the form ":prop: val\n
-                
-                while (hits = reg.exec(ptext)) {
-                    // Iterate thru properties handling VISIBILITY 
-                    if ((drawer == "PROPERTIES") && (hits[1] == "VISIBILITY"))
+                const lines = this.drawers[drawer].split('\n').map(l => l.trim()).filter(l => l);
+                if ((drawer == "PROPERTIES") && saveFold && !lines.some(l => reg.exec(l)?.[1] == "VISIBILITY"))
+                    drawerText += "  :VISIBILITY: folded\n";       // drawer has no VISIBILITY line to update
+                for (const line of lines) {
+                    const hits = reg.exec(line);
+                    if (!hits) {
+                        // not a :prop: value line (eg LOGBOOK entries, free text), keep as is
+                        drawerText += `  ${line}\n`;
+                    }
+                    else if ((drawer == "PROPERTIES") && (hits[1] == "VISIBILITY"))
                     {           // only if needed
-                        if (this.folded) drawerText += "  :VISIBILITY: folded\n"; 
+                        if (this.folded) drawerText += "  :VISIBILITY: folded\n";
                     }
                     else {
                         // trim: hits[2] keeps the original spacing, so without this each save added a space
@@ -935,7 +941,7 @@ class BTAppNode extends BTNode {
                 drawerText += "  :END:\n";
             }
         }
-        if ((this.childIds.length || (this.level == 1)) && this.folded && (!this.drawers || !this.drawers.PROPERTIES))
+        if (saveFold && (!this.drawers || !this.drawers.PROPERTIES))
             //need to add in the PROPERTIES drawer if we need to store the nodes folded state. only care about top items if childless
             drawerText += "  :PROPERTIES:\n  :VISIBILITY: folded\n  :END:\n";
         // finally, check to see if props is empty, otherwise return

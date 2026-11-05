@@ -1100,10 +1100,9 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.ok(s.orgDrawers().includes(':VISIBILITY: folded'));
     });
 
-    QUnit.todo('BUG orgDrawers: folded node with an existing PROPERTIES drawer keeps its folded state', function (assert) {
-        // The fallback at BTAppNode.js:931 only adds VISIBILITY when there is no PROPERTIES drawer;
-        // the drawer loop only writes VISIBILITY if the drawer already had one. So folding a node
-        // whose drawer has eg only :ID: loses the fold on save. Today: no VISIBILITY line.
+    QUnit.test('orgDrawers: folded node with an existing PROPERTIES drawer keeps its folded state', function (assert) {
+        // Was bug 10: VISIBILITY was only written if the drawer already had one, or if there was
+        // no PROPERTIES drawer at all, so folding a node whose drawer had eg only :ID: was lost.
         const t = topic('T');
         topic('child', t);
         t.drawers = { PROPERTIES: ':ID: abc' };
@@ -1111,9 +1110,9 @@ QUnit.module('BTAppNode: org text for a node', function () {
         assert.ok(t.orgDrawers().includes(':VISIBILITY: folded'));
     });
 
-    QUnit.todo('BUG orgDrawers: non-property drawer content is kept', function (assert) {
-        // Drawer lines are re-emitted only if they match /:prop: value/ (BTAppNode.js:913/926), so
-        // eg a LOGBOOK's '- State "DONE" from "TODO" [...]' lines are silently dropped on save.
+    QUnit.test('orgDrawers: non-property drawer content is kept', function (assert) {
+        // Was bug 11: only /:prop: value/ lines were re-emitted, so eg a LOGBOOK's
+        // '- State "DONE" from "TODO" [...]' lines were silently dropped on save.
         const t = topic('T');
         t.drawers = { LOGBOOK: '- State "DONE"       from "TODO"       [2024-01-01 Mon 10:00]' };
         assert.ok(t.orgDrawers().includes('- State "DONE"'));
