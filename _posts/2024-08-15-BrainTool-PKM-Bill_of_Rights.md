@@ -5,7 +5,7 @@ description: We hold these truths to be self-evident
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/Buddy-bill-of-rights.png"
+image: "/site/postAssets/Buddy-bill-of-rights.png"
 ---
 # BrainTool PKM Bill of Rights 
 <!--start-->

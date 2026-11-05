@@ -5,7 +5,7 @@ description: "How to use Tab managers, session managers, bookmark managers, task
 excerpt_separator: <!--more-->
 author: "Tony"
 audience: "nonuser"
-image: "../../../site/postAssets/Five Tools/5-tool-table.png"
+image: "/site/postAssets/Five Tools/5-tool-table.png"
 ---
 # Five Tools for Browser Productivity
 <!--start-->
