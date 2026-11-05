@@ -530,17 +530,15 @@ QUnit.module('BTNode: moves', function () {
         assert.throws(() => a.reparentNode(a.id), /setting self to parent/);
     });
 
-    QUnit.todo('BUG reparentNode with the default index appends to the new parent', function (assert) {
-        // index defaults to -1 (BTNode.js:166) and is passed to addChild -> splice(-1, 0, id),
-        // which inserts *before the last* child, not at the end. Same for the same-parent case
-        // (arrayMoveElt to -1). Hit by rowManager.promote, delete-to-trash (rowManager.js:411)
-        // and sessionManager reparents, so model order drifts from the displayed order.
+    QUnit.test('reparentNode with the default index appends to the new parent', function (assert) {
+        // Was bug 5: the default index -1 became splice(-1, 0, id), inserting *before the last*
+        // child, so model order drifted from the displayed order.
         const p = new BTNode('P');
         const x = new BTNode('X', p.id);
         const y = new BTNode('Y', p.id);
         const a = new BTNode('A');
         a.reparentNode(p.id);
-        assert.deepEqual(p.childIds, [x.id, y.id, a.id]);          // today: [x, a, y]
+        assert.deepEqual(p.childIds, [x.id, y.id, a.id]);
         x.reparentNode(p.id);
         assert.deepEqual(p.childIds, [y.id, a.id, x.id], 'same parent, default index => last');
     });

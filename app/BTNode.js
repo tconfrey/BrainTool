@@ -164,7 +164,8 @@ class BTNode {
     }
     
     reparentNode(newP, index = -1) {
-        // move node from existing parent to new one, optional positional order
+        // move node from existing parent to new one, optional positional order.
+        // A missing or negative index means append as the last child.
         function arrayMoveElt(ary, from, to) {
             // utility to move element within array
             const elt = ary[from];
@@ -177,16 +178,17 @@ class BTNode {
     
         const oldP = this.parentId;
         if (!oldP && !newP) return;             // nothing to do
+        const append = (index == null || index < 0);
         if (oldP === newP) {
             // Special case: new parent is the same as the old parent
             const parentNode = AllNodes[oldP];
             const oldIndex = parentNode.childIds.indexOf(this._id);
-            arrayMoveElt(parentNode.childIds, oldIndex, index);
+            arrayMoveElt(parentNode.childIds, oldIndex, append ? parentNode.childIds.length - 1 : index);
         } else {
             // either old or newP might be null, ie at top level
             oldP && AllNodes[oldP].removeChild(this.id);
             this.parentId = newP;
-            newP && AllNodes[newP].addChild(this.id, index);
+            newP && AllNodes[newP].addChild(this.id, append ? AllNodes[newP].childIds.length : index);
         }
     }
     indexInParent() {
