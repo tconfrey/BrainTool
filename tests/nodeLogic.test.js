@@ -227,9 +227,9 @@ QUnit.module('BTNode: title and URL parsing', function () {
         assert.strictEqual(plain.replaceURLandTitle('https://b.com', 'B'), 'Plain', 'no link => unchanged');
     });
 
-    QUnit.todo('BUG replaceURLandTitle keeps text after the link', function (assert) {
-        // BTNode.js:227 - trailing (.*?) is lazy and unanchored so it always matches '',
-        // and the rebuilt title drops everything after the link. Today: 'Pre [[https://b.com][B]]'
+    QUnit.test('replaceURLandTitle keeps text after the link', function (assert) {
+        // Was bug 1: the trailing (.*?) was lazy and unanchored so it always matched '', and the
+        // rebuilt title dropped everything after the link.
         const n = new BTNode('Pre [[https://a.com][A]] post');
         assert.strictEqual(n.replaceURLandTitle('https://b.com', 'B'), 'Pre [[https://b.com][B]] post');
     });
